@@ -1,0 +1,14 @@
+{
+  "name": "택일소",
+  "short_name": "택일소",
+  "description": "결혼식, 이사, 개업, 계약체결을 위한 좋은 날 찾기",
+  "start_url": "/taekil-site/",
+  "scope": "/taekil-site/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
