@@ -389,11 +389,38 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .text-action{font-size:12.5px; color:var(--muted); cursor:pointer; transition:.2s}
 .text-action:hover{color:var(--gold-hi)}
 
+/* filter chips */
+.filter-chips{display:flex; gap:8px; margin-bottom:18px}
+.filter-chip{padding:8px 15px; border:1px solid var(--line-soft); border-radius:999px; font-size:12px; color:var(--muted); cursor:pointer; transition:.2s}
+.filter-chip.active{border-color:rgba(215,180,106,.5); color:var(--gold-hi); background:rgba(215,180,106,.08)}
+
+/* calendar heatmap */
+.calendar-wrap{margin-top:38px}
+.cal-month{margin-bottom:26px}
+.cal-month-title{font-family:var(--serif); font-size:17px; color:var(--gold-hi); margin-bottom:12px}
+.cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:6px}
+.cal-dow{text-align:center; font-size:10px; color:var(--muted-2); padding-bottom:2px}
+.cal-cell{
+  aspect-ratio:1; border-radius:10px; display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:600; cursor:pointer; border:1px solid var(--line-soft);
+  position:relative; transition:.2s var(--ease); color:#d8d5cc;
+}
+.cal-cell.empty{visibility:hidden; cursor:default}
+.cal-cell:hover{transform:translateY(-2px); border-color:rgba(215,180,106,.4)}
+.cal-cell.dim{opacity:.25}
+.cal-cell.selected{outline:2px solid var(--gold); outline-offset:1px}
+.cal-dot{position:absolute; bottom:4px; width:4px; height:4px; border-radius:50%; background:var(--gold-hi)}
+.cal-legend{display:flex; gap:14px; margin-top:12px; flex-wrap:wrap; font-size:11px; color:var(--muted)}
+.cal-legend span{display:flex; align-items:center; gap:5px}
+.cal-legend i{width:10px; height:10px; border-radius:3px; display:inline-block}
+.day-detail{margin-top:22px; padding:24px; border:1px solid rgba(215,180,106,.35); border-radius:22px; background:linear-gradient(150deg,rgba(215,180,106,.08),#0c0c0b)}
+
 @media print{
-  .topbar,footer,.tool-shell h2,.tool-shell>p.lead,.form-grid,.field.full,.couple-row,.form-submit,#toastHost,.result-actions,.reset-row{display:none!important}
+  .topbar,footer,.tool-shell h2,.tool-shell>p.lead,.form-grid,.field.full,.couple-row,.form-submit,#toastHost,.result-actions,.reset-row,.filter-chips,.cal-legend{display:none!important}
   body{background:#fff!important;color:#111!important}
-  .result-card{border:1px solid #ccc!important; background:#fff!important; break-inside:avoid;}
+  .result-card,.day-detail{border:1px solid #ccc!important; background:#fff!important; break-inside:avoid;}
   .result-narrative,.result-meta{color:#333!important}
+  .cal-cell{border:1px solid #ddd!important; color:#111!important;}
 }
 
 /* usecase list (event subpages) */
@@ -669,6 +696,7 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
         <details class="faq-item"><summary>회원가입을 꼭 해야 하나요?</summary><p>아니요. 기본 기능은 회원가입 없이 바로 사용할 수 있어요. 검색 기록 저장, 궁합 상세 리포트 같은 기능만 추후 회원 전용으로 제공될 예정이에요.</p></details>
         <details class="faq-item"><summary>내 정보는 어디에 저장되나요?</summary><p>지금은 별도 서버로 전송되지 않고, 검색 기록만 이 브라우저 안(로컬 저장소)에 남습니다. 다른 사람이나 다른 기기에서는 보이지 않아요.</p></details>
         <details class="faq-item"><summary>왜 년주·월주 전체가 아니라 일주만 쓰나요?</summary><p>년주와 월주는 절기(節氣) 기준의 정밀한 만세력 계산이 필요해서, 잘못 계산하면 오히려 틀린 정보를 드리게 될 수 있어요. 택일에 가장 핵심적으로 쓰이는 일주(태어난 날의 기운) 기준으로 정확하게 계산하는 방식을 택했습니다. 전체 사주 원국이 궁금하시면 정식 만세력 사이트와 함께 참고하시길 권해요.</p></details>
+        <details class="faq-item"><summary>손없는 날은 뭔가요?</summary><p>음력 날짜의 끝자리가 9 또는 0인 날을 뜻하는 민속 용어로, 특히 이사할 때 많이 챙기는 기준이에요. 저희는 정확한 음력 변환 라이브러리로 계산해서, 오행 궁합과 함께 참고할 수 있도록 결과에 표시해드려요.</p></details>
       </div>
     </div>
   </section>
@@ -702,7 +730,7 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
     <div class="hero-inner">
       <div class="eyebrow">이사 날짜</div>
       <h1 style="font-size:clamp(30px,5vw,54px);">새로운 공간에<br>들어서는 날</h1>
-      <p class="hero-copy">이사는 날짜에 따라 손없는 날을 챙기는 분들이 많은 대표적인 이벤트입니다. 입주 예정 기간을 넣고 무난한 날을 골라보세요.</p>
+      <p class="hero-copy">이사는 날짜에 따라 손없는 날을 챙기는 분들이 많은 대표적인 이벤트입니다. 입주 예정 기간을 넣으면 오행 궁합과 손없는 날 여부를 함께 대조해서 무난한 날을 골라드려요.</p>
       <div class="hero-actions"><button class="btn btn-primary" onclick="goTo('tool','이사')">이사 날짜 찾기</button></div>
     </div>
   </header>
@@ -819,7 +847,24 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
         <div id="results">
           <div class="results-heading" id="resultsHeading"></div>
           <div class="results-sub" id="resultsSub"></div>
+
+          <div class="filter-chips">
+            <span class="filter-chip active" data-mode="all" onclick="applyDowFilter('all')">전체 요일</span>
+            <span class="filter-chip" data-mode="weekend" onclick="applyDowFilter('weekend')">주말만</span>
+            <span class="filter-chip" data-mode="weekday" onclick="applyDowFilter('weekday')">평일만</span>
+          </div>
+
           <div class="result-grid" id="dateCards"></div>
+
+          <div class="calendar-wrap" id="calendarWrap"></div>
+          <div class="cal-legend">
+            <span><i style="background:rgba(215,180,106,.35)"></i>추천</span>
+            <span><i style="background:rgba(255,255,255,.08)"></i>보통</span>
+            <span><i style="background:rgba(201,131,106,.3)"></i>주의</span>
+            <span><i style="background:var(--gold-hi);border-radius:50%;width:6px;height:6px;"></i>손없는 날</span>
+          </div>
+          <div class="day-detail" id="dayDetail" style="display:none;"></div>
+
           <div class="reset-row">
             <span class="text-action" onclick="printResults()">🖨 인쇄 / PDF 저장</span>
             <span class="text-action" onclick="resetTool()">다시 검색하기</span>
@@ -888,6 +933,7 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lunar-javascript/1.7.5/lunar.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script>
@@ -967,6 +1013,20 @@ function dayGanjiIndex(date) {
 function ganjiName(idx) { return CHEONGAN[idx % 10] + JIJI[idx % 12]; }
 function ohaengOf(idx) { return CHEONGAN_OHAENG[idx % 10]; }
 
+/* ---------- 손없는 날 (lunar day ending in 9 or 0) via lunar-javascript ---------- */
+function getLunarInfo(date) {
+  try {
+    if (typeof Solar === 'undefined') return null;
+    const solar = Solar.fromYmd(date.getFullYear(), date.getMonth() + 1, date.getDate());
+    const lunar = solar.getLunar();
+    const day = lunar.getDay();
+    return { lunarDay: day, isSonEomneun: (day % 10 === 9 || day % 10 === 0) };
+  } catch (err) {
+    console.error('음력 변환 실패', err);
+    return null;
+  }
+}
+
 function scoreDate(userOhaeng, dateOhaeng, eventType) {
   let score = 0;
   const reasons = [];
@@ -988,10 +1048,11 @@ function reasonsPhrase(reasons) {
 function generateNarrative(t, eventType, coupleMode, coupleRelation) {
   const seed = t.date.getDate();
   let text;
+  const sonNote = (t.lunarInfo && t.lunarInfo.isSonEomneun) ? ' 민속에서 말하는 손없는 날이기도 해요.' : '';
   if (t.score >= 1.5) {
     const options = [
-      `일진 ${t.ganji}(${t.ohaeng})은 ${reasonsPhrase(t.reasons)}가 겹쳐 ${eventType}에 무난하게 어울리는 날입니다.`,
-      `${reasonsPhrase(t.reasons)} 덕에 흐름이 편안한 날이라, ${eventType}을 진행하기에 나쁘지 않습니다.`
+      `일진 ${t.ganji}(${t.ohaeng})은 ${reasonsPhrase(t.reasons)}가 겹쳐 ${eventType}에 무난하게 어울리는 날입니다.${sonNote}`,
+      `${reasonsPhrase(t.reasons)} 덕에 흐름이 편안한 날이라, ${eventType}을 진행하기에 나쁘지 않습니다.${sonNote}`
     ];
     text = options[seed % options.length];
   } else if (t.score < 0) {
@@ -1002,8 +1063,8 @@ function generateNarrative(t, eventType, coupleMode, coupleRelation) {
     text = options[seed % options.length];
   } else {
     const options = [
-      `일진 ${t.ganji}(${t.ohaeng})은 특별히 좋다 나쁘다 하기보다 평이한 날입니다.`,
-      `뚜렷한 상생·상극 없이 무난하게 지나갈 날로 보입니다.`
+      `일진 ${t.ganji}(${t.ohaeng})은 특별히 좋다 나쁘다 하기보다 평이한 날입니다.${sonNote}`,
+      `뚜렷한 상생·상극 없이 무난하게 지나갈 날로 보입니다.${sonNote}`
     ];
     text = options[seed % options.length];
   }
@@ -1177,43 +1238,25 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
       score = (score + partnerResult.score) / 2;
       reasons = reasons.concat(partnerResult.reasons.map(r => '상대방: ' + r));
     }
-    candidates.push({ date: new Date(cursor), ganji: ganjiName(idx), ohaeng: oh, score, reasons });
+    const lunarInfo = getLunarInfo(cursor);
+    if (lunarInfo && lunarInfo.isSonEomneun) {
+      score += (eventType === '이사') ? 2 : 0.8;
+      reasons.push('손없는 날');
+    }
+    candidates.push({ date: new Date(cursor), ganji: ganjiName(idx), ohaeng: oh, score, reasons, lunarInfo });
     cursor.setDate(cursor.getDate() + 1);
   }
   candidates.sort((a, b) => b.score - a.score);
+  window.__chronological = candidates.slice().sort((a, b) => a.date - b.date);
+  window.__ctx = { eventType, coupleMode, coupleRelation };
+  window.__filterMode = 'all';
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.mode === 'all'));
+
+  renderResultCards(candidates.slice(0, Math.min(5, candidates.length)), eventType, coupleMode, coupleRelation);
+  renderCalendar(window.__chronological, 'all');
+  document.getElementById('dayDetail').style.display = 'none';
+
   const top = candidates.slice(0, Math.min(5, candidates.length));
-
-  let narratives = top.map(t => generateNarrative(t, eventType, coupleMode, coupleRelation));
-
-  const container = document.getElementById('dateCards');
-  container.innerHTML = '';
-  const scores = top.map(t => t.score);
-  const maxS = Math.max(...scores, 1), minS = Math.min(...scores, 0);
-  top.forEach((t, i) => {
-    const card = document.createElement('div');
-    card.className = 'result-card' + (i === 0 ? ' best' : '');
-    card.style.animationDelay = (i * 0.09) + 's';
-    const percent = Math.round(((t.score - minS) / Math.max(maxS - minS, 0.01)) * 70 + 30);
-    const badgeList = (t.reasons.length ? t.reasons : ['중립']).map(r => `<span class="badge">${r}</span>`).join('');
-    window['__result_' + i] = t;
-    card.innerHTML = `
-      <div class="result-top">
-        <div>
-          <div class="result-date">${t.date.getMonth()+1}.${t.date.getDate()}</div>
-          <div class="result-meta">${dowNames[t.date.getDay()]}요일 · 일진 ${t.ganji} <span class="oh-${t.ohaeng}"><span class="oh-dot"></span>${t.ohaeng}</span></div>
-        </div>
-        <div class="score-ring" style="--p:${percent}"><span>${t.score.toFixed(1)}</span></div>
-      </div>
-      <div class="badges">${badgeList}</div>
-      <div class="result-narrative">${narratives[i]}</div>
-      <div class="result-actions">
-        <span class="mini-action" onclick="buildIcs(window.__result_${i}, '${eventType}')">📅 캘린더 추가</span>
-        <span class="mini-action" onclick="shareResult(window.__result_${i}, '${eventType}')">공유하기</span>
-      </div>
-    `;
-    container.appendChild(card);
-  });
-
   document.getElementById('resultsHeading').textContent = `${eventType}에 참고할 만한 날`;
   document.getElementById('resultsSub').textContent = coupleMode
     ? `${rangeStart.toLocaleDateString('ko-KR')} ~ ${rangeEnd.toLocaleDateString('ko-KR')} 사이, 두 분(${coupleRelation})을 함께 고려해 정렬했습니다`
@@ -1227,6 +1270,155 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
     saveSearchToHistory({ eventType, bestDate: top[0].date.toLocaleDateString('ko-KR'), coupleMode, savedAt: Date.now() });
   }
 });
+
+/* ---------- RESULT CARDS (reusable for filters) ---------- */
+function renderResultCards(top, eventType, coupleMode, coupleRelation) {
+  const narratives = top.map(t => generateNarrative(t, eventType, coupleMode, coupleRelation));
+  const container = document.getElementById('dateCards');
+  container.innerHTML = '';
+  if (top.length === 0) {
+    container.innerHTML = '<div class="empty-note">이 조건에 맞는 날짜가 기간 안에 없어요. 필터를 바꾸거나 기간을 늘려보세요.</div>';
+    return;
+  }
+  const scores = top.map(t => t.score);
+  const maxS = Math.max(...scores, 1), minS = Math.min(...scores, 0);
+  top.forEach((t, i) => {
+    const card = document.createElement('div');
+    card.className = 'result-card' + (i === 0 ? ' best' : '');
+    card.style.animationDelay = (i * 0.09) + 's';
+    const percent = Math.round(((t.score - minS) / Math.max(maxS - minS, 0.01)) * 70 + 30);
+    const badgeList = (t.reasons.length ? t.reasons : ['중립']).map(r => `<span class="badge">${r}</span>`).join('');
+    window['__result_' + i] = t;
+    card.innerHTML = `
+      <div class="result-top">
+        <div>
+          <div class="result-date">${t.date.getMonth()+1}.${t.date.getDate()}</div>
+          <div class="result-meta">${dowNames[t.date.getDay()]}요일 · 일진 ${t.ganji} <span class="oh-${t.ohaeng}"><span class="oh-dot"></span>${t.ohaeng}</span>${t.lunarInfo && t.lunarInfo.isSonEomneun ? ' · <span style="color:var(--gold-hi)">손없는 날</span>' : ''}</div>
+        </div>
+        <div class="score-ring" style="--p:${percent}"><span>${t.score.toFixed(1)}</span></div>
+      </div>
+      <div class="badges">${badgeList}</div>
+      <div class="result-narrative">${generateNarrative(t, eventType, coupleMode, coupleRelation)}</div>
+      <div class="result-actions">
+        <span class="mini-action" onclick="buildIcs(window.__result_${i}, '${eventType}')">📅 캘린더 추가</span>
+        <span class="mini-action" onclick="shareResult(window.__result_${i}, '${eventType}')">공유하기</span>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+/* ---------- CALENDAR HEATMAP ---------- */
+function scoreClass(t) {
+  if (t.score >= 1.5) return 'good';
+  if (t.score < 0) return 'warn';
+  return 'mid';
+}
+function renderCalendar(chronological, filterMode) {
+  const wrap = document.getElementById('calendarWrap');
+  wrap.innerHTML = '';
+  if (chronological.length === 0) return;
+
+  const byMonth = {};
+  chronological.forEach(t => {
+    const key = `${t.date.getFullYear()}-${t.date.getMonth()}`;
+    if (!byMonth[key]) byMonth[key] = [];
+    byMonth[key].push(t);
+  });
+
+  Object.keys(byMonth).forEach(key => {
+    const list = byMonth[key];
+    const first = list[0].date;
+    const monthBlock = document.createElement('div');
+    monthBlock.className = 'cal-month';
+    const title = document.createElement('div');
+    title.className = 'cal-month-title';
+    title.textContent = `${first.getFullYear()}년 ${first.getMonth()+1}월`;
+    monthBlock.appendChild(title);
+
+    const grid = document.createElement('div');
+    grid.className = 'cal-grid';
+    ['일','월','화','수','목','금','토'].forEach(d => {
+      const dow = document.createElement('div');
+      dow.className = 'cal-dow';
+      dow.textContent = d;
+      grid.appendChild(dow);
+    });
+
+    const leadingBlanks = first.getDay();
+    for (let i = 0; i < leadingBlanks; i++) {
+      const blank = document.createElement('div');
+      blank.className = 'cal-cell empty';
+      grid.appendChild(blank);
+    }
+
+    list.forEach(t => {
+      const cell = document.createElement('div');
+      const dow = t.date.getDay();
+      const matchesFilter = filterMode === 'all' || (filterMode === 'weekend' && (dow === 0 || dow === 6)) || (filterMode === 'weekday' && dow >= 1 && dow <= 5);
+      const cls = scoreClass(t);
+      const bg = cls === 'good' ? 'rgba(215,180,106,.30)' : cls === 'warn' ? 'rgba(201,131,106,.26)' : 'rgba(255,255,255,.06)';
+      cell.className = 'cal-cell' + (matchesFilter ? '' : ' dim');
+      cell.style.background = bg;
+      cell.dataset.key = `${t.date.getFullYear()}-${t.date.getMonth()}-${t.date.getDate()}`;
+      cell.innerHTML = `${t.date.getDate()}${t.lunarInfo && t.lunarInfo.isSonEomneun ? '<span class="cal-dot"></span>' : ''}`;
+      cell.setAttribute('tabindex', '0');
+      cell.setAttribute('role', 'button');
+      cell.addEventListener('click', () => showDayDetail(t));
+      cell.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showDayDetail(t); } });
+      grid.appendChild(cell);
+    });
+
+    monthBlock.appendChild(grid);
+    wrap.appendChild(monthBlock);
+  });
+}
+
+function showDayDetail(t) {
+  document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('selected'));
+  const key = `${t.date.getFullYear()}-${t.date.getMonth()}-${t.date.getDate()}`;
+  const cell = document.querySelector(`.cal-cell[data-key="${key}"]`);
+  if (cell) cell.classList.add('selected');
+
+  const ctx = window.__ctx || {};
+  const panel = document.getElementById('dayDetail');
+  const badgeList = (t.reasons.length ? t.reasons : ['중립']).map(r => `<span class="badge">${r}</span>`).join('');
+  window.__dayDetailResult = t;
+  panel.innerHTML = `
+    <div class="result-top">
+      <div>
+        <div class="result-date">${t.date.getFullYear()}.${t.date.getMonth()+1}.${t.date.getDate()}</div>
+        <div class="result-meta">${dowNames[t.date.getDay()]}요일 · 일진 ${t.ganji} <span class="oh-${t.ohaeng}"><span class="oh-dot"></span>${t.ohaeng}</span>${t.lunarInfo && t.lunarInfo.isSonEomneun ? ' · <span style="color:var(--gold-hi)">손없는 날</span>' : ''}</div>
+      </div>
+    </div>
+    <div class="badges">${badgeList}</div>
+    <div class="result-narrative">${generateNarrative(t, ctx.eventType, ctx.coupleMode, ctx.coupleRelation)}</div>
+    <div class="result-actions">
+      <span class="mini-action" onclick="buildIcs(window.__dayDetailResult, '${ctx.eventType}')">📅 캘린더 추가</span>
+      <span class="mini-action" onclick="shareResult(window.__dayDetailResult, '${ctx.eventType}')">공유하기</span>
+    </div>
+  `;
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function applyDowFilter(mode) {
+  if (!window.__chronological) return;
+  window.__filterMode = mode;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.mode === mode));
+
+  const filtered = window.__chronological.filter(t => {
+    const dow = t.date.getDay();
+    if (mode === 'weekend') return dow === 0 || dow === 6;
+    if (mode === 'weekday') return dow >= 1 && dow <= 5;
+    return true;
+  }).slice().sort((a, b) => b.score - a.score).slice(0, 5);
+
+  const ctx = window.__ctx || {};
+  renderResultCards(filtered, ctx.eventType, ctx.coupleMode, ctx.coupleRelation);
+  renderCalendar(window.__chronological, mode);
+  document.getElementById('dayDetail').style.display = 'none';
+}
 
 /* ---------- AUTH (Firebase — fill in firebaseConfig below to activate) ---------- */
 // 1) firebase.google.com 에서 무료 프로젝트 생성
