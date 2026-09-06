@@ -363,6 +363,39 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .mini-action{font-size:11.5px;color:var(--muted);cursor:pointer;transition:.2s}
 .mini-action:hover{color:var(--gold-hi)}
 
+/* five-element color system (traditional) */
+.oh-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.oh-목 .oh-dot,.oh-목{color:#7fbf6a}
+.oh-화 .oh-dot,.oh-화{color:#e0715a}
+.oh-토 .oh-dot,.oh-토{color:#d7b46a}
+.oh-금 .oh-dot,.oh-금{color:#cfcfcf}
+.oh-수 .oh-dot,.oh-수{color:#6a93c9}
+.oh-목 .oh-dot{background:#7fbf6a}
+.oh-화 .oh-dot{background:#e0715a}
+.oh-토 .oh-dot{background:#d7b46a}
+.oh-금 .oh-dot{background:#cfcfcf}
+.oh-수 .oh-dot{background:#6a93c9}
+
+/* my-saju preview */
+.saju-preview{
+  display:none; align-items:center; gap:14px;
+  padding:16px 18px; border:1px solid var(--line-soft); border-radius:16px;
+  background:rgba(255,255,255,.03); margin:14px 0 4px; font-size:13px;
+}
+.saju-preview .sp-ganji{font-family:var(--serif); font-size:22px; color:var(--gold-hi)}
+.saju-preview .sp-label{color:var(--muted); font-size:11.5px}
+
+.reset-row{display:flex; justify-content:space-between; align-items:center; margin-top:26px; padding-top:18px; border-top:1px solid var(--line-soft)}
+.text-action{font-size:12.5px; color:var(--muted); cursor:pointer; transition:.2s}
+.text-action:hover{color:var(--gold-hi)}
+
+@media print{
+  .topbar,footer,.tool-shell h2,.tool-shell>p.lead,.form-grid,.field.full,.couple-row,.form-submit,#toastHost,.result-actions,.reset-row{display:none!important}
+  body{background:#fff!important;color:#111!important}
+  .result-card{border:1px solid #ccc!important; background:#fff!important; break-inside:avoid;}
+  .result-narrative,.result-meta{color:#333!important}
+}
+
 /* usecase list (event subpages) */
 .usecase-list{display:flex;flex-direction:column;gap:10px}
 .usecase-item{
@@ -635,6 +668,7 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
         <details class="faq-item"><summary>태어난 시간을 몰라도 되나요?</summary><p>네, 괜찮아요. 이 서비스는 태어난 날짜(일주) 기준으로 계산하기 때문에 시간을 몰라도 결과에는 영향이 없어요.</p></details>
         <details class="faq-item"><summary>회원가입을 꼭 해야 하나요?</summary><p>아니요. 기본 기능은 회원가입 없이 바로 사용할 수 있어요. 검색 기록 저장, 궁합 상세 리포트 같은 기능만 추후 회원 전용으로 제공될 예정이에요.</p></details>
         <details class="faq-item"><summary>내 정보는 어디에 저장되나요?</summary><p>지금은 별도 서버로 전송되지 않고, 검색 기록만 이 브라우저 안(로컬 저장소)에 남습니다. 다른 사람이나 다른 기기에서는 보이지 않아요.</p></details>
+        <details class="faq-item"><summary>왜 년주·월주 전체가 아니라 일주만 쓰나요?</summary><p>년주와 월주는 절기(節氣) 기준의 정밀한 만세력 계산이 필요해서, 잘못 계산하면 오히려 틀린 정보를 드리게 될 수 있어요. 택일에 가장 핵심적으로 쓰이는 일주(태어난 날의 기운) 기준으로 정확하게 계산하는 방식을 택했습니다. 전체 사주 원국이 궁금하시면 정식 만세력 사이트와 함께 참고하시길 권해요.</p></details>
       </div>
     </div>
   </section>
@@ -757,6 +791,14 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
           <div class="field"><label>태어난 시(모르면 비워두세요)</label><input type="time" id="birthTime"></div>
         </div>
 
+        <div class="saju-preview" id="sajuPreview">
+          <div class="sp-ganji" id="sajuGanji"></div>
+          <div>
+            <div class="sp-label">내 일주(日柱) · 타고난 기운</div>
+            <div id="sajuOhaeng" style="margin-top:3px;"></div>
+          </div>
+        </div>
+
         <label class="couple-row">
           <span class="switch"><input type="checkbox" id="coupleToggle"><span class="switch-track"><span class="switch-thumb"></span></span></span>
           상대방과의 궁합도 함께 볼게요 (결혼식에 유용해요)
@@ -778,6 +820,10 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
           <div class="results-heading" id="resultsHeading"></div>
           <div class="results-sub" id="resultsSub"></div>
           <div class="result-grid" id="dateCards"></div>
+          <div class="reset-row">
+            <span class="text-action" onclick="printResults()">🖨 인쇄 / PDF 저장</span>
+            <span class="text-action" onclick="resetTool()">다시 검색하기</span>
+          </div>
         </div>
       </div>
     </div>
@@ -1013,6 +1059,28 @@ document.getElementById('coupleToggle').addEventListener('change', (e) => {
   document.getElementById('coupleFields').style.display = e.target.checked ? 'grid' : 'none';
 });
 
+/* ---------- LIVE SAJU PREVIEW ---------- */
+function updateSajuPreview() {
+  const val = document.getElementById('birthDate').value;
+  const box = document.getElementById('sajuPreview');
+  if (!val) { box.style.display = 'none'; return; }
+  const d = new Date(val + 'T00:00:00');
+  const idx = dayGanjiIndex(d);
+  const ganji = ganjiName(idx);
+  const oh = ohaengOf(idx);
+  document.getElementById('sajuGanji').textContent = ganji + '일';
+  document.getElementById('sajuOhaeng').innerHTML = `<span class="oh-${oh}"><span class="oh-dot"></span>${oh} 기운</span>`;
+  box.style.display = 'flex';
+}
+document.getElementById('birthDate').addEventListener('change', updateSajuPreview);
+
+function resetTool() {
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('dateCards').innerHTML = '';
+  window.scrollTo({ top: document.querySelector('.tool-shell').offsetTop - 100, behavior: 'smooth' });
+}
+function printResults() { window.print(); }
+
 /* ---------- HISTORY (localStorage — works on GitHub Pages) ---------- */
 const HISTORY_KEY = 'taekilso_history';
 
@@ -1132,7 +1200,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
       <div class="result-top">
         <div>
           <div class="result-date">${t.date.getMonth()+1}.${t.date.getDate()}</div>
-          <div class="result-meta">${dowNames[t.date.getDay()]}요일 · 일진 ${t.ganji}(${t.ohaeng})</div>
+          <div class="result-meta">${dowNames[t.date.getDay()]}요일 · 일진 ${t.ganji} <span class="oh-${t.ohaeng}"><span class="oh-dot"></span>${t.ohaeng}</span></div>
         </div>
         <div class="score-ring" style="--p:${percent}"><span>${t.score.toFixed(1)}</span></div>
       </div>
