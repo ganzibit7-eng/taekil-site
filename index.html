@@ -1879,7 +1879,7 @@ function renderResultCards(top, eventType, coupleMode, coupleRelation) {
     return;
   }
   const best = top[0];
-  const bestScore = Math.max(35, Math.min(99, Math.round(((best.score - Math.min(...(window.__chronological || top).map(x=>x.score),0)) / Math.max(Math.max(...(window.__chronological || top).map(x=>x.score),1)-Math.min(...(window.__chronological || top).map(x=>x.score),0),.01))*64+35)));
+  const bestScore = to100(best.score);
   if (countEl) countEl.textContent = `${top.length}개 추천`;
   if (hero) {
     hero.style.display = 'block';
@@ -1896,8 +1896,6 @@ function renderResultCards(top, eventType, coupleMode, coupleRelation) {
       <p>${generateNarrative(best, eventType, coupleMode, coupleRelation)}</p>
     `;
   }
-  const scores = top.map(t => t.score);
-  const maxS = Math.max(...scores, 1), minS = Math.min(...scores, 0);
   top.forEach((t, i) => {
     const card = document.createElement('div');
     card.className = 'result-card' + (i === 0 ? ' best' : '');
