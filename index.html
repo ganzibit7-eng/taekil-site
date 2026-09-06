@@ -1040,6 +1040,17 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script>
+/* ---------- PREMIUM / PAYAPP (개인 판매자도 사업자등록 없이 이용 가능한 PG) ---------- */
+// 1) payapp.kr 에서 "개인" 판매자로 무료 회원가입
+// 2) 심사 승인 후 로그인해서 본인이 만든 "판매자 아이디"를 아래에 붙여넣기
+const PAYAPP_USERID = "green5797";
+const PREMIUM_KEY = 'taekilso_premium';
+const PAYAPP_RETURN_URL = window.location.origin + window.location.pathname + '?premium=1';
+
+function isPremium() {
+  return localStorage.getItem(PREMIUM_KEY) === 'true';
+}
+
 /* ---------- ROUTING ---------- */
 function toggleMobileNav() {
   document.getElementById('navLinks').classList.toggle('mobile-open');
@@ -1071,7 +1082,6 @@ function goTo(route, presetEvent) {
   if (route === 'profile') renderProfile();
 }
 goTo('home');
-renderTodayGanji();
 
 window.addEventListener('scroll', () => {
   document.getElementById('backToTop').classList.toggle('show', window.scrollY > 600);
@@ -1132,6 +1142,7 @@ function dayGanjiIndex(date) {
 }
 function ganjiName(idx) { return CHEONGAN[idx % 10] + JIJI[idx % 12]; }
 function ohaengOf(idx) { return CHEONGAN_OHAENG[idx % 10]; }
+renderTodayGanji();
 
 /* ---------- 손없는 날 (lunar day ending in 9 or 0) via lunar-javascript ---------- */
 function getLunarInfo(date) {
@@ -1769,17 +1780,7 @@ function handleAuthNavClick() {
   }
 }
 
-/* ---------- PREMIUM / PAYAPP (개인 판매자도 사업자등록 없이 이용 가능한 PG) ---------- */
-// 1) payapp.kr 에서 "개인" 판매자로 무료 회원가입
-// 2) 심사 승인 후 로그인해서 본인이 만든 "판매자 아이디"를 아래에 붙여넣기
-const PAYAPP_USERID = "green5797";
-const PREMIUM_KEY = 'taekilso_premium';
-const PAYAPP_RETURN_URL = window.location.origin + window.location.pathname + '?premium=1';
-
-function isPremium() {
-  return localStorage.getItem(PREMIUM_KEY) === 'true';
-}
-
+/* ---------- PREMIUM PAYMENT ACTIONS ---------- */
 function payPremium() {
   if (PAYAPP_USERID === "YOUR_PAYAPP_ID") {
     showToast('결제 설정이 아직 안 됐어요. 페이앱 판매자 아이디를 연결해주세요.');
