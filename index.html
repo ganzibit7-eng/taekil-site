@@ -1374,6 +1374,7 @@ function goTo(route, presetEvent) {
   if (btItem) btItem.classList.add('active');
   else if (route === 'profile') document.getElementById('bottomProfileTab').classList.add('active');
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+  if (history.replaceState) history.replaceState(null, '', route === 'home' ? (location.pathname) : ('#' + route));
 
   if (route === 'tool' && presetEvent) {
     document.querySelectorAll('.event-opt').forEach(o => {
@@ -1384,7 +1385,11 @@ function goTo(route, presetEvent) {
   if (route === 'profile') renderProfile();
   if (route === 'admin') renderAdmin();
 }
-goTo('home');
+function safeRoute(route) {
+  return document.getElementById('view-' + route) ? route : 'home';
+}
+goTo(safeRoute(location.hash ? location.hash.slice(1) : 'home'));
+window.addEventListener('hashchange', () => goTo(safeRoute(location.hash.slice(1))));
 
 function renderTodayGanji() {
   const el = document.getElementById('todayGanji');
