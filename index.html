@@ -183,6 +183,12 @@ button{cursor:pointer}
 }
 .btn-primary:hover{box-shadow:0 18px 55px rgba(215,180,106,.25)}
 .hero-note{margin-top:17px;color:var(--muted-2);font-size:11px}
+.today-ganji{
+  display:inline-flex; align-items:center; gap:10px; margin-top:30px;
+  padding:10px 20px; border:1px solid var(--line-soft); border-radius:999px;
+  font-size:12.5px; color:var(--muted); background:rgba(255,255,255,.02);
+}
+.today-ganji .tg-ganji{font-family:var(--serif); color:var(--gold-hi); font-size:14px}
 
 /* editorial sections */
 section.block{padding:90px 0}
@@ -449,6 +455,27 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .footer-link{color:var(--muted);text-decoration:underline;cursor:pointer}
 .footer-link:hover{color:var(--gold-hi)}
 
+/* profile */
+.profile-card{
+  text-align:center; padding:44px 30px; border:1px solid rgba(215,180,106,.3); border-radius:28px;
+  background:linear-gradient(150deg,rgba(215,180,106,.10),#0c0c0b);
+}
+.profile-avatar{
+  width:72px; height:72px; margin:0 auto 20px; border-radius:50%;
+  background:linear-gradient(135deg,var(--gold-hi),var(--gold));
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--serif); font-size:28px; color:#17130b; font-weight:700;
+}
+.profile-name{font-family:var(--serif); font-size:26px; margin-bottom:6px}
+.profile-meta{color:var(--muted); font-size:13px; margin-bottom:16px}
+.profile-tier{
+  display:inline-block; padding:6px 16px; border-radius:999px; font-size:11px; font-weight:800; letter-spacing:.08em;
+  background:rgba(255,255,255,.06); color:#c8c5bd;
+}
+.profile-tier.gold{background:rgba(215,180,106,.15); color:var(--gold-hi)}
+.profile-actions{display:flex; gap:10px; margin-top:24px}
+.profile-actions .btn{flex:1}
+
 /* keyboard focus visibility */
 .event-card:focus-visible,.event-opt:focus-visible,.btn:focus-visible,.nav-links a:focus-visible{
   outline:2px solid var(--gold); outline-offset:2px;
@@ -594,6 +621,7 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
         <button class="btn" onclick="document.getElementById('processAnchor').scrollIntoView({behavior:'smooth'})">어떻게 계산되나요</button>
       </div>
       <div class="hero-note">회원가입 없이 바로 사용해볼 수 있어요</div>
+      <div class="today-ganji" id="todayGanji"></div>
     </div>
   </header>
 
@@ -690,7 +718,7 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
             <li>궁합 모드 상세 리포트</li>
             <li>검색 기록 무제한 저장</li>
           </ul>
-          <button class="btn btn-primary form-submit" onclick="openAuthModal()">프리미엄 시작하기</button>
+          <button class="btn btn-primary form-submit" onclick="payPremium()">프리미엄 시작하기</button>
         </div>
       </div>
       <div class="price-note">결제 연동은 준비 중입니다. 지금은 회원가입까지만 가능해요.</div>
@@ -902,6 +930,33 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
   </section>
 </section>
 
+<!-- ============ PROFILE ============ -->
+<section id="view-profile" class="view">
+  <header class="hero hero-sm">
+    <div class="hero-inner">
+      <div class="eyebrow">내 프로필</div>
+      <h1 style="font-size:clamp(28px,4.6vw,46px);">계정 정보</h1>
+    </div>
+  </header>
+  <section class="block" style="padding-top:10px;">
+    <div class="container" style="max-width:620px;">
+      <div class="profile-card">
+        <div class="profile-avatar" id="profileAvatar">택</div>
+        <div class="profile-name" id="profileName">이름</div>
+        <div class="profile-meta" id="profileMeta">로그인 방식</div>
+        <div class="profile-tier" id="profileTier">무료 회원</div>
+      </div>
+      <div class="profile-actions">
+        <button class="btn" onclick="goTo('history')">내 검색 기록 보기</button>
+        <button class="btn btn-primary" id="profileUpgradeBtn" onclick="payPremium()">프리미엄으로 업그레이드</button>
+      </div>
+      <div class="reset-row" style="border-top:1px solid var(--line-soft); margin-top:30px; justify-content:center;">
+        <span class="text-action" onclick="logout()">로그아웃</span>
+      </div>
+    </div>
+  </section>
+</section>
+
 <!-- ============ LEGAL ============ -->
 <section id="view-legal" class="view">
   <header class="hero hero-sm">
@@ -943,6 +998,7 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
   </div>
 </footer>
 
+<script src="https://lite.payapp.kr/public/api/v2/payapp-lite.js"></script>
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lunar-javascript/1.7.5/lunar.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -976,8 +1032,21 @@ function goTo(route, presetEvent) {
     });
   }
   if (route === 'history') loadHistory();
+  if (route === 'profile') renderProfile();
 }
 goTo('home');
+renderTodayGanji();
+
+function renderTodayGanji() {
+  const el = document.getElementById('todayGanji');
+  if (!el) return;
+  const today = new Date();
+  const idx = dayGanjiIndex(today);
+  const ganji = ganjiName(idx);
+  const oh = ohaengOf(idx);
+  const dateStr = `${today.getMonth()+1}월 ${today.getDate()}일`;
+  el.innerHTML = `오늘(${dateStr})의 일진 · <span class="tg-ganji">${ganji}</span> · <span class="oh-${oh}"><span class="oh-dot"></span>${oh}</span>`;
+}
 
 /* ---------- SCROLL REVEAL ---------- */
 const revealObserver = new IntersectionObserver((entries) => {
@@ -1481,12 +1550,48 @@ function updateAuthNav() {
   const btn = document.getElementById('authNavBtn');
   const kakaoUser = getKakaoUser();
   const fbUser = (firebaseReady && firebase.auth().currentUser) ? firebase.auth().currentUser : null;
+  const premiumTag = isPremium() ? ' ✦' : '';
   if (kakaoUser) {
-    btn.textContent = (kakaoUser.nickname || '카카오 사용자') + ' 님';
+    btn.textContent = (kakaoUser.nickname || '카카오 사용자') + ' 님' + premiumTag;
   } else if (fbUser) {
-    btn.textContent = (fbUser.displayName || fbUser.email.split('@')[0]) + ' 님';
+    btn.textContent = (fbUser.displayName || fbUser.email.split('@')[0]) + ' 님' + premiumTag;
   } else {
     btn.textContent = '로그인';
+  }
+}
+
+function renderProfile() {
+  const kakaoUser = getKakaoUser();
+  const fbUser = (firebaseReady && firebase.auth().currentUser) ? firebase.auth().currentUser : null;
+  let name = '회원', meta = '', initial = '택';
+
+  if (kakaoUser) {
+    name = kakaoUser.nickname || '카카오 사용자';
+    meta = '카카오 로그인' + (kakaoUser.email ? ' · ' + kakaoUser.email : '');
+    initial = name.charAt(0);
+  } else if (fbUser) {
+    name = fbUser.displayName || fbUser.email.split('@')[0];
+    const provider = (fbUser.providerData[0] && fbUser.providerData[0].providerId === 'google.com') ? '구글 로그인' : '이메일 로그인';
+    meta = provider + ' · ' + fbUser.email;
+    initial = name.charAt(0).toUpperCase();
+  }
+
+  document.getElementById('profileAvatar').textContent = initial;
+  document.getElementById('profileName').textContent = name;
+  document.getElementById('profileMeta').textContent = meta;
+
+  const tierEl = document.getElementById('profileTier');
+  const upgradeBtn = document.getElementById('profileUpgradeBtn');
+  if (isPremium()) {
+    tierEl.textContent = '프리미엄 회원';
+    tierEl.classList.add('gold');
+    upgradeBtn.textContent = '프리미엄 이용 중이에요';
+    upgradeBtn.disabled = true;
+  } else {
+    tierEl.textContent = '무료 회원';
+    tierEl.classList.remove('gold');
+    upgradeBtn.textContent = '프리미엄으로 업그레이드';
+    upgradeBtn.disabled = false;
   }
 }
 updateAuthNav();
@@ -1563,17 +1668,66 @@ function logout() {
   if (firebaseReady && firebase.auth().currentUser) { firebase.auth().signOut(); }
   updateAuthNav();
   showToast('로그아웃했어요');
+  goTo('home');
 }
 
 let authMode = 'login';
 
 function handleAuthNavClick() {
   if (getKakaoUser() || (firebaseReady && firebase.auth().currentUser)) {
-    logout();
+    goTo('profile');
   } else {
     openAuthModal();
   }
 }
+
+/* ---------- PREMIUM / PAYAPP (개인 판매자도 사업자등록 없이 이용 가능한 PG) ---------- */
+// 1) payapp.kr 에서 "개인" 판매자로 무료 회원가입
+// 2) 심사 승인 후 로그인해서 본인이 만든 "판매자 아이디"를 아래에 붙여넣기
+const PAYAPP_USERID = "green5797";
+const PREMIUM_KEY = 'taekilso_premium';
+const PAYAPP_RETURN_URL = window.location.origin + window.location.pathname + '?premium=1';
+
+function isPremium() {
+  return localStorage.getItem(PREMIUM_KEY) === 'true';
+}
+
+function payPremium() {
+  if (PAYAPP_USERID === "YOUR_PAYAPP_ID") {
+    showToast('결제 설정이 아직 안 됐어요. 페이앱 판매자 아이디를 연결해주세요.');
+    return;
+  }
+  if (isPremium()) {
+    showToast('이미 프리미엄을 이용 중이에요.');
+    return;
+  }
+  PayApp.setParam({
+    userid: PAYAPP_USERID,
+    shopname: '택일소',
+    goodname: '택일소 프리미엄 (월간)',
+    price: '4900',
+    smsuse: 'n',
+    returnurl: PAYAPP_RETURN_URL
+  });
+  PayApp.payrequest();
+}
+
+(function checkPremiumReturn() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('premium') === '1') {
+    try {
+      localStorage.setItem(PREMIUM_KEY, 'true');
+      if (window.opener && !window.opener.closed) {
+        try { window.opener.localStorage.setItem(PREMIUM_KEY, 'true'); window.opener.updateAuthNav && window.opener.updateAuthNav(); } catch (e) {}
+        window.close();
+      }
+    } catch (e) {}
+    const url = new URL(window.location.href);
+    url.searchParams.delete('premium');
+    window.history.replaceState({}, document.title, url.toString());
+  }
+})();
+
 function openAuthModal() {
   document.getElementById('authOverlay').style.display = 'flex';
   document.getElementById('authSetupNotice').style.display = firebaseReady ? 'none' : 'block';
