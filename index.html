@@ -1456,10 +1456,12 @@ try {
 
 /* ---------- KAKAO LOGIN (client-side only — no backend session yet) ---------- */
 // 1) developers.kakao.com 에서 애플리케이션 생성
-// 2) 앱 설정 > 앱 키 > "JavaScript 키" 복사해서 아래에 붙여넣기
+// 2) 앱 설정 > 앱 키 > "JavaScript 키", "REST API 키" 복사해서 아래에 붙여넣기
 // 3) 앱 설정 > 플랫폼 > Web 플랫폼에 실제 사이트 도메인 등록 (예: https://ganzibit7-eng.github.io)
-// 4) 카카오 로그인 > 활성화 ON
+// 4) 제품 설정 > 카카오 로그인 > 활성화 ON, Redirect URI에 이 페이지 주소 등록
 const KAKAO_JS_KEY = "0f7299964f7c22f2c6d1caaca0d33a7d";
+const KAKAO_REST_KEY = "189da591834b8e3edfffa2c7afa41c0d";
+const KAKAO_REDIRECT_URI = window.location.origin + window.location.pathname;
 let kakaoReady = false;
 try {
   if (KAKAO_JS_KEY !== "YOUR_KAKAO_JS_KEY" && window.Kakao && !Kakao.isInitialized()) {
@@ -1501,33 +1503,60 @@ function loginWithGoogle() {
     .catch((err) => showToast('구글 로그인 실패: ' + err.message));
 }
 
+/* Kakao SDK v2 dropped popup login; the only client method is a full-page
+   redirect (authorize) that sends the browser to Kakao and back with a
+   ?code= param, which we then exchange for a token below. */
 function loginWithKakao() {
   if (!kakaoReady) {
     showToast('카카오 로그인 설정이 아직 안 됐어요.');
     return;
   }
-  Kakao.Auth.login({
-    success: function () {
-      Kakao.API.request({
-        url: '/v2/user/me',
-        success: function (res) {
-          const account = res.kakao_account || {};
-          const profile = {
-            id: res.id,
-            nickname: (account.profile && account.profile.nickname) || '카카오 사용자',
-            email: account.email || null
-          };
-          localStorage.setItem(KAKAO_USER_KEY, JSON.stringify(profile));
-          updateAuthNav();
-          closeAuthModal();
-          showToast('카카오로 로그인했어요');
-        },
-        fail: function () { showToast('카카오 사용자 정보를 가져오지 못했어요.'); }
-      });
-    },
-    fail: function () { showToast('카카오 로그인에 실패했어요.'); }
-  });
+  Kakao.Auth.authorize({ redirectUri: KAKAO_REDIRECT_URI });
 }
+
+async function exchangeKakaoCode(code) {
+  try {
+    const body = new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: KAKAO_REST_KEY,
+      redirect_uri: KAKAO_REDIRECT_URI,
+      code: code
+    });
+    const tokenRes = await fetch('https://kauth.kakao.com/oauth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
+      body: body.toString()
+    });
+    const tokenData = await tokenRes.json();
+    if (!tokenData.access_token) throw new Error(tokenData.error_description || '토큰 발급 실패');
+
+    const meRes = await fetch('https://kapi.kakao.com/v2/user/me', {
+      headers: { Authorization: 'Bearer ' + tokenData.access_token }
+    });
+    const me = await meRes.json();
+    const account = me.kakao_account || {};
+    const profile = {
+      id: me.id,
+      nickname: (account.profile && account.profile.nickname) || '카카오 사용자',
+      email: account.email || null
+    };
+    localStorage.setItem(KAKAO_USER_KEY, JSON.stringify(profile));
+    updateAuthNav();
+    showToast('카카오로 로그인했어요');
+  } catch (err) {
+    console.error('카카오 로그인 처리 실패', err);
+    showToast('카카오 로그인 처리에 실패했어요.');
+  } finally {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('code');
+    url.searchParams.delete('state');
+    window.history.replaceState({}, document.title, url.toString());
+  }
+}
+(function checkKakaoRedirect() {
+  const code = new URLSearchParams(window.location.search).get('code');
+  if (code) exchangeKakaoCode(code);
+})();
 
 function logout() {
   if (getKakaoUser()) { localStorage.removeItem(KAKAO_USER_KEY); }
