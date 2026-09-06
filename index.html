@@ -494,6 +494,12 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .profile-actions{display:flex; gap:10px; margin-top:24px}
 .profile-actions .btn{flex:1}
 
+.admin-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+.admin-stat{padding:22px; border:1px solid var(--line-soft); border-radius:18px; background:rgba(255,255,255,.02); text-align:center}
+.admin-stat small{display:block; color:var(--muted); font-size:11px; margin-bottom:10px}
+.admin-stat b{font-family:var(--serif); font-size:30px; color:var(--gold-hi)}
+@media(max-width:600px){.admin-stats{grid-template-columns:1fr}}
+
 
 /* ---------- PREMIUM PROGRAM ---------- */
 .plan-price{display:flex;align-items:baseline;gap:7px;margin:4px 0 8px}.plan-price strong{font-size:34px;font-weight:850}.plan-price span{font-size:12px;color:var(--muted)}
@@ -547,6 +553,7 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
 .footer-inner{display:flex;justify-content:space-between;gap:30px;align-items:start}
 .footer-brand{font-family:var(--serif);font-size:22px;color:#d7d2c8}
 .footer-copy{max-width:560px}
+.footer-links{display:flex; gap:16px; flex-wrap:wrap; margin-top:14px}
 
 /* auth modal */
 #authOverlay{
@@ -1235,8 +1242,40 @@ footer{padding-bottom:90px}
         <button class="btn" onclick="goTo('history')">내 검색 기록 보기</button>
         <button class="btn btn-primary" id="profileUpgradeBtn" onclick="payPremium()">프리미엄으로 업그레이드</button>
       </div>
-      <div class="reset-row" style="border-top:1px solid var(--line-soft); margin-top:30px; justify-content:center;">
+      <div id="adminEntryWrap" style="display:none; margin-top:14px;">
+        <button class="btn" style="width:100%; border-color:rgba(215,180,106,.4); color:var(--gold-hi);" onclick="goTo('admin')">✦ 관리자 대시보드</button>
+      </div>
+      <div class="reset-row" style="border-top:1px solid var(--line-soft); margin-top:30px; justify-content:space-between;">
         <span class="text-action" onclick="logout()">로그아웃</span>
+        <span class="text-action" style="color:var(--warn);" onclick="confirmDeleteAccount()">계정 삭제</span>
+      </div>
+    </div>
+  </section>
+</section>
+
+<!-- ============ ADMIN ============ -->
+<section id="view-admin" class="view">
+  <header class="hero hero-sm">
+    <div class="hero-inner">
+      <div class="eyebrow">관리자</div>
+      <h1 style="font-size:clamp(28px,4.6vw,46px);">운영 현황</h1>
+      <p class="hero-copy">방문·가입·구매 통계와 회원 목록을 확인할 수 있어요.</p>
+    </div>
+  </header>
+  <section class="block" style="padding-top:10px;">
+    <div class="container" style="max-width:800px;">
+      <div id="adminDenied" style="display:none; text-align:center; color:var(--muted); padding:40px 0;">관리자 계정으로 로그인해야 볼 수 있어요.</div>
+      <div id="adminContent" style="display:none;">
+        <div class="admin-stats">
+          <div class="admin-stat"><small>총 방문수</small><b id="statVisits">–</b></div>
+          <div class="admin-stat"><small>총 가입자수</small><b id="statSignups">–</b></div>
+          <div class="admin-stat"><small>총 구매수</small><b id="statPurchases">–</b></div>
+        </div>
+        <div class="section-head" style="margin-top:40px;">
+          <div><div class="section-kicker">MEMBERS</div><h2 class="section-title" style="font-size:24px;">회원 목록</h2></div>
+        </div>
+        <div id="adminUserList" class="usecase-list"></div>
+        <div class="price-note" style="margin-top:20px;">※ "제거"는 이 목록에서만 지워요. 실제 로그인 계정 삭제는 각 회원이 본인 프로필에서 "계정 삭제"를 눌러야 완전히 지워져요 (서버 없이 운영 중이라 관리자가 남의 계정을 직접 지울 수는 없어요).</div>
       </div>
     </div>
   </section>
@@ -1276,8 +1315,12 @@ footer{padding-bottom:90px}
   <div class="container footer-inner">
     <div class="footer-brand">택일소</div>
     <div class="footer-copy">
-      이 서비스는 전통 명리학의 오행 상생상극 이론을 단순화해 참고용으로 제공합니다. 실제 중요한 결정은 여러 정보를 함께 고려하시길 권합니다.
-      <div style="margin-top:10px;"><span class="footer-link" onclick="goTo('legal')">이용약관 및 개인정보처리방침</span></div>
+      택일소는 수백 년 이어진 명리학의 일진·오행 이론과 손없는 날 같은 전통 생활 기준을 정리해, 결혼식·이사·개업·계약처럼 중요한 날을 정할 때 참고할 수 있는 근거 있는 비교 자료를 제공합니다. 최종 날짜는 실제 일정과 상황을 함께 고려해 결정하시길 권합니다.
+      <div class="footer-links">
+        <span class="footer-link" onclick="goTo('legal')">이용약관</span>
+        <span class="footer-link" onclick="goTo('legal')">개인정보처리방침</span>
+        <span class="footer-link" onclick="location.href='mailto:hello@taekilso.com'">문의하기</span>
+      </div>
       <div style="margin-top:14px; color:var(--muted-2);">© 2026 택일소. All rights reserved.</div>
     </div>
   </div>
@@ -1288,6 +1331,7 @@ footer{padding-bottom:90px}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lunar-javascript/1.7.5/lunar.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
 /* ---------- PREMIUM / PAYAPP (개인 판매자도 사업자등록 없이 이용 가능한 PG) ---------- */
 // 1) payapp.kr 에서 "개인" 판매자로 무료 회원가입
@@ -1333,6 +1377,7 @@ function goTo(route, presetEvent) {
   }
   if (route === 'history') loadHistory();
   if (route === 'profile') renderProfile();
+  if (route === 'admin') renderAdmin();
 }
 goTo('home');
 
@@ -1996,13 +2041,55 @@ const firebaseConfig = {
 };
 
 let firebaseReady = false;
+let db = null;
+const ADMIN_EMAIL = "green092432@gmail.com";
 try {
   if (firebaseConfig.apiKey !== "YOUR_API_KEY" && window.firebase) {
     firebase.initializeApp(firebaseConfig);
     firebaseReady = true;
+    db = firebase.firestore();
     firebase.auth().onAuthStateChanged((user) => { updateAuthNav(); });
+    recordVisit();
   }
 } catch (err) { console.error('Firebase 초기화 실패', err); }
+
+function isAdmin() {
+  return !!(firebaseReady && firebase.auth().currentUser && firebase.auth().currentUser.email === ADMIN_EMAIL);
+}
+
+/* ---------- 방문/가입/구매 집계 (Firestore) ---------- */
+function bumpStat(field) {
+  if (!db) return;
+  db.collection('stats').doc('counters').set(
+    { [field]: firebase.firestore.FieldValue.increment(1) },
+    { merge: true }
+  ).catch(err => console.error('통계 기록 실패', err));
+}
+function recordVisit() { bumpStat('visits'); }
+
+function recordSignup(uid, data) {
+  if (!db) return;
+  db.collection('users').doc(uid).set({
+    ...data,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    premium: false
+  }, { merge: true }).then(() => bumpStat('signups')).catch(err => console.error('가입 기록 실패', err));
+}
+
+function recordPurchase() {
+  bumpStat('purchases');
+  const uid = getCurrentUserKey();
+  if (db && uid) {
+    db.collection('users').doc(uid).set({ premium: true }, { merge: true }).catch(() => {});
+  }
+}
+
+function getCurrentUserKey() {
+  const kakaoUser = getKakaoUser();
+  if (kakaoUser) return 'kakao_' + kakaoUser.id;
+  if (firebaseReady && firebase.auth().currentUser) return firebase.auth().currentUser.uid;
+  return null;
+}
 
 /* ---------- KAKAO LOGIN (client-side only — no backend session yet) ---------- */
 // 1) developers.kakao.com 에서 애플리케이션 생성
@@ -2076,8 +2163,90 @@ function renderProfile() {
     upgradeBtn.textContent = '프리미엄으로 업그레이드';
     upgradeBtn.disabled = false;
   }
+
+  document.getElementById('adminEntryWrap').style.display = isAdmin() ? 'block' : 'none';
 }
 updateAuthNav();
+
+/* ---------- ADMIN DASHBOARD ---------- */
+function renderAdmin() {
+  const denied = document.getElementById('adminDenied');
+  const content = document.getElementById('adminContent');
+  if (!isAdmin()) {
+    denied.style.display = 'block';
+    content.style.display = 'none';
+    return;
+  }
+  denied.style.display = 'none';
+  content.style.display = 'block';
+
+  if (!db) return;
+  db.collection('stats').doc('counters').get().then((snap) => {
+    const d = snap.exists ? snap.data() : {};
+    document.getElementById('statVisits').textContent = d.visits || 0;
+    document.getElementById('statSignups').textContent = d.signups || 0;
+    document.getElementById('statPurchases').textContent = d.purchases || 0;
+  }).catch(err => console.error('통계 조회 실패', err));
+
+  db.collection('users').orderBy('createdAt', 'desc').limit(100).get().then((qs) => {
+    const list = document.getElementById('adminUserList');
+    if (qs.empty) { list.innerHTML = '<div class="empty-note">아직 가입한 회원이 없어요.</div>'; return; }
+    list.innerHTML = '';
+    qs.forEach((doc) => {
+      const u = doc.data();
+      const label = u.email || u.nickname || doc.id;
+      const item = document.createElement('div');
+      item.className = 'usecase-item';
+      item.innerHTML = `
+        <div><strong style="color:var(--gold-hi); font-family:var(--serif); font-weight:400;">${label}</strong> · ${u.provider || '기타'}${u.premium ? ' · <span style="color:var(--gold-hi)">프리미엄</span>' : ''}</div>
+        <span class="hist-delete" data-uid="${doc.id}">제거</span>
+      `;
+      list.appendChild(item);
+    });
+    list.querySelectorAll('.hist-delete').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const uid = e.target.dataset.uid;
+        if (!confirm('목록에서 제거할까요? (실제 로그인 계정은 지워지지 않아요)')) return;
+        db.collection('users').doc(uid).delete().then(() => renderAdmin()).catch(err => showToast('제거 실패: ' + err.message));
+      });
+    });
+  }).catch(err => console.error('회원 목록 조회 실패', err));
+}
+
+/* ---------- 회원탈퇴 (본인 계정만) ---------- */
+function confirmDeleteAccount() {
+  const kakaoUser = getKakaoUser();
+  const fbUser = (firebaseReady && firebase.auth().currentUser) ? firebase.auth().currentUser : null;
+  if (!kakaoUser && !fbUser) { showToast('로그인 후 이용해주세요.'); return; }
+
+  const msg = kakaoUser
+    ? '이 브라우저에 저장된 택일소 로그인 정보를 삭제할게요. (카카오 계정 자체는 카카오톡 앱에서 별도로 연결 해제하셔야 완전히 끊겨요) 계속할까요?'
+    : '계정을 삭제하면 되돌릴 수 없어요. 정말 삭제할까요?';
+  if (!confirm(msg)) return;
+
+  if (kakaoUser) {
+    if (db) db.collection('users').doc('kakao_' + kakaoUser.id).delete().catch(() => {});
+    localStorage.removeItem(KAKAO_USER_KEY);
+    updateAuthNav();
+    showToast('택일소 로그인 정보를 삭제했어요.');
+    goTo('home');
+    return;
+  }
+
+  const uid = fbUser.uid;
+  fbUser.delete().then(() => {
+    if (db) db.collection('users').doc(uid).delete().catch(() => {});
+    showToast('계정이 삭제됐어요.');
+    goTo('home');
+  }).catch((err) => {
+    if (err.code === 'auth/requires-recent-login') {
+      showToast('보안을 위해 다시 로그인한 뒤 삭제해주세요.');
+      logout();
+    } else {
+      showToast('삭제 실패: ' + err.message);
+    }
+  });
+}
 
 function loginWithGoogle() {
   if (!firebaseReady) {
@@ -2087,7 +2256,13 @@ function loginWithGoogle() {
   }
   const provider = new firebase.auth.GoogleAuthProvider();
   firebase.auth().signInWithPopup(provider)
-    .then(() => { closeAuthModal(); showToast('구글 계정으로 로그인했어요'); })
+    .then((result) => {
+      closeAuthModal();
+      showToast('구글 계정으로 로그인했어요');
+      if (result.additionalUserInfo && result.additionalUserInfo.isNewUser) {
+        recordSignup(result.user.uid, { email: result.user.email, provider: 'google' });
+      }
+    })
     .catch((err) => showToast('구글 로그인 실패: ' + err.message));
 }
 
@@ -2131,6 +2306,12 @@ async function exchangeKakaoCode(code) {
     localStorage.setItem(KAKAO_USER_KEY, JSON.stringify(profile));
     updateAuthNav();
     showToast('카카오로 로그인했어요');
+    if (db) {
+      const key = 'kakao_' + profile.id;
+      db.collection('users').doc(key).get().then((snap) => {
+        if (!snap.exists) recordSignup(key, { nickname: profile.nickname, email: profile.email, provider: 'kakao' });
+      }).catch(() => {});
+    }
   } catch (err) {
     console.error('카카오 로그인 처리 실패', err);
     showToast('카카오 로그인 처리에 실패했어요.');
@@ -2207,6 +2388,7 @@ function payPremium() {
 
 function activatePremiumAfterVerifiedPayment() {
   localStorage.setItem(PREMIUM_KEY, 'true');
+  recordPurchase();
   updateAuthNav();
   updatePremiumUI();
   showToast('프리미엄이 활성화됐어요.');
@@ -2271,10 +2453,14 @@ function submitAuth() {
     errEl.style.display = 'block';
     return;
   }
-  const action = authMode === 'login'
-    ? firebase.auth().signInWithEmailAndPassword(email, password)
-    : firebase.auth().createUserWithEmailAndPassword(email, password);
-  action.then(() => closeAuthModal()).catch((err) => { errEl.textContent = err.message; errEl.style.display = 'block'; });
+  const isSignup = authMode === 'signup';
+  const action = isSignup
+    ? firebase.auth().createUserWithEmailAndPassword(email, password)
+    : firebase.auth().signInWithEmailAndPassword(email, password);
+  action.then((result) => {
+    closeAuthModal();
+    if (isSignup) recordSignup(result.user.uid, { email: result.user.email, provider: 'email' });
+  }).catch((err) => { errEl.textContent = err.message; errEl.style.display = 'block'; });
 }
 </script>
 
