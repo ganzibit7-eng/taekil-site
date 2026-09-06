@@ -2702,9 +2702,17 @@ window.addEventListener('load', ()=>{ try{ updatePremiumUI(); }catch(e){} });
    TAKILSO EVENT CAROUSEL — premium horizontal discovery
    ========================================================= */
 .event-grid{display:block!important;position:relative;margin:34px 0 0;overflow:visible!important}
-.event-carousel-viewport{position:relative;overflow:hidden;padding:8px 0 28px;margin:0 -2px}
-.event-track{display:flex;gap:18px;will-change:transform;transition:transform .72s cubic-bezier(.22,.72,.2,1);padding:0 8px}
-.event-track .event-card{flex:0 0 calc((100% - 36px)/3);width:calc((100% - 36px)/3);min-height:0!important;padding:0!important;overflow:hidden!important;cursor:pointer;position:relative;transform-origin:center center;transition:transform .45s cubic-bezier(.2,.8,.2,1),border-color .35s,box-shadow .35s,opacity .35s!important}
+.event-carousel-viewport{
+  position:relative;
+  overflow-x:auto; overflow-y:hidden;
+  padding:8px 0 28px; margin:0 -2px;
+  -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x proximity;
+  scrollbar-width:none;
+}
+.event-carousel-viewport::-webkit-scrollbar{display:none}
+.event-track{display:flex;gap:18px;padding:0 8px}
+.event-track .event-card{flex:0 0 calc((100% - 36px)/3);width:calc((100% - 36px)/3);min-height:0!important;padding:0!important;overflow:hidden!important;cursor:pointer;position:relative;scroll-snap-align:start;transition:transform .45s cubic-bezier(.2,.8,.2,1),border-color .35s,box-shadow .35s,opacity .35s!important}
 .event-track .event-card:hover{transform:translateY(-8px)!important}
 .event-track .event-card.is-active{border-color:rgba(231,199,125,.42)!important;box-shadow:0 28px 80px rgba(0,0,0,.46),0 0 55px rgba(231,199,125,.07)!important}
 .event-track .event-card.is-dim{opacity:.72}
@@ -2729,7 +2737,7 @@ window.addEventListener('load', ()=>{ try{ updatePremiumUI(); }catch(e){} });
   .event-carousel-copy{font-size:10px}
   .event-carousel-btn{width:40px;height:40px}
 }
-@media(prefers-reduced-motion:reduce){.event-track{transition:none}.event-carousel-btn,.event-carousel-dot{transition:none}}
+@media(prefers-reduced-motion:reduce){.event-carousel-viewport{scroll-behavior:auto}.event-carousel-btn,.event-carousel-dot{transition:none}}
 </style>
 
 <script id="takil-event-carousel-script">
@@ -2751,14 +2759,14 @@ window.addEventListener('load', ()=>{ try{ updatePremiumUI(); }catch(e){} });
 
   const controls=document.createElement('div');
   controls.className='event-carousel-controls';
-  controls.innerHTML='<div class="event-carousel-copy"><span class="drag-line"></span><span>좌우로 넘겨 원하는 날짜를 골라보세요</span></div><div class="event-carousel-nav"><div class="event-carousel-dots"></div><button class="event-carousel-btn prev" type="button" aria-label="이전">‹</button><button class="event-carousel-btn next" type="button" aria-label="다음">›</button></div>';
+  controls.innerHTML='<div class="event-carousel-copy"><span class="drag-line"></span><span>좌우로 밀어서 원하는 날짜를 골라보세요</span></div><div class="event-carousel-nav"><div class="event-carousel-dots"></div><button class="event-carousel-btn prev" type="button" aria-label="이전">‹</button><button class="event-carousel-btn next" type="button" aria-label="다음">›</button></div>';
   grid.appendChild(controls);
 
   const dots=controls.querySelector('.event-carousel-dots');
   const prev=controls.querySelector('.prev');
   const next=controls.querySelector('.next');
   let index=0;
-  let startX=0,startY=0,dragging=false,dragged=false;
+  let syncing=false;
 
   cards.forEach((_,i)=>{
     const dot=document.createElement('button');
@@ -2774,12 +2782,12 @@ window.addEventListener('load', ()=>{ try{ updatePremiumUI(); }catch(e){} });
     return 3;
   }
   function maxIndex(){return Math.max(0,cards.length-visible());}
-  function go(nextIndex){
-    index=Math.max(0,Math.min(maxIndex(),nextIndex));
+  function step(){
     const first=cards[0];
     const gap=parseFloat(getComputedStyle(track).gap)||18;
-    const step=first.getBoundingClientRect().width+gap;
-    track.style.transform='translate3d('+(-index*step)+'px,0,0)';
+    return first.getBoundingClientRect().width+gap;
+  }
+  function updateUI(){
     cards.forEach((c,i)=>{
       c.classList.toggle('is-active',i===index);
       c.classList.toggle('is-dim',i<index || i>index+visible()-1);
@@ -2788,32 +2796,30 @@ window.addEventListener('load', ()=>{ try{ updatePremiumUI(); }catch(e){} });
     prev.disabled=index===0;
     next.disabled=index===maxIndex();
   }
+  function go(nextIndex,behavior){
+    index=Math.max(0,Math.min(maxIndex(),nextIndex));
+    syncing=true;
+    viewport.scrollTo({ left: index*step(), behavior: behavior || 'smooth' });
+    updateUI();
+    setTimeout(()=>{ syncing=false; },400);
+  }
   prev.addEventListener('click',()=>go(index-1));
   next.addEventListener('click',()=>go(index+1));
 
-  viewport.addEventListener('pointerdown',e=>{
-    if(e.pointerType==='mouse' && e.button!==0) return;
-    startX=e.clientX; startY=e.clientY; dragging=true; dragged=false;
-    track.style.transition='none';
-    viewport.setPointerCapture?.(e.pointerId);
-  });
-  viewport.addEventListener('pointermove',e=>{
-    if(!dragging) return;
-    const dx=e.clientX-startX,dy=e.clientY-startY;
-    if(Math.abs(dx)>8 && Math.abs(dx)>Math.abs(dy)) dragged=true;
-    if(dragged){e.preventDefault();const first=cards[0],gap=parseFloat(getComputedStyle(track).gap)||18,step=first.getBoundingClientRect().width+gap;const base=-index*step;track.style.transform='translate3d('+(base+dx*.62)+'px,0,0)';}
-  });
-  const endDrag=e=>{
-    if(!dragging) return; dragging=false; track.style.transition='';
-    const dx=e.clientX-startX;
-    if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(e.clientY-startY)) go(index+(dx<0?1:-1)); else go(index);
-    setTimeout(()=>dragged=false,0);
-  };
-  viewport.addEventListener('pointerup',endDrag);
-  viewport.addEventListener('pointercancel',endDrag);
-  cards.forEach(card=>card.addEventListener('click',e=>{if(dragged){e.preventDefault();e.stopImmediatePropagation();}},true));
+  /* Native scroll (touch swipe, trackpad, mouse-wheel shift+scroll all work automatically) */
+  let scrollTimer=null;
+  viewport.addEventListener('scroll',()=>{
+    if(syncing) return;
+    clearTimeout(scrollTimer);
+    scrollTimer=setTimeout(()=>{
+      const s=step();
+      index=s ? Math.round(viewport.scrollLeft/s) : 0;
+      index=Math.max(0,Math.min(maxIndex(),index));
+      updateUI();
+    },90);
+  },{passive:true});
 
-  addEventListener('resize',()=>go(index),{passive:true});
-  go(0);
+  addEventListener('resize',()=>go(index,'auto'),{passive:true});
+  updateUI();
 })();
 </script>
