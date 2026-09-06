@@ -1692,13 +1692,19 @@ function buildPremiumCoupleReport(userOhaeng, partnerOhaeng, relation, eventType
   return pieces[relation] || pieces['중립 관계'];
 }
 
-/* ---------- RESULT CARDS (reusable for filters) ---------- */
+/* Convert internal recommendation score to a stable 0–100 display score.
+   scoreDate() can produce roughly -2 to +4.3 after the optional
+   "손없는 날" bonus, so keep the displayed score bounded. */
 function to100(score) {
-  const pool = (window.__chronological || []).map(x => x.score);
-  const min = pool.length ? Math.min(...pool, 0) : Math.min(score, 0);
-  const max = pool.length ? Math.max(...pool, 1) : Math.max(score, 1);
-  return Math.max(35, Math.min(99, Math.round(((score - min) / Math.max(max - min, 0.01)) * 64 + 35)));
+  const n = Number(score);
+  if (!Number.isFinite(n)) return 0;
+  const MIN_SCORE = -2;
+  const MAX_SCORE = 4.3;
+  const normalized = (n - MIN_SCORE) / (MAX_SCORE - MIN_SCORE);
+  return Math.round(Math.max(0, Math.min(1, normalized)) * 100);
 }
+
+/* ---------- RESULT CARDS (reusable for filters) ---------- */
 function renderResultCards(top, eventType, coupleMode, coupleRelation) {
   const narratives = top.map(t => generateNarrative(t, eventType, coupleMode, coupleRelation));
   const container = document.getElementById('dateCards');
@@ -2623,3 +2629,124 @@ body{overflow-x:hidden}
 
 </body>
 </html>
+
+<style id="takil-event-carousel">
+/* =========================================================
+   TAKILSO EVENT CAROUSEL — premium horizontal discovery
+   ========================================================= */
+.event-grid{display:block!important;position:relative;margin:34px 0 0;overflow:visible!important}
+.event-carousel-viewport{position:relative;overflow:hidden;padding:8px 0 28px;margin:0 -2px}
+.event-track{display:flex;gap:18px;will-change:transform;transition:transform .72s cubic-bezier(.22,.72,.2,1);padding:0 8px}
+.event-track .event-card{flex:0 0 calc((100% - 36px)/3);width:calc((100% - 36px)/3);min-height:0!important;padding:0!important;overflow:hidden!important;cursor:pointer;position:relative;transform-origin:center center;transition:transform .45s cubic-bezier(.2,.8,.2,1),border-color .35s,box-shadow .35s,opacity .35s!important}
+.event-track .event-card:hover{transform:translateY(-8px)!important}
+.event-track .event-card.is-active{border-color:rgba(231,199,125,.42)!important;box-shadow:0 28px 80px rgba(0,0,0,.46),0 0 55px rgba(231,199,125,.07)!important}
+.event-track .event-card.is-dim{opacity:.72}
+.event-carousel-controls{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:0;padding:0 8px}
+.event-carousel-copy{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:11px;letter-spacing:.03em}
+.event-carousel-copy .drag-line{width:34px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.7}
+.event-carousel-nav{display:flex;align-items:center;gap:9px}
+.event-carousel-btn{width:44px;height:44px;border-radius:50%;border:1px solid rgba(231,199,125,.2);background:rgba(255,255,255,.035);color:#e9d49e;display:grid;place-items:center;font-size:19px;cursor:pointer;transition:transform .25s,background .25s,border-color .25s,box-shadow .25s}
+.event-carousel-btn:hover{transform:translateY(-2px);background:rgba(231,199,125,.09);border-color:rgba(231,199,125,.45);box-shadow:0 10px 28px rgba(0,0,0,.25)}
+.event-carousel-btn:disabled{opacity:.32;cursor:default;transform:none;box-shadow:none}
+.event-carousel-dots{display:flex;align-items:center;gap:6px;margin:0 8px}
+.event-carousel-dot{width:5px;height:5px;padding:0;border:0;border-radius:99px;background:rgba(255,255,255,.2);cursor:pointer;transition:width .3s,background .3s}
+.event-carousel-dot.is-active{width:22px;background:linear-gradient(90deg,#8f6d32,#f5dc9f)}
+.event-section-note{display:inline-flex;align-items:center;gap:8px;margin-top:15px;padding:7px 11px;border:1px solid rgba(231,199,125,.12);border-radius:999px;background:rgba(231,199,125,.025);color:#928a7d;font-size:10px}
+.event-section-note b{color:#d9bb78;font-weight:600}
+@media(max-width:1050px){.event-track .event-card{flex-basis:calc((100% - 18px)/2);width:calc((100% - 18px)/2)}}
+@media(max-width:700px){
+  .event-carousel-viewport{margin:0 -14px;padding:8px 0 24px}
+  .event-track{gap:12px;padding:0 14px}
+  .event-track .event-card{flex-basis:calc(86vw - 28px);width:calc(86vw - 28px)}
+  .event-carousel-controls{padding:0 2px}
+  .event-carousel-copy{font-size:10px}
+  .event-carousel-btn{width:40px;height:40px}
+}
+@media(prefers-reduced-motion:reduce){.event-track{transition:none}.event-carousel-btn,.event-carousel-dot{transition:none}}
+</style>
+
+<script id="takil-event-carousel-script">
+(function(){
+  const grid=document.querySelector('.event-grid');
+  if(!grid || grid.dataset.carouselReady) return;
+  const cards=[...grid.querySelectorAll(':scope > .event-card')];
+  if(cards.length<2) return;
+  grid.dataset.carouselReady='1';
+
+  const viewport=document.createElement('div');
+  viewport.className='event-carousel-viewport';
+  const track=document.createElement('div');
+  track.className='event-track';
+  cards.forEach(card=>track.appendChild(card));
+  viewport.appendChild(track);
+  grid.innerHTML='';
+  grid.appendChild(viewport);
+
+  const controls=document.createElement('div');
+  controls.className='event-carousel-controls';
+  controls.innerHTML='<div class="event-carousel-copy"><span class="drag-line"></span><span>좌우로 넘겨 원하는 날짜를 골라보세요</span></div><div class="event-carousel-nav"><div class="event-carousel-dots"></div><button class="event-carousel-btn prev" type="button" aria-label="이전">‹</button><button class="event-carousel-btn next" type="button" aria-label="다음">›</button></div>';
+  grid.appendChild(controls);
+
+  const dots=controls.querySelector('.event-carousel-dots');
+  const prev=controls.querySelector('.prev');
+  const next=controls.querySelector('.next');
+  let index=0;
+  let startX=0,startY=0,dragging=false,dragged=false;
+
+  cards.forEach((_,i)=>{
+    const dot=document.createElement('button');
+    dot.type='button'; dot.className='event-carousel-dot';
+    dot.setAttribute('aria-label',(i+1)+'번째 선택');
+    dot.addEventListener('click',()=>go(i));
+    dots.appendChild(dot);
+  });
+
+  function visible(){
+    if(innerWidth<=700) return 1;
+    if(innerWidth<=1050) return 2;
+    return 3;
+  }
+  function maxIndex(){return Math.max(0,cards.length-visible());}
+  function go(nextIndex){
+    index=Math.max(0,Math.min(maxIndex(),nextIndex));
+    const first=cards[0];
+    const gap=parseFloat(getComputedStyle(track).gap)||18;
+    const step=first.getBoundingClientRect().width+gap;
+    track.style.transform='translate3d('+(-index*step)+'px,0,0)';
+    cards.forEach((c,i)=>{
+      c.classList.toggle('is-active',i===index);
+      c.classList.toggle('is-dim',i<index || i>index+visible()-1);
+    });
+    [...dots.children].forEach((d,i)=>d.classList.toggle('is-active',i===index));
+    prev.disabled=index===0;
+    next.disabled=index===maxIndex();
+  }
+  prev.addEventListener('click',()=>go(index-1));
+  next.addEventListener('click',()=>go(index+1));
+
+  viewport.addEventListener('pointerdown',e=>{
+    if(e.pointerType==='mouse' && e.button!==0) return;
+    startX=e.clientX; startY=e.clientY; dragging=true; dragged=false;
+    track.style.transition='none';
+    viewport.setPointerCapture?.(e.pointerId);
+  });
+  viewport.addEventListener('pointermove',e=>{
+    if(!dragging) return;
+    const dx=e.clientX-startX,dy=e.clientY-startY;
+    if(Math.abs(dx)>8 && Math.abs(dx)>Math.abs(dy)) dragged=true;
+    if(dragged){e.preventDefault();const first=cards[0],gap=parseFloat(getComputedStyle(track).gap)||18,step=first.getBoundingClientRect().width+gap;const base=-index*step;track.style.transform='translate3d('+(base+dx*.62)+'px,0,0)';}
+  });
+  const endDrag=e=>{
+    if(!dragging) return; dragging=false; track.style.transition='';
+    const dx=e.clientX-startX;
+    if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(e.clientY-startY)) go(index+(dx<0?1:-1)); else go(index);
+    setTimeout(()=>dragged=false,0);
+  };
+  viewport.addEventListener('pointerup',endDrag);
+  viewport.addEventListener('pointercancel',endDrag);
+  cards.forEach(card=>card.addEventListener('click',e=>{if(dragged){e.preventDefault();e.stopImmediatePropagation();}},true));
+
+  addEventListener('resize',()=>go(index),{passive:true});
+  go(0);
+})();
+</script>
