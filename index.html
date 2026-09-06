@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>택일소 · 좋은 날을 짚어드립니다</title>
-<meta name="description" content="결혼식, 이사, 개업, 계약체결처럼 중요한 날을 사주 오행으로 대조해 무난한 날짜를 찾아드립니다. 회원가입 없이 바로 사용해보세요.">
+<title>택일소 · 중요한 날, 좋은 날짜를 찾는 곳</title>
+<meta name="description" content="결혼식, 이사, 개업, 계약처럼 중요한 날의 후보 날짜를 사주 오행과 전통 택일 기준으로 비교해 무난한 날을 찾아드립니다. 회원가입 없이 바로 확인하세요.">
 <link rel="canonical" href="https://ganzibit7-eng.github.io/taekil-site/">
 <meta property="og:title" content="택일소 · 좋은 날을 짚어드립니다">
 <meta property="og:description" content="결혼식, 이사, 개업, 계약체결처럼 중요한 날을 사주 오행으로 대조해 무난한 날짜를 찾아드립니다.">
@@ -593,6 +593,138 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
   .footer-copy{margin-top:20px}
 }
 
+
+/* ===== 2026 UX refresh ===== */
+:root{
+  --bg:#090806; --bg-soft:#0f0d09; --panel:#15120d; --panel-2:#1b1710;
+  --line:rgba(255,255,255,.105); --line-soft:rgba(255,255,255,.065);
+  --white:#fbf7ed; --muted:#a9a398; --muted-2:#746e63;
+  --gold:#caa35a; --gold-hi:#f5dc9f; --gold-dark:#8f6d32;
+  --radius:24px;
+}
+body{
+  background:
+    radial-gradient(800px 500px at 85% -8%,rgba(202,163,90,.14),transparent 62%),
+    radial-gradient(650px 520px at -12% 20%,rgba(255,255,255,.025),transparent 65%),
+    linear-gradient(180deg,#090806 0%,#0b0a08 50%,#080705 100%);
+}
+.topbar{border-color:rgba(245,220,159,.13);background:rgba(12,10,8,.76)}
+.brand{font-family:"Noto Serif KR",serif;font-weight:600}
+.brand-mark{background:radial-gradient(circle at 35% 30%,rgba(245,220,159,.22),transparent 55%)}
+.hero{min-height:700px}
+.hero-inner{max-width:980px}
+.eyebrow{letter-spacing:.24em}
+.hero h1{font-family:"Noto Serif KR",serif;font-weight:600;letter-spacing:-.06em}
+.hero h1 em{font-style:normal;background:linear-gradient(100deg,#fff1c8,#d5ad62);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-copy{max-width:620px;font-size:16px;color:#b8b1a6}
+.btn{min-height:54px;padding:0 27px}
+.btn-primary{background:linear-gradient(135deg,#f6dfa5,#caa35a);box-shadow:0 14px 42px rgba(202,163,90,.18)}
+.hero-actions .btn-primary{min-width:190px}
+.hero-note{color:#8d867a}
+.today-ganji{margin-top:24px}
+section.block{padding:96px 0}
+.section-kicker{letter-spacing:.22em}
+.section-title{font-family:"Noto Serif KR",serif;font-weight:600}
+.section-desc{font-size:14px}
+.features{gap:16px}
+.feature{
+  min-height:245px;padding:30px;border-radius:24px;
+  background:linear-gradient(150deg,rgba(255,255,255,.045),rgba(255,255,255,.012));
+}
+.feature h3{font-family:"Noto Serif KR",serif;font-size:19px}
+.event-grid{gap:14px}
+.event-card{
+  min-height:185px;padding:27px 23px;border-radius:22px;
+  background:linear-gradient(145deg,#12100c,#0d0c0a);
+}
+.event-card:before{
+  content:"";position:absolute;left:0;top:0;width:100%;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(245,220,159,.45),transparent);
+  opacity:0;transition:.3s;
+}
+.event-card:hover:before{opacity:1}
+.event-card h3{font-family:"Noto Serif KR",serif;font-size:18px}
+.home-proof{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:20px;
+  border:1px solid var(--line-soft);border-radius:18px;overflow:hidden;background:var(--line-soft);
+}
+.home-proof>div{padding:18px;background:rgba(255,255,255,.025);display:flex;align-items:center;justify-content:center;gap:9px}
+.home-proof strong{font-size:13px;color:var(--gold-hi)}
+.home-proof span{font-size:11px;color:var(--muted)}
+.process{background:rgba(255,255,255,.012)}
+.step h3{font-family:"Noto Serif KR",serif}
+.tool-shell{
+  padding:36px;border-radius:28px;
+  background:linear-gradient(145deg,rgba(255,255,255,.065),rgba(255,255,255,.018));
+}
+.tool-shell h2{font-family:"Noto Serif KR",serif;font-weight:600;font-size:30px}
+.field input,.field select{height:54px;border-radius:14px;background:#0b0a08}
+.event-opt{min-height:48px;display:flex;align-items:center;justify-content:center}
+.ct-btn{padding:9px 17px}
+.couple-row{padding:10px 0 5px}
+#results{margin-top:42px}
+.result-intro{display:flex;justify-content:space-between;align-items:end;gap:15px}
+.results-heading{font-family:"Noto Serif KR",serif;font-weight:600;font-size:27px}
+.result-count{font-size:11px;color:var(--gold-hi);border:1px solid rgba(202,163,90,.25);padding:7px 10px;border-radius:999px}
+.best-result-hero{
+  margin:20px 0 20px;padding:25px;border-radius:24px;
+  border:1px solid rgba(202,163,90,.42);
+  background:
+    radial-gradient(500px 180px at 90% 0%,rgba(202,163,90,.16),transparent 70%),
+    linear-gradient(145deg,rgba(202,163,90,.09),rgba(255,255,255,.025));
+  box-shadow:0 24px 70px rgba(0,0,0,.25);
+}
+.best-kicker{font-size:11px;color:var(--gold-hi);font-weight:800;letter-spacing:.12em;margin-bottom:16px}
+.best-main{display:flex;align-items:center;justify-content:space-between;gap:18px}
+.best-date{font-family:"Noto Serif KR",serif;font-size:30px;font-weight:600;letter-spacing:-.04em}
+.best-meta{margin-top:7px;font-size:12px;color:var(--muted)}
+.best-score{width:76px;height:76px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid rgba(245,220,159,.4);background:rgba(0,0,0,.18);flex-shrink:0}
+.best-score strong{font-size:25px;color:var(--gold-hi);line-height:1}
+.best-score span{font-size:9px;color:var(--muted);margin-top:4px}
+.best-reasons{display:flex;gap:7px;flex-wrap:wrap;margin:18px 0 13px}
+.best-reasons span{padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.06);font-size:10px;color:#c8c1b4}
+.best-result-hero p{margin:0;color:#d5cfc4;font-size:13px;line-height:1.8}
+.result-card{padding:23px;border-radius:21px}
+.result-card.best{box-shadow:0 18px 55px rgba(202,163,90,.07)}
+.result-date{font-family:"Noto Serif KR",serif;font-weight:600}
+.score-ring{width:56px;height:56px}
+.badge{font-size:10px}
+.filter-chips{margin-top:4px}
+.filter-chip{padding:9px 14px}
+.day-detail{border-radius:22px}
+.price-card{border-radius:24px}
+.price-card h3{font-family:"Noto Serif KR",serif;font-weight:600}
+.popular{letter-spacing:.14em}
+.faq-item{border-radius:17px}
+.faq-item summary{font-size:14px}
+footer{padding-bottom:90px}
+.bottom-tabbar{background:rgba(10,9,7,.96)}
+.bt-item.active{color:var(--gold-hi)}
+@media(max-width:820px){
+  .hero{min-height:620px}
+  .hero h1{font-size:clamp(39px,11vw,68px);line-height:1.12}
+  .hero-copy{font-size:14px;line-height:1.85}
+  section.block{padding:72px 0}
+  .home-proof{grid-template-columns:1fr}
+  .home-proof>div{justify-content:flex-start;padding:14px 16px}
+  .tool-shell{padding:22px 16px}
+  .result-intro{align-items:flex-start}
+  .best-main{align-items:flex-start}
+}
+@media(max-width:480px){
+  .topbar{top:8px;margin-top:8px}
+  .brand{font-size:21px}
+  .hero{min-height:570px;padding:55px 0}
+  .hero-actions{gap:9px}
+  .hero-actions .btn{min-height:52px}
+  .best-result-hero{padding:21px}
+  .best-date{font-size:24px}
+  .best-score{width:68px;height:68px}
+  .best-score strong{font-size:22px}
+  .result-intro{display:block}
+  .result-count{display:inline-block;margin-top:9px}
+}
+
 </style>
 </head>
 <body>
@@ -682,13 +814,13 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
   <header class="hero">
     <div class="hero-inner">
       <div class="eyebrow">택일소</div>
-      <h1>중요한 날엔,<br><em>좋은 날</em>을 고르세요</h1>
-      <p class="hero-copy">결혼식, 이사, 개업, 계약처럼 되돌릴 수 없는 날엔 사주 궁합이 맞는 날짜가 따로 있습니다. 생년월일과 기간을 넣으면 그 안에서 가장 무난한 날을 짚어드립니다.</p>
+      <h1>중요한 날엔,<br><em>좋은 날짜</em>를 찾아보세요</h1>
+      <p class="hero-copy">결혼식, 이사, 개업, 계약처럼 중요한 날. 생년월일과 원하는 기간을 입력하면 후보 날짜를 비교해 가장 무난한 날부터 보여드립니다.</p>
       <div class="hero-actions">
-        <button class="btn btn-primary" onclick="goTo('tool')">바로 날짜 찾아보기</button>
-        <button class="btn" onclick="document.getElementById('processAnchor').scrollIntoView({behavior:'smooth'})">어떻게 계산되나요</button>
+        <button class="btn btn-primary" onclick="goTo('tool')">내 좋은 날짜 찾기</button>
+        <button class="btn" onclick="document.getElementById('processAnchor').scrollIntoView({behavior:'smooth'})">어떤 기준으로 고르나요</button>
       </div>
-      <div class="hero-note">회원가입 없이 바로 사용해볼 수 있어요</div>
+      <div class="hero-note">가입 없이 1분이면 확인할 수 있어요</div>
       <div class="today-ganji" id="todayGanji"></div>
     </div>
   </header>
@@ -696,8 +828,8 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
   <section class="block">
     <div class="container">
       <div class="section-head">
-        <div><div class="section-kicker">WHY</div><h2 class="section-title">왜 아무 날이나<br>고르면 안 될까요</h2></div>
-        <p class="section-desc">전통 명리학에서는 사람마다 타고난 기운이 다르고, 날짜마다 일진의 기운이 다르다고 봅니다. 이 둘이 부딪히는 날과 어우러지는 날이 따로 있다는 것이 택일의 기본 원리입니다.</p>
+        <div><div class="section-kicker">WHY</div><h2 class="section-title">날짜도<br>나와 맞는지 볼 수 있어요</h2></div>
+        <p class="section-desc">사람마다 타고난 기운이 다르고 날짜에도 그날의 기운이 있다고 봅니다. 택일소는 이 둘을 대조해 여러 후보 중 비교적 무난한 날짜를 찾는 데 도움을 드립니다.</p>
       </div>
       <div class="features">
         <div class="feature">
@@ -722,8 +854,8 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
   <section class="block">
     <div class="container">
       <div class="section-head">
-        <div><div class="section-kicker">EVENTS</div><h2 class="section-title">어떤 날을 찾고<br>계신가요</h2></div>
-        <p class="section-desc">이벤트 종류를 고르면 그에 맞는 안내와 함께 날짜를 찾아드립니다.</p>
+        <div><div class="section-kicker">EVENTS</div><h2 class="section-title">무슨 날짜를<br>찾고 계신가요</h2></div>
+        <p class="section-desc">목적을 먼저 고르면 필요한 정보만 입력하고 바로 날짜를 비교할 수 있어요.</p>
       </div>
       <div class="event-grid">
         <div class="event-card" onclick="goTo('wedding')">
@@ -742,6 +874,11 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
           <svg viewBox="0 0 24 24" fill="none" stroke="#d7b46a" stroke-width="1.4"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
           <h3>계약체결</h3><p>서명일 고르기</p>
         </div>
+      </div>
+      <div class="home-proof reveal">
+        <div><strong>가입 없이</strong><span>바로 시작</span></div>
+        <div><strong>TOP 5</strong><span>추천 날짜 비교</span></div>
+        <div><strong>달력 보기</strong><span>한눈에 후보 확인</span></div>
       </div>
     </div>
   </section>
@@ -773,18 +910,18 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
   <section class="block">
     <div class="container">
       <div class="section-head">
-        <div><div class="section-kicker">PRICING</div><h2 class="section-title">요금제</h2></div>
-        <p class="section-desc">기본 기능은 무료입니다. 더 넓은 기간과 자세한 풀이가 필요하면 프리미엄을 이용하세요.</p>
+        <div><div class="section-kicker">PRICING</div><h2 class="section-title">먼저 무료로<br>확인해보세요</h2></div>
+        <p class="section-desc">처음에는 핵심 결과를 무료로 제공합니다. 더 넓은 기간과 상세 궁합 리포트가 필요할 때 프리미엄을 이용하세요.</p>
       </div>
       <div class="pricing-grid">
         <div class="price-card">
-          <div class="price-label">FREE</div>
-          <h3>무료</h3>
+          <div class="price-label">START</div>
+          <h3>무료로 시작</h3>
           <div style="font-size:32px;font-weight:800;">0원</div>
           <ul>
-            <li>이벤트당 최대 30일 기간 검색</li>
-            <li>상위 5개 날짜 추천</li>
-            <li>기본 오행 설명</li>
+            <li>최대 30일 후보 날짜 비교</li>
+            <li>추천 날짜 TOP 5</li>
+            <li>일진 · 오행 · 손없는 날 확인</li>
           </ul>
           <button class="btn form-submit" onclick="goTo('tool')">무료로 시작</button>
         </div>
@@ -793,14 +930,14 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
           <h3>프리미엄</h3>
           <div style="font-size:32px;font-weight:800;color:var(--gold-hi);">월 4,900원</div>
           <ul>
-            <li>기간 제한 없이 검색</li>
-            <li>궁합 모드 상세 리포트</li>
+            <li>기간 제한 없이 날짜 비교</li>
+            <li>두 사람 상세 궁합 리포트</li>
             <li>검색 기록 무제한 저장</li>
           </ul>
           <button class="btn btn-primary form-submit" onclick="payPremium()">프리미엄 시작하기</button>
         </div>
       </div>
-      <div class="price-note">결제 연동은 준비 중입니다. 지금은 회원가입까지만 가능해요.</div>
+      <div class="price-note">카드 · 카카오페이 · 네이버페이 등으로 결제할 수 있어요.</div>
     </div>
   </section>
 
@@ -912,17 +1049,17 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
   <header class="hero hero-sm">
     <div class="hero-inner">
       <div class="eyebrow">바로 찾기</div>
-      <h1 style="font-size:clamp(28px,4.6vw,46px);">생년월일과 기간을<br>넣어보세요</h1>
+      <h1 style="font-size:clamp(28px,4.6vw,46px);">후보 날짜를<br>비교해보세요</h1>
     </div>
   </header>
   <section class="block" style="padding-top:10px;">
     <div class="container" style="max-width:720px;">
       <div class="tool-shell">
-        <h2>날짜 찾기</h2>
-        <p class="lead">아래 정보를 넣으면 기간 안에서 무난한 날을 찾아드려요.</p>
+        <h2>내게 맞는 날짜 찾기</h2>
+        <p class="lead">목적과 생년월일, 가능한 기간만 알려주세요. 좋은 후보부터 비교해서 보여드릴게요.</p>
 
         <div class="field full" style="margin-bottom:8px;">
-          <label>어떤 날을 고를까요</label>
+          <label>무엇을 위한 날짜인가요</label>
           <div class="event-opts" id="eventPicker">
             <div class="event-opt active" data-val="결혼식">결혼식</div>
             <div class="event-opt" data-val="이사">이사</div>
@@ -958,7 +1095,7 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
 
         <label class="couple-row">
           <span class="switch"><input type="checkbox" id="coupleToggle"><span class="switch-track"><span class="switch-thumb"></span></span></span>
-          상대방과의 궁합도 함께 볼게요 (결혼식에 유용해요)
+          상대방도 함께 분석할게요 · 결혼식이라면 켜주세요
         </label>
         <div class="form-grid" id="coupleFields" style="display:none;">
           <div class="field"><label>상대방 생년월일</label><input type="date" id="partnerBirthDate"></div>
@@ -978,12 +1115,18 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
           <div class="field"><label>찾아볼 기간 끝</label><input type="date" id="rangeEnd"></div>
         </div>
 
-        <button class="btn btn-primary form-submit" id="submitBtn">이 기간에서 좋은 날 찾기</button>
+        <button class="btn btn-primary form-submit" id="submitBtn">좋은 날짜 찾아보기</button>
         <div id="loadingLine" class="loading-line" style="display:none;"><span class="spinner"></span>사주와 일진을 대조하는 중입니다…</div>
 
         <div id="results">
-          <div class="results-heading" id="resultsHeading"></div>
-          <div class="results-sub" id="resultsSub"></div>
+          <div class="result-intro">
+            <div>
+              <div class="results-heading" id="resultsHeading"></div>
+              <div class="results-sub" id="resultsSub"></div>
+            </div>
+            <div class="result-count" id="resultCount"></div>
+          </div>
+          <div id="bestResultHero" class="best-result-hero" style="display:none;"></div>
 
           <div class="filter-chips">
             <span class="filter-chip active" data-mode="all" onclick="applyDowFilter('all')">전체 요일</span>
@@ -1459,6 +1602,8 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
   document.getElementById('resultsHeading').textContent = '';
   document.getElementById('resultsSub').textContent = '';
   document.getElementById('dateCards').innerHTML = Array(3).fill('<div class="skeleton-card"></div>').join('');
+  const bh0 = document.getElementById('bestResultHero'); if (bh0) bh0.style.display = 'none';
+  const ce0 = document.getElementById('resultCount'); if (ce0) ce0.textContent = '';
 
   const userGanjiIdx = dayGanjiIndex(birthDate);
   const userOhaeng = ohaengOf(userGanjiIdx);
@@ -1512,10 +1657,10 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
   document.getElementById('dayDetail').style.display = 'none';
 
   const top = candidates.slice(0, Math.min(5, candidates.length));
-  document.getElementById('resultsHeading').textContent = `${eventType}에 참고할 만한 날`;
+  document.getElementById('resultsHeading').textContent = `${eventType} 추천 결과`;
   document.getElementById('resultsSub').textContent = coupleMode
-    ? `${rangeStart.toLocaleDateString('ko-KR')} ~ ${rangeEnd.toLocaleDateString('ko-KR')} 사이, 두 분(${coupleRelation})을 함께 고려해 정렬했습니다`
-    : `${rangeStart.toLocaleDateString('ko-KR')} ~ ${rangeEnd.toLocaleDateString('ko-KR')} 사이, 점수가 높은 순으로 정렬했습니다`;
+    ? `${rangeStart.toLocaleDateString('ko-KR')} ~ ${rangeEnd.toLocaleDateString('ko-KR')} · 두 분의 기운을 함께 비교했습니다.`
+    : `${rangeStart.toLocaleDateString('ko-KR')} ~ ${rangeEnd.toLocaleDateString('ko-KR')} · 비교 기준에서 높은 날짜부터 보여드립니다.`;
 
   const upsellEl = document.getElementById('premiumUpsell');
   if (coupleMode) {
@@ -1566,18 +1711,43 @@ function buildPremiumCoupleReport(userOhaeng, partnerOhaeng, relation, eventType
 function renderResultCards(top, eventType, coupleMode, coupleRelation) {
   const narratives = top.map(t => generateNarrative(t, eventType, coupleMode, coupleRelation));
   const container = document.getElementById('dateCards');
+  const hero = document.getElementById('bestResultHero');
+  const countEl = document.getElementById('resultCount');
   container.innerHTML = '';
   if (top.length === 0) {
     container.innerHTML = '<div class="empty-note">이 조건에 맞는 날짜가 기간 안에 없어요. 필터를 바꾸거나 기간을 늘려보세요.</div>';
+    if (hero) hero.style.display = 'none';
+    if (countEl) countEl.textContent = '';
     return;
   }
   const scores = top.map(t => t.score);
   const maxS = Math.max(...scores, 1), minS = Math.min(...scores, 0);
+  const percentOf = (score) => Math.round(((score - minS) / Math.max(maxS - minS, 0.01)) * 65 + 34);
+
+  if (countEl) countEl.textContent = `${top.length}개 추천`;
+  const best = top[0];
+  if (hero) {
+    const bestPercent = percentOf(best.score);
+    hero.style.display = 'block';
+    hero.innerHTML = `
+      <div class="best-kicker">✦ 가장 추천하는 날짜</div>
+      <div class="best-main">
+        <div>
+          <div class="best-date">${best.date.getFullYear()}년 ${best.date.getMonth()+1}월 ${best.date.getDate()}일</div>
+          <div class="best-meta">${dowNames[best.date.getDay()]}요일 · 일진 ${best.ganji} · ${best.ohaeng} 기운</div>
+        </div>
+        <div class="best-score"><strong>${bestPercent}</strong><span>추천점수</span></div>
+      </div>
+      <div class="best-reasons">${(best.reasons.length ? best.reasons.slice(0,3) : ['평이한 기운']).map(r=>`<span>${r}</span>`).join('')}</div>
+      <p>${narratives[0]}</p>
+    `;
+  }
+
   top.forEach((t, i) => {
     const card = document.createElement('div');
     card.className = 'result-card' + (i === 0 ? ' best' : '');
     card.style.animationDelay = (i * 0.09) + 's';
-    const percent = Math.round(((t.score - minS) / Math.max(maxS - minS, 0.01)) * 70 + 30);
+    const percent = percentOf(t.score);
     const badgeList = (t.reasons.length ? t.reasons : ['중립']).map(r => `<span class="badge">${r}</span>`).join('');
     window['__result_' + i] = t;
     card.innerHTML = `
@@ -1586,7 +1756,7 @@ function renderResultCards(top, eventType, coupleMode, coupleRelation) {
           <div class="result-date">${t.date.getMonth()+1}.${t.date.getDate()}</div>
           <div class="result-meta">${dowNames[t.date.getDay()]}요일 · 일진 ${t.ganji} <span class="oh-${t.ohaeng}"><span class="oh-dot"></span>${t.ohaeng}</span>${t.lunarInfo && t.lunarInfo.isSonEomneun ? ' · <span style="color:var(--gold-hi)">손없는 날</span>' : ''}</div>
         </div>
-        <div class="score-ring" style="--p:${percent}"><span>${t.score.toFixed(1)}</span></div>
+        <div class="score-ring" style="--p:${percent}"><span>${percent}</span></div>
       </div>
       <div class="badges">${badgeList}</div>
       <div class="result-narrative">${generateNarrative(t, eventType, coupleMode, coupleRelation)}</div>
