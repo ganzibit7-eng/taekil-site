@@ -536,7 +536,7 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
           <a data-route="tool" onclick="goTo('tool')">바로 찾기</a>
           <a data-route="history" onclick="goTo('history')">내 기록</a>
         </div>
-        <a id="authNavBtn" class="nav-cta" onclick="openAuthModal()">로그인</a>
+        <a id="authNavBtn" class="nav-cta" onclick="handleAuthNavClick()">로그인</a>
         <button class="hamburger" onclick="toggleMobileNav()" aria-label="메뉴">☰</button>
       </div>
     </div>
@@ -549,6 +549,16 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
     <div class="modal-title" id="authTitle">로그인</div>
     <div id="authSetupNotice" class="setup-notice" style="display:none;">
       아직 계정 저장소가 연결되지 않았어요. Firebase 설정을 먼저 연결해야 실제로 저장됩니다.
+    </div>
+    <button class="btn" style="width:100%; margin-bottom:9px; gap:8px;" onclick="loginWithGoogle()">
+      <svg width="16" height="16" viewBox="0 0 48 48" style="margin-right:6px;"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3c-7.6 0-14.1 4.3-17.4 10.7z"/><path fill="#4CAF50" d="M24 45c5.4 0 10.3-1.8 14.1-5l-6.5-5.5C29.5 36 26.9 37 24 37c-5.3 0-9.7-3.3-11.3-8l-6.5 5C9.9 40.6 16.4 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.4-2.3 4.4-4.3 5.9l6.5 5.5C40.8 36.9 44 30.9 44 24c0-1.4-.1-2.4-.4-3.5z"/></svg>
+      Google로 시작하기
+    </button>
+    <button class="btn" style="width:100%; margin-bottom:16px; background:#FEE500; color:#181600; border:0;" onclick="loginWithKakao()">
+      💬 카카오로 시작하기
+    </button>
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px; color:var(--muted-2); font-size:11px;">
+      <div style="flex:1; height:1px; background:var(--line-soft);"></div>또는 이메일로<div style="flex:1; height:1px; background:var(--line-soft);"></div>
     </div>
     <div class="field" style="margin-bottom:14px;">
       <label>이메일</label>
@@ -933,6 +943,7 @@ footer{padding:55px 0 70px;border-top:1px solid var(--line-soft);color:var(--mut
   </div>
 </footer>
 
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lunar-javascript/1.7.5/lunar.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -1425,9 +1436,13 @@ function applyDowFilter(mode) {
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID"
+  apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
+  authDomain: "taekilso.firebaseapp.com",
+  projectId: "taekilso",
+  storageBucket: "taekilso.firebasestorage.app",
+  messagingSenderId: "305797835958",
+  appId: "1:305797835958:web:563579c0d08471ea704a17",
+  measurementId: "G-LH595SGH6X"
 };
 
 let firebaseReady = false;
@@ -1435,14 +1450,101 @@ try {
   if (firebaseConfig.apiKey !== "YOUR_API_KEY" && window.firebase) {
     firebase.initializeApp(firebaseConfig);
     firebaseReady = true;
-    firebase.auth().onAuthStateChanged((user) => {
-      document.getElementById('authNavBtn').textContent = user ? (user.email.split('@')[0] + ' 님') : '로그인';
-    });
+    firebase.auth().onAuthStateChanged((user) => { updateAuthNav(); });
   }
 } catch (err) { console.error('Firebase 초기화 실패', err); }
 
+/* ---------- KAKAO LOGIN (client-side only — no backend session yet) ---------- */
+// 1) developers.kakao.com 에서 애플리케이션 생성
+// 2) 앱 설정 > 앱 키 > "JavaScript 키" 복사해서 아래에 붙여넣기
+// 3) 앱 설정 > 플랫폼 > Web 플랫폼에 실제 사이트 도메인 등록 (예: https://ganzibit7-eng.github.io)
+// 4) 카카오 로그인 > 활성화 ON
+const KAKAO_JS_KEY = "YOUR_KAKAO_JS_KEY";
+let kakaoReady = false;
+try {
+  if (KAKAO_JS_KEY !== "YOUR_KAKAO_JS_KEY" && window.Kakao && !Kakao.isInitialized()) {
+    Kakao.init(KAKAO_JS_KEY);
+    kakaoReady = true;
+  }
+} catch (err) { console.error('Kakao 초기화 실패', err); }
+
+const KAKAO_USER_KEY = 'taekilso_kakao_user';
+
+function getKakaoUser() {
+  try { const raw = localStorage.getItem(KAKAO_USER_KEY); return raw ? JSON.parse(raw) : null; }
+  catch (err) { return null; }
+}
+
+function updateAuthNav() {
+  const btn = document.getElementById('authNavBtn');
+  const kakaoUser = getKakaoUser();
+  const fbUser = (firebaseReady && firebase.auth().currentUser) ? firebase.auth().currentUser : null;
+  if (kakaoUser) {
+    btn.textContent = (kakaoUser.nickname || '카카오 사용자') + ' 님';
+  } else if (fbUser) {
+    btn.textContent = (fbUser.displayName || fbUser.email.split('@')[0]) + ' 님';
+  } else {
+    btn.textContent = '로그인';
+  }
+}
+updateAuthNav();
+
+function loginWithGoogle() {
+  if (!firebaseReady) {
+    document.getElementById('authSetupNotice').style.display = 'block';
+    showToast('Firebase 설정이 아직 안 됐어요.');
+    return;
+  }
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider)
+    .then(() => { closeAuthModal(); showToast('구글 계정으로 로그인했어요'); })
+    .catch((err) => showToast('구글 로그인 실패: ' + err.message));
+}
+
+function loginWithKakao() {
+  if (!kakaoReady) {
+    showToast('카카오 로그인 설정이 아직 안 됐어요.');
+    return;
+  }
+  Kakao.Auth.login({
+    success: function () {
+      Kakao.API.request({
+        url: '/v2/user/me',
+        success: function (res) {
+          const account = res.kakao_account || {};
+          const profile = {
+            id: res.id,
+            nickname: (account.profile && account.profile.nickname) || '카카오 사용자',
+            email: account.email || null
+          };
+          localStorage.setItem(KAKAO_USER_KEY, JSON.stringify(profile));
+          updateAuthNav();
+          closeAuthModal();
+          showToast('카카오로 로그인했어요');
+        },
+        fail: function () { showToast('카카오 사용자 정보를 가져오지 못했어요.'); }
+      });
+    },
+    fail: function () { showToast('카카오 로그인에 실패했어요.'); }
+  });
+}
+
+function logout() {
+  if (getKakaoUser()) { localStorage.removeItem(KAKAO_USER_KEY); }
+  if (firebaseReady && firebase.auth().currentUser) { firebase.auth().signOut(); }
+  updateAuthNav();
+  showToast('로그아웃했어요');
+}
+
 let authMode = 'login';
 
+function handleAuthNavClick() {
+  if (getKakaoUser() || (firebaseReady && firebase.auth().currentUser)) {
+    logout();
+  } else {
+    openAuthModal();
+  }
+}
 function openAuthModal() {
   document.getElementById('authOverlay').style.display = 'flex';
   document.getElementById('authSetupNotice').style.display = firebaseReady ? 'none' : 'block';
