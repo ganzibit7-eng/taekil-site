@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>택일소 · 중요한 날, 좋은 날짜를 찾는 곳</title>
 <meta name="description" content="결혼식, 이사, 개업, 계약처럼 중요한 날의 후보 날짜를 사주 오행과 전통 택일 기준으로 비교해 무난한 날을 찾아드립니다. 회원가입 없이 바로 확인하세요.">
-<link rel="canonical" href="https://ganzibit7-eng.github.io/taekil-site/">
+<link rel="canonical" href="https://taekilso.com/">
 <meta property="og:title" content="택일소 · 좋은 날을 짚어드립니다">
 <meta property="og:description" content="결혼식, 이사, 개업, 계약체결처럼 중요한 날을 사주 오행으로 대조해 무난한 날짜를 찾아드립니다.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://ganzibit7-eng.github.io/taekil-site/">
-<meta property="og:image" content="https://ganzibit7-eng.github.io/taekil-site/og-image.png">
+<meta property="og:url" content="https://taekilso.com/">
+<meta property="og:image" content="https://taekilso.com/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#050505">
 <link rel="manifest" href="manifest.json">
@@ -21,7 +21,7 @@
   "@context": "https://schema.org",
   "@type": "WebApplication",
   "name": "택일소",
-  "url": "https://ganzibit7-eng.github.io/taekil-site/",
+  "url": "https://taekilso.com/",
   "description": "결혼식, 이사, 개업, 계약체결처럼 중요한 날을 사주 오행으로 대조해 무난한 날짜를 찾아드립니다.",
   "applicationCategory": "LifestyleApplication",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
@@ -300,6 +300,17 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
   font-size:12.5px; color:var(--muted); cursor:pointer; transition:.2s;
 }
 .ct-btn.active{border-color:rgba(215,180,106,.5); color:var(--gold-hi); background:rgba(215,180,106,.08)}
+
+.ymd-row{display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:8px}
+.ymd-select{
+  width:100%; height:56px; padding:0 10px;
+  color:var(--white); background:#090908; text-align:center;
+  border:1px solid rgba(255,255,255,.10); border-radius:14px; outline:0;
+  font-size:16px; font-weight:600; -webkit-appearance:none; appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d7b46a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 10px center; background-size:16px;
+}
+.ymd-select:focus{border-color:rgba(215,180,106,.65); box-shadow:0 0 0 4px rgba(215,180,106,.07)}
 
 .event-opts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .event-opt{
@@ -1086,10 +1097,19 @@ footer{padding-bottom:90px}
           </div>
         </div>
 
-        <div class="form-grid" style="margin-top:16px;">
-          <div class="field"><label>생년월일</label><input type="date" id="birthDate"></div>
-          <div class="field"><label>태어난 시(모르면 비워두세요)</label><input type="time" id="birthTime"></div>
+        <div class="field full" style="margin-top:16px;">
+          <label>생년월일</label>
+          <div class="ymd-row">
+            <select id="birthYear" class="ymd-select"></select>
+            <select id="birthMonth" class="ymd-select"></select>
+            <select id="birthDay" class="ymd-select"></select>
+          </div>
         </div>
+        <div class="field full">
+          <label>태어난 시(모르면 비워두세요)</label>
+          <input type="time" id="birthTime">
+        </div>
+        <input type="hidden" id="birthDate">
         <label class="couple-row" id="birthLeapWrap" style="display:none;">
           <span class="switch"><input type="checkbox" id="birthLeap"><span class="switch-track"><span class="switch-thumb"></span></span></span>
           윤달이에요
@@ -1107,9 +1127,20 @@ footer{padding-bottom:90px}
           <span class="switch"><input type="checkbox" id="coupleToggle"><span class="switch-track"><span class="switch-thumb"></span></span></span>
           상대방도 함께 분석할게요 · 결혼식이라면 켜주세요
         </label>
-        <div class="form-grid" id="coupleFields" style="display:none;">
-          <div class="field"><label>상대방 생년월일</label><input type="date" id="partnerBirthDate"></div>
-          <div class="field"><label>상대방 태어난 시(선택)</label><input type="time" id="partnerBirthTime"></div>
+        <div id="coupleFields" style="display:none;">
+          <div class="field full">
+            <label>상대방 생년월일</label>
+            <div class="ymd-row">
+              <select id="partnerYear" class="ymd-select"></select>
+              <select id="partnerMonth" class="ymd-select"></select>
+              <select id="partnerDay" class="ymd-select"></select>
+            </div>
+          </div>
+          <div class="field full">
+            <label>상대방 태어난 시(선택)</label>
+            <input type="time" id="partnerBirthTime">
+          </div>
+          <input type="hidden" id="partnerBirthDate">
         </div>
         <div class="cal-type-toggle" id="partnerCalType" style="display:none; margin-bottom:14px;">
           <span class="ct-btn active" data-type="solar">양력</span>
@@ -1466,8 +1497,61 @@ document.getElementById('eventPicker').addEventListener('click', (e) => {
 });
 
 document.getElementById('coupleToggle').addEventListener('change', (e) => {
-  document.getElementById('coupleFields').style.display = e.target.checked ? 'grid' : 'none';
+  document.getElementById('coupleFields').style.display = e.target.checked ? 'block' : 'none';
   document.getElementById('partnerCalType').style.display = e.target.checked ? 'flex' : 'none';
+});
+
+/* ---------- 년/월/일 드롭다운 (고령층 접근성) ---------- */
+function fillYmdSelects(yearId, monthId, dayId, opts) {
+  const yearSel = document.getElementById(yearId);
+  const monthSel = document.getElementById(monthId);
+  const daySel = document.getElementById(dayId);
+  const nowYear = new Date().getFullYear();
+  const startYear = (opts && opts.startYear) || nowYear;
+  const endYear = (opts && opts.endYear) || (nowYear - 100);
+
+  yearSel.innerHTML = '<option value="">년도</option>' +
+    Array.from({ length: startYear - endYear + 1 }, (_, i) => startYear - i)
+      .map(y => `<option value="${y}">${y}년</option>`).join('');
+  monthSel.innerHTML = '<option value="">월</option>' +
+    Array.from({ length: 12 }, (_, i) => i + 1).map(m => `<option value="${m}">${m}월</option>`).join('');
+
+  function refreshDays() {
+    const y = parseInt(yearSel.value, 10);
+    const m = parseInt(monthSel.value, 10);
+    const isLunar = opts && opts.isLunarFn && opts.isLunarFn();
+    const maxDay = (!isLunar && y && m) ? new Date(y, m, 0).getDate() : 30;
+    const prevVal = daySel.value;
+    daySel.innerHTML = '<option value="">일</option>' +
+      Array.from({ length: maxDay }, (_, i) => i + 1).map(d => `<option value="${d}">${d}일</option>`).join('');
+    if (prevVal && parseInt(prevVal, 10) <= maxDay) daySel.value = prevVal;
+  }
+  refreshDays();
+
+  yearSel.addEventListener('change', () => { refreshDays(); opts && opts.onChange && opts.onChange(); });
+  monthSel.addEventListener('change', () => { refreshDays(); opts && opts.onChange && opts.onChange(); });
+  daySel.addEventListener('change', () => { opts && opts.onChange && opts.onChange(); });
+}
+
+function syncHiddenDate(yearId, monthId, dayId, hiddenId) {
+  const y = document.getElementById(yearId).value;
+  const m = document.getElementById(monthId).value;
+  const d = document.getElementById(dayId).value;
+  const hidden = document.getElementById(hiddenId);
+  if (y && m && d) {
+    hidden.value = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+  } else {
+    hidden.value = '';
+  }
+}
+
+fillYmdSelects('birthYear', 'birthMonth', 'birthDay', {
+  isLunarFn: () => getCalType('birthCalType') === 'lunar',
+  onChange: () => { syncHiddenDate('birthYear', 'birthMonth', 'birthDay', 'birthDate'); updateSajuPreview(); }
+});
+fillYmdSelects('partnerYear', 'partnerMonth', 'partnerDay', {
+  isLunarFn: () => getCalType('partnerCalType') === 'lunar',
+  onChange: () => syncHiddenDate('partnerYear', 'partnerMonth', 'partnerDay', 'partnerBirthDate')
 });
 
 /* ---------- 양력/음력 토글 ---------- */
