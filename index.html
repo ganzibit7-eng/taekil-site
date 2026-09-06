@@ -11,6 +11,11 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://taekilso.com/">
 <meta property="og:image" content="https://taekilso.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="택일소 · 좋은 날을 짚어드립니다">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:site_name" content="택일소">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#050505">
 <link rel="manifest" href="manifest.json">
@@ -3093,3 +3098,186 @@ window.addEventListener('load', ()=>{ try{ updatePremiumUI(); }catch(e){} });
   updateUI();
 })();
 </script>
+
+<style id="takil-event-unique-scenes">
+/* =========================================================
+   TAKILSO — FOUR DISTINCT CINEMATIC EVENT WORLDS
+   Each card has its own palette, atmosphere, objects and motion.
+   ========================================================= */
+.event-track .event-card{isolation:isolate}
+.event-track .event-card .tm-art{isolation:isolate;position:relative;overflow:hidden}
+.event-track .event-card .tm-art::before{transition:filter .8s ease,transform 1.2s cubic-bezier(.2,.8,.2,1)!important}
+.event-track .event-card .tm-art::after{z-index:8!important}
+.event-track .event-card .ultra-scene{z-index:6!important}
+.event-track .event-card .tm-art-light{z-index:7!important}
+
+/* ---------- 01 WEDDING : rose / champagne / romantic orbit ---------- */
+.event-track .event-card:nth-child(1){
+  --card-accent:#f1b6c5; --card-accent2:#d96f93;
+  border-color:rgba(241,182,197,.20)!important;
+  background:linear-gradient(180deg,#180f16,#0d090d)!important;
+}
+.event-track .event-card:nth-child(1) .tm-art{
+  background:
+    radial-gradient(circle at 20% 25%,rgba(239,133,169,.24),transparent 28%),
+    radial-gradient(circle at 78% 30%,rgba(255,219,183,.18),transparent 30%),
+    linear-gradient(145deg,#351629 0%,#17101d 48%,#09090d 100%)!important;
+}
+.event-track .event-card:nth-child(1) .tm-content{background:linear-gradient(180deg,#25131e,#120b10)!important}
+.event-track .event-card:nth-child(1) .tm-icon{color:#ffd8e1;border-color:rgba(241,182,197,.35);background:rgba(217,111,147,.10);box-shadow:0 0 28px rgba(217,111,147,.13)}
+.event-track .event-card:nth-child(1) h3{color:#fff1f4}
+.event-track .event-card:nth-child(1) .tm-art::before{
+  background:
+    radial-gradient(ellipse at 50% 70%,rgba(239,133,169,.18),transparent 48%),
+    linear-gradient(145deg,rgba(100,38,69,.55),rgba(22,15,30,.8))!important;
+}
+.event-track .event-card:nth-child(1) .scene-stars{background-image:
+  radial-gradient(circle at 12% 22%,#ffe4ed 0 1.4px,transparent 2.5px),
+  radial-gradient(circle at 31% 38%,rgba(255,199,215,.8) 0 1px,transparent 2px),
+  radial-gradient(circle at 72% 18%,#ffe4ed 0 1.2px,transparent 2px),
+  radial-gradient(circle at 84% 52%,rgba(255,199,215,.75) 0 1px,transparent 2px),
+  radial-gradient(circle at 55% 63%,rgba(255,220,228,.55) 0 1px,transparent 2px)!important}
+.event-track .event-card:nth-child(1) .scene-moon{
+  width:70px;height:70px;right:16%;top:18%;
+  background:radial-gradient(circle at 34% 30%,#fff8ee,#f0c2a2 48%,#a45162 100%)!important;
+  box-shadow:0 0 42px rgba(242,157,183,.35)!important;
+  animation:weddingMoon 6s ease-in-out infinite!important;
+}
+@keyframes weddingMoon{0%,100%{transform:translate3d(0,0,0) scale(.92)}50%{transform:translate3d(-8px,7px,0) scale(1.08)}}
+.event-track .event-card:nth-child(1) .scene-moon:after{background:rgba(116,51,70,.12)!important;box-shadow:12px -8px 0 rgba(116,51,70,.08),-9px 13px 0 rgba(116,51,70,.07)!important}
+.event-track .event-card:nth-child(1) .scene-sun{
+  width:170px;height:170px;left:50%;top:48%;
+  background:radial-gradient(circle,#fff5e6 0 5%,rgba(255,184,203,.75) 13%,rgba(222,93,133,.20) 38%,transparent 70%)!important;
+  animation:weddingGlow 4s ease-in-out infinite!important;
+}
+@keyframes weddingGlow{50%{transform:translate(-50%,-50%) scale(1.22);opacity:.92}}
+.event-track .event-card:nth-child(1) .scene-path{width:290px;height:120px;bottom:-48px;border-color:rgba(241,182,197,.34);animation:weddingPath 4.8s ease-in-out infinite!important}
+@keyframes weddingPath{50%{transform:translateX(-50%) scaleX(1.16);opacity:.85}}
+.event-track .event-card:nth-child(1) .scene-gate{display:none}
+.event-track .event-card:nth-child(1) .ultra-scene::before,
+.event-track .event-card:nth-child(1) .ultra-scene::after{
+  content:"";position:absolute;border-radius:50%;pointer-events:none;z-index:5;
+}
+.event-track .event-card:nth-child(1) .ultra-scene::before{width:180px;height:90px;left:50%;top:48%;border:1px solid rgba(255,193,211,.32);transform:translate(-50%,-50%) rotate(-18deg);animation:weddingOrbit 8s linear infinite}
+.event-track .event-card:nth-child(1) .ultra-scene::after{width:245px;height:120px;left:50%;top:48%;border:1px solid rgba(255,232,216,.15);transform:translate(-50%,-50%) rotate(28deg);animation:weddingOrbit 12s linear infinite reverse}
+@keyframes weddingOrbit{to{transform:translate(-50%,-50%) rotate(342deg)}}
+.event-track .event-card:nth-child(1) .scene-flare{background:linear-gradient(90deg,transparent,rgba(255,196,215,.95),transparent);animation:weddingFlare 5.5s linear infinite!important}
+@keyframes weddingFlare{0%{left:-35%;top:28%;opacity:0}20%{opacity:1}100%{left:120%;top:65%;opacity:0}}
+
+/* ---------- 02 MOVING : teal / cyan / house + road ---------- */
+.event-track .event-card:nth-child(2){
+  --card-accent:#78e2dc; --card-accent2:#2fa7b4;
+  border-color:rgba(120,226,220,.18)!important;
+  background:linear-gradient(180deg,#09181a,#071012)!important;
+}
+.event-track .event-card:nth-child(2) .tm-art{background:
+  radial-gradient(circle at 70% 28%,rgba(120,226,220,.20),transparent 25%),
+  linear-gradient(145deg,#123b40 0%,#0d242b 48%,#071014 100%)!important}
+.event-track .event-card:nth-child(2) .tm-content{background:linear-gradient(180deg,#10282b,#091315)!important}
+.event-track .event-card:nth-child(2) .tm-icon{color:#b8fff9;border-color:rgba(120,226,220,.35);background:rgba(47,167,180,.11);box-shadow:0 0 28px rgba(47,167,180,.13)}
+.event-track .event-card:nth-child(2) h3{color:#e8fffd}
+.event-track .event-card:nth-child(2) .scene-stars{opacity:.72;filter:hue-rotate(35deg);animation:movingStars 10s linear infinite!important}
+@keyframes movingStars{to{transform:translate3d(-18px,8px,0)}}
+.event-track .event-card:nth-child(2) .scene-moon{display:none}
+.event-track .event-card:nth-child(2) .scene-sun{
+  width:115px;height:115px;left:76%;top:24%;
+  background:radial-gradient(circle,#d9fffa 0 5%,rgba(120,226,220,.55) 15%,rgba(47,167,180,.12) 45%,transparent 72%)!important;
+  animation:movingSun 6s ease-in-out infinite!important}
+@keyframes movingSun{50%{transform:translate(-50%,-50%) translate3d(-12px,8px,0) scale(1.15);opacity:.75}}
+.event-track .event-card:nth-child(2) .scene-gate{left:37%;bottom:0;width:135px;height:105px;border-color:rgba(120,226,220,.62);border-width:2px;animation:movingHouse 5s ease-in-out infinite!important}
+@keyframes movingHouse{50%{transform:translateX(-50%) translateY(-5px) scale(1.025);filter:brightness(1.2)}}
+.event-track .event-card:nth-child(2) .scene-gate:after{width:45px;top:23px;background:linear-gradient(90deg,#0b2325,#1d7b79 45%,#0a2022);border-color:rgba(120,226,220,.26)}
+.event-track .event-card:nth-child(2) .scene-path{left:70%;width:340px;height:150px;bottom:-55px;border-color:rgba(120,226,220,.26);animation:movingRoad 4.2s ease-in-out infinite!important}
+@keyframes movingRoad{50%{transform:translateX(-50%) scaleX(1.12);opacity:.78}}
+.event-track .event-card:nth-child(2) .ultra-scene::before{content:"";position:absolute;left:-20%;bottom:32px;width:140%;height:1px;background:linear-gradient(90deg,transparent,rgba(120,226,220,.7),transparent);box-shadow:0 0 18px rgba(120,226,220,.25);transform:rotate(-7deg);animation:roadBeam 3.8s linear infinite}
+@keyframes roadBeam{to{left:20%;transform:rotate(-7deg) translateY(-95px)}}
+.event-track .event-card:nth-child(2) .scene-flare{background:linear-gradient(90deg,transparent,rgba(165,255,249,.8),transparent);animation:movingFlare 7s linear infinite!important}
+@keyframes movingFlare{0%{left:-45%;top:68%;opacity:0}18%{opacity:.9}100%{left:125%;top:25%;opacity:0}}
+
+/* ---------- 03 OPENING : emerald / amber / sunrise + spark ---------- */
+.event-track .event-card:nth-child(3){
+  --card-accent:#e8bd69; --card-accent2:#58c88a;
+  border-color:rgba(232,189,105,.20)!important;
+  background:linear-gradient(180deg,#10180f,#0a0d08)!important;
+}
+.event-track .event-card:nth-child(3) .tm-art{background:
+  radial-gradient(circle at 48% 48%,rgba(232,189,105,.22),transparent 26%),
+  radial-gradient(circle at 18% 72%,rgba(88,200,138,.20),transparent 27%),
+  linear-gradient(145deg,#26381d 0%,#152016 45%,#080c08 100%)!important}
+.event-track .event-card:nth-child(3) .tm-content{background:linear-gradient(180deg,#182315,#0c110b)!important}
+.event-track .event-card:nth-child(3) .tm-icon{color:#fff1c2;border-color:rgba(232,189,105,.35);background:rgba(88,200,138,.09);box-shadow:0 0 28px rgba(88,200,138,.12)}
+.event-track .event-card:nth-child(3) h3{color:#f7ffe9}
+.event-track .event-card:nth-child(3) .scene-stars{opacity:.5;animation:openingStars 9s ease-in-out infinite alternate!important}
+@keyframes openingStars{to{transform:translate3d(4px,-11px,0);opacity:.9}}
+.event-track .event-card:nth-child(3) .scene-moon{display:none}
+.event-track .event-card:nth-child(3) .scene-sun{width:190px;height:190px;left:50%;top:48%;background:radial-gradient(circle,#fff8cf 0 5%,rgba(232,189,105,.78) 13%,rgba(88,200,138,.16) 43%,transparent 72%)!important;animation:openingSun 4.8s ease-in-out infinite!important}
+@keyframes openingSun{50%{transform:translate(-50%,-50%) scale(1.16);opacity:.95}}
+.event-track .event-card:nth-child(3) .scene-gate{display:none}
+.event-track .event-card:nth-child(3) .scene-path{width:320px;height:175px;bottom:-68px;border-color:rgba(232,189,105,.31);box-shadow:0 0 50px rgba(88,200,138,.08),inset 0 0 40px rgba(232,189,105,.08);animation:openingPath 5s ease-in-out infinite!important}
+@keyframes openingPath{50%{transform:translateX(-50%) scaleX(1.1) scaleY(.94);opacity:.86}}
+.event-track .event-card:nth-child(3) .ultra-scene::before{content:"✦";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:90px;line-height:1;color:rgba(255,226,144,.08);text-shadow:0 0 35px rgba(232,189,105,.35);animation:openingSpark 3.5s ease-in-out infinite;z-index:5}
+@keyframes openingSpark{0%,100%{transform:translate(-50%,-50%) scale(.75) rotate(0deg);opacity:.2}50%{transform:translate(-50%,-50%) scale(1.05) rotate(45deg);opacity:.8}}
+.event-track .event-card:nth-child(3) .ultra-scene::after{content:"";position:absolute;left:0;right:0;bottom:0;height:44%;background:linear-gradient(0deg,rgba(4,9,5,.7),transparent);z-index:5}
+.event-track .event-card:nth-child(3) .scene-flare{background:linear-gradient(90deg,transparent,rgba(255,226,144,.95),transparent);animation:openingFlare 6s ease-in-out infinite!important}
+@keyframes openingFlare{0%,100%{transform:rotate(-9deg) translateX(-50%);opacity:0}45%{opacity:.9}70%{transform:rotate(-9deg) translateX(80%);opacity:0}}
+
+/* ---------- 04 CONTRACT : sapphire / silver / document + scan ---------- */
+.event-track .event-card:nth-child(4){
+  --card-accent:#9fc7ff; --card-accent2:#5b7fe8;
+  border-color:rgba(159,199,255,.18)!important;
+  background:linear-gradient(180deg,#0b1120,#080b12)!important;
+}
+.event-track .event-card:nth-child(4) .tm-art{background:
+  radial-gradient(circle at 68% 24%,rgba(159,199,255,.20),transparent 27%),
+  linear-gradient(145deg,#172d4b 0%,#111b31 48%,#080c16 100%)!important}
+.event-track .event-card:nth-child(4) .tm-content{background:linear-gradient(180deg,#121e35,#090e19)!important}
+.event-track .event-card:nth-child(4) .tm-icon{color:#d8e8ff;border-color:rgba(159,199,255,.35);background:rgba(91,127,232,.11);box-shadow:0 0 28px rgba(91,127,232,.14)}
+.event-track .event-card:nth-child(4) h3{color:#eef5ff}
+.event-track .event-card:nth-child(4) .scene-stars{opacity:.62;filter:hue-rotate(80deg);animation:contractStars 12s linear infinite!important}
+@keyframes contractStars{to{transform:translate3d(12px,4px,0)}}
+.event-track .event-card:nth-child(4) .scene-moon{width:62px;height:62px;right:12%;top:18%;background:radial-gradient(circle at 35% 30%,#fff,#bcd8ff 45%,#5573bd 100%)!important;box-shadow:0 0 35px rgba(159,199,255,.3)!important;animation:contractMoon 8s ease-in-out infinite!important}
+@keyframes contractMoon{50%{transform:translate3d(-10px,5px,0) scale(1.08)}}
+.event-track .event-card:nth-child(4) .scene-gate{left:34%;bottom:-2px;width:118px;height:92px;border-color:rgba(159,199,255,.46);border-width:2px;animation:contractFrame 6s ease-in-out infinite!important}
+@keyframes contractFrame{50%{transform:translateX(-50%) scale(1.04);filter:brightness(1.15)}}
+.event-track .event-card:nth-child(4) .scene-gate:after{width:54px;top:20px;background:linear-gradient(90deg,#0a1425,#4866a8 45%,#0a1425);border-color:rgba(159,199,255,.25)}
+.event-track .event-card:nth-child(4) .scene-path{left:67%;width:285px;height:125px;bottom:-45px;border-color:rgba(159,199,255,.20);animation:contractPath 5.5s ease-in-out infinite!important}
+@keyframes contractPath{50%{transform:translateX(-50%) rotate(1deg) scaleX(1.08);opacity:.75}}
+.event-track .event-card:nth-child(4) .ultra-scene::before{content:"";position:absolute;left:12%;right:12%;top:30%;height:86px;border:1px solid rgba(159,199,255,.16);border-radius:8px;transform:rotate(-7deg);background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(91,127,232,.04));box-shadow:0 0 35px rgba(91,127,232,.07);animation:contractPaper 7s ease-in-out infinite;z-index:5}
+@keyframes contractPaper{50%{transform:rotate(-5deg) translateY(-5px);box-shadow:0 0 55px rgba(91,127,232,.14)}}
+.event-track .event-card:nth-child(4) .ultra-scene::after{content:"";position:absolute;left:18%;right:18%;top:43%;height:1px;background:linear-gradient(90deg,transparent,rgba(185,215,255,.85),transparent);box-shadow:0 0 14px rgba(159,199,255,.5);z-index:7;animation:contractScan 3.4s ease-in-out infinite}
+@keyframes contractScan{0%,100%{transform:translateY(-34px);opacity:0}18%,78%{opacity:.95}50%{transform:translateY(40px)}}
+.event-track .event-card:nth-child(4) .scene-flare{background:linear-gradient(90deg,transparent,rgba(195,220,255,.9),transparent);animation:contractFlare 6.5s linear infinite!important}
+@keyframes contractFlare{0%{left:-40%;top:72%;opacity:0}25%{opacity:.8}100%{left:125%;top:25%;opacity:0}}
+
+/* shared hover: each world wakes up independently */
+@media(pointer:fine){
+  .event-track .event-card:hover .tm-art::before{filter:saturate(1.28) contrast(1.08) brightness(1.06)!important;transform:scale(1.15) translate3d(var(--mx,0px),var(--my,0px),0)!important}
+  .event-track .event-card:hover .tm-icon{transform:translateY(-3px) rotate(-3deg) scale(1.06);transition:.5s cubic-bezier(.2,.8,.2,1)}
+  .event-track .event-card:hover .tm-art-light{filter:blur(2px);transform:translate(-48%,-52%) scale(1.25)!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .event-track .event-card:nth-child(1) .ultra-scene::before,.event-track .event-card:nth-child(1) .ultra-scene::after,
+  .event-track .event-card:nth-child(2) .ultra-scene::before,
+  .event-track .event-card:nth-child(3) .ultra-scene::before,
+  .event-track .event-card:nth-child(4) .ultra-scene::before,.event-track .event-card:nth-child(4) .ultra-scene::after{animation:none!important}
+}
+</style>
+
+<script id="takil-event-unique-scenes-script">
+(function(){
+  const cards=[...document.querySelectorAll('.event-card')];
+  if(cards.length!==4) return;
+  const scenes=[
+    '<span class="scene-stars"></span><span class="scene-moon"></span><span class="scene-sun"></span><span class="scene-path"></span><span class="scene-flare"></span>',
+    '<span class="scene-stars"></span><span class="scene-sun"></span><span class="scene-gate"></span><span class="scene-path"></span><span class="scene-flare"></span>',
+    '<span class="scene-stars"></span><span class="scene-sun"></span><span class="scene-path"></span><span class="scene-flare"></span>',
+    '<span class="scene-stars"></span><span class="scene-moon"></span><span class="scene-gate"></span><span class="scene-path"></span><span class="scene-flare"></span>'
+  ];
+  cards.forEach((card,i)=>{
+    const scene=card.querySelector('.ultra-scene');
+    if(scene) scene.innerHTML=scenes[i];
+    card.dataset.scene=i+1;
+  });
+})();
+</script>
+
