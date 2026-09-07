@@ -2368,7 +2368,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-07-referrer-check-added' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-07-force-server-read' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -2530,7 +2530,7 @@ function getCurrentUserKey() {
 /* 로그인 시 계정에 저장된 프리미엄 상태를 이 브라우저로 끌어와서 기기 간 프리미엄 상태를 맞춰줍니다. */
 function syncPremiumFromAccount(uid) {
   if (!db || !uid) return;
-  db.collection('users').doc(uid).get().then((snap) => {
+  db.collection('users').doc(uid).get({ source: 'server' }).then((snap) => {
     if (!snap.exists) return;
     const data = snap.data() || {};
     let until = 0;
@@ -2584,7 +2584,7 @@ function reconcilePremiumWithAccount(uid) {
   if (!db || !uid) return;
   const localUntil = (getPremiumOwnerKey() === uid) ? getPremiumUntil() : 0;
 
-  db.collection('users').doc(uid).get().then((snap) => {
+  db.collection('users').doc(uid).get({ source: 'server' }).then((snap) => {
     const data = snap.exists ? (snap.data() || {}) : {};
 
     // Firestore가 꺼져있던 동안 가입한 회원은 이메일/닉네임 정보가 없어서 관리자 화면에
@@ -3599,7 +3599,7 @@ function hidePaymentPendingStatus() {}
 async function checkPremiumOnServer(uid) {
   if (!db || !uid) return false;
   try {
-    const snap = await db.collection('users').doc(uid).get();
+    const snap = await db.collection('users').doc(uid).get({ source: 'server' });
     if (!snap.exists) return false;
     const data = snap.data() || {};
     let until = 0;
