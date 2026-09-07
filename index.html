@@ -2226,13 +2226,29 @@ const firebaseConfig = {
 
 let firebaseReady = false;
 let db = null;
+let firebaseAuthUser = null;
+let firebaseAuthReady = false;
 const ADMIN_EMAIL = "green092432@gmail.com";
 try {
   if (firebaseConfig.apiKey !== "YOUR_API_KEY" && window.firebase) {
     firebase.initializeApp(firebaseConfig);
     firebaseReady = true;
     db = firebase.firestore();
-    firebase.auth().onAuthStateChanged((user) => { verifiedPremium = false; updateAuthNav(); updatePremiumUI(); if (user) syncPremiumFromAccount(user.uid); });
+
+    // 로그인 세션을 명시적으로 LOCAL로 유지합니다.
+    // PayApp이 현재 탭으로 이동한 뒤에도 Firebase 로그인 상태가 유지되어야 합니다.
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .catch((err) => console.warn('Firebase 로그인 저장 설정 실패', err));
+
+    firebase.auth().onAuthStateChanged((user) => {
+      firebaseAuthUser = user || null;
+      firebaseAuthReady = true;
+      if (user) {
+        syncPremiumFromAccount(user.uid);
+      }
+      updateAuthNav();
+      updatePremiumUI();
+    });
     recordVisit();
   }
 } catch (err) { console.error('Firebase 초기화 실패', err); }
@@ -2586,8 +2602,11 @@ async function payPremium() {
   // Firebase Auth는 페이지 로드 직후 세션 복원이 완료되기 전까지
   // currentUser가 잠시 null일 수 있습니다. 결제 버튼을 바로 눌러도
   // 이 순간을 로그인 실패로 오인하지 않도록 Auth 상태를 잠시 기다립니다.
-  let fbUser = (firebaseReady && firebase.auth().currentUser) ? firebase.auth().currentUser : null;
-  if (!fbUser && firebaseReady && firebase.auth()) {
+  let fbUser = firebaseAuthUser || ((firebaseReady && firebase.auth().currentUser) ? firebase.auth().currentUser : null);
+
+  // Auth 초기화가 아직 끝나지 않았다면 최대 6초 동안 기다립니다.
+  // 초기 onAuthStateChanged가 null을 한 번 보냈다고 해서 바로 로그아웃으로 처리하지 않습니다.
+  if (!fbUser && firebaseReady && !firebaseAuthReady) {
     fbUser = await new Promise((resolve) => {
       let done = false;
       const finish = (user) => {
@@ -2596,17 +2615,29 @@ async function payPremium() {
         try { unsubscribe(); } catch (_) {}
         resolve(user || null);
       };
-      const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
-        if (user) finish(user);
-      });
-      setTimeout(() => finish(firebase.auth().currentUser || null), 4000);
+      const unsubscribe = firebase.auth().onAuthStateChanged((user) => finish(user));
+      setTimeout(() => finish(firebase.auth().currentUser || firebaseAuthUser || null), 6000);
     });
   }
+
+  // 로그인은 되어 있었지만 currentUser 복원이 늦는 경우를 한 번 더 확인합니다.
+  if (!fbUser && firebaseReady) {
+    await new Promise((r) => setTimeout(r, 500));
+    fbUser = firebaseAuthUser || firebase.auth().currentUser || null;
+  }
   if (!fbUser) {
-    showToast('로그인 상태를 확인하지 못했어요. 잠시 후 다시 시도해주세요.');
+    showToast('로그인 상태를 확인하지 못했어요. 다시 로그인한 뒤 결제해주세요.');
     openAuthModal();
     return;
   }
+
+  // 결제 페이지로 이동하기 전에 현재 로그인 세션을 LOCAL로 확정합니다.
+  try {
+    await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+  } catch (persistErr) {
+    console.warn('결제 전 로그인 세션 저장 설정 실패', persistErr);
+  }
+
   if (typeof PayApp === 'undefined') { showToast('결제 모듈을 불러오지 못했어요. 잠시 후 다시 시도해주세요.'); return; }
   if (!PAYAPP_USERID || PAYAPP_USERID === "YOUR_PAYAPP_ID") {
     showToast('페이앱 판매자 아이디를 연결해주세요.');
