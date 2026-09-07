@@ -818,15 +818,6 @@ footer{padding-bottom:90px}
 }
 </style>
 
-<!-- Google Analytics 4: 택일소 방문자 통계 -->
-<!-- 아래 G-LH595SGH6X를 GA4에서 발급받은 측정 ID로 교체하세요. -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-LH595SGH6X"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-LH595SGH6X');
-</script>
 </head>
 <body>
 
@@ -886,6 +877,18 @@ footer{padding-bottom:90px}
 </div>
 
 <div id="toastHost"></div>
+
+<div id="paymentConfirmOverlay" style="display:none; position:fixed; inset:0; z-index:100; align-items:center; justify-content:center; padding:24px; background:rgba(0,0,0,.76); backdrop-filter:blur(16px);">
+  <div class="modal-box">
+    <div class="modal-title">결제를 완료하셨나요?</div>
+    <p style="color:var(--muted); font-size:13px; line-height:1.7; margin:-4px 0 20px;">
+      방금 결제창에서 실제로 결제(4,900원)를 완료하고 돌아오신 경우에만 "네, 결제했어요"를 눌러주세요.
+      결제 없이 그냥 닫고 오신 경우 "아니요"를 눌러주시면 돼요.
+    </p>
+    <button class="btn btn-primary form-submit" onclick="confirmPaymentCompleted()">네, 결제했어요</button>
+    <div class="auth-close" onclick="dismissPaymentConfirm()">아니요, 결제 안 했어요</div>
+  </div>
+</div>
 
 <div class="fortune-modal" id="fortuneModal" onclick="if(event.target===this) closeFortuneModal()">
   <div class="fortune-box">
@@ -961,7 +964,7 @@ footer{padding-bottom:90px}
         <div class="feature">
           <div class="feature-num">02</div>
           <h3>감으로 정하지 않기</h3>
-          <p>달력에서 눈에 띄는 날짜를 고르는 대신, 본인의 사주와 맞춰본 근거 있는 날짜를 고를 수 있습니다.</p>
+          <p>달력에서 눈에 띄는 날짜를 고르는 대신, 본인의 사주와 맞춰본 비교 기준을 가지고 날짜를 고를 수 있습니다.</p>
         </div>
         <div class="feature">
           <div class="feature-num">03</div>
@@ -1549,7 +1552,7 @@ footer{padding-bottom:90px}
   <div class="container footer-inner">
     <div class="footer-brand">택일소</div>
     <div class="footer-copy">
-      택일소는 수백 년 이어진 명리학의 일진·오행 이론과 손없는 날 같은 전통 생활 기준을 정리해, 결혼식·이사·개업·계약처럼 중요한 날을 정할 때 참고할 수 있는 근거 있는 비교 자료를 제공합니다. 최종 날짜는 실제 일정과 상황을 함께 고려해 결정하시길 권합니다.
+      택일소는 수백 년 이어진 명리학의 일진·오행 이론과 손없는 날 같은 전통 생활 기준을 정리해, 결혼식·이사·개업·계약처럼 중요한 날을 정할 때 여러 후보 날짜를 기준에 따라 비교할 수 있는 자료를 제공합니다. 최종 날짜는 실제 일정과 상황을 함께 고려해 결정하시길 권합니다.
       <div class="footer-links">
         <span class="footer-link" onclick="goTo('legal')">이용약관</span>
         <span class="footer-link" onclick="goTo('legal')">개인정보처리방침</span>
@@ -2364,7 +2367,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-07-user-profile-backfill' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-07-payment-confirm-step' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -2752,6 +2755,8 @@ function renderProfile() {
 }
 updateAuthNav();
 // 이용권 만료를 화면에 즉시 반영하고, 날짜가 바뀌어도 상태가 갱신되도록 합니다.
+// 매 60초마다는 로컬 정보만 재확인하고, 매 3분마다는 서버(Firestore)에도 다시 확인해서
+// 관리자가 프리미엄을 회수했을 때 이미 로그인해서 쓰고 있던 화면에도 반영되게 합니다.
 setInterval(() => {
   const before = verifiedPremium;
   const nowPremium = isPremium();
@@ -2761,6 +2766,19 @@ setInterval(() => {
     if (expiry) expiry.textContent = '이용기간 · ' + formatPremiumUntil();
   }
 }, 60000);
+
+setInterval(() => {
+  const uid = getCurrentUserKey();
+  if (uid) reconcilePremiumWithAccount(uid);
+}, 3 * 60 * 1000);
+
+// 사용자가 다시 이 탭으로 돌아왔을 때(다른 탭 갔다가 돌아옴 등)도 바로 한 번 재확인합니다.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    const uid = getCurrentUserKey();
+    if (uid) reconcilePremiumWithAccount(uid);
+  }
+});
 
 /* ---------- ADMIN DASHBOARD ---------- */
 function renderAdmin() {
@@ -3477,28 +3495,59 @@ function tryActivatePendingPremium() {
   updateAuthNav();
   const params = new URLSearchParams(window.location.search);
   if (params.get('premium') === '1') {
-    // 카카오 로그인은 즉시 확인 가능하지만, 구글/이메일 로그인은 결제 후 페이지가
-    // 완전히 새로고침될 때 로그인 상태를 다시 불러오는 데 짧은 시간이 걸립니다.
-    // 그 복원이 끝날 때까지 기다린 뒤에 최종 판단해서, 실제로는 로그인되어 있는데도
-    // "로그인 정보 없음"으로 잘못 판단해 프리미엄을 못 주는 일을 막습니다.
-    if (!getKakaoUser()) {
-      showToast('결제를 확인하고 있어요…');
-      await waitForAuthSettled(6000);
-    }
-    const activated = tryActivatePendingPremium();
-    if (!activated) {
-      const stillPending = (() => { try { return JSON.parse(localStorage.getItem('taekilso_pending_order') || 'null'); } catch(e) { return null; } })();
-      if (stillPending) {
-        showToast('결제는 확인됐지만 로그인 상태를 아직 못 찾았어요. 다시 로그인하시면 자동으로 프리미엄이 적용돼요. 계속 안 되면 고객센터로 결제 내역을 문의해주세요.');
-      } else {
-        showToast('결제 확인 정보를 찾지 못했어요. 결제가 완료됐는데 이 메시지가 뜨면 고객센터로 문의해주세요.');
-      }
-    }
     const url = new URL(window.location.href);
     url.searchParams.delete('premium');
     window.history.replaceState({}, document.title, url.toString());
+
+    const pending = (() => { try { return JSON.parse(localStorage.getItem('taekilso_pending_order') || 'null'); } catch(e) { return null; } })();
+    const PENDING_MAX_AGE_MS = 30 * 60 * 1000;
+    const isValidPending = pending && pending.orderId && (Date.now() - pending.createdAt) <= PENDING_MAX_AGE_MS;
+    if (!isValidPending) return; // 결제 버튼을 누른 기록 자체가 없으면 아예 확인창도 띄우지 않습니다.
+
+    // 카카오 로그인은 즉시 확인 가능하지만, 구글/이메일 로그인은 결제 후 페이지가
+    // 완전히 새로고침될 때 로그인 상태를 다시 불러오는 데 짧은 시간이 걸립니다.
+    if (!getKakaoUser()) {
+      await waitForAuthSettled(6000);
+    }
+
+    // 페이앱이 "결제 완료" 뿐 아니라 "결제창을 그냥 닫음"에도 같은 주소로 돌려보내는
+    // 경우가 있어서, 이 URL로 돌아왔다는 사실만으로는 실제 결제 여부를 확신할 수 없습니다.
+    // 그래서 자동으로 프리미엄을 켜지 않고, 손님이 직접 "결제를 완료했다"고 확인하는
+    // 절차를 한 번 더 거치게 합니다.
+    openPaymentConfirmModal(pending);
   }
 })();
+
+function openPaymentConfirmModal(pending) {
+  const overlay = document.getElementById('paymentConfirmOverlay');
+  if (!overlay) return;
+  overlay.style.display = 'flex';
+  overlay.dataset.orderId = pending.orderId;
+}
+
+function confirmPaymentCompleted() {
+  const overlay = document.getElementById('paymentConfirmOverlay');
+  overlay.style.display = 'none';
+  const activated = tryActivatePendingPremium();
+  if (!activated) {
+    const stillPending = (() => { try { return JSON.parse(localStorage.getItem('taekilso_pending_order') || 'null'); } catch(e) { return null; } })();
+    if (stillPending) {
+      showToast('로그인 상태를 아직 못 찾았어요. 다시 로그인하시면 자동으로 프리미엄이 적용돼요. 계속 안 되면 고객센터로 결제 내역을 문의해주세요.');
+    } else {
+      showToast('결제 확인 정보를 찾지 못했어요. 결제가 완료됐는데 이 메시지가 뜨면 고객센터로 문의해주세요.');
+    }
+  }
+}
+
+function dismissPaymentConfirm() {
+  const overlay = document.getElementById('paymentConfirmOverlay');
+  overlay.style.display = 'none';
+  // 결제를 안 했다고 밝힌 것이므로, 잘못 눌러서 나중에 활성화되는 일이 없도록
+  // 대기 기록을 지웁니다. 실수였다면 다시 결제 버튼을 누르면 새로 시작됩니다.
+  localStorage.removeItem('taekilso_pending_order');
+  sessionStorage.removeItem('taekilso_pending_order');
+  showToast('알겠어요. 결제를 다시 진행하시려면 프리미엄 버튼을 눌러주세요.');
+}
 
 // Kept only as a compatibility hook. Never call this from a URL or payment return page.
 // The server-side PayApp webhook must set users/{uid}.premium=true first.
