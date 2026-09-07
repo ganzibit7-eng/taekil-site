@@ -2368,7 +2368,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-07-admin-verify-writeback' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-07-referrer-check-added' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -3571,6 +3571,21 @@ function tryActivatePendingPremium() {
     } else {
       // 서버 검증 함수가 아직 연결되지 않은 경우의 임시(B안) 방식: 손님이 직접
       // "결제를 완료했다"고 확인하는 절차를 한 번 더 거치게 합니다.
+      //
+      // 다만 이 확인창도 결국 본인이 "예"를 누르면 끝이라, 결제 버튼만 누르고 실제로는
+      // 결제 없이 이 주소로 직접 들어와서(또는 URL을 그대로 다시 열어서) 확인창을
+      // 악용할 수 있었습니다. 그래서 "정말로 페이앱에서 돌아온 것이 맞는지"를
+      // document.referrer(직전 페이지 주소)로 한 번 더 확인합니다. 직접 주소를 쳐서
+      // 들어오거나 즐겨찾기로 들어온 경우 referrer가 비어있어서 이 확인을 통과하지 못합니다.
+      // (개발자도구로 완전히 우회하는 것까지 막지는 못하지만, URL을 다시 여는 것 같은
+      // 손쉬운 방식은 막아줍니다. 완벽한 차단은 서버 검증이 붙어야 가능해요.)
+      const cameFromPayapp = document.referrer && /payapp\.kr/i.test(document.referrer);
+      if (!cameFromPayapp) {
+        localStorage.removeItem('taekilso_pending_order');
+        sessionStorage.removeItem('taekilso_pending_order');
+        showToast('결제창을 거치지 않고 이 주소로 직접 들어오신 것 같아요. 정상적으로 결제하셨다면 고객센터로 결제 내역과 함께 문의해주세요.');
+        return;
+      }
       openPaymentConfirmModal(pending);
     }
   }
