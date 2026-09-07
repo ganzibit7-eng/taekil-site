@@ -1420,12 +1420,12 @@ footer{padding-bottom:90px}
         <div class="profile-tier" id="profileTier">무료 회원</div>
         <div id="premiumExpiry" style="display:none;margin-top:7px;color:var(--muted-2);font-size:11px;"></div>
       </div>
-      <div class="profile-actions" id="profileActionsWrap">
+      <div class="profile-actions">
         <button class="btn" onclick="goTo('history')">내 검색 기록 보기</button>
         <button class="btn btn-primary" id="profileUpgradeBtn" onclick="payPremium()">프리미엄으로 업그레이드</button>
       </div>
-      <button class="btn" id="supportEntryBtn" style="width:100%; margin-top:10px;" onclick="goTo('support')">💬 고객센터 · 1:1 문의</button>
-      <button class="btn" id="refundEntryBtn" style="width:100%; margin-top:10px; color:var(--warn); border-color:rgba(201,131,106,.3);" onclick="requestRefund()">💸 환불 요청하기</button>
+      <button class="btn" style="width:100%; margin-top:10px;" onclick="goTo('support')">💬 고객센터 · 1:1 문의</button>
+      <button class="btn" style="width:100%; margin-top:10px; color:var(--warn); border-color:rgba(201,131,106,.3);" onclick="requestRefund()">💸 환불 요청하기</button>
       <div id="adminEntryWrap" style="display:none; margin-top:14px;">
         <button class="btn" style="width:100%; border-color:rgba(215,180,106,.4); color:var(--gold-hi);" onclick="goTo('admin')">✦ 관리자 대시보드</button>
       </div>
@@ -2582,10 +2582,6 @@ function renderProfile() {
   }
 
   document.getElementById('adminEntryWrap').style.display = isAdmin() ? 'block' : 'none';
-
-  const admin = isAdmin();
-  document.getElementById('profileUpgradeBtn').style.display = admin ? 'none' : '';
-  document.getElementById('supportEntryBtn').style.display = admin ? 'none' : '';
 }
 updateAuthNav();
 // 이용권 만료를 화면에 즉시 반영하고, 날짜가 바뀌어도 상태가 갱신되도록 합니다.
@@ -2780,6 +2776,14 @@ async function submitInquiry(prefill) {
           }
         } catch (anonErr) {
           console.warn('익명 인증 문의 저장 실패', anonErr);
+          const anonCode = anonErr && anonErr.code ? '[' + anonErr.code + '] ' : '';
+          const anonMsg = anonErr && anonErr.message ? anonErr.message : String(anonErr);
+          if (anonErr && anonErr.code === 'auth/admin-restricted-operation') {
+            showSupportStatus('등록 실패: Firebase 콘솔 → Authentication → Sign-in method에서 "익명(Anonymous)" 로그인이 꺼져있어요. 켜주신 다음 다시 시도해주세요.', 'error');
+          } else {
+            showSupportStatus('등록 실패(익명 인증 단계): ' + anonCode + anonMsg, 'error');
+          }
+          return;
         }
       }
 
@@ -2892,23 +2896,12 @@ function requestRefund() {
   const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
   if (!loggedIn) { showToast('로그인 후 이용할 수 있어요.'); openAuthModal(); return; }
   if (!isPremium()) { showToast('프리미엄 결제 내역이 없어요.'); return; }
-
-  const until = getPremiumUntil();
-  const purchasedAt = until ? until - 30 * 86400000 : 0;
-  const usedCount = readHistoryStore().filter(h => (h.savedAt || 0) >= purchasedAt).length;
-  const usageNotice = usedCount > 0
-    ? `\n\n참고로, 결제 이후 프리미엄 기능(365일 검색 · TOP20 · 상세 리포트 등)을 이미 ${usedCount}회 이용하신 기록이 있어요. 서비스를 정상적으로 이용하신 이후의 환불 요청은 사안에 따라 제한될 수 있는 점 양해 부탁드려요.`
-    : '\n\n아직 프리미엄 기능을 이용하신 기록은 없는 것으로 확인돼요.';
-
-  if (!confirm('프리미엄 결제(4,900원)에 대한 환불을 요청할까요?' + usageNotice + '\n\n확인을 누르면 문의가 등록되고, 순차적으로 확인 후 안내드릴게요.')) return;
+  if (!confirm('프리미엄 결제(4,900원)에 대한 환불을 요청할까요? 확인 후 순차적으로 처리해드려요.')) return;
 
   goTo('support');
   setTimeout(() => {
     document.getElementById('supportTitle').value = '프리미엄 결제 환불 요청';
-    document.getElementById('supportMessage').value =
-      '프리미엄(4,900원) 결제에 대한 환불을 요청합니다.\n\n' +
-      '환불 사유: \n(자세한 사유를 여기에 적어주세요)\n\n' +
-      `[자동 기록] 결제 후 서비스 이용 횟수: ${usedCount}회`;
+    document.getElementById('supportMessage').value = '프리미엄(4,900원) 결제에 대한 환불을 요청합니다.\n\n환불 사유: \n(자세한 사유를 여기에 적어주세요)';
     submitInquiry(true);
   }, 100);
 }
