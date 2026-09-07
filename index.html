@@ -2977,13 +2977,12 @@ async function loginWithGoogle() {
       }
     } catch (err) {
       console.warn('Google popup 로그인 실패', err);
-      const fallbackCodes = ['auth/popup-blocked','auth/operation-not-supported-in-this-environment'];
-      if (fallbackCodes.includes(err.code)) {
-        showToast('팝업을 사용할 수 없어 전체 화면 Google 로그인으로 연결합니다.');
+      const cancelledCodes = ['auth/popup-closed-by-user', 'auth/cancelled-popup-request'];
+      if (!cancelledCodes.includes(err.code)) {
+        showToast('팝업 방식이 안 돼서 전체 화면 Google 로그인으로 다시 시도할게요.');
         await firebase.auth().signInWithRedirect(provider);
         return;
       }
-      showAuthError('구글 로그인 실패: ' + formatAuthError(err));
     }
   } catch (err) {
     console.error('Google 로그인 처리 실패', err);
