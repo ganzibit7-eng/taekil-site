@@ -2210,7 +2210,7 @@ function applyDowFilter(mode) {
   document.getElementById('dayDetail').style.display = 'none';
 }
 
-/* ---------- AUTH (Firebase — fill in firebaseConfig below to activate) ---------- */
+/* ---------- AUTH (Firebase Spark 무료 플랜) ---------- */
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
@@ -2310,8 +2310,7 @@ function syncPremiumFromAccount(uid) {
 const KAKAO_JS_KEY = "0f7299964f7c22f2c6d1caaca0d33a7d";
 const KAKAO_REST_KEY = "189da591834b8e3edfffa2c7afa41c0d";
 const KAKAO_REDIRECT_URI = window.location.origin + window.location.pathname;
-// 배포 후 4단계에서 받은 kakaoCustomToken 함수 주소를 여기 채워주세요.
-// 예: https://asia-northeast3-taekilso.cloudfunctions.net/kakaoCustomToken
+// 무료(Spark) 운영에서는 별도 Cloud Function 없이 카카오 프로필을 브라우저 세션으로 유지합니다.
 const KAKAO_TOKEN_FUNCTION_URL = '';
 let kakaoReady = false;
 try {
@@ -2507,7 +2506,6 @@ async function exchangeKakaoCode(code) {
     let tokenData;
     try { tokenData = await tokenRes.json(); }
     catch (parseErr) { throw new Error('카카오 응답을 읽지 못했어요 (HTTP ' + tokenRes.status + ')'); }
-    console.log('[카카오 토큰 응답]', tokenData);
     if (!tokenData.access_token) {
       throw new Error((tokenData.error || '오류') + ': ' + (tokenData.error_description || '토큰 발급 실패'));
     }
@@ -2516,46 +2514,22 @@ async function exchangeKakaoCode(code) {
       headers: { Authorization: 'Bearer ' + tokenData.access_token }
     });
     const me = await meRes.json();
+    if (!me || !me.id) throw new Error('카카오 사용자 정보를 확인하지 못했어요.');
+
     const account = me.kakao_account || {};
     const profile = {
       id: me.id,
       nickname: (account.profile && account.profile.nickname) || '카카오 사용자',
       email: account.email || null
     };
+
+    // Spark 무료 운영: 카카오 로그인은 브라우저 세션으로만 유지합니다.
+    // Cloud Functions/Custom Token/Anonymous Auth에 의존하지 않아 로그인 때문에
+    // Firebase 세션이 바뀌거나 로그아웃되는 문제를 피합니다.
     localStorage.setItem(KAKAO_USER_KEY, JSON.stringify(profile));
-    // 결제 시 Firebase 세션을 복원할 수 있도록 이번 카카오 로그인 세션의
-    // access token을 sessionStorage에 보관합니다. (브라우저 탭을 닫으면 사라집니다.)
-    try { sessionStorage.setItem('taekilso_kakao_access_token', tokenData.access_token); } catch (_) {}
+    sessionStorage.setItem('taekilso_kakao_access_token', tokenData.access_token);
     updateAuthNav();
     showToast('카카오로 로그인했어요');
-    if (db) {
-      const key = 'kakao_' + profile.id;
-      db.collection('users').doc(key).get().then((snap) => {
-        if (!snap.exists) recordSignup(key, { nickname: profile.nickname, email: profile.email, provider: 'kakao' });
-        else syncPremiumFromAccount(key);
-      }).catch(() => {});
-    }
-
-    /* 결제까지 되게 하려면 이 카카오 로그인을 진짜 Firebase 로그인으로도 이어줘야 해요.
-       서버(kakaoCustomToken 함수)가 카카오 토큰을 검증하고 Firebase 전용 출입증을 만들어줍니다. */
-    if (KAKAO_TOKEN_FUNCTION_URL && firebaseReady) {
-      try {
-        const bridgeRes = await fetch(KAKAO_TOKEN_FUNCTION_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ accessToken: tokenData.access_token })
-        });
-        const bridgeData = await bridgeRes.json();
-        if (bridgeData.customToken) {
-          await firebase.auth().signInWithCustomToken(bridgeData.customToken);
-          console.log('[카카오→Firebase 연결 완료]');
-        } else {
-          console.error('카카오→Firebase 연결 실패', bridgeData);
-        }
-      } catch (bridgeErr) {
-        console.error('카카오→Firebase 연결 중 오류', bridgeErr);
-      }
-    }
   } catch (err) {
     console.error('카카오 로그인 처리 실패', err);
     showToast('카카오 로그인 실패: ' + (err && err.message ? err.message : String(err)));
@@ -2594,140 +2568,69 @@ function handleAuthNavClick() {
  * PayApp 결제 연동 진단:
  * - userid가 실제 PayApp 판매자 ID인지 확인
  * - price는 1,000원 이상
- * - feedbackurl은 서버를 연결하기 전까지 비워둘 수 있음
+ * - feedbackurl은 서버가 없으면 비워둡니다.
  * - PayApp JS API는 기본적으로 새 창을 사용하므로 현재 탭(_self)으로 고정해 팝업 차단을 피함
  */
 async function payPremium() {
-  // A server-verified payment needs a real Firebase Auth identity.
-  // Email/Google sign-in already provides this. Kakao logins are bridged into a real
-  // Firebase session too (see exchangeKakaoCode + kakaoCustomToken function), so as long
-  // as that bridge succeeded, firebase.auth().currentUser will be set for Kakao users as well.
-  // Firebase Auth는 페이지 로드 직후 세션 복원이 완료되기 전까지
-  // currentUser가 잠시 null일 수 있습니다. 결제 버튼을 바로 눌러도
-  // 이 순간을 로그인 실패로 오인하지 않도록 Auth 상태를 잠시 기다립니다.
-  let fbUser = firebaseAuthUser || ((firebaseReady && firebase.auth().currentUser) ? firebase.auth().currentUser : null);
-
-  // 카카오 로그인은 화면상 로그인 상태라도 Firebase 세션이 아직 연결되지 않았을 수 있습니다.
-  // 이 경우 카카오 access token으로 Firebase custom token 교환을 한 번 시도합니다.
-  if (!fbUser && getKakaoUser() && KAKAO_TOKEN_FUNCTION_URL && firebaseReady) {
-    try {
-      const kakaoAccessToken = sessionStorage.getItem('taekilso_kakao_access_token');
-      if (kakaoAccessToken) {
-        const bridgeRes = await fetch(KAKAO_TOKEN_FUNCTION_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ accessToken: kakaoAccessToken })
-        });
-        const bridgeData = await bridgeRes.json();
-        if (bridgeData.customToken) {
-          await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-          await firebase.auth().signInWithCustomToken(bridgeData.customToken);
-          fbUser = firebase.auth().currentUser || firebaseAuthUser || null;
-        } else {
-          console.warn('카카오→Firebase 결제용 연결 실패', bridgeData);
-        }
-      }
-    } catch (bridgeErr) {
-      console.warn('카카오→Firebase 결제용 연결 오류', bridgeErr);
-    }
-  }
-
-  // Auth 초기화가 아직 끝나지 않았다면 최대 6초 동안 기다립니다.
-  // 초기 onAuthStateChanged가 null을 한 번 보냈다고 해서 바로 로그아웃으로 처리하지 않습니다.
-  if (!fbUser && firebaseReady && !firebaseAuthReady) {
-    fbUser = await new Promise((resolve) => {
-      let done = false;
-      const finish = (user) => {
-        if (done) return;
-        done = true;
-        try { unsubscribe(); } catch (_) {}
-        resolve(user || null);
-      };
-      const unsubscribe = firebase.auth().onAuthStateChanged((user) => finish(user));
-      setTimeout(() => finish(firebase.auth().currentUser || firebaseAuthUser || null), 6000);
-    });
-  }
-
-  // 로그인은 되어 있었지만 currentUser 복원이 늦는 경우를 한 번 더 확인합니다.
-  if (!fbUser && firebaseReady) {
-    await new Promise((r) => setTimeout(r, 500));
-    fbUser = firebaseAuthUser || firebase.auth().currentUser || null;
-  }
-  if (!fbUser) {
-    if (getKakaoUser()) {
-      showToast('카카오 로그인 연결을 확인하지 못했어요. 카카오로 다시 로그인해주세요.');
-    } else {
-      showToast('로그인 상태를 확인하지 못했어요. 다시 로그인한 뒤 결제해주세요.');
-    }
+  // Spark 무료 운영: 결제창을 열기 위해 Firebase Auth를 강제하지 않습니다.
+  // 카카오 로그인 정보는 localStorage로 유지되므로 결제 버튼을 눌렀다고 로그아웃되지 않습니다.
+  if (!getKakaoUser() && !(firebaseReady && firebase.auth().currentUser)) {
+    showToast('먼저 로그인해주세요.');
     openAuthModal();
     return;
   }
 
-  // 결제 페이지로 이동하기 전에 현재 로그인 세션을 LOCAL로 확정합니다.
-  try {
-    await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-  } catch (persistErr) {
-    console.warn('결제 전 로그인 세션 저장 설정 실패', persistErr);
+  if (typeof PayApp === 'undefined') {
+    showToast('결제 모듈을 불러오지 못했어요. 잠시 후 다시 시도해주세요.');
+    return;
   }
-
-  if (typeof PayApp === 'undefined') { showToast('결제 모듈을 불러오지 못했어요. 잠시 후 다시 시도해주세요.'); return; }
   if (!PAYAPP_USERID || PAYAPP_USERID === "YOUR_PAYAPP_ID") {
     showToast('페이앱 판매자 아이디를 연결해주세요.');
     return;
   }
-  // feedbackurl은 선택 사항입니다.
-  // 아직 서버 웹훅을 연결하지 않은 단계에서는 비워 두고 결제창 자체는 정상 호출합니다.
-  if (isPremium()) { showToast('이미 프리미엄을 이용 중이에요.'); return; }
+  if (isPremium()) {
+    showToast('이미 프리미엄을 이용 중이에요.');
+    return;
+  }
 
   const orderId = 'TAK-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
   try {
-    // Create a pending order first. Firestore rules must allow the signed-in user to create
-    // ONLY their own pending order and must prevent client-side status/premium changes.
-    if (!db) throw new Error('결제 주문 저장소가 준비되지 않았습니다.');
-    await db.collection('paymentOrders').doc(orderId).set({
-      uid: fbUser.uid,
+    // Spark + 정적 호스팅에서는 서버 검증을 할 수 없으므로 주문 정보는 브라우저에만 보관합니다.
+    // 이 값은 결제 성공을 의미하지 않으며, 실제 프리미엄 승인에는 서버 검증이 필요합니다.
+    localStorage.setItem('taekilso_pending_order', JSON.stringify({
+      orderId,
       amount: PREMIUM_PRICE,
-      product: 'taekilso_premium_1time',
-      status: 'pending',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    sessionStorage.setItem('taekilso_pending_order', orderId);
+      createdAt: Date.now()
+    }));
 
     PayApp.setParam({
       userid: PAYAPP_USERID,
       shopname: '택일소',
       goodname: '택일소 프리미엄 정밀 택일 리포트 (1회)',
       price: String(PREMIUM_PRICE),
-      // SMS 요청 없이 웹 결제창으로 바로 진행
       smsuse: 'n',
       checkretry: 'y',
       redirecturl: PAYAPP_RETURN_URL,
       redirect: 'self',
       returnurl: PAYAPP_RETURN_URL,
-      // 주문번호를 PayApp feedbackurl로 그대로 전달할 수 있도록 유지
       var1: orderId,
       memo: '365일 택일 검색 · TOP20 · 정밀 리포트 · 궁합 택일',
-      // 현재 탭에서 PayApp 결제창으로 이동합니다.
       redirectpay: '1',
       skip_cstpage: 'y'
     });
 
-    // 서버 웹훅을 연결한 경우에만 feedbackurl을 추가합니다.
-    if (PAYAPP_FEEDBACK_URL) {
-      PayApp.setParam('feedbackurl', PAYAPP_FEEDBACK_URL);
-    }
+    // 서버가 없는 무료 버전에서는 feedbackurl을 사용하지 않습니다.
+    if (PAYAPP_FEEDBACK_URL) PayApp.setParam('feedbackurl', PAYAPP_FEEDBACK_URL);
 
     PayApp.setTarget('_self');
     PayApp.payrequest();
-    showToast('결제요청을 보냈어요. 결제 완료 후 자동으로 확인합니다.');
+    showToast('결제창을 열었어요.');
   } catch (e) {
     console.error(e);
-    try { if (db) await db.collection('paymentOrders').doc(orderId).delete(); } catch (_) {}
-    sessionStorage.removeItem('taekilso_pending_order');
+    localStorage.removeItem('taekilso_pending_order');
     showToast('결제창을 열지 못했어요. 잠시 후 다시 시도해주세요.');
   }
 }
-
 /*
  * IMPORTANT: GitHub Pages is static, so a browser-only "?premium=1" unlock is NOT secure.
  * The production version should set PREMIUM_KEY only after a PayApp feedbackurl webhook has
@@ -2737,13 +2640,12 @@ async function payPremium() {
 (function checkPremiumReturn() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('payment') === 'return') {
-    showToast('결제 결과를 확인하고 있어요. 잠시만 기다려주세요.');
+    // Spark 무료/정적 버전에서는 브라우저만으로 PayApp 성공 여부를 검증하지 않습니다.
+    // 결제 완료 화면으로 돌아왔다는 사실만 안내하고 프리미엄은 자동 승인하지 않습니다.
+    showToast('결제 결과를 확인했어요. 실제 프리미엄 승인은 서버 확인이 필요합니다.');
     const url = new URL(window.location.href);
     url.searchParams.delete('payment');
     window.history.replaceState({}, document.title, url.toString());
-    setTimeout(() => refreshPremiumFromServer(), 300);
-    setTimeout(() => refreshPremiumFromServer(), 1500);
-    setTimeout(() => refreshPremiumFromServer(), 3500);
   }
 })();
 
