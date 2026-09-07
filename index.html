@@ -2473,8 +2473,13 @@ async function exchangeKakaoCode(code) {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
       body: body.toString()
     });
-    const tokenData = await tokenRes.json();
-    if (!tokenData.access_token) throw new Error(tokenData.error_description || '토큰 발급 실패');
+    let tokenData;
+    try { tokenData = await tokenRes.json(); }
+    catch (parseErr) { throw new Error('카카오 응답을 읽지 못했어요 (HTTP ' + tokenRes.status + ')'); }
+    console.log('[카카오 토큰 응답]', tokenData);
+    if (!tokenData.access_token) {
+      throw new Error((tokenData.error || '오류') + ': ' + (tokenData.error_description || '토큰 발급 실패'));
+    }
 
     const meRes = await fetch('https://kapi.kakao.com/v2/user/me', {
       headers: { Authorization: 'Bearer ' + tokenData.access_token }
@@ -2498,7 +2503,7 @@ async function exchangeKakaoCode(code) {
     }
   } catch (err) {
     console.error('카카오 로그인 처리 실패', err);
-    showToast('카카오 로그인 처리에 실패했어요.');
+    showToast('카카오 로그인 실패: ' + (err && err.message ? err.message : String(err)));
   } finally {
     const url = new URL(window.location.href);
     url.searchParams.delete('code');
