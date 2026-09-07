@@ -1492,11 +1492,21 @@ footer{padding-bottom:90px}
 // 2) 심사 승인 후 로그인해서 본인이 만든 "판매자 아이디"를 아래에 붙여넣기
 const PAYAPP_USERID = "green5797";
 const PREMIUM_KEY = 'taekilso_premium';
-const PAYAPP_RETURN_URL = window.location.origin + window.location.pathname + '?premium=1';
+// IMPORTANT: PayApp feedbackurl must point to a real server endpoint.
+// GitHub Pages/static hosting cannot receive PayApp's POST webhook.
+// Example: https://YOUR-BACKEND-DOMAIN/payapp-feedbackurl
+const PAYAPP_FEEDBACK_URL = '';
+const PAYAPP_RETURN_URL = window.location.origin + window.location.pathname + '?payment=return';
+const PREMIUM_PRICE = 4900;
+// The HTML alone cannot securely verify a PayApp payment. Do not set premium=true from browser code.
 
+// Premium is NEVER unlocked from URL parameters or a client-side flag.
+// The authoritative value must be written by the server after PayApp pay_state=4 verification.
+let verifiedPremium = false;
 function isPremium() {
-  return localStorage.getItem(PREMIUM_KEY) === 'true';
+  return verifiedPremium === true;
 }
+
 
 /* ---------- ROUTING ---------- */
 function toggleMobileNav() {
@@ -2222,7 +2232,7 @@ try {
     firebase.initializeApp(firebaseConfig);
     firebaseReady = true;
     db = firebase.firestore();
-    firebase.auth().onAuthStateChanged((user) => { updateAuthNav(); if (user) syncPremiumFromAccount(user.uid); });
+    firebase.auth().onAuthStateChanged((user) => { verifiedPremium = false; updateAuthNav(); updatePremiumUI(); if (user) syncPremiumFromAccount(user.uid); });
     recordVisit();
   }
 } catch (err) { console.error('Firebase 초기화 실패', err); }
@@ -2251,11 +2261,8 @@ function recordSignup(uid, data) {
 }
 
 function recordPurchase() {
+  // DO NOT grant premium here. Premium is granted only by the server-side PayApp webhook.
   bumpStat('purchases');
-  const uid = getCurrentUserKey();
-  if (db && uid) {
-    db.collection('users').doc(uid).set({ premium: true }, { merge: true }).catch(() => {});
-  }
 }
 
 function getCurrentUserKey() {
@@ -2269,13 +2276,14 @@ function getCurrentUserKey() {
 function syncPremiumFromAccount(uid) {
   if (!db || !uid) return;
   db.collection('users').doc(uid).get().then((snap) => {
-    if (snap.exists && snap.data().premium && !isPremium()) {
-      localStorage.setItem(PREMIUM_KEY, 'true');
-      updateAuthNav();
-      updatePremiumUI();
+    verifiedPremium = !!(snap.exists && snap.data().premium === true);
+    updateAuthNav();
+    updatePremiumUI();
+    if (verifiedPremium) {
+      sessionStorage.removeItem('taekilso_pending_order');
       showToast('이 계정의 프리미엄이 확인됐어요.');
     }
-  }).catch(() => {});
+  }).catch((err) => console.error('프리미엄 상태 확인 실패', err));
 }
 
 /* ---------- KAKAO LOGIN (client-side only — no backend session yet) ---------- */
@@ -2286,6 +2294,9 @@ function syncPremiumFromAccount(uid) {
 const KAKAO_JS_KEY = "0f7299964f7c22f2c6d1caaca0d33a7d";
 const KAKAO_REST_KEY = "189da591834b8e3edfffa2c7afa41c0d";
 const KAKAO_REDIRECT_URI = window.location.origin + window.location.pathname;
+// 배포 후 4단계에서 받은 kakaoCustomToken 함수 주소를 여기 채워주세요.
+// 예: https://asia-northeast3-taekilso.cloudfunctions.net/kakaoCustomToken
+const KAKAO_TOKEN_FUNCTION_URL = '';
 let kakaoReady = false;
 try {
   if (KAKAO_JS_KEY !== "YOUR_KAKAO_JS_KEY" && window.Kakao && !Kakao.isInitialized()) {
@@ -2505,6 +2516,27 @@ async function exchangeKakaoCode(code) {
         else syncPremiumFromAccount(key);
       }).catch(() => {});
     }
+
+    /* 결제까지 되게 하려면 이 카카오 로그인을 진짜 Firebase 로그인으로도 이어줘야 해요.
+       서버(kakaoCustomToken 함수)가 카카오 토큰을 검증하고 Firebase 전용 출입증을 만들어줍니다. */
+    if (KAKAO_TOKEN_FUNCTION_URL && firebaseReady) {
+      try {
+        const bridgeRes = await fetch(KAKAO_TOKEN_FUNCTION_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accessToken: tokenData.access_token })
+        });
+        const bridgeData = await bridgeRes.json();
+        if (bridgeData.customToken) {
+          await firebase.auth().signInWithCustomToken(bridgeData.customToken);
+          console.log('[카카오→Firebase 연결 완료]');
+        } else {
+          console.error('카카오→Firebase 연결 실패', bridgeData);
+        }
+      } catch (bridgeErr) {
+        console.error('카카오→Firebase 연결 중 오류', bridgeErr);
+      }
+    }
   } catch (err) {
     console.error('카카오 로그인 처리 실패', err);
     showToast('카카오 로그인 실패: ' + (err && err.message ? err.message : String(err)));
@@ -2539,10 +2571,14 @@ function handleAuthNavClick() {
 }
 
 /* ---------- PREMIUM PAYMENT ACTIONS ---------- */
-function payPremium() {
-  const loggedIn = getKakaoUser() || (firebaseReady && firebase.auth().currentUser);
-  if (!loggedIn) {
-    showToast('결제 전에 로그인해주세요. 계정에 프리미엄을 연결해드려요.');
+async function payPremium() {
+  // A server-verified payment needs a real Firebase Auth identity.
+  // Email/Google sign-in already provides this. Kakao logins are bridged into a real
+  // Firebase session too (see exchangeKakaoCode + kakaoCustomToken function), so as long
+  // as that bridge succeeded, firebase.auth().currentUser will be set for Kakao users as well.
+  const fbUser = (firebaseReady && firebase.auth().currentUser) ? firebase.auth().currentUser : null;
+  if (!fbUser) {
+    showToast('안전한 결제 확인을 위해 먼저 로그인해주세요.');
     openAuthModal();
     return;
   }
@@ -2551,21 +2587,46 @@ function payPremium() {
     showToast('페이앱 판매자 아이디를 연결해주세요.');
     return;
   }
+  if (!PAYAPP_FEEDBACK_URL) {
+    showToast('결제 검증 서버가 아직 연결되지 않았어요. 관리자 설정을 확인해주세요.');
+    console.error('PAYAPP_FEEDBACK_URL is empty. Configure a server-side PayApp feedback endpoint before accepting payments.');
+    return;
+  }
   if (isPremium()) { showToast('이미 프리미엄을 이용 중이에요.'); return; }
+
+  const orderId = 'TAK-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
   try {
+    // Create a pending order first. Firestore rules must allow the signed-in user to create
+    // ONLY their own pending order and must prevent client-side status/premium changes.
+    if (!db) throw new Error('결제 주문 저장소가 준비되지 않았습니다.');
+    await db.collection('paymentOrders').doc(orderId).set({
+      uid: fbUser.uid,
+      amount: PREMIUM_PRICE,
+      product: 'taekilso_premium_1time',
+      status: 'pending',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    sessionStorage.setItem('taekilso_pending_order', orderId);
+
     PayApp.setParam({
       userid: PAYAPP_USERID,
       shopname: '택일소',
       goodname: '택일소 프리미엄 정밀 택일 리포트 (1회)',
-      price: '4900',
-      smsuse: 'n',
+      price: String(PREMIUM_PRICE),
+      smsuse: 'y',
+      feedbackurl: PAYAPP_FEEDBACK_URL,
+      checkretry: 'y',
       returnurl: PAYAPP_RETURN_URL,
+      var1: orderId,
       memo: '365일 택일 검색 · TOP20 · 정밀 리포트 · 궁합 택일'
     });
     PayApp.payrequest();
+    showToast('결제요청을 보냈어요. 결제 완료 후 자동으로 확인합니다.');
   } catch (e) {
     console.error(e);
-    showToast('결제창을 열지 못했어요.');
+    try { if (db) await db.collection('paymentOrders').doc(orderId).delete(); } catch (_) {}
+    sessionStorage.removeItem('taekilso_pending_order');
+    showToast('결제창을 열지 못했어요. 잠시 후 다시 시도해주세요.');
   }
 }
 
@@ -2577,20 +2638,39 @@ function payPremium() {
  */
 (function checkPremiumReturn() {
   const params = new URLSearchParams(window.location.search);
-  if (params.get('premium') === '1') {
-    showToast('결제 결과를 확인하고 있어요. 잠시 후 프리미엄이 활성화됩니다.');
+  if (params.get('payment') === 'return') {
+    showToast('결제 결과를 확인하고 있어요. 잠시만 기다려주세요.');
     const url = new URL(window.location.href);
-    url.searchParams.delete('premium');
+    url.searchParams.delete('payment');
     window.history.replaceState({}, document.title, url.toString());
+    setTimeout(() => refreshPremiumFromServer(), 800);
+    setTimeout(() => refreshPremiumFromServer(), 2500);
   }
 })();
 
-function activatePremiumAfterVerifiedPayment() {
-  localStorage.setItem(PREMIUM_KEY, 'true');
-  recordPurchase();
-  updateAuthNav();
-  updatePremiumUI();
-  showToast('프리미엄이 활성화됐어요.');
+// Kept only as a compatibility hook. Never call this from a URL or payment return page.
+// The server-side PayApp webhook must set users/{uid}.premium=true first.
+async function activatePremiumAfterVerifiedPayment() {
+  await refreshPremiumFromServer();
+}
+
+async function refreshPremiumFromServer() {
+  if (!firebaseReady || !db) return false;
+  const user = firebase.auth().currentUser;
+  if (!user) return false;
+  try {
+    const snap = await db.collection('users').doc(user.uid).get();
+    verifiedPremium = !!(snap.exists && snap.data().premium === true);
+    updateAuthNav();
+    updatePremiumUI();
+    if (verifiedPremium) {
+      sessionStorage.removeItem('taekilso_pending_order');
+    }
+    return verifiedPremium;
+  } catch (e) {
+    console.error('프리미엄 서버 상태 확인 실패', e);
+    return false;
+  }
 }
 
 function updatePremiumUI() {
