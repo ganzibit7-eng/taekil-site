@@ -2355,7 +2355,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-07-revoke-btn-always-show' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-07-admin-list-missing-createdat-fix' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -2744,11 +2744,24 @@ function renderAdmin() {
     document.getElementById('statPurchases').textContent = d.purchases || 0;
   }).catch(err => console.error('통계 조회 실패', err));
 
-  db.collection('users').orderBy('createdAt', 'desc').limit(100).get().then((qs) => {
+  db.collection('users').limit(200).get().then((qs) => {
     const list = document.getElementById('adminUserList');
     if (qs.empty) { list.innerHTML = '<div class="empty-note">아직 가입한 회원이 없어요.</div>'; return; }
     list.innerHTML = '';
-    qs.forEach((doc) => {
+    // createdAt이 없는 회원(예: Firestore가 꺼져있던 시기에 만들어진 기록)도 빠짐없이 보여주기 위해
+    // orderBy 대신 가져온 뒤 이 자리에서 정렬합니다. createdAt이 없으면 맨 뒤로 보냅니다.
+    const docs = [];
+    qs.forEach((doc) => docs.push(doc));
+    docs.sort((a, b) => {
+      const getMs = (d) => {
+        const v = d.data().createdAt;
+        if (v && typeof v.toMillis === 'function') return v.toMillis();
+        if (typeof v === 'number') return v;
+        return 0;
+      };
+      return getMs(b) - getMs(a);
+    });
+    docs.forEach((doc) => {
       const u = doc.data();
       const label = u.email || u.nickname || doc.id;
       let untilMs = 0;
@@ -2805,10 +2818,21 @@ function renderAdminInquiries() {
   const wrap = document.getElementById('adminInquiryList');
   if (!wrap || !db) return;
   wrap.innerHTML = '<div class="loading-line" style="margin-top:0;">불러오는 중…</div>';
-  db.collection('inquiries').orderBy('createdAt', 'desc').limit(100).get().then((qs) => {
+  db.collection('inquiries').limit(200).get().then((qs) => {
     if (qs.empty) { wrap.innerHTML = '<div class="empty-note">아직 등록된 문의가 없어요.</div>'; return; }
     wrap.innerHTML = '';
-    qs.forEach((doc) => {
+    const docs = [];
+    qs.forEach((doc) => docs.push(doc));
+    docs.sort((a, b) => {
+      const getMs = (d) => {
+        const v = d.data().createdAt;
+        if (v && typeof v.toMillis === 'function') return v.toMillis();
+        if (typeof v === 'number') return v;
+        return d.data().createdAtMs || 0;
+      };
+      return getMs(b) - getMs(a);
+    });
+    docs.forEach((doc) => {
       const q = doc.data();
       const card = document.createElement('div');
       card.className = 'admin-inq-card';
