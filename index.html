@@ -2241,6 +2241,9 @@ try {
       firebaseAuthReady = true;
       if (user) {
         syncPremiumFromAccount(user.uid);
+        if (isPremium() && db) {
+          db.collection('users').doc(user.uid).set({ premium: true }, { merge: true }).catch(() => {});
+        }
       }
       updateAuthNav();
       updatePremiumUI();
@@ -2250,7 +2253,7 @@ try {
 } catch (err) { console.error('Firebase 초기화 실패', err); }
 
 function isAdmin() {
-  return !!(firebaseReady && firebase.auth().currentUser && firebase.auth().currentUser.email === ADMIN_EMAIL);
+  return !!(firebaseReady && firebaseAuthReady && firebaseAuthUser && firebaseAuthUser.email === ADMIN_EMAIL);
 }
 
 /* ---------- 방문/가입/구매 집계 (Firestore) ---------- */
@@ -2283,7 +2286,7 @@ function recordPurchase() {
 function getCurrentUserKey() {
   const kakaoUser = getKakaoUser();
   if (kakaoUser) return 'kakao_' + kakaoUser.id;
-  if (firebaseReady && firebase.auth().currentUser) return firebase.auth().currentUser.uid;
+  if (firebaseReady && firebaseAuthReady && firebaseAuthUser) return firebaseAuthUser.uid;
   return null;
 }
 
@@ -2346,7 +2349,7 @@ function updateAuthNav() {
   const btn = document.getElementById('authNavBtn');
   const bottomLabel = document.getElementById('bottomProfileLabel');
   const kakaoUser = getKakaoUser();
-  const fbUser = (firebaseReady && firebase.auth().currentUser) ? firebase.auth().currentUser : null;
+  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser) ? firebaseAuthUser : null;
   const premiumTag = isPremium() ? ' ✦' : '';
   let label = '로그인';
   if (kakaoUser) {
@@ -2360,7 +2363,7 @@ function updateAuthNav() {
 
 function renderProfile() {
   const kakaoUser = getKakaoUser();
-  const fbUser = (firebaseReady && firebase.auth().currentUser) ? firebase.auth().currentUser : null;
+  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser) ? firebaseAuthUser : null;
   let name = '회원', meta = '', initial = '택';
 
   if (kakaoUser) {
@@ -2490,7 +2493,7 @@ function getMyInquiryList() {
 }
 
 function submitInquiry() {
-  const loggedIn = getKakaoUser() || (firebaseReady && firebase.auth().currentUser);
+  const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
   if (!loggedIn) { showToast('로그인 후 문의를 남길 수 있어요.'); openAuthModal(); return; }
   if (!db) { showToast('문의 저장소에 연결하지 못했어요.'); return; }
 
@@ -2499,7 +2502,7 @@ function submitInquiry() {
   if (!title || !message) { showToast('제목과 내용을 모두 입력해주세요.'); return; }
 
   const kakaoUser = getKakaoUser();
-  const fbUser = (firebaseReady && firebase.auth().currentUser) ? firebase.auth().currentUser : null;
+  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser) ? firebaseAuthUser : null;
   const uid = getCurrentUserKey();
   const name = kakaoUser ? kakaoUser.nickname : (fbUser ? (fbUser.displayName || fbUser.email) : '회원');
 
@@ -2570,7 +2573,7 @@ function showInquiryDetail(id) {
 /* ---------- 회원탈퇴 (본인 계정만) ---------- */
 function confirmDeleteAccount() {
   const kakaoUser = getKakaoUser();
-  const fbUser = (firebaseReady && firebase.auth().currentUser) ? firebase.auth().currentUser : null;
+  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser) ? firebaseAuthUser : null;
   if (!kakaoUser && !fbUser) { showToast('로그인 후 이용해주세요.'); return; }
 
   const msg = kakaoUser
@@ -2690,7 +2693,7 @@ async function exchangeKakaoCode(code) {
 function logout() {
   localStorage.removeItem(KAKAO_USER_KEY);
   sessionStorage.removeItem(KAKAO_USER_KEY);
-  if (firebaseReady && firebase.auth().currentUser) { firebase.auth().signOut(); }
+  if (firebaseReady && firebaseAuthReady && firebaseAuthUser) { firebase.auth().signOut(); }
   updateAuthNav();
   showToast('로그아웃했어요');
   goTo('home');
@@ -2699,7 +2702,7 @@ function logout() {
 let authMode = 'login';
 
 function handleAuthNavClick() {
-  if (getKakaoUser() || (firebaseReady && firebase.auth().currentUser)) {
+  if (getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser)) {
     goTo('profile');
   } else {
     openAuthModal();
@@ -2717,7 +2720,7 @@ function handleAuthNavClick() {
 async function payPremium() {
   // Spark 무료 운영: 결제창을 열기 위해 Firebase Auth를 강제하지 않습니다.
   // 카카오 로그인 정보는 localStorage로 유지되므로 결제 버튼을 눌렀다고 로그아웃되지 않습니다.
-  if (!getKakaoUser() && !(firebaseReady && firebase.auth().currentUser)) {
+  if (!getKakaoUser() && !(firebaseReady && firebaseAuthReady && firebaseAuthUser)) {
     showToast('먼저 로그인해주세요.');
     openAuthModal();
     return;
