@@ -2355,7 +2355,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-07-admin-list-missing-createdat-fix' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-07-inquiry-cancel-added' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -3034,11 +3034,20 @@ function renderSupportList() {
   listEl.innerHTML = mine.map(item => `
     <div class="usecase-item inq-item" data-inq-id="${escapeHtml(item.id)}">
       <div>${escapeHtml(item.title)}</div>
-      <span class="inq-status waiting" data-status-id="${escapeHtml(item.id)}">확인 중</span>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <span class="inq-status waiting" data-status-id="${escapeHtml(item.id)}">확인 중</span>
+        <span class="text-action" data-cancel-id="${escapeHtml(item.id)}" style="font-size:11px; color:var(--warn);">취소</span>
+      </div>
     </div>
   `).join('');
   listEl.querySelectorAll('.inq-item').forEach(el => {
     el.addEventListener('click', () => showInquiryDetail(el.dataset.inqId));
+  });
+  listEl.querySelectorAll('[data-cancel-id]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      cancelInquiry(e.target.dataset.cancelId);
+    });
   });
   if (db) {
     mine.filter(item => !item.localOnly).forEach(item => {
@@ -3051,10 +3060,37 @@ function renderSupportList() {
         if (badge && q.status === '답변완료') {
           badge.textContent = '답변완료';
           badge.className = 'inq-status answered';
+          // 답변이 이미 등록된 문의는 취소할 수 없도록 취소 버튼을 숨깁니다.
+          const cancelBtn = listEl.querySelector(`[data-cancel-id="${item.id}"]`);
+          if (cancelBtn) cancelBtn.style.display = 'none';
         }
       }).catch(() => {});
     });
   }
+}
+
+/* 답변이 등록되기 전까지는 본인이 등록한 문의를 스스로 취소(삭제)할 수 있습니다. */
+function cancelInquiry(id) {
+  if (!confirm('이 문의를 취소할까요? 취소하면 되돌릴 수 없어요.')) return;
+
+  const removeLocally = () => {
+    const list = getMyInquiryList().filter(x => x.id !== id);
+    localStorage.setItem(SUPPORT_LIST_KEY, JSON.stringify(list));
+    showToast('문의를 취소했어요.');
+    renderSupportList();
+  };
+
+  const local = getMyInquiryList().find(x => x.id === id);
+  if (local && local.localOnly) { removeLocally(); return; } // 서버에 올라간 적 없는 임시 항목은 로컬에서만 지우면 됩니다.
+  if (!db) { showToast('서버에 연결할 수 없어요. 잠시 후 다시 시도해주세요.'); return; }
+
+  db.collection('inquiries').doc(id).get().then((snap) => {
+    if (snap.exists && snap.data().status === '답변완료') {
+      showToast('이미 답변이 등록된 문의는 취소할 수 없어요.');
+      return;
+    }
+    return db.collection('inquiries').doc(id).delete().then(removeLocally);
+  }).catch(err => showToast('취소 실패: ' + err.message));
 }
 
 function showInquiryDetail(id) {
