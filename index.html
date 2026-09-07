@@ -2523,6 +2523,9 @@ async function exchangeKakaoCode(code) {
       email: account.email || null
     };
     localStorage.setItem(KAKAO_USER_KEY, JSON.stringify(profile));
+    // 결제 시 Firebase 세션을 복원할 수 있도록 이번 카카오 로그인 세션의
+    // access token을 sessionStorage에 보관합니다. (브라우저 탭을 닫으면 사라집니다.)
+    try { sessionStorage.setItem('taekilso_kakao_access_token', tokenData.access_token); } catch (_) {}
     updateAuthNav();
     showToast('카카오로 로그인했어요');
     if (db) {
@@ -2604,6 +2607,31 @@ async function payPremium() {
   // 이 순간을 로그인 실패로 오인하지 않도록 Auth 상태를 잠시 기다립니다.
   let fbUser = firebaseAuthUser || ((firebaseReady && firebase.auth().currentUser) ? firebase.auth().currentUser : null);
 
+  // 카카오 로그인은 화면상 로그인 상태라도 Firebase 세션이 아직 연결되지 않았을 수 있습니다.
+  // 이 경우 카카오 access token으로 Firebase custom token 교환을 한 번 시도합니다.
+  if (!fbUser && getKakaoUser() && KAKAO_TOKEN_FUNCTION_URL && firebaseReady) {
+    try {
+      const kakaoAccessToken = sessionStorage.getItem('taekilso_kakao_access_token');
+      if (kakaoAccessToken) {
+        const bridgeRes = await fetch(KAKAO_TOKEN_FUNCTION_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accessToken: kakaoAccessToken })
+        });
+        const bridgeData = await bridgeRes.json();
+        if (bridgeData.customToken) {
+          await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+          await firebase.auth().signInWithCustomToken(bridgeData.customToken);
+          fbUser = firebase.auth().currentUser || firebaseAuthUser || null;
+        } else {
+          console.warn('카카오→Firebase 결제용 연결 실패', bridgeData);
+        }
+      }
+    } catch (bridgeErr) {
+      console.warn('카카오→Firebase 결제용 연결 오류', bridgeErr);
+    }
+  }
+
   // Auth 초기화가 아직 끝나지 않았다면 최대 6초 동안 기다립니다.
   // 초기 onAuthStateChanged가 null을 한 번 보냈다고 해서 바로 로그아웃으로 처리하지 않습니다.
   if (!fbUser && firebaseReady && !firebaseAuthReady) {
@@ -2626,7 +2654,11 @@ async function payPremium() {
     fbUser = firebaseAuthUser || firebase.auth().currentUser || null;
   }
   if (!fbUser) {
-    showToast('로그인 상태를 확인하지 못했어요. 다시 로그인한 뒤 결제해주세요.');
+    if (getKakaoUser()) {
+      showToast('카카오 로그인 연결을 확인하지 못했어요. 카카오로 다시 로그인해주세요.');
+    } else {
+      showToast('로그인 상태를 확인하지 못했어요. 다시 로그인한 뒤 결제해주세요.');
+    }
     openAuthModal();
     return;
   }
