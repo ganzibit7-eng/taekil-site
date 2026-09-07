@@ -2681,7 +2681,7 @@ function loginWithKakao() {
     showToast('카카오 로그인 설정이 아직 안 됐어요.');
     return;
   }
-  Kakao.Auth.authorize({ redirectUri: KAKAO_REDIRECT_URI });
+  Kakao.Auth.authorize({ redirectUri: KAKAO_REDIRECT_URI, scope: 'profile_nickname' });
 }
 
 async function exchangeKakaoCode(code) {
