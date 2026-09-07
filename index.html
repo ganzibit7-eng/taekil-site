@@ -2210,6 +2210,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
+console.log('[택일소 빌드] v' + '2026-09-07-auth-fix' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -2693,8 +2694,11 @@ async function exchangeKakaoCode(code) {
 function logout() {
   localStorage.removeItem(KAKAO_USER_KEY);
   sessionStorage.removeItem(KAKAO_USER_KEY);
-  if (firebaseReady && firebaseAuthReady && firebaseAuthUser) { firebase.auth().signOut(); }
+  if (firebaseReady && firebaseAuthReady && firebaseAuthUser) { firebase.auth().signOut().catch(() => {}); }
+  firebaseAuthUser = null;
+  verifiedPremium = (localStorage.getItem(PREMIUM_KEY) === 'true');
   updateAuthNav();
+  updatePremiumUI();
   showToast('로그아웃했어요');
   goTo('home');
 }
@@ -2815,7 +2819,7 @@ async function activatePremiumAfterVerifiedPayment() {
 
 async function refreshPremiumFromServer() {
   if (!firebaseReady || !db) return false;
-  const user = firebase.auth().currentUser;
+  const user = firebaseAuthUser;
   if (!user) return false;
   try {
     const snap = await db.collection('users').doc(user.uid).get();
