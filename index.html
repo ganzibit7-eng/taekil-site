@@ -1673,7 +1673,12 @@ function goTo(route, presetEvent) {
 function safeRoute(route) {
   return document.getElementById('view-' + route) ? route : 'home';
 }
-goTo(safeRoute(location.hash ? location.hash.slice(1) : 'home'));
+// setTimeout(0)으로 미뤄서, 아직 선언되지 않은 이후 코드(firebaseReady 등)를
+// 이 시점에서 참조하다가 스크립트 전체 실행이 멈추는 일이 없도록 합니다.
+// (예: #admin, #tool 같은 해시 주소로 바로 접속하거나 새로고침하는 경우)
+setTimeout(() => {
+  goTo(safeRoute(location.hash ? location.hash.slice(1) : 'home'));
+}, 0);
 window.addEventListener('hashchange', () => goTo(safeRoute(location.hash.slice(1))));
 
 function renderTodayGanji() {
@@ -2350,7 +2355,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-07-payment-timing-fix' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-07-admin-grant-revoke' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -2483,12 +2488,17 @@ function recordSignup(uid, data) {
   }, { merge: true }).then(() => bumpStat('signups')).catch(err => console.error('가입 기록 실패', err));
 }
 
-function recordPurchase() {
+function recordPurchase(orderId) {
   bumpStat('purchases');
   const uid = getCurrentUserKey();
   const until = getPremiumUntil();
   if (db && uid && until) {
-    db.collection('users').doc(uid).set({ premium: true, premiumUntil: until }, { merge: true }).catch(() => {});
+    db.collection('users').doc(uid).set({
+      premium: true,
+      premiumUntil: until,
+      lastOrderId: orderId || null,
+      lastPurchaseAt: Date.now()
+    }, { merge: true }).catch(() => {});
   }
 }
 function getCurrentUserKey() {
@@ -2542,6 +2552,16 @@ function reconcilePremiumWithAccount(uid) {
     else if (typeof data.premiumUntil === 'number') serverUntil = data.premiumUntil;
 
     const now = Date.now();
+
+    // 관리자가 명시적으로 "프리미엄 아님"으로 회수한 경우(환불 처리 등), 이 기기에 남아있던
+    // 예전 정보와 상관없이 서버의 회수 결정을 그대로 따릅니다. ("최신 값 우선" 병합보다 우선)
+    if (snap.exists && data.premium === false) {
+      if (getPremiumOwnerKey() === uid) clearLocalPremium();
+      updateAuthNav();
+      updatePremiumUI();
+      return;
+    }
+
     const bestUntil = Math.max(localUntil || 0, serverUntil || 0);
 
     if (bestUntil > now) {
@@ -2731,11 +2751,22 @@ function renderAdmin() {
     qs.forEach((doc) => {
       const u = doc.data();
       const label = u.email || u.nickname || doc.id;
+      let untilMs = 0;
+      if (u.premiumUntil && typeof u.premiumUntil.toMillis === 'function') untilMs = u.premiumUntil.toMillis();
+      else if (typeof u.premiumUntil === 'number') untilMs = u.premiumUntil;
+      const isActivePremium = u.premium === true && untilMs > Date.now();
+      const untilStr = untilMs ? new Date(untilMs).toLocaleDateString('ko-KR') : '';
       const item = document.createElement('div');
       item.className = 'usecase-item';
       item.innerHTML = `
-        <div><strong style="color:var(--gold-hi); font-family:var(--serif); font-weight:400;">${escapeHtml(label)}</strong> · ${escapeHtml(u.provider || '기타')}${u.premium ? ' · <span style="color:var(--gold-hi)">프리미엄</span>' : ''}</div>
-        <span class="hist-delete" data-uid="${doc.id}">제거</span>
+        <div>
+          <strong style="color:var(--gold-hi); font-family:var(--serif); font-weight:400;">${escapeHtml(label)}</strong> · ${escapeHtml(u.provider || '기타')}${isActivePremium ? ` · <span style="color:var(--gold-hi)">프리미엄 (${untilStr}까지)</span>` : ''}
+        </div>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <span class="text-action" data-grant-uid="${doc.id}" style="font-size:11px;">프리미엄 30일 지급</span>
+          ${isActivePremium ? `<span class="text-action" data-revoke-uid="${doc.id}" style="font-size:11px; color:var(--warn);">회수</span>` : ''}
+          <span class="hist-delete" data-uid="${doc.id}">제거</span>
+        </div>
       `;
       list.appendChild(item);
     });
@@ -2744,6 +2775,25 @@ function renderAdmin() {
         const uid = e.target.dataset.uid;
         if (!confirm('목록에서 제거할까요? (실제 로그인 계정은 지워지지 않아요)')) return;
         db.collection('users').doc(uid).delete().then(() => renderAdmin()).catch(err => showToast('제거 실패: ' + err.message));
+      });
+    });
+    list.querySelectorAll('[data-grant-uid]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const uid = e.target.dataset.grantUid;
+        if (!confirm('이 회원에게 프리미엄 30일 이용권을 지급할까요?')) return;
+        const until = Date.now() + PREMIUM_DURATION_MS;
+        db.collection('users').doc(uid).set({ premium: true, premiumUntil: until, grantedByAdmin: true }, { merge: true })
+          .then(() => { showToast('프리미엄을 지급했어요.'); renderAdmin(); })
+          .catch(err => showToast('지급 실패: ' + err.message));
+      });
+    });
+    list.querySelectorAll('[data-revoke-uid]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const uid = e.target.dataset.revokeUid;
+        if (!confirm('이 회원의 프리미엄 이용권을 회수할까요? (환불 처리 후 사용)')) return;
+        db.collection('users').doc(uid).set({ premium: false, premiumUntil: 0 }, { merge: true })
+          .then(() => { showToast('프리미엄을 회수했어요.'); renderAdmin(); })
+          .catch(err => showToast('회수 실패: ' + err.message));
       });
     });
   }).catch(err => console.error('회원 목록 조회 실패', err));
@@ -3017,12 +3067,30 @@ function requestRefund() {
   const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
   if (!loggedIn) { showToast('로그인 후 이용할 수 있어요.'); openAuthModal(); return; }
   if (!isPremium()) { showToast('프리미엄 결제 내역이 없어요.'); return; }
-  if (!confirm('프리미엄 결제(4,900원)에 대한 환불을 요청할까요? 확인 후 순차적으로 처리해드려요.')) return;
+
+  const until = getPremiumUntil();
+  const purchasedAtMs = Number(localStorage.getItem('taekilso_last_purchase_at')) || (until ? until - PREMIUM_DURATION_MS : 0);
+  const orderId = localStorage.getItem('taekilso_last_order_id') || '(기록 없음)';
+  const purchasedAtStr = purchasedAtMs ? new Date(purchasedAtMs).toLocaleString('ko-KR') : '(기록 없음)';
+
+  const usedCount = readHistoryStore().filter(h => (h.savedAt || 0) >= purchasedAtMs).length;
+  const usageNotice = usedCount > 0
+    ? `\n\n참고로, 결제 이후 프리미엄 기능(365일 검색 · TOP20 · 상세 리포트 등)을 이미 ${usedCount}회 이용하신 기록이 있어요. 서비스를 정상적으로 이용하신 이후의 환불 요청은 사안에 따라 제한될 수 있는 점 양해 부탁드려요.`
+    : '\n\n아직 프리미엄 기능을 이용하신 기록은 없는 것으로 확인돼요.';
+
+  if (!confirm('프리미엄 결제(4,900원)에 대한 환불을 요청할까요?' + usageNotice + '\n\n확인을 누르면 문의가 등록되고, 순차적으로 확인 후 안내드릴게요.')) return;
 
   goTo('support');
   setTimeout(() => {
     document.getElementById('supportTitle').value = '프리미엄 결제 환불 요청';
-    document.getElementById('supportMessage').value = '프리미엄(4,900원) 결제에 대한 환불을 요청합니다.\n\n환불 사유: \n(자세한 사유를 여기에 적어주세요)';
+    document.getElementById('supportMessage').value =
+      '프리미엄(4,900원) 결제에 대한 환불을 요청합니다.\n\n' +
+      '환불 사유: \n(자세한 사유를 여기에 적어주세요)\n\n' +
+      '── 자동 기록 (관리자 확인용) ──\n' +
+      `주문번호: ${orderId}\n` +
+      `결제(활성화) 시각: ${purchasedAtStr}\n` +
+      `이용 만료 예정일: ${until ? new Date(until).toLocaleString('ko-KR') : '(기록 없음)'}\n` +
+      `결제 후 서비스 이용 횟수: ${usedCount}회`;
     submitInquiry(true);
   }, 100);
 }
@@ -3295,7 +3363,9 @@ function tryActivatePendingPremium() {
 
   const until = Date.now() + PREMIUM_DURATION_MS;
   setLocalPremium(until, ownerKey);
-  recordPurchase();
+  recordPurchase(pending.orderId);
+  localStorage.setItem('taekilso_last_order_id', pending.orderId);
+  localStorage.setItem('taekilso_last_purchase_at', String(Date.now()));
   updateAuthNav();
   updatePremiumUI();
   showToast('프리미엄이 활성화됐어요! 30일간 이용하실 수 있어요.');
