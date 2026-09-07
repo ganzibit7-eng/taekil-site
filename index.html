@@ -1523,7 +1523,11 @@ function goTo(route, presetEvent) {
   if (btItem) btItem.classList.add('active');
   else if (route === 'profile') document.getElementById('bottomProfileTab').classList.add('active');
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
-  if (history.replaceState) history.replaceState(null, '', route === 'home' ? (location.pathname) : ('#' + route));
+  if (history.replaceState) {
+    const u = new URL(location.href);
+    u.hash = route === 'home' ? '' : route;
+    history.replaceState(null, '', u.pathname + u.search + u.hash);
+  }
 
   if (route === 'tool' && presetEvent) {
     document.querySelectorAll('.event-opt').forEach(o => {
