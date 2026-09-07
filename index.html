@@ -1420,12 +1420,12 @@ footer{padding-bottom:90px}
         <div class="profile-tier" id="profileTier">무료 회원</div>
         <div id="premiumExpiry" style="display:none;margin-top:7px;color:var(--muted-2);font-size:11px;"></div>
       </div>
-      <div class="profile-actions">
+      <div class="profile-actions" id="profileActionsWrap">
         <button class="btn" onclick="goTo('history')">내 검색 기록 보기</button>
         <button class="btn btn-primary" id="profileUpgradeBtn" onclick="payPremium()">프리미엄으로 업그레이드</button>
       </div>
-      <button class="btn" style="width:100%; margin-top:10px;" onclick="goTo('support')">💬 고객센터 · 1:1 문의</button>
-      <button class="btn" style="width:100%; margin-top:10px; color:var(--warn); border-color:rgba(201,131,106,.3);" onclick="requestRefund()">💸 환불 요청하기</button>
+      <button class="btn" id="supportEntryBtn" style="width:100%; margin-top:10px;" onclick="goTo('support')">💬 고객센터 · 1:1 문의</button>
+      <button class="btn" id="refundEntryBtn" style="width:100%; margin-top:10px; color:var(--warn); border-color:rgba(201,131,106,.3);" onclick="requestRefund()">💸 환불 요청하기</button>
       <div id="adminEntryWrap" style="display:none; margin-top:14px;">
         <button class="btn" style="width:100%; border-color:rgba(215,180,106,.4); color:var(--gold-hi);" onclick="goTo('admin')">✦ 관리자 대시보드</button>
       </div>
@@ -2582,6 +2582,10 @@ function renderProfile() {
   }
 
   document.getElementById('adminEntryWrap').style.display = isAdmin() ? 'block' : 'none';
+
+  const admin = isAdmin();
+  document.getElementById('profileUpgradeBtn').style.display = admin ? 'none' : '';
+  document.getElementById('supportEntryBtn').style.display = admin ? 'none' : '';
 }
 updateAuthNav();
 // 이용권 만료를 화면에 즉시 반영하고, 날짜가 바뀌어도 상태가 갱신되도록 합니다.
