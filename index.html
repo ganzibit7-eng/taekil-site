@@ -2355,7 +2355,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-07-inquiry-cancel-added' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-07-user-profile-backfill' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -2541,12 +2541,41 @@ function syncPremiumFromAccount(uid) {
  * 만료일"과 "계정에 저장된 만료일"을 비교해서, 더 최신(더 늦게 만료되는) 쪽으로 양쪽을
  * 맞춰줍니다. 이러면 PC에서 결제한 프리미엄이 모바일 로그인에서도 정상적으로 보여요.
  */
+/* Firestore가 꺼져있던 동안 만들어진 회원 기록에는 이메일/닉네임이 없을 수 있습니다.
+   관리자 화면에 UID만 뜨는 문제를 막기 위해, 로그인할 때마다 빠진 정보를 채워 넣습니다.
+   이미 저장돼있는 값은 절대 덮어쓰지 않습니다(로그인마다 조용히 한 번씩만 채워짐). */
+function backfillUserProfile(uid, existingData) {
+  if (!db || !uid) return;
+  const kakaoUser = getKakaoUser();
+  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser && !firebaseAuthUser.isAnonymous) ? firebaseAuthUser : null;
+
+  const patch = {};
+  if (kakaoUser) {
+    if (!existingData.nickname && kakaoUser.nickname) patch.nickname = kakaoUser.nickname;
+    if (!existingData.email && kakaoUser.email) patch.email = kakaoUser.email;
+    if (!existingData.provider) patch.provider = 'kakao';
+  } else if (fbUser) {
+    if (!existingData.email && fbUser.email) patch.email = fbUser.email;
+    if (!existingData.nickname && fbUser.displayName) patch.nickname = fbUser.displayName;
+    if (!existingData.provider) patch.provider = (fbUser.providerData[0] && fbUser.providerData[0].providerId === 'google.com') ? 'google' : 'email';
+  }
+  if (Object.keys(patch).length > 0) {
+    db.collection('users').doc(uid).set(patch, { merge: true }).catch(() => {});
+  }
+}
+
 function reconcilePremiumWithAccount(uid) {
   if (!db || !uid) return;
   const localUntil = (getPremiumOwnerKey() === uid) ? getPremiumUntil() : 0;
 
   db.collection('users').doc(uid).get().then((snap) => {
     const data = snap.exists ? (snap.data() || {}) : {};
+
+    // Firestore가 꺼져있던 동안 가입한 회원은 이메일/닉네임 정보가 없어서 관리자 화면에
+    // 고유 ID(UID)만 뜰 수 있습니다. 로그인할 때마다 빠진 정보를 채워 넣어 자동으로
+    // 고쳐지도록 합니다. (이미 있는 값은 덮어쓰지 않습니다)
+    backfillUserProfile(uid, data);
+
     let serverUntil = 0;
     if (data.premiumUntil && typeof data.premiumUntil.toMillis === 'function') serverUntil = data.premiumUntil.toMillis();
     else if (typeof data.premiumUntil === 'number') serverUntil = data.premiumUntil;
@@ -2763,7 +2792,7 @@ function renderAdmin() {
     });
     docs.forEach((doc) => {
       const u = doc.data();
-      const label = u.email || u.nickname || doc.id;
+      const label = u.email || u.nickname || ('회원 (' + doc.id.slice(0, 8) + '…)');
       let untilMs = 0;
       if (u.premiumUntil && typeof u.premiumUntil.toMillis === 'function') untilMs = u.premiumUntil.toMillis();
       else if (typeof u.premiumUntil === 'number') untilMs = u.premiumUntil;
