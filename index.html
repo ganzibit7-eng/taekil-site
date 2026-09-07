@@ -2296,6 +2296,7 @@ function syncPremiumFromAccount(uid) {
     updateAuthNav();
     updatePremiumUI();
     if (verifiedPremium) {
+      localStorage.removeItem('taekilso_pending_order');
       sessionStorage.removeItem('taekilso_pending_order');
       showToast('이 계정의 프리미엄이 확인됐어요.');
     }
@@ -2323,8 +2324,22 @@ try {
 const KAKAO_USER_KEY = 'taekilso_kakao_user';
 
 function getKakaoUser() {
-  try { const raw = localStorage.getItem(KAKAO_USER_KEY); return raw ? JSON.parse(raw) : null; }
-  catch (err) { return null; }
+  try {
+    const raw = localStorage.getItem(KAKAO_USER_KEY) || sessionStorage.getItem(KAKAO_USER_KEY);
+    if (!raw) return null;
+    const user = JSON.parse(raw);
+    return (user && user.id) ? user : null;
+  } catch (err) { return null; }
+}
+
+function restoreKakaoUserState() {
+  const user = getKakaoUser();
+  if (!user) return null;
+  try {
+    localStorage.setItem(KAKAO_USER_KEY, JSON.stringify(user));
+    sessionStorage.setItem(KAKAO_USER_KEY, JSON.stringify(user));
+  } catch (err) {}
+  return user;
 }
 
 function updateAuthNav() {
@@ -2527,6 +2542,7 @@ async function exchangeKakaoCode(code) {
     // Cloud Functions/Custom Token/Anonymous Auth에 의존하지 않아 로그인 때문에
     // Firebase 세션이 바뀌거나 로그아웃되는 문제를 피합니다.
     localStorage.setItem(KAKAO_USER_KEY, JSON.stringify(profile));
+      sessionStorage.setItem(KAKAO_USER_KEY, JSON.stringify(profile));
     sessionStorage.setItem('taekilso_kakao_access_token', tokenData.access_token);
     updateAuthNav();
     showToast('카카오로 로그인했어요');
@@ -2594,7 +2610,12 @@ async function payPremium() {
   }
 
   const orderId = 'TAK-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+  const currentKakaoUser = getKakaoUser();
   try {
+    if (currentKakaoUser) {
+      localStorage.setItem(KAKAO_USER_KEY, JSON.stringify(currentKakaoUser));
+      sessionStorage.setItem(KAKAO_USER_KEY, JSON.stringify(currentKakaoUser));
+    }
     // Spark + 정적 호스팅에서는 서버 검증을 할 수 없으므로 주문 정보는 브라우저에만 보관합니다.
     // 이 값은 결제 성공을 의미하지 않으며, 실제 프리미엄 승인에는 서버 검증이 필요합니다.
     localStorage.setItem('taekilso_pending_order', JSON.stringify({
@@ -2638,6 +2659,8 @@ async function payPremium() {
  * For that reason we no longer trust the query string alone.
  */
 (function checkPremiumReturn() {
+  restoreKakaoUserState();
+  updateAuthNav();
   const params = new URLSearchParams(window.location.search);
   if (params.get('payment') === 'return') {
     // Spark 무료/정적 버전에서는 브라우저만으로 PayApp 성공 여부를 검증하지 않습니다.
@@ -2665,6 +2688,7 @@ async function refreshPremiumFromServer() {
     updateAuthNav();
     updatePremiumUI();
     if (verifiedPremium) {
+      localStorage.removeItem('taekilso_pending_order');
       sessionStorage.removeItem('taekilso_pending_order');
     }
     return verifiedPremium;
