@@ -1353,6 +1353,7 @@ footer{padding-bottom:90px}
         <button class="btn btn-primary" id="profileUpgradeBtn" onclick="payPremium()">프리미엄으로 업그레이드</button>
       </div>
       <button class="btn" style="width:100%; margin-top:10px;" onclick="goTo('support')">💬 고객센터 · 1:1 문의</button>
+      <button class="btn" style="width:100%; margin-top:10px; color:var(--warn); border-color:rgba(201,131,106,.3);" onclick="requestRefund()">💸 환불 요청하기</button>
       <div id="adminEntryWrap" style="display:none; margin-top:14px;">
         <button class="btn" style="width:100%; border-color:rgba(215,180,106,.4); color:var(--gold-hi);" onclick="goTo('admin')">✦ 관리자 대시보드</button>
       </div>
@@ -1387,6 +1388,7 @@ footer{padding-bottom:90px}
           <textarea id="supportMessage" rows="5" placeholder="자세한 상황을 알려주세요." style="width:100%; padding:14px 15px; background:#090908; border:1px solid rgba(255,255,255,.10); border-radius:14px; color:var(--white); font-family:inherit; font-size:14px; resize:vertical;"></textarea>
         </div>
         <button class="btn btn-primary form-submit" onclick="submitInquiry()">문의 등록하기</button>
+        <div id="supportStatus" style="display:none; margin-top:12px; padding:12px 14px; border-radius:12px; font-size:13px; line-height:1.6;"></div>
       </div>
 
       <div class="section-head" style="margin-top:40px;">
@@ -2493,19 +2495,42 @@ function getMyInquiryList() {
   catch (e) { return []; }
 }
 
-function submitInquiry() {
+function showSupportStatus(msg, kind) {
+  const el = document.getElementById('supportStatus');
+  if (!el) return;
+  el.style.display = 'block';
+  el.textContent = msg;
+  if (kind === 'error') { el.style.background = 'rgba(201,131,106,.15)'; el.style.color = 'var(--warn)'; el.style.border = '1px solid rgba(201,131,106,.3)'; }
+  else if (kind === 'success') { el.style.background = 'rgba(215,180,106,.12)'; el.style.color = 'var(--gold-hi)'; el.style.border = '1px solid rgba(215,180,106,.3)'; }
+  else { el.style.background = 'rgba(255,255,255,.05)'; el.style.color = 'var(--muted)'; el.style.border = '1px solid var(--line-soft)'; }
+}
+
+function submitInquiry(prefill) {
+  showSupportStatus('확인 중이에요…', 'info');
+
   const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
-  if (!loggedIn) { showToast('로그인 후 문의를 남길 수 있어요.'); openAuthModal(); return; }
-  if (!db) { showToast('문의 저장소에 연결하지 못했어요.'); return; }
+  if (!loggedIn) { showSupportStatus('로그인 후 문의를 남길 수 있어요. 위의 "로그인" 버튼을 먼저 눌러주세요.', 'error'); openAuthModal(); return; }
+
+  if (!firebaseReady) { showSupportStatus('오류: Firebase 자체가 초기화되지 않았어요. 브라우저 콘솔에 "Firebase 초기화 실패" 에러가 있는지 확인해주세요.', 'error'); return; }
+  if (!db) { showSupportStatus('오류: 데이터 저장소(Firestore)에 연결하지 못했어요. 광고 차단 확장 프로그램을 꺼보시거나, Firebase 콘솔에서 Firestore Database가 만들어져 있는지 확인해주세요.', 'error'); return; }
 
   const title = document.getElementById('supportTitle').value.trim();
   const message = document.getElementById('supportMessage').value.trim();
-  if (!title || !message) { showToast('제목과 내용을 모두 입력해주세요.'); return; }
+  if (!title || !message) { showSupportStatus('제목과 내용을 모두 입력해주세요.', 'error'); return; }
 
   const kakaoUser = getKakaoUser();
   const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser) ? firebaseAuthUser : null;
   const uid = getCurrentUserKey();
   const name = kakaoUser ? kakaoUser.nickname : (fbUser ? (fbUser.displayName || fbUser.email) : '회원');
+
+  showSupportStatus('등록하는 중이에요…', 'info');
+
+  let settled = false;
+  const timeoutId = setTimeout(() => {
+    if (!settled) {
+      showSupportStatus('저장이 너무 오래 걸리고 있어요. 인터넷 연결, 또는 광고 차단(애드블록) 확장 프로그램이 Firestore 요청을 막고 있지 않은지 확인해보세요. (10초 넘게 응답이 없어요)', 'error');
+    }
+  }, 10000);
 
   db.collection('inquiries').add({
     uid, name, title, message,
@@ -2513,14 +2538,22 @@ function submitInquiry() {
     reply: '',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   }).then((docRef) => {
+    settled = true;
+    clearTimeout(timeoutId);
     const list = getMyInquiryList();
     list.unshift({ id: docRef.id, title, createdAt: Date.now() });
     localStorage.setItem(SUPPORT_LIST_KEY, JSON.stringify(list));
     document.getElementById('supportTitle').value = '';
-    document.getElementById('supportMessage').value = '';
-    showToast('문의가 등록됐어요. 답변을 확인해주세요.');
+    if (!prefill) document.getElementById('supportMessage').value = '';
+    showSupportStatus('✓ 문의가 정상적으로 등록됐어요. 아래 "내 문의 내역"에서 확인할 수 있어요.', 'success');
+    showToast('문의가 등록됐어요.');
     renderSupportList();
-  }).catch(err => showToast('등록 실패: ' + err.message));
+  }).catch(err => {
+    settled = true;
+    clearTimeout(timeoutId);
+    console.error('문의 등록 실패', err);
+    showSupportStatus('등록 실패: [' + (err.code || '') + '] ' + err.message, 'error');
+  });
 }
 
 function renderSupportList() {
@@ -2572,6 +2605,21 @@ function showInquiryDetail(id) {
 }
 
 /* ---------- 회원탈퇴 (본인 계정만) ---------- */
+/* ---------- 환불 요청 (프로필 → 자동으로 1:1 문의 등록) ---------- */
+function requestRefund() {
+  const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
+  if (!loggedIn) { showToast('로그인 후 이용할 수 있어요.'); openAuthModal(); return; }
+  if (!isPremium()) { showToast('프리미엄 결제 내역이 없어요.'); return; }
+  if (!confirm('프리미엄 결제(4,900원)에 대한 환불을 요청할까요? 확인 후 순차적으로 처리해드려요.')) return;
+
+  goTo('support');
+  setTimeout(() => {
+    document.getElementById('supportTitle').value = '프리미엄 결제 환불 요청';
+    document.getElementById('supportMessage').value = '프리미엄(4,900원) 결제에 대한 환불을 요청합니다.\n\n환불 사유: \n(자세한 사유를 여기에 적어주세요)';
+    submitInquiry(true);
+  }, 100);
+}
+
 function confirmDeleteAccount() {
   const kakaoUser = getKakaoUser();
   const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser) ? firebaseAuthUser : null;
@@ -2769,8 +2817,7 @@ async function payPremium() {
       returnurl: PAYAPP_RETURN_URL,
       var1: orderId,
       memo: '365일 택일 검색 · TOP20 · 정밀 리포트 · 궁합 택일',
-      redirectpay: '1',
-      skip_cstpage: 'y'
+      redirectpay: '1'
     });
 
     // 서버가 없는 무료 버전에서는 feedbackurl을 사용하지 않습니다.
@@ -2778,7 +2825,7 @@ async function payPremium() {
 
     PayApp.setTarget('_self');
     PayApp.payrequest();
-    showToast('결제창을 열었어요.');
+    showToast('결제창을 열었어요. 결제 완료 후 화면에 나오는 "확인" 버튼을 꼭 눌러주세요.');
   } catch (e) {
     console.error(e);
     localStorage.removeItem('taekilso_pending_order');
