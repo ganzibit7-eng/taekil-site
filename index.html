@@ -2741,7 +2741,8 @@ async function exchangeKakaoCode(code) {
 })();
 
 function logout() {
-  if (getKakaoUser()) { localStorage.removeItem(KAKAO_USER_KEY); }
+  localStorage.removeItem(KAKAO_USER_KEY);
+  sessionStorage.removeItem(KAKAO_USER_KEY);
   if (firebaseReady && firebase.auth().currentUser) { firebase.auth().signOut(); }
   updateAuthNav();
   showToast('로그아웃했어요');
