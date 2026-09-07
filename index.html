@@ -507,6 +507,15 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .admin-stat b{font-family:var(--serif); font-size:30px; color:var(--gold-hi)}
 @media(max-width:600px){.admin-stats{grid-template-columns:1fr}}
 
+/* support / inquiry */
+.inq-item{cursor:pointer; transition:.2s}
+.inq-item:hover{border-color:rgba(215,180,106,.3)}
+.inq-status{display:inline-block; padding:3px 10px; border-radius:999px; font-size:10.5px; font-weight:700}
+.inq-status.waiting{background:rgba(255,255,255,.06); color:var(--muted)}
+.inq-status.answered{background:rgba(215,180,106,.15); color:var(--gold-hi)}
+.admin-inq-card{border:1px solid var(--line-soft); border-radius:16px; padding:18px; margin-bottom:12px; background:rgba(255,255,255,.02)}
+.admin-inq-card textarea{width:100%; margin-top:10px; padding:12px 14px; background:#090908; border:1px solid rgba(255,255,255,.10); border-radius:12px; color:var(--white); font-family:inherit; font-size:13.5px; resize:vertical;}
+
 
 /* ---------- PREMIUM PROGRAM ---------- */
 .plan-price{display:flex;align-items:baseline;gap:7px;margin:4px 0 8px}.plan-price strong{font-size:34px;font-weight:850}.plan-price span{font-size:12px;color:var(--muted)}
@@ -1396,6 +1405,7 @@ footer{padding-bottom:90px}
         <button class="btn" onclick="goTo('history')">내 검색 기록 보기</button>
         <button class="btn btn-primary" id="profileUpgradeBtn" onclick="payPremium()">프리미엄으로 업그레이드</button>
       </div>
+      <button class="btn" style="width:100%; margin-top:10px;" onclick="goTo('support')">💬 고객센터 · 1:1 문의</button>
       <div id="adminEntryWrap" style="display:none; margin-top:14px;">
         <button class="btn" style="width:100%; border-color:rgba(215,180,106,.4); color:var(--gold-hi);" onclick="goTo('admin')">✦ 관리자 대시보드</button>
       </div>
@@ -1403,6 +1413,41 @@ footer{padding-bottom:90px}
         <span class="text-action" onclick="logout()">로그아웃</span>
         <span class="text-action" style="color:var(--warn);" onclick="confirmDeleteAccount()">계정 삭제</span>
       </div>
+    </div>
+  </section>
+</section>
+
+<!-- ============ SUPPORT (1:1 문의) ============ -->
+<section id="view-support" class="view">
+  <header class="hero hero-sm">
+    <div class="hero-inner">
+      <div class="eyebrow">고객센터</div>
+      <h1 style="font-size:clamp(28px,4.6vw,46px);">1:1 문의</h1>
+      <p class="hero-copy">궁금한 점이나 불편한 점을 남겨주시면 확인 후 답변드릴게요. 내 문의는 나만 볼 수 있어요.</p>
+    </div>
+  </header>
+  <section class="block" style="padding-top:10px;">
+    <div class="container" style="max-width:700px;">
+      <div class="tool-shell">
+        <h2>새 문의 작성</h2>
+        <p class="lead">로그인 후 이용할 수 있어요. 작성한 문의와 답변은 이 목록에서 확인할 수 있어요.</p>
+        <div class="field full" style="margin-bottom:12px;">
+          <label>제목</label>
+          <input type="text" id="supportTitle" placeholder="예: 결제가 안 돼요">
+        </div>
+        <div class="field full" style="margin-bottom:8px;">
+          <label>내용</label>
+          <textarea id="supportMessage" rows="5" placeholder="자세한 상황을 알려주세요." style="width:100%; padding:14px 15px; background:#090908; border:1px solid rgba(255,255,255,.10); border-radius:14px; color:var(--white); font-family:inherit; font-size:14px; resize:vertical;"></textarea>
+        </div>
+        <button class="btn btn-primary form-submit" onclick="submitInquiry()">문의 등록하기</button>
+      </div>
+
+      <div class="section-head" style="margin-top:40px;">
+        <div><div class="section-kicker">MY INQUIRIES</div><h2 class="section-title" style="font-size:22px;">내 문의 내역</h2></div>
+      </div>
+      <div id="supportList" class="usecase-list"></div>
+      <div id="supportEmpty" class="empty-note" style="display:none;">아직 등록한 문의가 없어요.</div>
+      <div id="supportDetail" class="day-detail" style="display:none;"></div>
     </div>
   </section>
 </section>
@@ -1430,6 +1475,11 @@ footer{padding-bottom:90px}
         </div>
         <div id="adminUserList" class="usecase-list"></div>
         <div class="price-note" style="margin-top:20px;">※ "제거"는 이 목록에서만 지워요. 실제 로그인 계정 삭제는 각 회원이 본인 프로필에서 "계정 삭제"를 눌러야 완전히 지워져요 (서버 없이 운영 중이라 관리자가 남의 계정을 직접 지울 수는 없어요).</div>
+
+        <div class="section-head" style="margin-top:40px;">
+          <div><div class="section-kicker">SUPPORT</div><h2 class="section-title" style="font-size:24px;">1:1 문의 관리</h2></div>
+        </div>
+        <div id="adminInquiryList"></div>
       </div>
     </div>
   </section>
@@ -1473,7 +1523,7 @@ footer{padding-bottom:90px}
       <div class="footer-links">
         <span class="footer-link" onclick="goTo('legal')">이용약관</span>
         <span class="footer-link" onclick="goTo('legal')">개인정보처리방침</span>
-        <span class="footer-link" onclick="location.href='mailto:hello@taekilso.com'">문의하기</span>
+        <span class="footer-link" onclick="goTo('support')">문의하기</span>
       </div>
       <div style="margin-top:14px; color:var(--muted-2);">© 2026 택일소. All rights reserved.</div>
     </div>
@@ -1545,6 +1595,7 @@ function goTo(route, presetEvent) {
   if (route === 'history') loadHistory();
   if (route === 'profile') renderProfile();
   if (route === 'admin') renderAdmin();
+  if (route === 'support') renderSupportList();
 }
 function safeRoute(route) {
   return document.getElementById('view-' + route) ? route : 'home';
@@ -2441,6 +2492,132 @@ function renderAdmin() {
       });
     });
   }).catch(err => console.error('회원 목록 조회 실패', err));
+
+  renderAdminInquiries();
+}
+
+function renderAdminInquiries() {
+  const wrap = document.getElementById('adminInquiryList');
+  if (!wrap || !db) return;
+  wrap.innerHTML = '<div class="loading-line" style="margin-top:0;">불러오는 중…</div>';
+  db.collection('inquiries').orderBy('createdAt', 'desc').limit(100).get().then((qs) => {
+    if (qs.empty) { wrap.innerHTML = '<div class="empty-note">아직 등록된 문의가 없어요.</div>'; return; }
+    wrap.innerHTML = '';
+    qs.forEach((doc) => {
+      const q = doc.data();
+      const card = document.createElement('div');
+      card.className = 'admin-inq-card';
+      const dateStr = q.createdAt && q.createdAt.toDate ? q.createdAt.toDate().toLocaleDateString('ko-KR') : '';
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
+          <strong style="font-family:var(--serif); font-weight:400; color:var(--gold-hi);">${q.title || '(제목 없음)'}</strong>
+          <span class="inq-status ${q.status === '답변완료' ? 'answered' : 'waiting'}">${q.status || '대기'}</span>
+        </div>
+        <div style="font-size:11px; color:var(--muted-2); margin-top:4px;">${q.name || q.uid || ''} · ${dateStr}</div>
+        <div style="font-size:13.5px; color:#cfcbc1; margin-top:10px; white-space:pre-wrap;">${(q.message || '').replace(/</g,'&lt;')}</div>
+        <textarea placeholder="답변을 입력하세요" data-id="${doc.id}">${q.reply || ''}</textarea>
+        <button class="btn btn-primary" style="margin-top:8px; height:42px; font-size:13px;" data-reply-id="${doc.id}">답변 저장</button>
+      `;
+      wrap.appendChild(card);
+    });
+    wrap.querySelectorAll('[data-reply-id]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.target.dataset.replyId;
+        const textarea = wrap.querySelector(`textarea[data-id="${id}"]`);
+        const reply = textarea.value.trim();
+        if (!reply) { showToast('답변 내용을 입력해주세요.'); return; }
+        db.collection('inquiries').doc(id).update({ reply, status: '답변완료' })
+          .then(() => { showToast('답변을 저장했어요.'); renderAdminInquiries(); })
+          .catch(err => showToast('저장 실패: ' + err.message));
+      });
+    });
+  }).catch(err => { wrap.innerHTML = '<div class="empty-note">문의 목록을 불러오지 못했어요.</div>'; console.error(err); });
+}
+
+/* ---------- 고객센터 (1:1 문의) ---------- */
+const SUPPORT_LIST_KEY = 'taekilso_my_inquiries';
+
+function getMyInquiryList() {
+  try { return JSON.parse(localStorage.getItem(SUPPORT_LIST_KEY) || '[]'); }
+  catch (e) { return []; }
+}
+
+function submitInquiry() {
+  const loggedIn = getKakaoUser() || (firebaseReady && firebase.auth().currentUser);
+  if (!loggedIn) { showToast('로그인 후 문의를 남길 수 있어요.'); openAuthModal(); return; }
+  if (!db) { showToast('문의 저장소에 연결하지 못했어요.'); return; }
+
+  const title = document.getElementById('supportTitle').value.trim();
+  const message = document.getElementById('supportMessage').value.trim();
+  if (!title || !message) { showToast('제목과 내용을 모두 입력해주세요.'); return; }
+
+  const kakaoUser = getKakaoUser();
+  const fbUser = (firebaseReady && firebase.auth().currentUser) ? firebase.auth().currentUser : null;
+  const uid = getCurrentUserKey();
+  const name = kakaoUser ? kakaoUser.nickname : (fbUser ? (fbUser.displayName || fbUser.email) : '회원');
+
+  db.collection('inquiries').add({
+    uid, name, title, message,
+    status: '대기',
+    reply: '',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then((docRef) => {
+    const list = getMyInquiryList();
+    list.unshift({ id: docRef.id, title, createdAt: Date.now() });
+    localStorage.setItem(SUPPORT_LIST_KEY, JSON.stringify(list));
+    document.getElementById('supportTitle').value = '';
+    document.getElementById('supportMessage').value = '';
+    showToast('문의가 등록됐어요. 답변을 확인해주세요.');
+    renderSupportList();
+  }).catch(err => showToast('등록 실패: ' + err.message));
+}
+
+function renderSupportList() {
+  const listEl = document.getElementById('supportList');
+  const emptyEl = document.getElementById('supportEmpty');
+  document.getElementById('supportDetail').style.display = 'none';
+  const mine = getMyInquiryList();
+  if (!mine.length) { listEl.innerHTML = ''; emptyEl.style.display = 'block'; return; }
+  emptyEl.style.display = 'none';
+  listEl.innerHTML = mine.map(item => `
+    <div class="usecase-item inq-item" data-inq-id="${item.id}">
+      <div>${item.title}</div>
+      <span class="inq-status waiting" data-status-id="${item.id}">확인 중</span>
+    </div>
+  `).join('');
+  listEl.querySelectorAll('.inq-item').forEach(el => {
+    el.addEventListener('click', () => showInquiryDetail(el.dataset.inqId));
+  });
+  if (db) {
+    mine.forEach(item => {
+      db.collection('inquiries').doc(item.id).get().then((snap) => {
+        if (!snap.exists) return;
+        const q = snap.data();
+        const badge = listEl.querySelector(`[data-status-id="${item.id}"]`);
+        if (badge && q.status === '답변완료') {
+          badge.textContent = '답변완료';
+          badge.className = 'inq-status answered';
+        }
+      }).catch(() => {});
+    });
+  }
+}
+
+function showInquiryDetail(id) {
+  const panel = document.getElementById('supportDetail');
+  if (!db) return;
+  panel.style.display = 'block';
+  panel.innerHTML = '<div class="loading-line" style="margin-top:0;">불러오는 중…</div>';
+  db.collection('inquiries').doc(id).get().then((snap) => {
+    if (!snap.exists) { panel.innerHTML = '<div class="empty-note">문의를 찾을 수 없어요.</div>'; return; }
+    const q = snap.data();
+    panel.innerHTML = `
+      <div class="pr-tag">${q.status === '답변완료' ? '✦ 답변완료' : '확인 중이에요'}</div>
+      <div style="font-family:var(--serif); font-size:18px; margin-bottom:8px;">${q.title}</div>
+      <div style="font-size:13.5px; color:#cfcbc1; white-space:pre-wrap; margin-bottom:14px;">${(q.message||'').replace(/</g,'&lt;')}</div>
+      ${q.reply ? `<div style="border-top:1px solid var(--line-soft); padding-top:14px;"><div style="font-size:11px; color:var(--gold-hi); margin-bottom:6px;">택일소 답변</div><div style="font-size:13.5px; color:#e8e5dc; white-space:pre-wrap;">${q.reply.replace(/</g,'&lt;')}</div></div>` : `<div style="font-size:12.5px; color:var(--muted);">아직 답변 전이에요. 조금만 기다려주세요.</div>`}
+    `;
+  }).catch(err => { panel.innerHTML = '<div class="empty-note">불러오지 못했어요.</div>'; console.error(err); });
 }
 
 /* ---------- 회원탈퇴 (본인 계정만) ---------- */
