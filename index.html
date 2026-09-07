@@ -1426,6 +1426,8 @@ document.querySelectorAll('.event-card, .event-opt, .faq-item summary').forEach(
 /* ---------- SAJU CALC ---------- */
 const CHEONGAN = ['갑','을','병','정','무','기','경','신','임','계'];
 const JIJI = ['자','축','인','묘','진','사','오','미','신','유','술','해'];
+const CHEONGAN_HANJA = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const JIJI_HANJA = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
 const CHEONGAN_OHAENG = ['목','목','화','화','토','토','금','금','수','수'];
 const GENERATES = { '목':'화', '화':'토', '토':'금', '금':'수', '수':'목' };
 const OVERCOMES = { '목':'토', '토':'수', '수':'화', '화':'금', '금':'목' };
@@ -1445,6 +1447,8 @@ function dayGanjiIndex(date) {
   return idx;
 }
 function ganjiName(idx) { return CHEONGAN[idx % 10] + JIJI[idx % 12]; }
+function ganjiHanja(idx) { return CHEONGAN_HANJA[idx % 10] + JIJI_HANJA[idx % 12]; }
+function ganjiFull(idx) { return `${ganjiName(idx)}(${ganjiHanja(idx)})`; }
 function ohaengOf(idx) { return CHEONGAN_OHAENG[idx % 10]; }
 renderTodayGanji();
 
@@ -1486,19 +1490,19 @@ function generateNarrative(t, eventType, coupleMode, coupleRelation) {
   const sonNote = (t.lunarInfo && t.lunarInfo.isSonEomneun) ? ' 민속에서 말하는 손없는 날이기도 해요.' : '';
   if (t.score >= 1.5) {
     const options = [
-      `일진 ${t.ganji}(${t.ohaeng})은 ${reasonsPhrase(t.reasons)}가 겹쳐 ${eventType}에 무난하게 어울리는 날입니다.${sonNote}`,
+      `일진 ${t.ganji}(${t.ganjiHanja})은 ${reasonsPhrase(t.reasons)}가 겹쳐 ${eventType}에 무난하게 어울리는 날입니다.${sonNote}`,
       `${reasonsPhrase(t.reasons)} 덕에 흐름이 편안한 날이라, ${eventType}을 진행하기에 나쁘지 않습니다.${sonNote}`
     ];
     text = options[seed % options.length];
   } else if (t.score < 0) {
     const options = [
-      `일진 ${t.ganji}(${t.ohaeng})은 ${reasonsPhrase(t.reasons)}가 있어, 다른 후보 날짜와 함께 비교해보시길 권해요.`,
+      `일진 ${t.ganji}(${t.ganjiHanja})은 ${reasonsPhrase(t.reasons)}가 있어, 다른 후보 날짜와 함께 비교해보시길 권해요.`,
       `기운이 다소 부딪히는 날이라 급하지 않다면 다른 날을 우선 살펴보는 것도 방법입니다.`
     ];
     text = options[seed % options.length];
   } else {
     const options = [
-      `일진 ${t.ganji}(${t.ohaeng})은 특별히 좋다 나쁘다 하기보다 평이한 날입니다.${sonNote}`,
+      `일진 ${t.ganji}(${t.ganjiHanja})은 특별히 좋다 나쁘다 하기보다 평이한 날입니다.${sonNote}`,
       `뚜렷한 상생·상극 없이 무난하게 지나갈 날로 보입니다.${sonNote}`
     ];
     text = options[seed % options.length];
@@ -1536,7 +1540,7 @@ function buildIcs(t, eventType) {
 }
 
 function shareResult(t, eventType) {
-  const text = `${eventType} 추천일: ${t.date.getFullYear()}년 ${t.date.getMonth()+1}월 ${t.date.getDate()}일 (일진 ${t.ganji}) — 택일소에서 확인해보세요.`;
+  const text = `${eventType} 추천일: ${t.date.getFullYear()}년 ${t.date.getMonth()+1}월 ${t.date.getDate()}일 (일진 ${t.ganji}(${t.ganjiHanja})) — 택일소에서 확인해보세요.`;
   if (navigator.share) {
     navigator.share({ title: '택일소', text }).catch(() => {});
   } else {
@@ -1671,7 +1675,17 @@ function resetTool() {
   const bh = document.getElementById('bestResultHero'); if (bh) bh.style.display = 'none';
   window.scrollTo({ top: document.querySelector('.tool-shell').offsetTop - 100, behavior: 'smooth' });
 }
-function printResults() { window.print(); }
+function printResults() {
+  const loggedIn = getKakaoUser() || (firebaseReady && firebase.auth().currentUser);
+  if (!loggedIn) {
+    showToast('인쇄/PDF 저장은 로그인 후 이용할 수 있어요.');
+    openAuthModal();
+    return;
+  }
+  window.print();
+}
+
+document.addEventListener('contextmenu', (e) => e.preventDefault());
 
 /* ---------- HISTORY (localStorage — works on GitHub Pages) ---------- */
 const HISTORY_KEY = 'taekilso_history';
@@ -1787,7 +1801,11 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
       score += (eventType === '이사') ? 2 : 0.8;
       reasons.push('손없는 날');
     }
-    candidates.push({ date: new Date(cursor), ganji: ganjiName(idx), ohaeng: oh, score, reasons, lunarInfo });
+    /* 같은 오행끼리 완전히 동일한 점수로 보이지 않도록 아주 작은(±0.3 이내) 타이브레이커를 더합니다.
+       요일/간지 조합 기반이라 매번 같은 날짜엔 항상 같은 값이 나오고, 좋음/보통/주의 등급은 바뀌지 않아요. */
+    const tiebreak = ((idx * 7 + cursor.getDay() * 3) % 11) / 11 * 0.3 - 0.15;
+    score += tiebreak;
+    candidates.push({ date: new Date(cursor), ganjiIdx: idx, ganji: ganjiName(idx), ganjiHanja: ganjiHanja(idx), ohaeng: oh, score, reasons, lunarInfo });
     cursor.setDate(cursor.getDate() + 1);
   }
   candidates.sort((a, b) => b.score - a.score);
@@ -1888,7 +1906,7 @@ function renderResultCards(top, eventType, coupleMode, coupleRelation) {
       <div class="best-main">
         <div>
           <div class="best-date">${best.date.getFullYear()}년 ${best.date.getMonth()+1}월 ${best.date.getDate()}일</div>
-          <div class="best-meta">${dowNames[best.date.getDay()]}요일 · 일진 ${best.ganji} · ${best.ohaeng} 기운</div>
+          <div class="best-meta">${dowNames[best.date.getDay()]}요일 · 일진 ${best.ganji}(${best.ganjiHanja}) · ${best.ohaeng} 기운</div>
         </div>
         <div class="best-score"><strong>${bestScore}</strong><span>추천점수</span></div>
       </div>
@@ -1907,7 +1925,7 @@ function renderResultCards(top, eventType, coupleMode, coupleRelation) {
       <div class="result-top">
         <div>
           <div class="result-date">${t.date.getMonth()+1}.${t.date.getDate()}</div>
-          <div class="result-meta">${dowNames[t.date.getDay()]}요일 · 일진 ${t.ganji} <span class="oh-${t.ohaeng}"><span class="oh-dot"></span>${t.ohaeng}</span>${t.lunarInfo && t.lunarInfo.isSonEomneun ? ' · <span style="color:var(--gold-hi)">손없는 날</span>' : ''}</div>
+          <div class="result-meta">${dowNames[t.date.getDay()]}요일 · 일진 ${t.ganji}(${t.ganjiHanja}) <span class="oh-${t.ohaeng}"><span class="oh-dot"></span>${t.ohaeng}</span>${t.lunarInfo && t.lunarInfo.isSonEomneun ? ' · <span style="color:var(--gold-hi)">손없는 날</span>' : ''}</div>
         </div>
         <div class="score-ring" style="--p:${percent}"><span>${percent}</span></div>
       </div>
@@ -2002,7 +2020,7 @@ function showDayDetail(t) {
     <div class="result-top">
       <div>
         <div class="result-date">${t.date.getFullYear()}.${t.date.getMonth()+1}.${t.date.getDate()}</div>
-        <div class="result-meta">${dowNames[t.date.getDay()]}요일 · 일진 ${t.ganji} <span class="oh-${t.ohaeng}"><span class="oh-dot"></span>${t.ohaeng}</span>${t.lunarInfo && t.lunarInfo.isSonEomneun ? ' · <span style="color:var(--gold-hi)">손없는 날</span>' : ''}</div>
+        <div class="result-meta">${dowNames[t.date.getDay()]}요일 · 일진 ${t.ganji}(${t.ganjiHanja}) <span class="oh-${t.ohaeng}"><span class="oh-dot"></span>${t.ohaeng}</span>${t.lunarInfo && t.lunarInfo.isSonEomneun ? ' · <span style="color:var(--gold-hi)">손없는 날</span>' : ''}</div>
       </div>
     </div>
     <div class="badges">${badgeList}</div>
@@ -2430,7 +2448,7 @@ function buildPremiumProgramPanel() {
   const monthRows = Object.entries(months).slice(0,12).map(([k,v])=>{const m=v.slice().sort((a,b)=>b.score-a.score)[0];return `<div><strong>${k.replace('-', '년 ')}월</strong> · ${m.date.getMonth()+1}/${m.date.getDate()} 추천 · ${to100(m.score)}점</div>`}).join('');
   const couple = window.__ctx && window.__ctx.coupleMode ? '두 분의 기운을 함께 반영한 결과입니다.' : '단독 택일 기준으로 분석했습니다.';
   panel.style.display='block';
-  panel.innerHTML = `<div class="pp-head"><div><div class="pp-kicker">✦ PREMIUM DEEP REPORT</div><div class="pp-title">${eventType} 정밀 택일 리포트</div></div><div class="pp-score">${to100(best.score)}<small style="font-size:11px;color:var(--muted)"> / BEST</small></div></div><div class="pp-grid"><div class="pp-stat"><small>최우선 추천일</small><b>${best.date.getFullYear()}.${String(best.date.getMonth()+1).padStart(2,'0')}.${String(best.date.getDate()).padStart(2,'0')}</b></div><div class="pp-stat"><small>강한 추천 후보</small><b>${high}일</b></div><div class="pp-stat"><small>손없는 날</small><b>${son}일</b></div><div class="pp-stat"><small>후보 평균 기운</small><b>${avg}</b></div><div class="pp-stat"><small>최고 일진</small><b>${best.ganji}</b></div><div class="pp-stat"><small>핵심 오행</small><b>${best.ohaeng}</b></div></div><p class="pp-text"><b>최우선 추천일 ${best.date.getMonth()+1}월 ${best.date.getDate()}일</b>은 ${best.ohaeng} 기운과 현재 행사 조건을 종합했을 때 가장 높은 점수를 받은 날짜입니다. ${best.reasons.length ? '주요 근거는 '+best.reasons.slice(0,3).join(', ')+'입니다.' : '특별한 감점 요인이 적은 편입니다.'} ${couple}</p><div class="pp-list"><div><strong>좋은 점</strong><br>${best.reasons.length ? best.reasons.join(' · ') : '전체 기준에서 무난한 흐름'}</div><div><strong>체크할 점</strong><br>${eventType==='이사' ? '실제 이사 일정·방향·계약 조건을 함께 확인하세요.' : eventType==='개업' ? '인허가·공사·직원 일정 등 현실 조건을 우선 확인하세요.' : eventType==='결혼식' ? '예식장·하객 일정과 양가 일정도 함께 조율하세요.' : '계약 조건·서명 시간·실무 일정을 함께 확인하세요.'}</div></div><div style="margin-top:18px"><div class="pp-kicker">MONTHLY BEST</div><div class="pp-list">${monthRows || '<div>월별 후보가 없습니다.</div>'}</div></div>`;
+  panel.innerHTML = `<div class="pp-head"><div><div class="pp-kicker">✦ PREMIUM DEEP REPORT</div><div class="pp-title">${eventType} 정밀 택일 리포트</div></div><div class="pp-score">${to100(best.score)}<small style="font-size:11px;color:var(--muted)"> / BEST</small></div></div><div class="pp-grid"><div class="pp-stat"><small>최우선 추천일</small><b>${best.date.getFullYear()}.${String(best.date.getMonth()+1).padStart(2,'0')}.${String(best.date.getDate()).padStart(2,'0')}</b></div><div class="pp-stat"><small>강한 추천 후보</small><b>${high}일</b></div><div class="pp-stat"><small>손없는 날</small><b>${son}일</b></div><div class="pp-stat"><small>후보 평균 기운</small><b>${avg}</b></div><div class="pp-stat"><small>최고 일진</small><b>${best.ganji}(${best.ganjiHanja})</b></div><div class="pp-stat"><small>핵심 오행</small><b>${best.ohaeng}</b></div></div><p class="pp-text"><b>최우선 추천일 ${best.date.getMonth()+1}월 ${best.date.getDate()}일</b>은 ${best.ohaeng} 기운과 현재 행사 조건을 종합했을 때 가장 높은 점수를 받은 날짜입니다. ${best.reasons.length ? '주요 근거는 '+best.reasons.slice(0,3).join(', ')+'입니다.' : '특별한 감점 요인이 적은 편입니다.'} ${couple}</p><div class="pp-list"><div><strong>좋은 점</strong><br>${best.reasons.length ? best.reasons.join(' · ') : '전체 기준에서 무난한 흐름'}</div><div><strong>체크할 점</strong><br>${eventType==='이사' ? '실제 이사 일정·방향·계약 조건을 함께 확인하세요.' : eventType==='개업' ? '인허가·공사·직원 일정 등 현실 조건을 우선 확인하세요.' : eventType==='결혼식' ? '예식장·하객 일정과 양가 일정도 함께 조율하세요.' : '계약 조건·서명 시간·실무 일정을 함께 확인하세요.'}</div></div><div style="margin-top:18px"><div class="pp-kicker">MONTHLY BEST</div><div class="pp-list">${monthRows || '<div>월별 후보가 없습니다.</div>'}</div></div>`;
 }
 
 function openAuthModal() {
