@@ -1492,17 +1492,15 @@ footer{padding-bottom:90px}
 // 2) 심사 승인 후 로그인해서 본인이 만든 "판매자 아이디"를 아래에 붙여넣기
 const PAYAPP_USERID = "green5797";
 const PREMIUM_KEY = 'taekilso_premium';
-// IMPORTANT: PayApp feedbackurl must point to a real server endpoint.
-// GitHub Pages/static hosting cannot receive PayApp's POST webhook.
-// Example: https://YOUR-BACKEND-DOMAIN/payapp-feedbackurl
+// Spark 무료 요금제(B안)로 운영합니다. 서버 검증(Cloud Functions) 없이,
+// 페이앱이 결제 후 돌려보내는 returnurl을 그대로 신뢰하는 방식이에요.
+// 대부분의 경우 문제없이 작동하지만, 이론적으로 위조 가능한 방식이라 나중에
+// 트래픽/매출이 늘면 서버 검증(Blaze 업그레이드)으로 바꾸는 걸 권장해요.
 const PAYAPP_FEEDBACK_URL = '';
-const PAYAPP_RETURN_URL = window.location.origin + window.location.pathname + '?payment=return';
+const PAYAPP_RETURN_URL = window.location.origin + window.location.pathname + '?premium=1';
 const PREMIUM_PRICE = 4900;
-// The HTML alone cannot securely verify a PayApp payment. Do not set premium=true from browser code.
 
-// Premium is NEVER unlocked from URL parameters or a client-side flag.
-// The authoritative value must be written by the server after PayApp pay_state=4 verification.
-let verifiedPremium = false;
+let verifiedPremium = (localStorage.getItem(PREMIUM_KEY) === 'true');
 function isPremium() {
   return verifiedPremium === true;
 }
@@ -2277,8 +2275,11 @@ function recordSignup(uid, data) {
 }
 
 function recordPurchase() {
-  // DO NOT grant premium here. Premium is granted only by the server-side PayApp webhook.
   bumpStat('purchases');
+  const uid = getCurrentUserKey();
+  if (db && uid) {
+    db.collection('users').doc(uid).set({ premium: true }, { merge: true }).catch(() => {});
+  }
 }
 
 function getCurrentUserKey() {
@@ -2292,10 +2293,11 @@ function getCurrentUserKey() {
 function syncPremiumFromAccount(uid) {
   if (!db || !uid) return;
   db.collection('users').doc(uid).get().then((snap) => {
-    verifiedPremium = !!(snap.exists && snap.data().premium === true);
-    updateAuthNav();
-    updatePremiumUI();
-    if (verifiedPremium) {
+    if (snap.exists && snap.data().premium === true) {
+      verifiedPremium = true;
+      localStorage.setItem(PREMIUM_KEY, 'true');
+      updateAuthNav();
+      updatePremiumUI();
       localStorage.removeItem('taekilso_pending_order');
       sessionStorage.removeItem('taekilso_pending_order');
       showToast('이 계정의 프리미엄이 확인됐어요.');
@@ -2653,21 +2655,25 @@ async function payPremium() {
   }
 }
 /*
- * IMPORTANT: GitHub Pages is static, so a browser-only "?premium=1" unlock is NOT secure.
- * The production version should set PREMIUM_KEY only after a PayApp feedbackurl webhook has
- * verified pay_state=4/approved on a server (Firebase Function/Cloud Run/etc.).
- * For that reason we no longer trust the query string alone.
+ * B안(Spark 무료 요금제): 서버 검증 없이, 페이앱이 결제 후 돌려보내는 주소(?premium=1)를
+ * 그대로 신뢰해서 프리미엄을 풀어주는 간단한 방식이에요.
  */
 (function checkPremiumReturn() {
   restoreKakaoUserState();
   updateAuthNav();
   const params = new URLSearchParams(window.location.search);
-  if (params.get('payment') === 'return') {
-    // Spark 무료/정적 버전에서는 브라우저만으로 PayApp 성공 여부를 검증하지 않습니다.
-    // 결제 완료 화면으로 돌아왔다는 사실만 안내하고 프리미엄은 자동 승인하지 않습니다.
-    showToast('결제 결과를 확인했어요. 실제 프리미엄 승인은 서버 확인이 필요합니다.');
+  if (params.get('premium') === '1') {
+    try {
+      localStorage.setItem(PREMIUM_KEY, 'true');
+      verifiedPremium = true;
+      localStorage.removeItem('taekilso_pending_order');
+      recordPurchase();
+      updateAuthNav();
+      updatePremiumUI();
+      showToast('프리미엄이 활성화됐어요.');
+    } catch (e) {}
     const url = new URL(window.location.href);
-    url.searchParams.delete('payment');
+    url.searchParams.delete('premium');
     window.history.replaceState({}, document.title, url.toString());
   }
 })();
