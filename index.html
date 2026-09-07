@@ -882,10 +882,10 @@ footer{padding-bottom:90px}
   <div class="modal-box">
     <div class="modal-title">결제를 완료하셨나요?</div>
     <p style="color:var(--muted); font-size:13px; line-height:1.7; margin:-4px 0 20px;">
-      방금 결제창에서 실제로 결제(4,900원)를 완료하고 돌아오신 경우에만 "네, 결제했어요"를 눌러주세요.
-      결제 없이 그냥 닫고 오신 경우 "아니요"를 눌러주시면 돼요.
+      방금 결제창에서 실제로 결제(4,900원)를 완료하고 돌아오신 경우 "네, 결제했어요"를 눌러주세요.
+      관리자가 결제 내역을 확인한 뒤 프리미엄을 적용해드려요(보통 몇 시간 이내). 결제 없이 그냥 닫고 오신 경우 "아니요"를 눌러주시면 돼요.
     </p>
-    <button class="btn btn-primary form-submit" onclick="confirmPaymentCompleted()">네, 결제했어요</button>
+    <button class="btn btn-primary form-submit" onclick="confirmPaymentCompleted()">네, 결제했어요 (확인 요청)</button>
     <div class="auth-close" onclick="dismissPaymentConfirm()">아니요, 결제 안 했어요</div>
   </div>
 </div>
@@ -2368,7 +2368,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-07-force-server-read' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-07-remove-auto-grant' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -2413,7 +2413,6 @@ try {
       if (existingKakaoUser) {
         reconcilePremiumWithAccount('kakao_' + existingKakaoUser.id);
         flushLocalOnlyInquiries();
-        tryActivatePendingPremium();
       }
     }, 0);
 
@@ -2433,7 +2432,6 @@ try {
             if (!user.isAnonymous && getPremiumOwnerKey() && getPremiumOwnerKey() !== user.uid) clearLocalPremium();
             reconcilePremiumWithAccount(user.uid);
             flushLocalOnlyInquiries();
-            tryActivatePendingPremium();
           }
           updateAuthNav();
           updatePremiumUI();
@@ -2919,7 +2917,7 @@ function renderAdminInquiries() {
       const dateStr = q.createdAt && q.createdAt.toDate ? q.createdAt.toDate().toLocaleDateString('ko-KR') : '';
       card.innerHTML = `
         <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
-          <strong style="font-family:var(--serif); font-weight:400; color:var(--gold-hi);">${escapeHtml(q.title || '(제목 없음)')}</strong>
+          <strong style="font-family:var(--serif); font-weight:400; color:var(--gold-hi);">${q.isPaymentConfirmRequest ? '💳 ' : ''}${escapeHtml(q.title || '(제목 없음)')}</strong>
           <span class="inq-status ${q.status === '답변완료' ? 'answered' : 'waiting'}">${q.status || '대기'}</span>
         </div>
         <div style="font-size:11px; color:var(--muted-2); margin-top:4px;">${escapeHtml(q.name || q.uid || '')} · ${escapeHtml(dateStr)}</div>
@@ -3366,7 +3364,6 @@ async function exchangeKakaoCode(code) {
     showToast('카카오로 로그인했어요');
     reconcilePremiumWithAccount('kakao_' + profile.id);
     flushLocalOnlyInquiries();
-    tryActivatePendingPremium();
   } catch (err) {
     console.error('카카오 로그인 처리 실패', err);
     showToast('카카오 로그인 실패: ' + (err && err.message ? err.message : String(err)));
@@ -3622,28 +3619,59 @@ function openPaymentConfirmModal(pending) {
   overlay.dataset.orderId = pending.orderId;
 }
 
+/*
+ * 서버 검증이 아직 연결되지 않은 동안에는, 결제 완료 여부를 손님 본인의 "예/아니오" 클릭에
+ * 맡기지 않습니다(클릭만으로 활성화되는 방식은 결제 없이도 뚫릴 수 있다는 게 실제로 확인됐습니다).
+ * 대신 결제 버튼을 누르고 돌아온 사실 자체를 "확인 요청"으로 자동 등록해서, 관리자가
+ * 페이앱 결제현황과 직접 대조한 뒤 관리자 대시보드에서 "프리미엄 지급" 버튼으로 승인하게 합니다.
+ */
 function confirmPaymentCompleted() {
   const overlay = document.getElementById('paymentConfirmOverlay');
   overlay.style.display = 'none';
-  const activated = tryActivatePendingPremium();
-  if (!activated) {
-    const stillPending = (() => { try { return JSON.parse(localStorage.getItem('taekilso_pending_order') || 'null'); } catch(e) { return null; } })();
-    if (stillPending) {
-      showToast('로그인 상태를 아직 못 찾았어요. 다시 로그인하시면 자동으로 프리미엄이 적용돼요. 계속 안 되면 고객센터로 결제 내역을 문의해주세요.');
-    } else {
-      showToast('결제 확인 정보를 찾지 못했어요. 결제가 완료됐는데 이 메시지가 뜨면 고객센터로 문의해주세요.');
-    }
-  }
+  submitPaymentConfirmationRequest();
 }
 
 function dismissPaymentConfirm() {
   const overlay = document.getElementById('paymentConfirmOverlay');
   overlay.style.display = 'none';
-  // 결제를 안 했다고 밝힌 것이므로, 잘못 눌러서 나중에 활성화되는 일이 없도록
-  // 대기 기록을 지웁니다. 실수였다면 다시 결제 버튼을 누르면 새로 시작됩니다.
   localStorage.removeItem('taekilso_pending_order');
   sessionStorage.removeItem('taekilso_pending_order');
   showToast('알겠어요. 결제를 다시 진행하시려면 프리미엄 버튼을 눌러주세요.');
+}
+
+async function submitPaymentConfirmationRequest() {
+  const pending = (() => { try { return JSON.parse(localStorage.getItem('taekilso_pending_order') || 'null'); } catch(e) { return null; } })();
+  if (!pending || !pending.orderId) {
+    showToast('결제 확인 정보를 찾지 못했어요. 결제가 완료됐는데 이 메시지가 뜨면 고객센터로 문의해주세요.');
+    return;
+  }
+  if (!getKakaoUser()) { await waitForAuthSettled(6000); }
+
+  const kakaoUser = getKakaoUser();
+  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser) ? firebaseAuthUser : null;
+  const uid = getCurrentUserKey();
+  const name = kakaoUser ? kakaoUser.nickname : (fbUser ? (fbUser.displayName || fbUser.email) : '회원');
+
+  if (!uid || !db) {
+    showToast('로그인 상태를 확인하지 못했어요. 다시 로그인 후 프로필에서 "프리미엄으로 업그레이드"를 눌러 재시도해주세요.');
+    return;
+  }
+
+  try {
+    await db.collection('inquiries').add({
+      uid, name, title: '[결제 확인 요청] 프리미엄 30일 이용권',
+      message: `결제 버튼을 누르고 돌아왔습니다. 아래 정보와 페이앱 결제현황을 대조해서 확인 후 승인해주세요.\n\n주문번호: ${pending.orderId}\n금액: ${pending.amount}원\n결제 버튼을 누른 시각: ${new Date(pending.createdAt).toLocaleString('ko-KR')}`,
+      status: '대기',
+      reply: '',
+      isPaymentConfirmRequest: true,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    localStorage.removeItem('taekilso_pending_order');
+    sessionStorage.removeItem('taekilso_pending_order');
+    showToast('결제 확인 요청을 접수했어요. 확인 후 프리미엄이 적용되면 알려드릴게요.');
+  } catch (err) {
+    showToast('확인 요청 등록 실패: ' + err.message);
+  }
 }
 
 // Kept only as a compatibility hook. Never call this from a URL or payment return page.
