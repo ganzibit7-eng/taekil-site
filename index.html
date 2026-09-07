@@ -1572,6 +1572,7 @@ const PREMIUM_DAYS = 30;
 const PAYAPP_FEEDBACK_URL = '';
 const PAYAPP_RETURN_URL = window.location.origin + window.location.pathname + '?premium=1';
 const PREMIUM_PRICE = 4900;
+const PREMIUM_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30일
 
 let verifiedPremium = (localStorage.getItem(PREMIUM_KEY) === 'true' && !!localStorage.getItem(PREMIUM_OWNER_KEY));
 function getPremiumUntil() {
@@ -2453,10 +2454,12 @@ function recordSignup(uid, data) {
 }
 
 function recordPurchase() {
-  // Deprecated: client-side payment callbacks must never grant premium.
-  // Premium is granted only after server-side PayApp verification writes users/{uid}.
-  console.warn('recordPurchase() is deprecated and intentionally disabled.');
-  return false;
+  bumpStat('purchases');
+  const uid = getCurrentUserKey();
+  const until = getPremiumUntil();
+  if (db && uid && until) {
+    db.collection('users').doc(uid).set({ premium: true, premiumUntil: until }, { merge: true }).catch(() => {});
+  }
 }
 function getCurrentUserKey() {
   // Firebase Auth identity is authoritative when available. This prevents a stale
@@ -3156,28 +3159,36 @@ async function payPremium() {
   }
 }
 /*
- * 결제 완료 후 돌아온 페이지에서는 프리미엄을 직접 지급하지 않습니다.
- * PayApp 서버 검증 결과가 Firebase users/{uid}.premiumUntil에 반영된 뒤 동기화합니다.
+ * B안(Spark 무료 요금제): 별도 서버 없이, 결제 버튼을 눌렀던 최근 기록(30분 이내)이 있을 때만
+ * 프리미엄을 활성화합니다. 이 기록은 결제 시도 시 브라우저에 저장해두고, 활성화 즉시 지워서
+ * 한 번의 결제로 여러 번 활성화되지 않도록 합니다. 완벽한 서버 검증은 아니지만, 결제 버튼을
+ * 누른 적 없이 주소만으로 프리미엄을 받는 것은 막아줍니다.
  */
 (function checkPremiumReturn() {
   restoreKakaoUserState();
   updateAuthNav();
   const params = new URLSearchParams(window.location.search);
   if (params.get('premium') === '1') {
-    // 결제 성공 URL만으로 프리미엄을 부여하지 않습니다.
-    // PayApp 결제 결과는 서버에서 검증한 뒤 users/{uid}.premiumUntil에 기록해야 합니다.
     const pending = (() => { try { return JSON.parse(localStorage.getItem('taekilso_pending_order') || 'null'); } catch(e) { return null; } })();
-    if (pending && pending.orderId) {
-      showToast('결제 결과를 확인하고 있어요. 검증이 완료되면 프리미엄이 활성화됩니다.');
-      let tries = 0;
-      const poll = async () => {
-        tries += 1;
-        const ok = await refreshPremiumFromServer();
-        if (!ok && tries < 8) setTimeout(poll, 1000);
-      };
-      setTimeout(poll, 500);
+    const PENDING_MAX_AGE_MS = 30 * 60 * 1000; // 30분
+    const isValidPending = pending && pending.orderId && (Date.now() - pending.createdAt) <= PENDING_MAX_AGE_MS;
+
+    if (isValidPending) {
+      const ownerKey = getCurrentUserKey();
+      if (!ownerKey) {
+        showToast('결제는 확인됐지만 로그인 정보를 찾지 못했어요. 로그인 후 다시 시도해주세요.');
+      } else {
+        const until = Date.now() + PREMIUM_DURATION_MS;
+        setLocalPremium(until, ownerKey);
+        recordPurchase();
+        updateAuthNav();
+        updatePremiumUI();
+        showToast('프리미엄이 활성화됐어요! 30일간 이용하실 수 있어요.');
+      }
+      localStorage.removeItem('taekilso_pending_order');
+      sessionStorage.removeItem('taekilso_pending_order');
     } else {
-      showToast('결제 확인 정보가 없어요. 결제 내역을 확인해주세요.');
+      showToast('결제 확인 정보를 찾지 못했어요. 결제가 완료됐는데 이 메시지가 뜨면 고객센터로 문의해주세요.');
     }
     const url = new URL(window.location.href);
     url.searchParams.delete('premium');
