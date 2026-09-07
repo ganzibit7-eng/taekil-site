@@ -1599,8 +1599,7 @@ function setLocalPremium(until, ownerKey) {
 function isPremium() {
   if (!verifiedPremium) return false;
   const owner = getPremiumOwnerKey();
-  const current = getCurrentUserKey();
-  if (!owner || !current || owner !== current) { clearLocalPremium(); return false; }
+  if (!owner) return false;
   const until = getPremiumUntil();
   if (!until) {
     // 이전 버전의 영구 프리미엄 플래그는 결제 검증값으로 사용할 수 없습니다.
@@ -1612,6 +1611,10 @@ function isPremium() {
     clearLocalPremium();
     return false;
   }
+  // current가 아직 확인되지 않은 경우(로그인 상태를 비동기로 복원하는 중인 아주 짧은 순간)에는
+  // 저장된 소유자 정보를 함부로 지우지 않습니다. 실제로 "다른 계정"인 것이 확인된 경우에만 지웁니다.
+  const current = getCurrentUserKey();
+  if (current && current !== owner) { clearLocalPremium(); return false; }
   return true;
 }
 function premiumUntilDate() {
@@ -2347,7 +2350,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-07-inquiry-timeout-fix' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-07-cross-device-sync-fix' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -2370,6 +2373,18 @@ try {
     firebaseReady = true;
     db = firebase.firestore();
 
+    // 이미 카카오로 로그인된 상태로 새로 접속한 경우에도(=onAuthStateChanged가 트리거되지
+    // 않는 경우) 프리미엄 동기화와 임시저장 문의 재전송을 시도합니다.
+    // setTimeout(0)으로 미뤄서, 아직 선언되지 않은 이후 코드(상수/함수)를 이 시점에서
+    // 참조하다가 스크립트 전체 초기화가 중간에 멈추는 일이 없도록 합니다.
+    setTimeout(() => {
+      const existingKakaoUser = getKakaoUser();
+      if (existingKakaoUser) {
+        reconcilePremiumWithAccount('kakao_' + existingKakaoUser.id);
+        flushLocalOnlyInquiries();
+      }
+    }, 0);
+
     // 로그인 세션을 LOCAL로 고정하고, persistence가 준비된 뒤 auth listener를 붙입니다.
     // 이렇게 해야 iOS Safari/모바일에서 Google 로그인 직후 상태가 사라지는 race condition을 줄일 수 있습니다.
     firebaseAuthInitPromise = firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
@@ -2383,9 +2398,8 @@ try {
           firebaseAuthReady = true;
           if (user) {
             if (!user.isAnonymous && getPremiumOwnerKey() && getPremiumOwnerKey() !== user.uid) clearLocalPremium();
-            syncPremiumFromAccount(user.uid);
-            // 로컬 프리미엄 상태를 계정에 덮어쓰지 않습니다.
-            // 결제 승인 상태는 서버/관리자 검증값을 우선해야 합니다.
+            reconcilePremiumWithAccount(user.uid);
+            flushLocalOnlyInquiries();
           }
           updateAuthNav();
           updatePremiumUI();
@@ -2493,6 +2507,82 @@ function syncPremiumFromAccount(uid) {
       updatePremiumUI();
     }
   }).catch((err) => console.error('프리미엄 상태 확인 실패', err));
+}
+
+/*
+ * 결제 당시 Firestore 연결이 안 됐던 경우(예: API 비활성화 상태였던 경우) 이 기기에만
+ * 프리미엄 정보가 남아있고 계정에는 반영이 안 될 수 있습니다. 로그인할 때마다 "이 기기의
+ * 만료일"과 "계정에 저장된 만료일"을 비교해서, 더 최신(더 늦게 만료되는) 쪽으로 양쪽을
+ * 맞춰줍니다. 이러면 PC에서 결제한 프리미엄이 모바일 로그인에서도 정상적으로 보여요.
+ */
+function reconcilePremiumWithAccount(uid) {
+  if (!db || !uid) return;
+  const localUntil = (getPremiumOwnerKey() === uid) ? getPremiumUntil() : 0;
+
+  db.collection('users').doc(uid).get().then((snap) => {
+    const data = snap.exists ? (snap.data() || {}) : {};
+    let serverUntil = 0;
+    if (data.premiumUntil && typeof data.premiumUntil.toMillis === 'function') serverUntil = data.premiumUntil.toMillis();
+    else if (typeof data.premiumUntil === 'number') serverUntil = data.premiumUntil;
+
+    const now = Date.now();
+    const bestUntil = Math.max(localUntil || 0, serverUntil || 0);
+
+    if (bestUntil > now) {
+      setLocalPremium(bestUntil, uid);
+      // 계정 쪽 값이 이 기기보다 낮거나 없으면(=이 기기에서 결제했지만 그때 서버에 반영이
+      // 안 됐던 경우) 계정에도 최신 값으로 맞춰 올려줍니다.
+      if (serverUntil < bestUntil) {
+        db.collection('users').doc(uid).set({ premium: true, premiumUntil: bestUntil }, { merge: true }).catch(() => {});
+      }
+      updateAuthNav();
+      updatePremiumUI();
+      localStorage.removeItem('taekilso_pending_order');
+      sessionStorage.removeItem('taekilso_pending_order');
+    } else if (getPremiumOwnerKey() === uid && localUntil && localUntil <= now) {
+      clearLocalPremium();
+      updateAuthNav();
+      updatePremiumUI();
+    }
+  }).catch((err) => console.error('프리미엄 상태 확인 실패', err));
+}
+
+/*
+ * Firestore 연결이 안 될 때 임시로 이 브라우저에만 저장해뒀던 문의(1:1 문의/환불 요청)를,
+ * 로그인 시점(=Firestore가 다시 연결됐을 가능성이 있는 시점)마다 서버로 다시 올려봅니다.
+ */
+function flushLocalOnlyInquiries() {
+  if (!db) return;
+  const list = getMyInquiryList();
+  const pending = list.filter(item => item.localOnly);
+  if (!pending.length) return;
+
+  const kakaoUser = getKakaoUser();
+  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser) ? firebaseAuthUser : null;
+  const uid = getCurrentUserKey();
+  const name = kakaoUser ? (kakaoUser.nickname || '카카오 사용자') : (fbUser ? (fbUser.displayName || fbUser.email || '회원') : '회원');
+  if (!uid) return;
+
+  pending.forEach((item) => {
+    db.collection('inquiries').add({
+      uid,
+      ownerUid: fbUser ? fbUser.uid : null,
+      name,
+      title: item.title,
+      message: item.message || '',
+      status: '대기',
+      reply: '',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAtMs: item.createdAt || Date.now(),
+      source: kakaoUser ? 'kakao' : 'firebase'
+    }).then((docRef) => {
+      const cur = getMyInquiryList().filter(x => x.id !== item.id);
+      cur.unshift({ id: docRef.id, title: item.title, createdAt: item.createdAt || Date.now() });
+      localStorage.setItem(SUPPORT_LIST_KEY, JSON.stringify(cur));
+      showToast('임시 저장돼있던 문의("' + item.title + '")를 서버에 다시 등록했어요.');
+      if (document.getElementById('view-support')?.classList.contains('visible')) renderSupportList();
+    }).catch((err) => console.warn('임시 문의 재전송 실패', err));
+  });
 }
 
 /* ---------- KAKAO LOGIN (client-side only — no backend session yet) ---------- */
@@ -3050,6 +3140,8 @@ async function exchangeKakaoCode(code) {
     sessionStorage.setItem('taekilso_kakao_access_token', tokenData.access_token);
     updateAuthNav();
     showToast('카카오로 로그인했어요');
+    reconcilePremiumWithAccount('kakao_' + profile.id);
+    flushLocalOnlyInquiries();
   } catch (err) {
     console.error('카카오 로그인 처리 실패', err);
     showToast('카카오 로그인 실패: ' + (err && err.message ? err.message : String(err)));
