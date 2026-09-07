@@ -518,6 +518,7 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
 
 
 /* ---------- PREMIUM PROGRAM ---------- */
+#premiumExpiry{letter-spacing:.01em}
 .plan-price{display:flex;align-items:baseline;gap:7px;margin:4px 0 8px}.plan-price strong{font-size:34px;font-weight:850}.plan-price span{font-size:12px;color:var(--muted)}
 .plan-lead{font-size:12.5px;color:#c9c5bc;line-height:1.7;margin:0 0 12px}.premium-plan-card{position:relative;overflow:hidden}.premium-plan-card:after{content:"";position:absolute;inset:-30% -20%;background:radial-gradient(circle,rgba(215,180,106,.11),transparent 55%);pointer-events:none}.premium-buy-btn{position:relative;z-index:2}.secure-note{text-align:center;color:var(--muted-2);font-size:10.5px;margin-top:10px}.premium-program-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}.premium-program-grid>div{padding:20px;border:1px solid var(--line-soft);border-radius:18px;background:rgba(255,255,255,.018)}.premium-program-grid span{display:block;color:var(--gold-hi);font-size:11px;letter-spacing:.16em;margin-bottom:14px}.premium-program-grid b{font-size:14px}.premium-program-grid p{margin:8px 0 0;color:var(--muted-2);font-size:11px;line-height:1.7}.premium-program-panel{margin-top:18px;border:1px solid rgba(215,180,106,.2);border-radius:24px;padding:24px;background:linear-gradient(135deg,rgba(215,180,106,.07),rgba(255,255,255,.02));box-shadow:0 20px 70px rgba(0,0,0,.2)}.pp-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:18px}.pp-kicker{font-size:10px;letter-spacing:.18em;color:var(--gold-hi)}.pp-title{font-family:"Noto Serif KR",serif;font-size:25px;margin-top:5px}.pp-score{font-size:30px;font-weight:850;color:var(--gold-hi)}.pp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.pp-stat{padding:16px;border-radius:16px;background:rgba(255,255,255,.025);border:1px solid var(--line-soft)}.pp-stat small{display:block;color:var(--muted-2);font-size:10px;margin-bottom:7px}.pp-stat b{font-size:15px}.pp-text{margin:16px 0 0;color:#cfcbc1;font-size:12.5px;line-height:1.9}.pp-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.pp-list div{padding:12px;border-radius:14px;background:rgba(255,255,255,.025);font-size:11.5px;color:#c9c5bc}.pp-list strong{color:#f0e7d5}.premium-lock-card{padding:22px;border:1px dashed rgba(215,180,106,.25);border-radius:18px;text-align:center}.premium-lock-card b{display:block;font-size:15px;margin-bottom:7px}.premium-lock-card p{color:var(--muted-2);font-size:11.5px;line-height:1.7}.premium-lock-card button{margin-top:8px}
 @media(max-width:820px){.premium-program-grid{grid-template-columns:1fr 1fr}.pp-grid{grid-template-columns:1fr 1fr}}
@@ -534,6 +535,11 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
   border:1px dashed rgba(255,255,255,.15);
   background:rgba(255,255,255,.02);
 }
+.premium-convert{border-style:solid;border-color:rgba(231,199,125,.28);background:linear-gradient(145deg,rgba(231,199,125,.08),rgba(255,255,255,.018));box-shadow:0 20px 70px rgba(0,0,0,.2)}
+.premium-convert .pp-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.premium-convert .pp-list>div{padding:12px;border-radius:14px;background:rgba(255,255,255,.025);font-size:11.5px;color:#c9c5bc}
+.premium-convert .pp-list strong{color:#f0e7d5}
+@media(max-width:520px){.premium-convert .pp-list{grid-template-columns:1fr}}
 .pr-tag{font-size:11px; font-weight:800; letter-spacing:.08em; color:var(--gold-hi); margin-bottom:10px}
 .premium-report p, .premium-locked p{font-size:13.5px; line-height:1.85; color:#cfcbc1; margin:0 0 10px}
 
@@ -1012,6 +1018,71 @@ footer{padding-bottom:90px}
     </div>
   </section>
 
+
+  <!-- ============ SAJU AI HUB / RESEARCH-INSPIRED UPGRADE ============ -->
+  <section class="block saju-ai-hub" id="sajuAiHub">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">SAJU · AI INSIGHT</div>
+          <h2 class="section-title">사주를 한 번 보고<br>끝내지 않도록</h2>
+        </div>
+        <p class="section-desc">인기 사주·운세 서비스에서 공통적으로 반응이 좋은 기능을 택일소의 핵심인 ‘나에게 맞는 선택’에 맞춰 담았습니다.</p>
+      </div>
+
+      <div class="saju-hub-grid">
+        <button class="saju-hub-card featured" onclick="openSajuInsight('profile')">
+          <span class="saju-hub-icon">命</span>
+          <span class="saju-hub-kicker">FREE PREVIEW</span>
+          <strong>내 사주 핵심</strong>
+          <small>일주 · 오행 · 성향을 쉽고 짧게 먼저 확인</small>
+          <b>무료로 보기 →</b>
+        </button>
+        <button class="saju-hub-card" onclick="openSajuInsight('year')">
+          <span class="saju-hub-icon">年</span>
+          <span class="saju-hub-kicker">2026</span>
+          <strong>올해의 흐름</strong>
+          <small>연애 · 재물 · 일 · 인간관계의 올해 키워드</small>
+          <b>올해 운세 →</b>
+        </button>
+        <button class="saju-hub-card" onclick="openSajuInsight('love')">
+          <span class="saju-hub-icon">緣</span>
+          <span class="saju-hub-kicker">RELATIONSHIP</span>
+          <strong>궁합·연애</strong>
+          <small>두 사람의 오행 조화를 보고 중요한 날짜까지 연결</small>
+          <b>궁합 보기 →</b>
+        </button>
+        <button class="saju-hub-card" onclick="openSajuInsight('money')">
+          <span class="saju-hub-icon">財</span>
+          <span class="saju-hub-kicker">LIFE</span>
+          <strong>재물·직업</strong>
+          <small>내 기운에 맞는 선택과 주의 포인트를 간단히 확인</small>
+          <b>핵심 보기 →</b>
+        </button>
+        <button class="saju-hub-card" onclick="openSajuInsight('monthly')">
+          <span class="saju-hub-icon">月</span>
+          <span class="saju-hub-kicker">CALENDAR</span>
+          <strong>운세 캘린더</strong>
+          <small>좋은 날을 찾는 흐름을 월별로 생각해볼 수 있어요</small>
+          <b>날짜 찾기 →</b>
+        </button>
+        <button class="saju-hub-card premium" onclick="goTo('tool')">
+          <span class="saju-hub-icon">✦</span>
+          <span class="saju-hub-kicker">TAEKILSO CORE</span>
+          <strong>정밀 택일</strong>
+          <small>무료 TOP 5에서 시작해 30일 이용권 · 365일 후보 · TOP 20 · 궁합 택일까지</small>
+          <b>내 좋은 날짜 찾기 →</b>
+        </button>
+      </div>
+
+      <div class="saju-trust-strip">
+        <div><strong>쉽게</strong><span>어려운 명리 용어보다 이해하기 쉬운 설명</span></div>
+        <div><strong>대화형</strong><span>결과를 본 뒤 ‘그래서 언제가 좋아?’로 바로 연결</span></div>
+        <div><strong>결정형</strong><span>운세만 보여주지 않고 실제 날짜 선택까지 연결</span></div>
+      </div>
+    </div>
+  </section>
+
   <section class="block process" id="processAnchor">
     <div class="container">
       <div class="section-head">
@@ -1058,8 +1129,8 @@ footer{padding-bottom:90px}
         <div class="price-card featured premium-plan-card">
           <div class="popular">MOST POPULAR · PREMIUM</div>
           <h3>정밀 택일 리포트</h3>
-          <div class="plan-price"><strong>4,900원</strong><span>/ 1회</span></div>
-          <p class="plan-lead">한 번 결제하면 프리미엄 택일 기능을 계속 이용할 수 있어요.</p>
+          <div class="plan-price"><strong>4,900원</strong><span>/ 30일</span></div>
+          <p class="plan-lead">결제일로부터 <b>30일간</b> 프리미엄 기능을 이용할 수 있어요. 만료 후 다시 필요한 기간만 구매하세요.</p>
           <ul>
             <li><b>최대 365일</b> 후보 날짜 비교</li>
             <li><b>TOP 20</b> 추천 날짜 + 상세 점수</li>
@@ -1073,7 +1144,7 @@ footer{padding-bottom:90px}
           <div class="secure-note">🔒 결제는 페이앱 결제창에서 진행됩니다.</div>
         </div>
       </div>
-      <div class="price-note">※ 택일소의 결과는 전통 명리학 기준을 단순화한 참고용 정보이며, 실제 중요한 결정은 현실적인 일정과 조건을 함께 고려하세요.</div>
+      <div class="price-note">※ 프리미엄은 결제일로부터 30일간 이용되며 자동결제·자동갱신되지 않습니다. 만료 후 필요할 때 다시 구매할 수 있습니다.<br>※ 택일소의 결과는 전통 명리학 기준을 단순화한 참고용 정보이며, 실제 중요한 결정은 현실적인 일정과 조건을 함께 고려하세요.</div>
     </div>
   </section>
 
@@ -1087,7 +1158,7 @@ footer{padding-bottom:90px}
         <details class="faq-item"><summary>내 정보는 어디에 저장되나요?</summary><p>지금은 별도 서버로 전송되지 않고, 검색 기록만 이 브라우저 안(로컬 저장소)에 남습니다. 다른 사람이나 다른 기기에서는 보이지 않아요.</p></details>
         <details class="faq-item"><summary>왜 년주·월주 전체가 아니라 일주만 쓰나요?</summary><p>년주와 월주는 절기(節氣) 기준의 정밀한 만세력 계산이 필요해서, 잘못 계산하면 오히려 틀린 정보를 드리게 될 수 있어요. 택일에 가장 핵심적으로 쓰이는 일주(태어난 날의 기운) 기준으로 정확하게 계산하는 방식을 택했습니다. 원국·대운·세운·십신·용신까지 포함하는 전체 사주 풀이는 별도의 전문 계산 엔진으로 정확도를 확보한 뒤 제공하는 게 안전해서, 지금은 정식 만세력 사이트와 함께 참고하시길 권해요.</p></details>
         <details class="faq-item"><summary>AI가 사주를 대신 봐주나요?</summary><p>택일소의 날짜 추천은 정해진 오행·일진 기준으로 계산됩니다. 생성형 AI가 임의로 운세를 만들어내는 방식과 달리, 계산 기준을 먼저 고정하고 결과를 설명하는 방향을 우선합니다.</p></details>
-        <details class="faq-item"><summary>유료 결제하면 무엇이 달라지나요?</summary><p>무료에서는 최대 30일과 TOP 5 중심으로 확인하고, 프리미엄에서는 최대 365일 후보·TOP 20·월별 베스트·두 사람 궁합 택일·상세 리포트와 전체 캘린더를 열어볼 수 있습니다.</p></details>
+        <details class="faq-item"><summary>유료 결제하면 무엇이 달라지나요?</summary><p>무료에서는 최대 30일과 TOP 5 중심으로 확인하고, 프리미엄에서는 최대 365일 후보·TOP 20·월별 베스트·두 사람 궁합 택일·상세 리포트와 전체 캘린더를 <b>30일간</b> 이용할 수 있습니다.</p></details>
         <details class="faq-item"><summary>결과를 저장하거나 출력할 수 있나요?</summary><p>추천 결과 화면에서 브라우저 인쇄 기능을 이용해 PDF로 저장할 수 있도록 구성했습니다. 회원 로그인 상태에서는 검색 기록과 프리미엄 상태를 계정에 연결하는 구조로 확장할 수 있습니다.</p></details>
       </div>
     </div>
@@ -1347,6 +1418,7 @@ footer{padding-bottom:90px}
         <div class="profile-name" id="profileName">이름</div>
         <div class="profile-meta" id="profileMeta">로그인 방식</div>
         <div class="profile-tier" id="profileTier">무료 회원</div>
+        <div id="premiumExpiry" style="display:none;margin-top:7px;color:var(--muted-2);font-size:11px;"></div>
       </div>
       <div class="profile-actions">
         <button class="btn" onclick="goTo('history')">내 검색 기록 보기</button>
@@ -1491,17 +1563,65 @@ footer{padding-bottom:90px}
 // 2) 심사 승인 후 로그인해서 본인이 만든 "판매자 아이디"를 아래에 붙여넣기
 const PAYAPP_USERID = "green5797";
 const PREMIUM_KEY = 'taekilso_premium';
-// Spark 무료 요금제(B안)로 운영합니다. 서버 검증(Cloud Functions) 없이,
-// 페이앱이 결제 후 돌려보내는 returnurl을 그대로 신뢰하는 방식이에요.
-// 대부분의 경우 문제없이 작동하지만, 이론적으로 위조 가능한 방식이라 나중에
-// 트래픽/매출이 늘면 서버 검증(Blaze 업그레이드)으로 바꾸는 걸 권장해요.
+const PREMIUM_UNTIL_KEY = 'taekilso_premium_until';
+const PREMIUM_OWNER_KEY = 'taekilso_premium_owner';
+const PREMIUM_DAYS = 30;
+// 현재 정적 호스팅 버전은 결제 완료 후 브라우저에서 30일 이용권을 활성화합니다.
+// 실제 운영/판매 단계에서는 반드시 PayApp 결제 결과를 서버에서 검증하고
+// users/{uid}.premiumUntil을 기록하는 방식으로 전환하세요.
 const PAYAPP_FEEDBACK_URL = '';
 const PAYAPP_RETURN_URL = window.location.origin + window.location.pathname + '?premium=1';
 const PREMIUM_PRICE = 4900;
 
-let verifiedPremium = (localStorage.getItem(PREMIUM_KEY) === 'true');
+let verifiedPremium = (localStorage.getItem(PREMIUM_KEY) === 'true' && !!localStorage.getItem(PREMIUM_OWNER_KEY));
+function getPremiumUntil() {
+  const raw = Number(localStorage.getItem(PREMIUM_UNTIL_KEY) || 0);
+  return Number.isFinite(raw) ? raw : 0;
+}
+function getPremiumOwnerKey() {
+  try { return localStorage.getItem(PREMIUM_OWNER_KEY) || ''; } catch (e) { return ''; }
+}
+function clearLocalPremium() {
+  verifiedPremium = false;
+  localStorage.removeItem(PREMIUM_KEY);
+  localStorage.removeItem(PREMIUM_UNTIL_KEY);
+  localStorage.removeItem(PREMIUM_OWNER_KEY);
+}
+function setLocalPremium(until, ownerKey) {
+  if (!ownerKey || !Number.isFinite(Number(until)) || Number(until) <= Date.now()) { clearLocalPremium(); return false; }
+  verifiedPremium = true;
+  localStorage.setItem(PREMIUM_KEY, 'true');
+  localStorage.setItem(PREMIUM_UNTIL_KEY, String(Number(until)));
+  localStorage.setItem(PREMIUM_OWNER_KEY, ownerKey);
+  return true;
+}
 function isPremium() {
-  return verifiedPremium === true;
+  if (!verifiedPremium) return false;
+  const owner = getPremiumOwnerKey();
+  const current = getCurrentUserKey();
+  if (!owner || !current || owner !== current) { clearLocalPremium(); return false; }
+  const until = getPremiumUntil();
+  if (!until) {
+    // 이전 버전의 영구 프리미엄 플래그는 결제 검증값으로 사용할 수 없습니다.
+    // 만료일이 없는 오래된 로컬 플래그는 무료로 되돌립니다.
+    clearLocalPremium();
+    return false;
+  }
+  if (Date.now() >= until) {
+    clearLocalPremium();
+    return false;
+  }
+  return true;
+}
+function premiumUntilDate() {
+  const until = getPremiumUntil();
+  return until ? new Date(until) : null;
+}
+function formatPremiumUntil() {
+  const d = premiumUntilDate();
+  if (!d) return '';
+  const remain = Math.max(0, Math.ceil((d.getTime() - Date.now()) / 86400000));
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}까지 · ${remain}일 남음`;
 }
 
 
@@ -1990,15 +2110,29 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
       `;
     } else {
       upsellEl.style.display = 'block';
-      upsellEl.className = 'premium-locked';
+      upsellEl.className = 'premium-locked premium-convert';
       upsellEl.innerHTML = `
-        <div class="pr-tag">🔒 프리미엄 전용</div>
-        <p>두 분의 오행을 더 깊이 풀어낸 상세 궁합 리포트는 프리미엄에서 볼 수 있어요.</p>
-        <span class="mini-action" onclick="payPremium()">프리미엄 보기 →</span>
+        <div class="pr-tag">🔒 여기서부터 정밀 분석</div>
+        <p><b>무료 결과는 핵심 후보만 보여드렸어요.</b><br>프리미엄에서는 두 분의 기운을 더 깊이 비교하고, 전체 후보·점수·월별 BEST·상세 이유까지 한 번에 확인할 수 있어요.</p>
+        <div class="pp-list" style="margin-top:12px"><div><strong>무료</strong><br>TOP 5 · 기본 점수 · 손없는 날</div><div><strong>30일 프리미엄</strong><br>365일 · TOP 20 · 상세 리포트 · 궁합 택일</div></div>
+        <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="payPremium()">4,900원으로 30일 전체 결과 보기 →</button>
+        <div style="font-size:10px;color:var(--muted-2);margin-top:9px;text-align:center">자동결제 없음 · 30일 후 자동 만료</div>
       `;
     }
   } else {
-    upsellEl.style.display = 'none';
+    if (!isPremium()) {
+      upsellEl.style.display = 'block';
+      upsellEl.className = 'premium-locked premium-convert';
+      upsellEl.innerHTML = `
+        <div class="pr-tag">✦ 무료 결과 확인 완료</div>
+        <p><b>지금 고른 기간 안에서 더 좋은 날짜가 있는지 확인해보세요.</b><br>무료는 TOP 5를 보여드리고, 프리미엄에서는 최대 365일 전체 후보를 다시 비교해 TOP 20과 월별 BEST까지 확인할 수 있어요.</p>
+        <div class="pp-list" style="margin-top:12px"><div><strong>무료로 확인한 것</strong><br>추천 TOP 5 · 일진 · 오행 · 손없는 날</div><div><strong>프리미엄에서 추가</strong><br>365일 · TOP 20 · 상세 이유 · 월별 BEST</div></div>
+        <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="payPremium()">4,900원으로 30일 전체 분석 열기 →</button>
+        <div style="font-size:10px;color:var(--muted-2);margin-top:9px;text-align:center">자동결제 없음 · 결제일로부터 30일</div>
+      `;
+    } else {
+      upsellEl.style.display = 'none';
+    }
   }
 
   if (rangeTruncated) {
@@ -2227,6 +2361,7 @@ let firebaseReady = false;
 let db = null;
 let firebaseAuthUser = null;
 let firebaseAuthReady = false;
+let firebaseAuthInitPromise = null;
 const ADMIN_EMAIL = "green092432@gmail.com";
 try {
   if (firebaseConfig.apiKey !== "YOUR_API_KEY" && window.firebase) {
@@ -2234,26 +2369,65 @@ try {
     firebaseReady = true;
     db = firebase.firestore();
 
-    // 로그인 세션을 명시적으로 LOCAL로 유지합니다.
-    // PayApp이 현재 탭으로 이동한 뒤에도 Firebase 로그인 상태가 유지되어야 합니다.
-    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-      .catch((err) => console.warn('Firebase 로그인 저장 설정 실패', err));
+    // 로그인 세션을 LOCAL로 고정하고, persistence가 준비된 뒤 auth listener를 붙입니다.
+    // 이렇게 해야 iOS Safari/모바일에서 Google 로그인 직후 상태가 사라지는 race condition을 줄일 수 있습니다.
+    firebaseAuthInitPromise = firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .catch((err) => {
+        console.warn('Firebase 로그인 저장 설정 실패', err);
+        return null;
+      })
+      .then(() => {
+        firebase.auth().onAuthStateChanged((user) => {
+          firebaseAuthUser = user || null;
+          firebaseAuthReady = true;
+          if (user) {
+            if (!user.isAnonymous && getPremiumOwnerKey() && getPremiumOwnerKey() !== user.uid) clearLocalPremium();
+            syncPremiumFromAccount(user.uid);
+            // 로컬 프리미엄 상태를 계정에 덮어쓰지 않습니다.
+            // 결제 승인 상태는 서버/관리자 검증값을 우선해야 합니다.
+          }
+          updateAuthNav();
+          updatePremiumUI();
+        });
+      });
 
-    firebase.auth().onAuthStateChanged((user) => {
-      firebaseAuthUser = user || null;
-      firebaseAuthReady = true;
-      if (user) {
-        syncPremiumFromAccount(user.uid);
-        if (isPremium() && db) {
-          db.collection('users').doc(user.uid).set({ premium: true }, { merge: true }).catch(() => {});
+    firebaseAuthInitPromise.then(async () => {
+      // signInWithRedirect()로 돌아온 경우 결과를 반드시 소비합니다.
+      try {
+        const result = await firebase.auth().getRedirectResult();
+        if (result && result.user) {
+          if (result.additionalUserInfo && result.additionalUserInfo.isNewUser) {
+            recordSignup(result.user.uid, { email: result.user.email, provider: 'google' });
+          }
+          closeAuthModal();
+          showToast('구글 계정으로 로그인했어요');
         }
+      } catch (err) {
+        console.error('Google redirect 로그인 결과 처리 실패', err);
+        showAuthError(formatAuthError(err));
       }
-      updateAuthNav();
-      updatePremiumUI();
     });
     recordVisit();
   }
 } catch (err) { console.error('Firebase 초기화 실패', err); }
+
+function formatAuthError(err) {
+  const code = err && err.code ? err.code : '';
+  const raw = err && err.message ? err.message : '알 수 없는 오류가 발생했어요.';
+  if (code === 'auth/unauthorized-domain') return '현재 사이트 주소가 Firebase Authentication의 승인된 도메인에 등록되지 않았어요. Firebase Console → Authentication → Settings → 승인된 도메인에서 현재 도메인을 추가해주세요.';
+  if (code === 'auth/popup-blocked') return '브라우저가 Google 로그인 창을 막았어요. 전체 화면 로그인으로 다시 연결합니다.';
+  if (code === 'auth/popup-closed-by-user') return 'Google 로그인 창이 닫혔어요. 다시 시도해주세요.';
+  if (code === 'auth/cancelled-popup-request') return 'Google 로그인 요청이 취소됐어요. 다시 시도해주세요.';
+  if (code === 'auth/operation-not-supported-in-this-environment') return '현재 브라우저 환경에서는 팝업 로그인을 사용할 수 없어 전체 화면 로그인으로 연결합니다.';
+  if (code === 'auth/network-request-failed') return '네트워크 연결이 불안정해요. Wi-Fi/모바일 데이터를 확인한 뒤 다시 시도해주세요.';
+  return raw;
+}
+function showAuthError(message) {
+  const el = document.getElementById('authError');
+  if (!el) { showToast(message); return; }
+  el.textContent = message;
+  el.style.display = 'block';
+}
 
 function isAdmin() {
   return !!(firebaseReady && firebaseAuthReady && firebaseAuthUser && firebaseAuthUser.email === ADMIN_EMAIL);
@@ -2279,14 +2453,15 @@ function recordSignup(uid, data) {
 }
 
 function recordPurchase() {
-  bumpStat('purchases');
-  const uid = getCurrentUserKey();
-  if (db && uid) {
-    db.collection('users').doc(uid).set({ premium: true }, { merge: true }).catch(() => {});
-  }
+  // Deprecated: client-side payment callbacks must never grant premium.
+  // Premium is granted only after server-side PayApp verification writes users/{uid}.
+  console.warn('recordPurchase() is deprecated and intentionally disabled.');
+  return false;
 }
-
 function getCurrentUserKey() {
+  // Firebase Auth identity is authoritative when available. This prevents a stale
+  // Kakao localStorage session from being mistaken for the current account.
+  if (firebaseReady && firebaseAuthReady && firebaseAuthUser && !firebaseAuthUser.isAnonymous) return firebaseAuthUser.uid;
   const kakaoUser = getKakaoUser();
   if (kakaoUser) return 'kakao_' + kakaoUser.id;
   if (firebaseReady && firebaseAuthReady && firebaseAuthUser) return firebaseAuthUser.uid;
@@ -2297,14 +2472,22 @@ function getCurrentUserKey() {
 function syncPremiumFromAccount(uid) {
   if (!db || !uid) return;
   db.collection('users').doc(uid).get().then((snap) => {
-    if (snap.exists && snap.data().premium === true) {
-      verifiedPremium = true;
-      localStorage.setItem(PREMIUM_KEY, 'true');
+    if (!snap.exists) return;
+    const data = snap.data() || {};
+    let until = 0;
+    if (data.premiumUntil && typeof data.premiumUntil.toMillis === 'function') until = data.premiumUntil.toMillis();
+    else if (typeof data.premiumUntil === 'number') until = data.premiumUntil;
+    if (data.premium === true && until > Date.now()) {
+      setLocalPremium(until, uid);
       updateAuthNav();
       updatePremiumUI();
       localStorage.removeItem('taekilso_pending_order');
       sessionStorage.removeItem('taekilso_pending_order');
-      showToast('이 계정의 프리미엄이 확인됐어요.');
+      showToast('이 계정의 프리미엄 이용권이 확인됐어요.');
+    } else if (until && until <= Date.now()) {
+      if (getPremiumOwnerKey() === uid) clearLocalPremium();
+      updateAuthNav();
+      updatePremiumUI();
     }
   }).catch((err) => console.error('프리미엄 상태 확인 실패', err));
 }
@@ -2352,13 +2535,13 @@ function updateAuthNav() {
   const btn = document.getElementById('authNavBtn');
   const bottomLabel = document.getElementById('bottomProfileLabel');
   const kakaoUser = getKakaoUser();
-  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser) ? firebaseAuthUser : null;
+  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser && !firebaseAuthUser.isAnonymous) ? firebaseAuthUser : null;
   const premiumTag = isPremium() ? ' ✦' : '';
   let label = '로그인';
-  if (kakaoUser) {
+  if (fbUser) {
+    label = (fbUser.displayName || (fbUser.email ? fbUser.email.split('@')[0] : '회원')) + ' 님' + premiumTag;
+  } else if (kakaoUser) {
     label = (kakaoUser.nickname || '카카오 사용자') + ' 님' + premiumTag;
-  } else if (fbUser) {
-    label = (fbUser.displayName || fbUser.email.split('@')[0]) + ' 님' + premiumTag;
   }
   btn.textContent = label;
   if (bottomLabel) bottomLabel.textContent = (kakaoUser || fbUser) ? '프로필' : '로그인';
@@ -2366,18 +2549,18 @@ function updateAuthNav() {
 
 function renderProfile() {
   const kakaoUser = getKakaoUser();
-  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser) ? firebaseAuthUser : null;
+  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser && !firebaseAuthUser.isAnonymous) ? firebaseAuthUser : null;
   let name = '회원', meta = '', initial = '택';
 
-  if (kakaoUser) {
+  if (fbUser) {
+    name = fbUser.displayName || (fbUser.email ? fbUser.email.split('@')[0] : '회원');
+    const provider = (fbUser.providerData[0] && fbUser.providerData[0].providerId === 'google.com') ? '구글 로그인' : '이메일 로그인';
+    meta = provider + (fbUser.email ? ' · ' + fbUser.email : '');
+    initial = name.charAt(0).toUpperCase();
+  } else if (kakaoUser) {
     name = kakaoUser.nickname || '카카오 사용자';
     meta = '카카오 로그인' + (kakaoUser.email ? ' · ' + kakaoUser.email : '');
     initial = name.charAt(0);
-  } else if (fbUser) {
-    name = fbUser.displayName || fbUser.email.split('@')[0];
-    const provider = (fbUser.providerData[0] && fbUser.providerData[0].providerId === 'google.com') ? '구글 로그인' : '이메일 로그인';
-    meta = provider + ' · ' + fbUser.email;
-    initial = name.charAt(0).toUpperCase();
   }
 
   document.getElementById('profileAvatar').textContent = initial;
@@ -2389,18 +2572,28 @@ function renderProfile() {
   if (isPremium()) {
     tierEl.textContent = '프리미엄 회원';
     tierEl.classList.add('gold');
-    upgradeBtn.textContent = '프리미엄 이용 중이에요';
-    upgradeBtn.disabled = true;
+    upgradeBtn.textContent = '프리미엄 이용 중 · ' + formatPremiumUntil();
+    upgradeBtn.disabled = false;
   } else {
     tierEl.textContent = '무료 회원';
     tierEl.classList.remove('gold');
-    upgradeBtn.textContent = '프리미엄으로 업그레이드';
+    upgradeBtn.textContent = '프리미엄 30일 이용권 구매';
     upgradeBtn.disabled = false;
   }
 
   document.getElementById('adminEntryWrap').style.display = isAdmin() ? 'block' : 'none';
 }
 updateAuthNav();
+// 이용권 만료를 화면에 즉시 반영하고, 날짜가 바뀌어도 상태가 갱신되도록 합니다.
+setInterval(() => {
+  const before = verifiedPremium;
+  const nowPremium = isPremium();
+  if (before !== nowPremium) { updateAuthNav(); updatePremiumUI(); }
+  if (nowPremium) {
+    const expiry = document.getElementById('premiumExpiry');
+    if (expiry) expiry.textContent = '이용기간 · ' + formatPremiumUntil();
+  }
+}, 60000);
 
 /* ---------- ADMIN DASHBOARD ---------- */
 function renderAdmin() {
@@ -2432,7 +2625,7 @@ function renderAdmin() {
       const item = document.createElement('div');
       item.className = 'usecase-item';
       item.innerHTML = `
-        <div><strong style="color:var(--gold-hi); font-family:var(--serif); font-weight:400;">${label}</strong> · ${u.provider || '기타'}${u.premium ? ' · <span style="color:var(--gold-hi)">프리미엄</span>' : ''}</div>
+        <div><strong style="color:var(--gold-hi); font-family:var(--serif); font-weight:400;">${escapeHtml(label)}</strong> · ${escapeHtml(u.provider || '기타')}${u.premium ? ' · <span style="color:var(--gold-hi)">프리미엄</span>' : ''}</div>
         <span class="hist-delete" data-uid="${doc.id}">제거</span>
       `;
       list.appendChild(item);
@@ -2463,12 +2656,12 @@ function renderAdminInquiries() {
       const dateStr = q.createdAt && q.createdAt.toDate ? q.createdAt.toDate().toLocaleDateString('ko-KR') : '';
       card.innerHTML = `
         <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
-          <strong style="font-family:var(--serif); font-weight:400; color:var(--gold-hi);">${q.title || '(제목 없음)'}</strong>
+          <strong style="font-family:var(--serif); font-weight:400; color:var(--gold-hi);">${escapeHtml(q.title || '(제목 없음)')}</strong>
           <span class="inq-status ${q.status === '답변완료' ? 'answered' : 'waiting'}">${q.status || '대기'}</span>
         </div>
-        <div style="font-size:11px; color:var(--muted-2); margin-top:4px;">${q.name || q.uid || ''} · ${dateStr}</div>
-        <div style="font-size:13.5px; color:#cfcbc1; margin-top:10px; white-space:pre-wrap;">${(q.message || '').replace(/</g,'&lt;')}</div>
-        <textarea placeholder="답변을 입력하세요" data-id="${doc.id}">${q.reply || ''}</textarea>
+        <div style="font-size:11px; color:var(--muted-2); margin-top:4px;">${escapeHtml(q.name || q.uid || '')} · ${escapeHtml(dateStr)}</div>
+        <div style="font-size:13.5px; color:#cfcbc1; margin-top:10px; white-space:pre-wrap;">${escapeHtml(q.message || '')}</div>
+        <textarea placeholder="답변을 입력하세요" data-id="${doc.id}">${escapeHtml(q.reply || '')}</textarea>
         <button class="btn btn-primary" style="margin-top:8px; height:42px; font-size:13px;" data-reply-id="${doc.id}">답변 저장</button>
       `;
       wrap.appendChild(card);
@@ -2505,55 +2698,127 @@ function showSupportStatus(msg, kind) {
   else { el.style.background = 'rgba(255,255,255,.05)'; el.style.color = 'var(--muted)'; el.style.border = '1px solid var(--line-soft)'; }
 }
 
-function submitInquiry(prefill) {
+async function submitInquiry(prefill) {
   showSupportStatus('확인 중이에요…', 'info');
-
-  const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
-  if (!loggedIn) { showSupportStatus('로그인 후 문의를 남길 수 있어요. 위의 "로그인" 버튼을 먼저 눌러주세요.', 'error'); openAuthModal(); return; }
-
-  if (!firebaseReady) { showSupportStatus('오류: Firebase 자체가 초기화되지 않았어요. 브라우저 콘솔에 "Firebase 초기화 실패" 에러가 있는지 확인해주세요.', 'error'); return; }
-  if (!db) { showSupportStatus('오류: 데이터 저장소(Firestore)에 연결하지 못했어요. 광고 차단 확장 프로그램을 꺼보시거나, Firebase 콘솔에서 Firestore Database가 만들어져 있는지 확인해주세요.', 'error'); return; }
-
-  const title = document.getElementById('supportTitle').value.trim();
-  const message = document.getElementById('supportMessage').value.trim();
-  if (!title || !message) { showSupportStatus('제목과 내용을 모두 입력해주세요.', 'error'); return; }
 
   const kakaoUser = getKakaoUser();
   const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser) ? firebaseAuthUser : null;
-  const uid = getCurrentUserKey();
-  const name = kakaoUser ? kakaoUser.nickname : (fbUser ? (fbUser.displayName || fbUser.email) : '회원');
+  const loggedIn = kakaoUser || fbUser;
+  if (!loggedIn) {
+    showSupportStatus('로그인 후 문의를 남길 수 있어요. 위의 "로그인" 버튼을 먼저 눌러주세요.', 'error');
+    openAuthModal();
+    return;
+  }
+
+  const titleEl = document.getElementById('supportTitle');
+  const messageEl = document.getElementById('supportMessage');
+  const title = (titleEl?.value || '').trim();
+  const message = (messageEl?.value || '').trim();
+  if (!title || !message) {
+    showSupportStatus('제목과 내용을 모두 입력해주세요.', 'error');
+    return;
+  }
+
+  const baseUid = getCurrentUserKey() || ('guest_' + Date.now());
+  let ownerUid = fbUser ? fbUser.uid : null;
+  const name = kakaoUser ? (kakaoUser.nickname || '카카오 사용자')
+    : (fbUser ? (fbUser.displayName || fbUser.email || '회원') : '회원');
 
   showSupportStatus('등록하는 중이에요…', 'info');
 
-  let settled = false;
-  const timeoutId = setTimeout(() => {
-    if (!settled) {
-      showSupportStatus('저장이 너무 오래 걸리고 있어요. 인터넷 연결, 또는 광고 차단(애드블록) 확장 프로그램이 Firestore 요청을 막고 있지 않은지 확인해보세요. (10초 넘게 응답이 없어요)', 'error');
-    }
-  }, 10000);
-
-  db.collection('inquiries').add({
-    uid, name, title, message,
+  const payload = {
+    uid: baseUid,
+    ownerUid,
+    name,
+    title,
+    message,
     status: '대기',
     reply: '',
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  }).then((docRef) => {
-    settled = true;
-    clearTimeout(timeoutId);
-    const list = getMyInquiryList();
-    list.unshift({ id: docRef.id, title, createdAt: Date.now() });
-    localStorage.setItem(SUPPORT_LIST_KEY, JSON.stringify(list));
-    document.getElementById('supportTitle').value = '';
-    if (!prefill) document.getElementById('supportMessage').value = '';
-    showSupportStatus('✓ 문의가 정상적으로 등록됐어요. 아래 "내 문의 내역"에서 확인할 수 있어요.', 'success');
-    showToast('문의가 등록됐어요.');
-    renderSupportList();
-  }).catch(err => {
-    settled = true;
-    clearTimeout(timeoutId);
-    console.error('문의 등록 실패', err);
-    showSupportStatus('등록 실패: [' + (err.code || '') + '] ' + err.message, 'error');
-  });
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    createdAtMs: Date.now(),
+    source: kakaoUser ? 'kakao' : 'firebase'
+  };
+
+  // 1차: 현재 로그인 세션으로 Firestore 저장
+  if (db) {
+    try {
+      // Firebase-authenticated users write with their own UID. Kakao-only users
+      // are routed through the anonymous-auth fallback below so Firestore rules
+      // can still enforce request.auth.uid == ownerUid.
+      if (kakaoUser && (!fbUser || fbUser.isAnonymous)) throw { code: 'kakao_requires_anonymous' };
+      const docRef = await db.collection('inquiries').add(payload);
+      saveLocalInquiryRef(docRef.id, title);
+      clearInquiryForm(prefill);
+      showSupportStatus('✓ 문의가 정상적으로 등록됐어요. 아래 내 문의 내역에서 확인할 수 있어요.', 'success');
+      showToast('문의가 등록됐어요.');
+      renderSupportList();
+      return;
+    } catch (firstErr) {
+      console.warn('1차 문의 저장 실패', firstErr);
+      // 카카오 로그인은 Firebase Auth 세션이 아니므로, 익명 인증이 활성화되어 있다면
+      // 익명 Firebase 세션으로 한 번 더 저장합니다. 실제 문의 내용은 Firestore에만 저장됩니다.
+      if (kakaoUser && firebaseReady && firebaseAuthReady && firebase.auth) {
+        try {
+          const current = firebase.auth().currentUser;
+          if (!current || current.isAnonymous) {
+            const anonResult = await firebase.auth().signInAnonymously();
+            const anonUid = anonResult.user.uid;
+            payload.uid = 'kakao_' + kakaoUser.id;
+            payload.firebaseUid = anonUid;
+            payload.ownerUid = anonUid;
+            const docRef = await db.collection('inquiries').add(payload);
+            saveLocalInquiryRef(docRef.id, title);
+            clearInquiryForm(prefill);
+            showSupportStatus('✓ 문의가 정상적으로 등록됐어요. 답변이 달리면 이 화면에서 확인할 수 있어요.', 'success');
+            showToast('문의가 등록됐어요.');
+            renderSupportList();
+            return;
+          }
+        } catch (anonErr) {
+          console.warn('익명 인증 문의 저장 실패', anonErr);
+        }
+      }
+
+      const code = firstErr && firstErr.code ? '[' + firstErr.code + '] ' : '';
+      const messageText = firstErr && firstErr.message ? firstErr.message : 'Firestore 저장에 실패했어요.';
+      showSupportStatus('등록 실패: ' + code + messageText + ' · Firebase Firestore 보안 규칙에서 로그인 사용자의 inquiries 생성 권한을 확인해주세요.', 'error');
+      return;
+    }
+  }
+
+  // Firebase가 내려간 경우에도 사용자가 작성 내용을 잃지 않도록 로컬 임시보관.
+  // 서버 문의로 표시하지 않고 "임시 저장"임을 명확히 안내합니다.
+  const localId = 'local_' + Date.now().toString(36);
+  const list = getMyInquiryList();
+  list.unshift({ id: localId, title, createdAt: Date.now(), localOnly: true, message });
+  localStorage.setItem(SUPPORT_LIST_KEY, JSON.stringify(list));
+  clearInquiryForm(prefill);
+  showSupportStatus('✓ 현재 서버 연결이 없어 이 기기에 임시 저장했어요. 연결이 복구되면 다시 등록해주세요.', 'success');
+  showToast('문의가 기기에 임시 저장됐어요.');
+  renderSupportList();
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+
+function saveLocalInquiryRef(id, title) {
+  const list = getMyInquiryList().filter(x => x.id !== id);
+  list.unshift({ id, title, createdAt: Date.now() });
+  localStorage.setItem(SUPPORT_LIST_KEY, JSON.stringify(list));
+}
+
+function clearInquiryForm(prefill) {
+  const titleEl = document.getElementById('supportTitle');
+  const messageEl = document.getElementById('supportMessage');
+  if (titleEl) titleEl.value = '';
+  if (!prefill && messageEl) messageEl.value = '';
+}
+
+function getInquiryOwnerUid() {
+  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser) ? firebaseAuthUser : null;
+  if (fbUser) return fbUser.uid;
+  return null;
 }
 
 function renderSupportList() {
@@ -2564,19 +2829,21 @@ function renderSupportList() {
   if (!mine.length) { listEl.innerHTML = ''; emptyEl.style.display = 'block'; return; }
   emptyEl.style.display = 'none';
   listEl.innerHTML = mine.map(item => `
-    <div class="usecase-item inq-item" data-inq-id="${item.id}">
-      <div>${item.title}</div>
-      <span class="inq-status waiting" data-status-id="${item.id}">확인 중</span>
+    <div class="usecase-item inq-item" data-inq-id="${escapeHtml(item.id)}">
+      <div>${escapeHtml(item.title)}</div>
+      <span class="inq-status waiting" data-status-id="${escapeHtml(item.id)}">확인 중</span>
     </div>
   `).join('');
   listEl.querySelectorAll('.inq-item').forEach(el => {
     el.addEventListener('click', () => showInquiryDetail(el.dataset.inqId));
   });
   if (db) {
-    mine.forEach(item => {
+    mine.filter(item => !item.localOnly).forEach(item => {
       db.collection('inquiries').doc(item.id).get().then((snap) => {
         if (!snap.exists) return;
         const q = snap.data();
+        const ownerUid = getInquiryOwnerUid();
+        if (!ownerUid || q.ownerUid !== ownerUid) return;
         const badge = listEl.querySelector(`[data-status-id="${item.id}"]`);
         if (badge && q.status === '답변완료') {
           badge.textContent = '답변완료';
@@ -2589,17 +2856,28 @@ function renderSupportList() {
 
 function showInquiryDetail(id) {
   const panel = document.getElementById('supportDetail');
+  const local = getMyInquiryList().find(x => x.id === id);
+  if (local && local.localOnly) {
+    panel.style.display = 'block';
+    panel.innerHTML = `<div class="pr-tag">임시 저장</div><div style="font-family:var(--serif);font-size:18px;margin-bottom:8px;">${escapeHtml(local.title)}</div><div style="font-size:13.5px;color:#cfcbc1;white-space:pre-wrap;">${escapeHtml(local.message || '')}</div><div style="font-size:12px;color:var(--muted);margin-top:14px;">서버 연결이 복구되면 문의 등록을 다시 눌러주세요.</div>`;
+    return;
+  }
   if (!db) return;
   panel.style.display = 'block';
   panel.innerHTML = '<div class="loading-line" style="margin-top:0;">불러오는 중…</div>';
   db.collection('inquiries').doc(id).get().then((snap) => {
     if (!snap.exists) { panel.innerHTML = '<div class="empty-note">문의를 찾을 수 없어요.</div>'; return; }
     const q = snap.data();
+    const ownerUid = getInquiryOwnerUid();
+    if (!ownerUid || q.ownerUid !== ownerUid) {
+      panel.innerHTML = '<div class="empty-note">이 문의를 볼 권한이 없어요.</div>';
+      return;
+    }
     panel.innerHTML = `
       <div class="pr-tag">${q.status === '답변완료' ? '✦ 답변완료' : '확인 중이에요'}</div>
-      <div style="font-family:var(--serif); font-size:18px; margin-bottom:8px;">${q.title}</div>
-      <div style="font-size:13.5px; color:#cfcbc1; white-space:pre-wrap; margin-bottom:14px;">${(q.message||'').replace(/</g,'&lt;')}</div>
-      ${q.reply ? `<div style="border-top:1px solid var(--line-soft); padding-top:14px;"><div style="font-size:11px; color:var(--gold-hi); margin-bottom:6px;">택일소 답변</div><div style="font-size:13.5px; color:#e8e5dc; white-space:pre-wrap;">${q.reply.replace(/</g,'&lt;')}</div></div>` : `<div style="font-size:12.5px; color:var(--muted);">아직 답변 전이에요. 조금만 기다려주세요.</div>`}
+      <div style="font-family:var(--serif); font-size:18px; margin-bottom:8px;">${escapeHtml(q.title)}</div>
+      <div style="font-size:13.5px; color:#cfcbc1; white-space:pre-wrap; margin-bottom:14px;">${escapeHtml(q.message || '')}</div>
+      ${q.reply ? `<div style="border-top:1px solid var(--line-soft); padding-top:14px;"><div style="font-size:11px; color:var(--gold-hi); margin-bottom:6px;">택일소 답변</div><div style="font-size:13.5px; color:#e8e5dc; white-space:pre-wrap;">${escapeHtml(q.reply)}</div></div>` : `<div style="font-size:12.5px; color:var(--muted);">아직 답변 전이에요. 조금만 기다려주세요.</div>`}
     `;
   }).catch(err => { panel.innerHTML = '<div class="empty-note">불러오지 못했어요.</div>'; console.error(err); });
 }
@@ -2610,19 +2888,30 @@ function requestRefund() {
   const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
   if (!loggedIn) { showToast('로그인 후 이용할 수 있어요.'); openAuthModal(); return; }
   if (!isPremium()) { showToast('프리미엄 결제 내역이 없어요.'); return; }
-  if (!confirm('프리미엄 결제(4,900원)에 대한 환불을 요청할까요? 확인 후 순차적으로 처리해드려요.')) return;
+
+  const until = getPremiumUntil();
+  const purchasedAt = until ? until - 30 * 86400000 : 0;
+  const usedCount = readHistoryStore().filter(h => (h.savedAt || 0) >= purchasedAt).length;
+  const usageNotice = usedCount > 0
+    ? `\n\n참고로, 결제 이후 프리미엄 기능(365일 검색 · TOP20 · 상세 리포트 등)을 이미 ${usedCount}회 이용하신 기록이 있어요. 서비스를 정상적으로 이용하신 이후의 환불 요청은 사안에 따라 제한될 수 있는 점 양해 부탁드려요.`
+    : '\n\n아직 프리미엄 기능을 이용하신 기록은 없는 것으로 확인돼요.';
+
+  if (!confirm('프리미엄 결제(4,900원)에 대한 환불을 요청할까요?' + usageNotice + '\n\n확인을 누르면 문의가 등록되고, 순차적으로 확인 후 안내드릴게요.')) return;
 
   goTo('support');
   setTimeout(() => {
     document.getElementById('supportTitle').value = '프리미엄 결제 환불 요청';
-    document.getElementById('supportMessage').value = '프리미엄(4,900원) 결제에 대한 환불을 요청합니다.\n\n환불 사유: \n(자세한 사유를 여기에 적어주세요)';
+    document.getElementById('supportMessage').value =
+      '프리미엄(4,900원) 결제에 대한 환불을 요청합니다.\n\n' +
+      '환불 사유: \n(자세한 사유를 여기에 적어주세요)\n\n' +
+      `[자동 기록] 결제 후 서비스 이용 횟수: ${usedCount}회`;
     submitInquiry(true);
   }, 100);
 }
 
 function confirmDeleteAccount() {
   const kakaoUser = getKakaoUser();
-  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser) ? firebaseAuthUser : null;
+  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser && !firebaseAuthUser.isAnonymous) ? firebaseAuthUser : null;
   if (!kakaoUser && !fbUser) { showToast('로그인 후 이용해주세요.'); return; }
 
   const msg = kakaoUser
@@ -2654,31 +2943,57 @@ function confirmDeleteAccount() {
   });
 }
 
-function loginWithGoogle() {
-  if (!firebaseReady) {
+async function loginWithGoogle() {
+  if (!firebaseReady || !window.firebase || !firebase.auth) {
     document.getElementById('authSetupNotice').style.display = 'block';
-    showToast('Firebase 설정이 아직 안 됐어요.');
+    showAuthError('Firebase Authentication이 연결되지 않았어요. firebaseConfig와 Authentication 설정을 확인해주세요.');
     return;
   }
-  const provider = new firebase.auth.GoogleAuthProvider();
-  firebase.auth().signInWithPopup(provider)
-    .then((result) => {
+
+  const btn = document.querySelector('#authOverlay button[onclick="loginWithGoogle()"]');
+  if (btn) { btn.disabled = true; btn.dataset.originalText = btn.textContent; btn.textContent = 'Google 연결 중…'; }
+  try {
+    if (firebaseAuthInitPromise) await firebaseAuthInitPromise;
+    // Prevent two local identity systems from being active at once.
+    localStorage.removeItem(KAKAO_USER_KEY);
+    sessionStorage.removeItem(KAKAO_USER_KEY);
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    try {
+      const result = await firebase.auth().signInWithPopup(provider);
       closeAuthModal();
       showToast('구글 계정으로 로그인했어요');
       if (result.additionalUserInfo && result.additionalUserInfo.isNewUser) {
         recordSignup(result.user.uid, { email: result.user.email, provider: 'google' });
       }
-    })
-    .catch((err) => showToast('구글 로그인 실패: ' + err.message));
+    } catch (err) {
+      console.warn('Google popup 로그인 실패', err);
+      const fallbackCodes = ['auth/popup-blocked','auth/operation-not-supported-in-this-environment'];
+      if (fallbackCodes.includes(err.code)) {
+        showToast('팝업을 사용할 수 없어 전체 화면 Google 로그인으로 연결합니다.');
+        await firebase.auth().signInWithRedirect(provider);
+        return;
+      }
+      showAuthError('구글 로그인 실패: ' + formatAuthError(err));
+    }
+  } catch (err) {
+    console.error('Google 로그인 처리 실패', err);
+    showAuthError('구글 로그인 실패: ' + formatAuthError(err));
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = btn.dataset.originalText || 'Google로 시작하기'; }
+  }
 }
 
 /* Kakao SDK v2 dropped popup login; the only client method is a full-page
    redirect (authorize) that sends the browser to Kakao and back with a
    ?code= param, which we then exchange for a token below. */
-function loginWithKakao() {
+async function loginWithKakao() {
   if (!kakaoReady) {
     showToast('카카오 로그인 설정이 아직 안 됐어요.');
     return;
+  }
+  if (firebaseReady && firebaseAuthUser && !firebaseAuthUser.isAnonymous) {
+    try { await firebase.auth().signOut(); } catch (e) {}
   }
   Kakao.Auth.authorize({ redirectUri: KAKAO_REDIRECT_URI, scope: 'profile_nickname' });
 }
@@ -2744,7 +3059,7 @@ function logout() {
   sessionStorage.removeItem(KAKAO_USER_KEY);
   if (firebaseReady && firebaseAuthReady && firebaseAuthUser) { firebase.auth().signOut().catch(() => {}); }
   firebaseAuthUser = null;
-  verifiedPremium = (localStorage.getItem(PREMIUM_KEY) === 'true');
+  clearLocalPremium();
   updateAuthNav();
   updatePremiumUI();
   showToast('로그아웃했어요');
@@ -2809,14 +3124,14 @@ async function payPremium() {
     PayApp.setParam({
       userid: PAYAPP_USERID,
       shopname: '택일소',
-      goodname: '택일소 프리미엄 정밀 택일 리포트 (1회)',
+      goodname: '택일소 프리미엄 30일 이용권',
       price: String(PREMIUM_PRICE),
       recvphone: '01000000000',
       smsuse: 'n',
       checkretry: 'y',
       returnurl: PAYAPP_RETURN_URL,
       var1: orderId,
-      memo: '365일 택일 검색 · TOP20 · 정밀 리포트 · 궁합 택일',
+      memo: '30일 이용권 · 365일 택일 검색 · TOP20 · 정밀 리포트 · 궁합 택일',
       redirectpay: '1'
     });
 
@@ -2833,23 +3148,29 @@ async function payPremium() {
   }
 }
 /*
- * B안(Spark 무료 요금제): 서버 검증 없이, 페이앱이 결제 후 돌려보내는 주소(?premium=1)를
- * 그대로 신뢰해서 프리미엄을 풀어주는 간단한 방식이에요.
+ * 결제 완료 후 돌아온 페이지에서는 프리미엄을 직접 지급하지 않습니다.
+ * PayApp 서버 검증 결과가 Firebase users/{uid}.premiumUntil에 반영된 뒤 동기화합니다.
  */
 (function checkPremiumReturn() {
   restoreKakaoUserState();
   updateAuthNav();
   const params = new URLSearchParams(window.location.search);
   if (params.get('premium') === '1') {
-    try {
-      localStorage.setItem(PREMIUM_KEY, 'true');
-      verifiedPremium = true;
-      localStorage.removeItem('taekilso_pending_order');
-      recordPurchase();
-      updateAuthNav();
-      updatePremiumUI();
-      showToast('프리미엄이 활성화됐어요.');
-    } catch (e) {}
+    // 결제 성공 URL만으로 프리미엄을 부여하지 않습니다.
+    // PayApp 결제 결과는 서버에서 검증한 뒤 users/{uid}.premiumUntil에 기록해야 합니다.
+    const pending = (() => { try { return JSON.parse(localStorage.getItem('taekilso_pending_order') || 'null'); } catch(e) { return null; } })();
+    if (pending && pending.orderId) {
+      showToast('결제 결과를 확인하고 있어요. 검증이 완료되면 프리미엄이 활성화됩니다.');
+      let tries = 0;
+      const poll = async () => {
+        tries += 1;
+        const ok = await refreshPremiumFromServer();
+        if (!ok && tries < 8) setTimeout(poll, 1000);
+      };
+      setTimeout(poll, 500);
+    } else {
+      showToast('결제 확인 정보가 없어요. 결제 내역을 확인해주세요.');
+    }
     const url = new URL(window.location.href);
     url.searchParams.delete('premium');
     window.history.replaceState({}, document.title, url.toString());
@@ -2868,7 +3189,13 @@ async function refreshPremiumFromServer() {
   if (!user) return false;
   try {
     const snap = await db.collection('users').doc(user.uid).get();
-    verifiedPremium = !!(snap.exists && snap.data().premium === true);
+    const data = snap.exists ? (snap.data() || {}) : {};
+    let until = 0;
+    if (data.premiumUntil && typeof data.premiumUntil.toMillis === 'function') until = data.premiumUntil.toMillis();
+    else if (typeof data.premiumUntil === 'number') until = data.premiumUntil;
+    if (data.premium === true && until > Date.now()) setLocalPremium(until, user.uid);
+    else if (getPremiumOwnerKey() === user.uid) clearLocalPremium();
+    else verifiedPremium = false;
     updateAuthNav();
     updatePremiumUI();
     if (verifiedPremium) {
@@ -2887,7 +3214,15 @@ function updatePremiumUI() {
   const tier = document.getElementById('profileTier');
   const upgrade = document.getElementById('profileUpgradeBtn');
   if (tier) tier.textContent = premium ? '프리미엄 회원 ✦' : '무료 회원';
-  if (upgrade) upgrade.textContent = premium ? '프리미엄 이용 중' : '프리미엄으로 업그레이드';
+  const expiry = document.getElementById('premiumExpiry');
+  if (expiry) {
+    expiry.style.display = premium ? 'block' : 'none';
+    expiry.textContent = premium ? ('이용기간 · ' + formatPremiumUntil()) : '';
+  }
+  if (upgrade) {
+    upgrade.textContent = premium ? ('프리미엄 이용 중 · ' + formatPremiumUntil()) : '프리미엄 30일 이용권 구매';
+    upgrade.disabled = false;
+  }
 }
 
 function buildPremiumProgramPanel() {
@@ -2895,7 +3230,7 @@ function buildPremiumProgramPanel() {
   if (!panel) return;
   if (!isPremium()) {
     panel.style.display='block';
-    panel.innerHTML = `<div class="premium-lock-card"><b>🔒 여기부터 프리미엄 분석입니다</b><p>365일 전체 후보 · TOP 20 · 월별 베스트 · 두 사람 궁합 · 상세 리포트를 한 번에 확인할 수 있어요.</p><button class="btn btn-primary" onclick="payPremium()">4,900원으로 전체 분석 열기</button></div>`;
+    panel.innerHTML = `<div class="premium-lock-card"><b>🔒 여기부터 프리미엄 분석입니다</b><p>30일 동안 365일 전체 후보 · TOP 20 · 월별 베스트 · 두 사람 궁합 · 상세 리포트를 이용할 수 있어요.</p><button class="btn btn-primary" onclick="payPremium()">4,900원으로 30일 이용하기</button></div>`;
     return;
   }
   const list = window.__chronological || [];
@@ -3513,6 +3848,116 @@ function calculateTodayFortune(){
     </div>
     <p style="color:var(--muted-2);font-size:10.5px;line-height:1.7;margin:12px 2px 0">※ 자동 계산된 참고용 운세입니다. 의료·법률·재정 등 전문적인 판단을 대신하지 않습니다.</p>`;
 }
+</script>
+
+
+<div class="saju-insight-modal" id="sajuInsightModal" onclick="if(event.target===this) closeSajuInsight()">
+  <div class="saju-insight-box">
+    <button class="fortune-close" onclick="closeSajuInsight()" aria-label="닫기">×</button>
+    <div class="section-kicker">FREE · SAJU INSIGHT</div>
+    <h3 id="sajuInsightTitle">내 사주 핵심</h3>
+    <p class="sub">생년월일만 입력하면 핵심 결과를 무료로 확인할 수 있어요.</p>
+    <div class="field">
+      <label>생년월일</label>
+      <div class="ymd-row">
+        <select id="insightYear" class="ymd-select"></select>
+        <select id="insightMonth" class="ymd-select"></select>
+        <select id="insightDay" class="ymd-select"></select>
+      </div>
+    </div>
+    <button class="btn btn-primary form-submit" style="margin-top:16px" onclick="calculateSajuInsight()">무료 결과 보기</button>
+    <div id="sajuInsightResult"></div>
+  </div>
+</div>
+
+
+<style id="taekilso-research-upgrade">
+.saju-hub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.saju-hub-card{min-height:235px;padding:25px 23px;text-align:left;border:1px solid var(--line-soft);border-radius:23px;background:linear-gradient(145deg,#12100c,#0b0a09);color:var(--white);display:flex;flex-direction:column;align-items:flex-start;transition:.4s var(--ease);position:relative;overflow:hidden;cursor:pointer}
+.saju-hub-card:hover{transform:translateY(-6px);border-color:rgba(231,199,125,.38);box-shadow:0 22px 70px rgba(0,0,0,.28)}
+.saju-hub-card:after{content:"";position:absolute;right:-75px;bottom:-85px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,rgba(231,199,125,.12),transparent 70%)}
+.saju-hub-card.featured,.saju-hub-card.premium{border-color:rgba(231,199,125,.34);background:linear-gradient(145deg,rgba(231,199,125,.12),#0d0b09)}
+.saju-hub-icon{font-family:"Noto Serif KR",serif;font-size:28px;color:var(--gold-hi);margin-bottom:18px}
+.saju-hub-kicker{font-size:9px;letter-spacing:.17em;color:var(--gold);font-weight:800;margin-bottom:8px}
+.saju-hub-card strong{font-family:"Noto Serif KR",serif;font-size:19px}
+.saju-hub-card small{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.75;max-width:260px}
+.saju-hub-card b{margin-top:auto;padding-top:17px;color:var(--gold-hi);font-size:11px}
+.saju-trust-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:16px;border:1px solid var(--line-soft);border-radius:18px;overflow:hidden;background:var(--line-soft)}
+.saju-trust-strip>div{padding:18px;background:rgba(255,255,255,.025)}
+.saju-trust-strip strong{display:block;color:var(--gold-hi);font-size:13px;margin-bottom:5px}
+.saju-trust-strip span{color:var(--muted);font-size:11px;line-height:1.6}
+.saju-insight-modal{display:none;position:fixed;inset:0;z-index:170;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.80);backdrop-filter:blur(18px)}
+.saju-insight-modal.show{display:flex}
+.saju-insight-box{width:min(560px,100%);max-height:min(88vh,760px);overflow:auto;padding:28px;border:1px solid rgba(215,180,106,.3);border-radius:28px;background:#100f0c;box-shadow:0 35px 100px rgba(0,0,0,.65)}
+.saju-insight-box h3{font-family:"Noto Serif KR",serif;font-size:27px;margin:0 0 7px}
+.saju-insight-result{margin-top:18px;padding:20px;border-radius:20px;border:1px solid rgba(215,180,106,.24);background:rgba(215,180,106,.06)}
+.sir-head{display:flex;justify-content:space-between;gap:15px;align-items:flex-start}
+.sir-title{font-family:"Noto Serif KR",serif;font-size:21px}
+.sir-score{font-size:25px;font-weight:850;color:var(--gold-hi)}
+.sir-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}
+.sir-tags span{padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.06);font-size:10px;color:#d2cabb}
+.sir-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.sir-grid div{padding:12px;border-radius:14px;background:rgba(255,255,255,.025);font-size:11.5px;color:#c9c5bc}
+.sir-grid b{color:#f0e7d5}
+.sir-cta{margin-top:16px;padding-top:15px;border-top:1px solid var(--line-soft)}
+.sir-cta p{margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.7}
+@media(max-width:820px){.saju-hub-grid{grid-template-columns:1fr 1fr}.saju-trust-strip{grid-template-columns:1fr}}
+@media(max-width:520px){.saju-hub-grid{grid-template-columns:1fr}.saju-insight-box{padding:22px 16px}.sir-grid{grid-template-columns:1fr}}
+</style>
+
+<script id="taekilso-research-upgrade-js">
+(function(){
+  const original = window.openFortuneModal;
+  window.openSajuInsight = function(type){
+    const modal=document.getElementById('sajuInsightModal');
+    const title=document.getElementById('sajuInsightTitle');
+    if(!modal||!title)return;
+    const titles={profile:'내 사주 핵심',year:'2026 올해의 흐름',love:'궁합 · 연애 흐름',money:'재물 · 직업 흐름',monthly:'운세 캘린더'};
+    title.textContent=titles[type]||titles.profile;
+    modal.dataset.type=type||'profile';
+    fillInsightDateSelects();
+    document.getElementById('sajuInsightResult').innerHTML='';
+    modal.classList.add('show');
+  };
+  window.closeSajuInsight=function(){document.getElementById('sajuInsightModal').classList.remove('show')};
+  window.fillInsightDateSelects=function(){
+    const y=document.getElementById('insightYear'),m=document.getElementById('insightMonth'),d=document.getElementById('insightDay');
+    if(!y||!m||!d||y.options.length)return;
+    const now=new Date();
+    for(let yy=1940;yy<=now.getFullYear();yy++){const o=document.createElement('option');o.value=yy;o.textContent=yy+'년';y.appendChild(o)}
+    for(let mm=1;mm<=12;mm++){const o=document.createElement('option');o.value=mm;o.textContent=mm+'월';m.appendChild(o)}
+    for(let dd=1;dd<=31;dd++){const o=document.createElement('option');o.value=dd;o.textContent=dd+'일';d.appendChild(o)}
+    y.value=1995;m.value=1;d.value=1;
+  };
+  window.calculateSajuInsight=function(){
+    const y=+document.getElementById('insightYear').value,m=+document.getElementById('insightMonth').value,d=+document.getElementById('insightDay').value;
+    const birth=new Date(y,m-1,d);
+    if(birth.getMonth()!==m-1||birth.getDate()!==d){alert('올바른 생년월일을 선택해주세요.');return}
+    const idx=dayGanjiIndex(birth), oh=ohaengOf(idx);
+    const type=document.getElementById('sajuInsightModal').dataset.type||'profile';
+    const today=new Date(), todayIdx=dayGanjiIndex(today), todayOh=ohaengOf(todayIdx);
+    const rel=(GENERATES[oh]===todayOh||GENERATES[todayOh]===oh)?'상생 흐름':(OVERCOMES[oh]===todayOh||OVERCOMES[todayOh]===oh)?'속도 조절':'균형 흐름';
+    const base={목:{strength:'성장·기획·관계 확장',watch:'과속과 감정적인 결정'},화:{strength:'표현·추진·주도성',watch:'충동적인 선택과 소진'},토:{strength:'안정·실무·신뢰',watch:'변화를 너무 늦게 받아들이는 것'},금:{strength:'판단·기준·정리',watch:'지나친 완벽주의'},수:{strength:'유연함·정보·직관',watch:'결정 미루기'}}[oh];
+    let score=65+((idx*7)%21);
+    if(rel==='상생 흐름')score+=8;if(rel==='속도 조절')score-=5;score=Math.max(50,Math.min(92,score));
+    const content={
+      profile:['오늘 기준 핵심',`일주 ${ganjiFull(idx)} · ${oh} 기운을 중심으로 보면 ${base.strength} 쪽 강점을 살릴 때 흐름이 편합니다.`,`주의할 점은 ${base.watch}입니다.`],
+      year:['2026 키워드',`올해는 ${base.strength}을 활용해 ‘선택을 좁히는 것’이 중요합니다. 기회를 무작정 늘리기보다 기준을 세우세요.`,`중요한 일정은 좋은 날을 고르는 것까지 연결하면 활용도가 높아집니다.`],
+      love:['관계 키워드',`관계에서는 ${base.strength}이 장점으로 작용하기 쉽습니다. 서로의 차이를 이기는 것보다 맞추는 방식이 유리합니다.`,`결혼처럼 중요한 일정이라면 두 사람의 생년월일을 함께 넣어 날짜를 비교해보세요.`],
+      money:['재물·직업 키워드',`${base.strength}을 실제 업무나 선택 기준으로 바꾸면 강점이 됩니다. 숫자만 보고 결정하기보다 오래 유지할 수 있는지를 함께 보세요.`,`큰 계약·개업 등은 실제 조건과 함께 날짜를 비교하는 방식이 좋습니다.`],
+      monthly:['날짜 선택 키워드',`현재 기운은 ${rel}로 계산됩니다. 특정 날짜를 고를 때는 ‘좋다/나쁘다’보다 후보를 여러 개 놓고 비교하는 방식이 유용합니다.`,`택일소에서는 무료 TOP 5를 먼저 확인한 뒤 필요하면 365일 후보와 정밀 리포트로 확장할 수 있습니다.`]
+    }[type]||[];
+    document.getElementById('sajuInsightResult').innerHTML=`
+      <div class="saju-insight-result">
+        <div class="sir-head"><div><div class="fortune-kicker">${type.toUpperCase()} · FREE</div><div class="sir-title">${content[0]}</div></div><div class="sir-score">${score}<small style="font-size:10px;color:var(--muted)"> / 100</small></div></div>
+        <div class="sir-tags"><span>일주 ${ganjiFull(idx)}</span><span>${oh} 오행</span><span>${rel}</span></div>
+        <p style="color:#d3cec3;font-size:13px;line-height:1.85;margin:15px 0 0">${content[1]}</p>
+        <div class="sir-grid"><div><b>강점</b><br>${base.strength}</div><div><b>체크</b><br>${base.watch}</div></div>
+        <div class="sir-cta"><p>${content[2]}</p><button class="btn btn-primary" style="width:100%" onclick="closeSajuInsight();goTo('tool')">내 좋은 날짜까지 찾아보기 →</button></div>
+      </div>
+      <p style="color:var(--muted-2);font-size:10.5px;line-height:1.7;margin:12px 2px 0">※ 전통 명리학 기준을 단순화한 참고용 콘텐츠입니다. 중요한 결정은 현실적인 조건을 함께 확인하세요.</p>`;
+  };
+})();
 </script>
 
 </body>
