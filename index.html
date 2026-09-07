@@ -2368,7 +2368,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-07-self-confirm-badge' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-07-admin-verify-writeback' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -2855,18 +2855,38 @@ function renderAdmin() {
         const uid = e.target.dataset.grantUid;
         if (!confirm('이 회원에게 프리미엄 30일 이용권을 지급할까요?')) return;
         const until = Date.now() + PREMIUM_DURATION_MS;
-        db.collection('users').doc(uid).set({ premium: true, premiumUntil: until, grantedByAdmin: true, lastVerificationMethod: 'admin-grant' }, { merge: true })
-          .then(() => { showToast('프리미엄을 지급했어요.'); renderAdmin(); })
-          .catch(err => showToast('지급 실패: ' + err.message));
+        const ref = db.collection('users').doc(uid);
+        ref.set({ premium: true, premiumUntil: until, grantedByAdmin: true, lastVerificationMethod: 'admin-grant' }, { merge: true })
+          .then(() => ref.get({ source: 'server' }))
+          .then((snap) => {
+            const data = snap.data() || {};
+            if (data.premium === true) {
+              showToast('프리미엄을 지급했어요. (확인됨)');
+            } else {
+              showToast('저장 요청은 됐는데, 다시 읽어보니 반영이 안 된 것 같아요. 새로고침 후 다시 시도해주세요.');
+            }
+            renderAdmin();
+          })
+          .catch(err => showToast('지급 실패: [' + (err.code || '') + '] ' + err.message));
       });
     });
     list.querySelectorAll('[data-revoke-uid]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const uid = e.target.dataset.revokeUid;
         if (!confirm('이 회원의 프리미엄 이용권을 회수할까요? (환불 처리 후 사용)')) return;
-        db.collection('users').doc(uid).set({ premium: false, premiumUntil: 0 }, { merge: true })
-          .then(() => { showToast('프리미엄을 회수했어요.'); renderAdmin(); })
-          .catch(err => showToast('회수 실패: ' + err.message));
+        const ref = db.collection('users').doc(uid);
+        ref.set({ premium: false, premiumUntil: 0 }, { merge: true })
+          .then(() => ref.get({ source: 'server' }))
+          .then((snap) => {
+            const data = snap.data() || {};
+            if (data.premium === false) {
+              showToast('프리미엄을 회수했어요. (확인됨)');
+            } else {
+              showToast('저장 요청은 됐는데, 다시 읽어보니 반영이 안 된 것 같아요. Firestore 규칙이 최신인지 확인해주세요.');
+            }
+            renderAdmin();
+          })
+          .catch(err => showToast('회수 실패: [' + (err.code || '') + '] ' + err.message));
       });
     });
   }).catch(err => console.error('회원 목록 조회 실패', err));
