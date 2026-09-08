@@ -511,11 +511,20 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .day-detail{margin-top:22px; padding:24px; border:1px solid rgba(215,180,106,.35); border-radius:22px; background:linear-gradient(150deg,rgba(215,180,106,.08),#0c0c0b)}
 
 @media print{
-  .topbar,footer,.tool-shell h2,.tool-shell>p.lead,.form-grid,.field.full,.couple-row,.form-submit,#toastHost,.result-actions,.reset-row,.filter-chips,.cal-legend{display:none!important}
+  .topbar,footer,.tool-shell h2,.tool-shell>p.lead,.form-grid,.field.full,.couple-row,.form-submit,#toastHost,.result-actions,.reset-row,.filter-chips,.cal-legend,.bottom-tabbar,.no-print{display:none!important}
   body{background:#fff!important;color:#111!important}
   .result-card,.day-detail{border:1px solid #ccc!important; background:#fff!important; break-inside:avoid;}
   .result-narrative,.result-meta{color:#333!important}
   .cal-cell{border:1px solid #ddd!important; color:#111!important;}
+  .best-result-hero{background:#fff!important; border:1.5px solid #c9a44f!important; box-shadow:none!important; break-inside:avoid;}
+  .best-result-hero::after{display:none!important}
+  .best-date,.best-meta,.best-result-hero p{color:#111!important}
+  .best-score{background:#fff!important; border-color:#c9a44f!important}
+  .best-spec-grid{background:#f7f4ee!important; border-color:#ddd!important}
+  .best-spec-grid b,.best-spec-grid small{color:#111!important}
+  .best-caution{background:#fbf6ea!important; border-color:#c9a44f!important; color:#333!important}
+  .best-reasons span{background:#f1ede2!important; color:#333!important}
+  .premium-program-panel,.pp-list,.pp-stat{background:#fff!important; color:#111!important; border-color:#ddd!important}
 }
 
 /* usecase list (event subpages) */
@@ -780,6 +789,23 @@ section.block{padding:96px 0}
 .best-reasons{display:flex;gap:7px;flex-wrap:wrap;margin:18px 0 13px}
 .best-reasons span{padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.06);font-size:10px;color:#c8c1b4}
 .best-result-hero p{margin:0;color:#d5cfc4;font-size:13px;line-height:1.8}
+.best-stars{letter-spacing:2px; font-size:13px; color:rgba(255,255,255,.18); margin-top:4px}
+.best-stars .on{color:var(--gold-hi)}
+.best-spec-grid{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+  margin:18px 0; padding:16px; border-radius:16px;
+  background:rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.06);
+}
+.best-spec-grid > div{text-align:center}
+.best-spec-grid small{display:block; font-size:10px; color:var(--muted); margin-bottom:6px}
+.best-spec-grid b{font-family:"Noto Serif KR",serif; font-size:14px; color:var(--white); font-weight:600}
+.best-caution{
+  margin-top:14px; padding:13px 15px; border-radius:14px;
+  background:rgba(215,180,106,.06); border:1px solid rgba(215,180,106,.18);
+  font-size:12px; line-height:1.7; color:#d5cfc4;
+}
+.best-caution b{color:var(--gold-hi); font-weight:700}
+@media(max-width:480px){.best-spec-grid{grid-template-columns:repeat(2,1fr)}}
 .result-card{padding:23px;border-radius:21px}
 .result-card.best{box-shadow:0 18px 55px rgba(202,163,90,.07)}
 .result-date{font-family:"Noto Serif KR",serif;font-weight:600}
@@ -1571,6 +1597,14 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <div class="tool-shell">
         <h2>새 문의 작성</h2>
         <p class="lead">로그인 후 이용할 수 있어요. 작성한 문의와 답변은 이 목록에서 확인할 수 있어요.</p>
+        <div class="field full" style="margin-bottom:14px;">
+          <label>자주 있는 결제 문의 (누르면 아래 제목·내용이 자동으로 채워져요)</label>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;">
+            <button type="button" class="btn" style="padding:8px 16px; min-height:auto; font-size:12.5px;" onclick="fillCommonInquiry('paymentFailed')">💳 결제가 안 됐어요</button>
+            <button type="button" class="btn" style="padding:8px 16px; min-height:auto; font-size:12.5px;" onclick="fillCommonInquiry('premiumNotOpen')">🔒 결제했는데 프리미엄이 안 열려요</button>
+            <button type="button" class="btn" style="padding:8px 16px; min-height:auto; font-size:12.5px;" onclick="requestRefund()">↩️ 환불하고 싶어요</button>
+          </div>
+        </div>
         <div class="field full" style="margin-bottom:12px;">
           <label>제목</label>
           <input type="text" id="supportTitle" placeholder="예: 결제가 안 돼요">
@@ -1607,7 +1641,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <div id="adminDenied" style="display:none; text-align:center; color:var(--muted); padding:40px 0;">관리자 계정으로 로그인해야 볼 수 있어요.</div>
       <div id="adminContent" style="display:none;">
         <div class="admin-stats">
-          <div class="admin-stat"><small>총 방문수</small><b id="statVisits">–</b></div>
+          <div class="admin-stat"><small>누적 방문수</small><b id="statVisits">–</b></div>
+          <div class="admin-stat"><small>오늘 방문수</small><b id="statTodayVisits">–</b></div>
           <div class="admin-stat"><small>총 가입자수</small><b id="statSignups">–</b></div>
           <div class="admin-stat"><small>총 구매수</small><b id="statPurchases">–</b></div>
           <div class="admin-stat"><small>예상 누적 매출</small><b id="statRevenue" style="font-size:20px;">–</b></div>
@@ -2433,6 +2468,20 @@ function to100(score) {
 }
 
 /* ---------- RESULT CARDS (reusable for filters) ---------- */
+/* eventType별 "주의할 점" 문구. 프리미엄 리포트와 1위 추천 카드에서 함께 씁니다. */
+function cautionTextFor(eventType) {
+  if (eventType === '이사') return '실제 이사 일정·방향·계약 조건을 함께 확인하세요.';
+  if (eventType === '개업') return '인허가·공사·직원 일정 등 현실 조건을 우선 확인하세요.';
+  if (eventType === '결혼식') return '예식장·하객 일정과 양가 일정도 함께 조율하세요.';
+  return '계약 조건·서명 시간·실무 일정을 함께 확인하세요.';
+}
+/* 100점 만점 점수를 5개 별(★)로 환산해 보여줍니다. */
+function starRatingHtml(score100) {
+  const filled = Math.max(0, Math.min(5, Math.round(score100 / 20)));
+  let out = '';
+  for (let i = 0; i < 5; i++) out += `<span class="${i < filled ? 'on' : ''}">★</span>`;
+  return out;
+}
 function renderResultCards(top, eventType, coupleMode, coupleRelation) {
   const narratives = top.map(t => generateNarrative(t, eventType, coupleMode, coupleRelation));
   const container = document.getElementById('dateCards');
@@ -2450,17 +2499,28 @@ function renderResultCards(top, eventType, coupleMode, coupleRelation) {
   if (countEl) countEl.textContent = `${top.length}개 추천`;
   if (hero) {
     hero.style.display = 'block';
+    const stars = starRatingHtml(bestScore);
+    const isWeekend = best.date.getDay() === 0 || best.date.getDay() === 6;
+    const isSon = !!(best.lunarInfo && best.lunarInfo.isSonEomneun);
     hero.innerHTML = `
-      <div class="best-kicker">✦ 가장 추천하는 날짜</div>
+      <div class="best-kicker">🏆 1위 추천 날짜</div>
       <div class="best-main">
         <div>
-          <div class="best-date">${best.date.getFullYear()}년 ${best.date.getMonth()+1}월 ${best.date.getDate()}일</div>
-          <div class="best-meta">${dowNames[best.date.getDay()]}요일 · 일진 ${best.ganji}(${best.ganjiHanja}) · ${best.ohaeng} 기운</div>
+          <div class="best-date">${best.date.getFullYear()}년 ${best.date.getMonth()+1}월 ${best.date.getDate()}일 ${dowNames[best.date.getDay()]}요일</div>
+          <div class="best-meta">일진 ${best.ganji}(${best.ganjiHanja}) · ${best.ohaeng} 기운</div>
         </div>
-        <div class="best-score"><strong>${bestScore}</strong><span>추천점수</span></div>
+        <div class="best-score"><strong>${bestScore}</strong><span>종합점수</span></div>
+      </div>
+      <div class="best-stars">${stars} <span style="color:var(--muted); font-size:11px; letter-spacing:0;">(${bestScore}점)</span></div>
+      <div class="best-spec-grid">
+        <div><small>오행 궁합</small><b>${best.ohaeng}</b></div>
+        <div><small>일진</small><b>${best.ganji}</b></div>
+        <div><small>손없는 날</small><b>${isSon ? '해당' : '해당 없음'}</b></div>
+        <div><small>주말 여부</small><b>${isWeekend ? '주말' : '평일'}</b></div>
       </div>
       <div class="best-reasons">${(best.reasons.length ? best.reasons.slice(0,3) : ['평이한 기운']).map(r=>`<span>${r}</span>`).join('')}</div>
-      <p>${generateNarrative(best, eventType, coupleMode, coupleRelation)}</p>
+      <p><b style="color:var(--gold-hi)">추천 이유</b> · ${generateNarrative(best, eventType, coupleMode, coupleRelation)}</p>
+      <div class="best-caution"><b>⚠ 주의할 점</b> · ${cautionTextFor(eventType)}</div>
     `;
   }
   top.forEach((t, i) => {
@@ -2606,7 +2666,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-08-event-card-halo-anim' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-08-premium-result-and-more' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -2684,7 +2744,9 @@ try {
         showAuthError(formatAuthError(err));
       }
     });
-    recordVisit();
+    // 방문자 수는 로그인 여부가 확정된 뒤에 기록합니다. 이렇게 해야 지금 접속한 사람이
+    // 관리자 계정인지 미리 확인하고, 관리자의 방문은 통계에서 빼놓을 수 있습니다.
+    firebaseAuthSettled.then(recordVisit);
   }
 } catch (err) { console.error('Firebase 초기화 실패', err); }
 
@@ -2718,7 +2780,18 @@ function bumpStat(field) {
     { merge: true }
   ).catch(err => console.error('통계 기록 실패', err));
 }
-function recordVisit() { bumpStat('visits'); }
+/* 방문자 수는 관리자 본인 계정(ADMIN_EMAIL)의 접속은 세지 않고,
+   전체 누적(visits)과 오늘 하루치(dailyVisits/오늘 날짜)를 각각 따로 기록합니다. */
+function recordVisit() {
+  if (isAdmin()) return;
+  bumpStat('visits');
+  if (!db) return;
+  const todayKey = new Date().toISOString().slice(0, 10); // 예: 2026-09-08
+  db.collection('dailyVisits').doc(todayKey).set(
+    { count: firebase.firestore.FieldValue.increment(1), date: todayKey },
+    { merge: true }
+  ).catch(err => console.error('일일 방문 기록 실패', err));
+}
 
 /*
  * 프리미엄 기능을 실제로 쓸 때마다 서버(Firestore)에 이용 횟수를 1씩 늘립니다.
@@ -3056,6 +3129,11 @@ function renderAdmin() {
     const revenue = document.getElementById('statRevenue');
     if (revenue) revenue.textContent = ((d.purchases || 0) * PREMIUM_PRICE).toLocaleString('ko-KR') + '원';
   }).catch(err => console.error('통계 조회 실패', err));
+
+  const todayKey = new Date().toISOString().slice(0, 10);
+  db.collection('dailyVisits').doc(todayKey).get({ source: 'server' }).then((snap) => {
+    document.getElementById('statTodayVisits').textContent = snap.exists ? (snap.data().count || 0) : 0;
+  }).catch(err => console.error('오늘 방문수 조회 실패', err));
 
   db.collection('users').limit(200).get().then((qs) => {
     const list = document.getElementById('adminUserList');
@@ -3490,6 +3568,43 @@ function showInquiryDetail(id) {
 
 /* ---------- 회원탈퇴 (본인 계정만) ---------- */
 /* ---------- 환불 요청 (프로필 → 자동으로 1:1 문의 등록) ---------- */
+/* 자주 있는 결제 문의를 빠르게 선택하면, 제목과 함께 진단에 도움 되는 정보를
+   자동으로 채워줍니다. 손님이 상황을 길게 설명 안 해도 되도록 돕는 용도입니다. */
+function fillCommonInquiry(kind) {
+  const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
+  if (!loggedIn) { showToast('로그인 후 이용할 수 있어요.'); openAuthModal(); return; }
+
+  const orderId = localStorage.getItem('taekilso_last_order_id') || '(기록 없음)';
+  const purchasedAtMs = Number(localStorage.getItem('taekilso_last_purchase_at')) || 0;
+  const purchasedAtStr = purchasedAtMs ? new Date(purchasedAtMs).toLocaleString('ko-KR') : '(기록 없음)';
+  const premiumNow = isPremium() ? '프리미엄 이용 중' : '프리미엄 아님';
+
+  const templates = {
+    paymentFailed: {
+      title: '결제가 안 됐어요',
+      message: '프리미엄 결제를 진행했는데 결제가 정상적으로 되지 않았어요.\n\n' +
+        '언제 시도하셨는지, 어떤 화면/메시지가 떴는지 알려주시면 빠르게 확인할 수 있어요:\n(자세한 상황을 여기에 적어주세요)\n\n' +
+        '── 자동 기록 ──\n' +
+        `현재 계정 상태: ${premiumNow}\n` +
+        `마지막 주문번호: ${orderId}`
+    },
+    premiumNotOpen: {
+      title: '결제했는데 프리미엄이 안 열려요',
+      message: '결제는 완료됐는데 프리미엄 기능이 아직 열리지 않았어요.\n\n' +
+        '결제하신 카드/은행에서 실제로 출금됐는지도 함께 확인 부탁드려요.\n\n' +
+        '── 자동 기록 ──\n' +
+        `현재 계정 상태: ${premiumNow}\n` +
+        `마지막 주문번호: ${orderId}\n` +
+        `결제(활성화) 시각: ${purchasedAtStr}`
+    }
+  };
+  const t = templates[kind];
+  if (!t) return;
+  document.getElementById('supportTitle').value = t.title;
+  document.getElementById('supportMessage').value = t.message;
+  document.getElementById('supportMessage').focus();
+}
+
 async function requestRefund() {
   const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
   if (!loggedIn) { showToast('로그인 후 이용할 수 있어요.'); openAuthModal(); return; }
@@ -4066,7 +4181,7 @@ function buildPremiumProgramPanel() {
   const monthRows = Object.entries(months).slice(0,12).map(([k,v])=>{const m=v.slice().sort((a,b)=>b.score-a.score)[0];return `<div><strong>${k.replace('-', '년 ')}월</strong> · ${m.date.getMonth()+1}/${m.date.getDate()} 추천 · ${to100(m.score)}점</div>`}).join('');
   const couple = window.__ctx && window.__ctx.coupleMode ? '두 분의 기운을 함께 반영한 결과입니다.' : '단독 택일 기준으로 분석했습니다.';
   panel.style.display='block';
-  panel.innerHTML = `<div class="pp-head"><div><div class="pp-kicker">✦ PREMIUM DEEP REPORT</div><div class="pp-title">${eventType} 정밀 택일 리포트</div></div><div class="pp-score">${to100(best.score)}<small style="font-size:11px;color:var(--muted)"> / BEST</small></div></div><div class="pp-grid"><div class="pp-stat"><small>최우선 추천일</small><b>${best.date.getFullYear()}.${String(best.date.getMonth()+1).padStart(2,'0')}.${String(best.date.getDate()).padStart(2,'0')}</b></div><div class="pp-stat"><small>강한 추천 후보</small><b>${high}일</b></div><div class="pp-stat"><small>손없는 날</small><b>${son}일</b></div><div class="pp-stat"><small>후보 평균 기운</small><b>${avg}</b></div><div class="pp-stat"><small>최고 일진</small><b>${best.ganji}(${best.ganjiHanja})</b></div><div class="pp-stat"><small>핵심 오행</small><b>${best.ohaeng}</b></div></div><p class="pp-text"><b>최우선 추천일 ${best.date.getMonth()+1}월 ${best.date.getDate()}일</b>은 ${best.ohaeng} 기운과 현재 행사 조건을 종합했을 때 가장 높은 점수를 받은 날짜입니다. ${best.reasons.length ? '주요 근거는 '+best.reasons.slice(0,3).join(', ')+'입니다.' : '특별한 감점 요인이 적은 편입니다.'} ${couple}</p><div class="pp-list"><div><strong>좋은 점</strong><br>${best.reasons.length ? best.reasons.join(' · ') : '전체 기준에서 무난한 흐름'}</div><div><strong>체크할 점</strong><br>${eventType==='이사' ? '실제 이사 일정·방향·계약 조건을 함께 확인하세요.' : eventType==='개업' ? '인허가·공사·직원 일정 등 현실 조건을 우선 확인하세요.' : eventType==='결혼식' ? '예식장·하객 일정과 양가 일정도 함께 조율하세요.' : '계약 조건·서명 시간·실무 일정을 함께 확인하세요.'}</div></div><div style="margin-top:18px"><div class="pp-kicker">MONTHLY BEST</div><div class="pp-list">${monthRows || '<div>월별 후보가 없습니다.</div>'}</div></div>`;
+  panel.innerHTML = `<div class="pp-head"><div><div class="pp-kicker">✦ PREMIUM DEEP REPORT</div><div class="pp-title">${eventType} 정밀 택일 리포트</div></div><div class="pp-score">${to100(best.score)}<small style="font-size:11px;color:var(--muted)"> / BEST</small></div></div><div class="pp-grid"><div class="pp-stat"><small>최우선 추천일</small><b>${best.date.getFullYear()}.${String(best.date.getMonth()+1).padStart(2,'0')}.${String(best.date.getDate()).padStart(2,'0')}</b></div><div class="pp-stat"><small>강한 추천 후보</small><b>${high}일</b></div><div class="pp-stat"><small>손없는 날</small><b>${son}일</b></div><div class="pp-stat"><small>후보 평균 기운</small><b>${avg}</b></div><div class="pp-stat"><small>최고 일진</small><b>${best.ganji}(${best.ganjiHanja})</b></div><div class="pp-stat"><small>핵심 오행</small><b>${best.ohaeng}</b></div></div><p class="pp-text"><b>최우선 추천일 ${best.date.getMonth()+1}월 ${best.date.getDate()}일</b>은 ${best.ohaeng} 기운과 현재 행사 조건을 종합했을 때 가장 높은 점수를 받은 날짜입니다. ${best.reasons.length ? '주요 근거는 '+best.reasons.slice(0,3).join(', ')+'입니다.' : '특별한 감점 요인이 적은 편입니다.'} ${couple}</p><div class="pp-list"><div><strong>좋은 점</strong><br>${best.reasons.length ? best.reasons.join(' · ') : '전체 기준에서 무난한 흐름'}</div><div><strong>체크할 점</strong><br>${cautionTextFor(eventType)}</div></div><div style="margin-top:18px"><div class="pp-kicker">MONTHLY BEST</div><div class="pp-list">${monthRows || '<div>월별 후보가 없습니다.</div>'}</div></div><button class="btn btn-primary no-print" style="width:100%; margin-top:20px;" onclick="window.print()">📄 이 리포트 PDF로 저장</button>`;
 }
 
 function openAuthModal() {
