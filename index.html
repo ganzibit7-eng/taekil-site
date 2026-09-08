@@ -2501,7 +2501,10 @@ const firebaseConfig = {
   measurementId: "G-LH595SGH6X"
 };
 
-let firebaseReady = false;
+// `handleAuthNavClick()`은 HTML의 inline onclick에서 호출되므로,
+ // 스크립트 초기화 도중 사용자가 클릭해도 TDZ(Temporal Dead Zone) 오류가 나지 않도록
+ // var로 미리 초기화합니다. 이후 기존 코드에서 false/true 값을 그대로 갱신합니다.
+ var firebaseReady = false;
 let db = null;
 let firebaseAuthUser = null;
 let firebaseAuthReady = false;
