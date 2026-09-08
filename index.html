@@ -3141,7 +3141,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-08-usage-count-tamper-proof' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-08-auth-firestore-isolated' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -3165,9 +3165,21 @@ async function waitForAuthSettled(timeoutMs) {
 }
 try {
   if (firebaseConfig.apiKey !== "YOUR_API_KEY" && window.firebase) {
+    // Auth와 Firestore를 분리 초기화합니다. Firestore SDK가 일시적으로
+    // 로드되지 않거나 초기화에 실패해도 Google/Kakao 인증 자체가 막히지 않게 합니다.
     firebase.initializeApp(firebaseConfig);
     firebaseReady = true;
-    db = firebase.firestore();
+
+    try {
+      if (firebase.firestore) {
+        db = firebase.firestore();
+      } else {
+        console.warn('[택일소] Firestore SDK가 없습니다. Auth는 계속 사용합니다.');
+      }
+    } catch (firestoreErr) {
+      db = null;
+      console.warn('[택일소] Firestore 초기화 실패 — Auth는 계속 사용합니다.', firestoreErr);
+    }
 
     // 이미 카카오로 로그인된 상태로 새로 접속한 경우에도(=onAuthStateChanged가 트리거되지
     // 않는 경우) 프리미엄 동기화와 임시저장 문의 재전송을 시도합니다.
@@ -4091,7 +4103,8 @@ function confirmDeleteAccount() {
 async function loginWithGoogle() {
   if (!firebaseReady || !window.firebase || !firebase.auth) {
     document.getElementById('authSetupNotice').style.display = 'block';
-    showAuthError('Firebase Authentication이 연결되지 않았어요. firebaseConfig와 Authentication 설정을 확인해주세요.');
+    showAuthError('Firebase Authentication SDK가 로드되지 않았어요. Ctrl+Shift+R로 새로고침한 뒤 다시 시도해주세요.');
+    console.error('[택일소] Google 로그인 중단', { firebaseReady, hasFirebase: !!window.firebase, hasAuth: !!(window.firebase && firebase.auth) });
     return;
   }
 
