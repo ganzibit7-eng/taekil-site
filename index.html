@@ -831,6 +831,21 @@ footer{padding-bottom:90px}
 </head>
 <body>
 
+<script>
+// 이 변수들은 HTML 어디서든(맨 위 로그인 버튼 포함) onclick으로 즉시 참조될 수 있어서,
+// 파이어베이스 SDK 스크립트(파일 뒷부분에서 로딩)가 다운로드되기 전에 미리 선언해둡니다.
+// 이렇게 안 하면, 페이지가 열리자마자 파이어베이스 스크립트가 아직 안 끝난 짧은 순간에
+// 로그인 버튼을 누르면 "아직 초기화되지 않았다"는 에러가 날 수 있습니다.
+let firebaseReady = false;
+let db = null;
+let firebaseAuthUser = null;
+let firebaseAuthReady = false;
+let firebaseAuthInitPromise = null;
+let resolveFirebaseAuthSettled;
+const firebaseAuthSettled = new Promise((resolve) => { resolveFirebaseAuthSettled = resolve; });
+const ADMIN_EMAIL = "green092432@gmail.com";
+</script>
+
 <div class="topbar">
   <div class="container">
     <div class="nav">
@@ -2487,7 +2502,10 @@ function applyDowFilter(mode) {
 }
 
 /* ---------- AUTH (Firebase Spark 무료 플랜) ---------- */
-console.log('[택일소 Firebase] 인증 초기화 시작');
+// 1) firebase.google.com 에서 무료 프로젝트 생성
+// 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
+// 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
+console.log('[택일소 빌드] v' + '2026-09-07-early-var-init-race-fix' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -2498,146 +2516,76 @@ const firebaseConfig = {
   measurementId: "G-LH595SGH6X"
 };
 
-// inline onclick에서 TDZ가 발생하지 않도록 var를 사용합니다.
-var firebaseReady = false;
-var firebaseAuthUser = null;
-var firebaseAuthReady = false;
-var firebaseAuthInitPromise = null;
-var firebaseAuthInstance = null;
-// inline onclick이 Firebase 초기화 코드보다 먼저 실행돼도 안전하도록 지연 초기화합니다.
-var firebaseInitializationPromise = null;
-var db = null;
-var firebaseInitError = null;
-let resolveFirebaseAuthSettled;
-const firebaseAuthSettled = new Promise((resolve) => { resolveFirebaseAuthSettled = resolve; });
+// 첫 로그인 상태 확인(비동기)이 끝나는 시점에 resolve되는 신호입니다.
+// 결제 리턴처럼 "지금 로그인된 사람이 누구인지 반드시 알아야 하는" 로직은
+// 이 신호를 기다린 뒤에 최종 판단해야, 로그인 복원이 끝나기 전에 성급하게
+// "로그인 정보 없음"으로 잘못 판단하는 일을 막을 수 있습니다.
 async function waitForAuthSettled(timeoutMs) {
-  if (!firebaseReady) return;
-  await Promise.race([firebaseAuthSettled, new Promise((resolve) => setTimeout(resolve, timeoutMs || 4000))]);
+  if (!firebaseReady) return; // Firebase 자체가 없으면 기다릴 이유가 없음(카카오만 확인)
+  await Promise.race([
+    firebaseAuthSettled,
+    new Promise((resolve) => setTimeout(resolve, timeoutMs || 4000))
+  ]);
 }
-const ADMIN_EMAIL = "green092432@gmail.com";
-
-const FIREBASE_SDK_CDNS = [
-  'https://www.gstatic.com/firebasejs/10.7.1/',
-  'https://cdn.jsdelivr.net/npm/firebase@10.7.1/',
-  'https://unpkg.com/firebase@10.7.1/'
-];
-
-function loadFirebaseScript(src, test) {
-  if (test()) return Promise.resolve();
-  return new Promise((resolve, reject) => {
-    const s = document.createElement('script');
-    s.src = src;
-    s.async = false;
-    s.onload = () => test() ? resolve() : reject(new Error('로드됐지만 Firebase 객체가 없습니다: ' + src));
-    s.onerror = () => reject(new Error('스크립트 로드 실패: ' + src));
-    (document.head || document.documentElement).appendChild(s);
-  });
-}
-
-async function ensureFirebaseSdk() {
-  if (window.firebase && window.firebase.initializeApp && window.firebase.auth) return true;
-  let lastError = null;
-  for (const base of FIREBASE_SDK_CDNS) {
-    try {
-      await loadFirebaseScript(base + 'firebase-app-compat.js', () => !!(window.firebase && window.firebase.initializeApp));
-      await loadFirebaseScript(base + 'firebase-auth-compat.js', () => !!(window.firebase && window.firebase.auth));
-      // Firestore는 인증과 분리합니다. 없어도 로그인은 계속 작동해야 합니다.
-      if (!(window.firebase && window.firebase.firestore)) {
-        try { await loadFirebaseScript(base + 'firebase-firestore-compat.js', () => !!(window.firebase && window.firebase.firestore)); } catch (e) {
-          console.warn('[택일소] Firestore SDK 로드 실패:', e);
-        }
-      }
-      return !!(window.firebase && window.firebase.initializeApp && window.firebase.auth);
-    } catch (e) {
-      lastError = e;
-      console.warn('[택일소] Firebase CDN 실패:', base, e);
-    }
-  }
-  firebaseInitError = lastError || new Error('Firebase SDK를 불러오지 못했습니다.');
-  return false;
-}
-
-async function initializeFirebase() {
-  if (firebaseReady && firebaseAuthInstance) return true;
-  const sdkOk = await ensureFirebaseSdk();
-  if (!sdkOk) {
-    firebaseReady = false;
-    firebaseInitError = firebaseInitError || new Error('Firebase Authentication SDK가 로드되지 않았습니다.');
-    console.error('[택일소 Firebase]', firebaseInitError);
-    return false;
-  }
-  try {
-    if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'YOUR_API_KEY') throw new Error('firebaseConfig.apiKey가 비어 있습니다.');
-
-    let app;
-    if (window.firebase.apps && window.firebase.apps.length) app = window.firebase.app();
-    else app = window.firebase.initializeApp(firebaseConfig);
-
-    // Auth를 먼저 확정합니다. Firestore 실패는 Auth를 막지 않습니다.
-    firebaseAuthInstance = window.firebase.auth(app);
+try {
+  if (firebaseConfig.apiKey !== "YOUR_API_KEY" && window.firebase) {
+    firebase.initializeApp(firebaseConfig);
     firebaseReady = true;
-    firebaseInitError = null;
+    db = firebase.firestore();
 
-    try {
-      if (window.firebase.firestore) db = window.firebase.firestore(app);
-    } catch (firestoreErr) {
-      db = null;
-      console.warn('[택일소] Firestore 연결 실패 — 로그인은 계속 사용합니다.', firestoreErr);
-    }
+    // 이미 카카오로 로그인된 상태로 새로 접속한 경우에도(=onAuthStateChanged가 트리거되지
+    // 않는 경우) 프리미엄 동기화와 임시저장 문의 재전송을 시도합니다.
+    // setTimeout(0)으로 미뤄서, 아직 선언되지 않은 이후 코드(상수/함수)를 이 시점에서
+    // 참조하다가 스크립트 전체 초기화가 중간에 멈추는 일이 없도록 합니다.
+    setTimeout(() => {
+      const existingKakaoUser = getKakaoUser();
+      if (existingKakaoUser) {
+        reconcilePremiumWithAccount('kakao_' + existingKakaoUser.id);
+        flushLocalOnlyInquiries();
+      }
+    }, 0);
 
-    firebaseAuthInitPromise = firebaseAuthInstance
-      .setPersistence(window.firebase.auth.Auth.Persistence.LOCAL)
-      .catch((err) => { console.warn('[택일소] 로그인 저장 설정 실패:', err); })
+    // 로그인 세션을 LOCAL로 고정하고, persistence가 준비된 뒤 auth listener를 붙입니다.
+    // 이렇게 해야 iOS Safari/모바일에서 Google 로그인 직후 상태가 사라지는 race condition을 줄일 수 있습니다.
+    firebaseAuthInitPromise = firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .catch((err) => {
+        console.warn('Firebase 로그인 저장 설정 실패', err);
+        return null;
+      })
       .then(() => {
-        firebaseAuthInstance.onAuthStateChanged((user) => {
+        firebase.auth().onAuthStateChanged((user) => {
           firebaseAuthUser = user || null;
           firebaseAuthReady = true;
           resolveFirebaseAuthSettled();
           if (user) {
-            try {
-              if (!user.isAnonymous && typeof getPremiumOwnerKey === 'function' && getPremiumOwnerKey() && getPremiumOwnerKey() !== user.uid) clearLocalPremium();
-              if (typeof reconcilePremiumWithAccount === 'function') reconcilePremiumWithAccount(user.uid);
-              if (typeof flushLocalOnlyInquiries === 'function') flushLocalOnlyInquiries();
-            } catch (e) { console.warn('[택일소] 로그인 후 동기화 실패:', e); }
+            if (!user.isAnonymous && getPremiumOwnerKey() && getPremiumOwnerKey() !== user.uid) clearLocalPremium();
+            reconcilePremiumWithAccount(user.uid);
+            flushLocalOnlyInquiries();
           }
-          if (typeof updateAuthNav === 'function') updateAuthNav();
-          if (typeof updatePremiumUI === 'function') updatePremiumUI();
+          updateAuthNav();
+          updatePremiumUI();
         });
       });
 
     firebaseAuthInitPromise.then(async () => {
+      // signInWithRedirect()로 돌아온 경우 결과를 반드시 소비합니다.
       try {
-        const result = await firebaseAuthInstance.getRedirectResult();
+        const result = await firebase.auth().getRedirectResult();
         if (result && result.user) {
-          if (result.additionalUserInfo && result.additionalUserInfo.isNewUser && typeof recordSignup === 'function') recordSignup(result.user.uid, { email: result.user.email, provider: 'google' });
-          if (typeof closeAuthModal === 'function') closeAuthModal();
-          if (typeof showToast === 'function') showToast('구글 계정으로 로그인했어요');
+          if (result.additionalUserInfo && result.additionalUserInfo.isNewUser) {
+            recordSignup(result.user.uid, { email: result.user.email, provider: 'google' });
+          }
+          closeAuthModal();
+          showToast('구글 계정으로 로그인했어요');
         }
       } catch (err) {
-        console.error('[택일소] Google redirect 결과 처리 실패:', err);
-        if (typeof showAuthError === 'function') showAuthError(formatAuthError(err));
+        console.error('Google redirect 로그인 결과 처리 실패', err);
+        showAuthError(formatAuthError(err));
       }
     });
-
-    if (typeof recordVisit === 'function') recordVisit();
-    return true;
-  } catch (err) {
-    firebaseReady = false;
-    firebaseAuthInstance = null;
-    firebaseInitError = err;
-    console.error('[택일소 Firebase 초기화 실패]', err);
-    return false;
+    recordVisit();
   }
-}
-
-// 페이지가 파싱되는 동안 로그인 버튼이 먼저 눌릴 수 있으므로 여기서는 즉시 실행하지 않습니다.
-function ensureFirebaseInitialization() {
-  if (!firebaseInitializationPromise) {
-    firebaseInitializationPromise = initializeFirebase();
-  }
-  return firebaseInitializationPromise;
-}
-ensureFirebaseInitialization();
+} catch (err) { console.error('Firebase 초기화 실패', err); }
 
 function formatAuthError(err) {
   const code = err && err.code ? err.code : '';
@@ -2855,7 +2803,7 @@ const KAKAO_REST_KEY = "189da591834b8e3edfffa2c7afa41c0d";
 const KAKAO_REDIRECT_URI = window.location.origin + window.location.pathname;
 // 무료(Spark) 운영에서는 별도 Cloud Function 없이 카카오 프로필을 브라우저 세션으로 유지합니다.
 const KAKAO_TOKEN_FUNCTION_URL = 'https://taekilso-backend-lemon.vercel.app/api/kakao-custom-token';
-var kakaoReady = false;
+let kakaoReady = false;
 try {
   if (KAKAO_JS_KEY !== "YOUR_KAKAO_JS_KEY" && window.Kakao && !Kakao.isInitialized()) {
     Kakao.init(KAKAO_JS_KEY);
@@ -3477,10 +3425,9 @@ function confirmDeleteAccount() {
 }
 
 async function loginWithGoogle() {
-  await ensureFirebaseInitialization();
   if (!firebaseReady || !window.firebase || !firebase.auth) {
     document.getElementById('authSetupNotice').style.display = 'block';
-    showAuthError('Firebase Authentication 연결에 실패했어요. 브라우저 콘솔의 [Firebase SDK] 오류를 확인해주세요.');
+    showAuthError('Firebase Authentication이 연결되지 않았어요. firebaseConfig와 Authentication 설정을 확인해주세요.');
     return;
   }
 
@@ -3491,10 +3438,10 @@ async function loginWithGoogle() {
     // Prevent two local identity systems from being active at once.
     localStorage.removeItem(KAKAO_USER_KEY);
     sessionStorage.removeItem(KAKAO_USER_KEY);
-    const provider = new window.firebase.auth.GoogleAuthProvider();
+    const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     try {
-      const result = await firebaseAuthInstance.signInWithPopup(provider);
+      const result = await firebase.auth().signInWithPopup(provider);
       closeAuthModal();
       showToast('구글 계정으로 로그인했어요');
       if (result.additionalUserInfo && result.additionalUserInfo.isNewUser) {
@@ -3505,7 +3452,7 @@ async function loginWithGoogle() {
       const cancelledCodes = ['auth/popup-closed-by-user', 'auth/cancelled-popup-request'];
       if (!cancelledCodes.includes(err.code)) {
         showToast('팝업 방식이 안 돼서 전체 화면 Google 로그인으로 다시 시도할게요.');
-        await firebaseAuthInstance.signInWithRedirect(provider);
+        await firebase.auth().signInWithRedirect(provider);
         return;
       }
     }
@@ -3980,13 +3927,6 @@ function openAuthModal() {
   document.getElementById('authOverlay').style.display = 'flex';
   document.getElementById('authSetupNotice').style.display = firebaseReady ? 'none' : 'block';
   document.getElementById('authError').style.display = 'none';
-  if (!firebaseReady) {
-    ensureFirebaseInitialization().then((ok) => {
-      if (ok) {
-        document.getElementById('authSetupNotice').style.display = 'none';
-      }
-    });
-  }
 }
 function closeAuthModal() { document.getElementById('authOverlay').style.display = 'none'; }
 function toggleAuthMode() {
@@ -3996,14 +3936,11 @@ function toggleAuthMode() {
   document.getElementById('authSwitchLabel').textContent = authMode === 'login' ? '계정이 없으신가요?' : '이미 계정이 있으신가요?';
   document.getElementById('authSwitchAction').textContent = authMode === 'login' ? '회원가입' : '로그인';
 }
-async function submitAuth() {
+function submitAuth() {
   const errEl = document.getElementById('authError');
   errEl.style.display = 'none';
   if (!firebaseReady) {
-    await ensureFirebaseInitialization();
-  }
-  if (!firebaseReady || !window.firebase || !firebase.auth) {
-    errEl.textContent = 'Firebase Authentication 연결에 실패했어요. 콘솔의 [Firebase 초기화] 오류를 확인해주세요.';
+    errEl.textContent = '아직 계정 저장소 설정 전이라 실제 가입은 안 돼요. 코드 안의 firebaseConfig를 채워주세요.';
     errEl.style.display = 'block';
     return;
   }
@@ -4016,8 +3953,8 @@ async function submitAuth() {
   }
   const isSignup = authMode === 'signup';
   const action = isSignup
-    ? firebaseAuthInstance.createUserWithEmailAndPassword(email, password)
-    : firebaseAuthInstance.signInWithEmailAndPassword(email, password);
+    ? firebase.auth().createUserWithEmailAndPassword(email, password)
+    : firebase.auth().signInWithEmailAndPassword(email, password);
   action.then((result) => {
     closeAuthModal();
     if (isSignup) recordSignup(result.user.uid, { email: result.user.email, provider: 'email' });
