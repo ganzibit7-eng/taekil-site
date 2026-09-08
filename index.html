@@ -245,7 +245,7 @@ section.block{padding:90px 0}
 }
 .event-carousel-track::-webkit-scrollbar{height:0}
 .event-card-v3{
-  position:relative; flex:0 0 auto; width:min(78vw,360px);
+  position:relative; flex:0 0 auto; width:min(70vw,320px);
   scroll-snap-align:start; text-align:left; cursor:pointer;
   background:#0d0d0c; border:1px solid var(--line-soft); border-radius:26px;
   padding:0; overflow:hidden; transition:.4s var(--ease);
@@ -260,7 +260,7 @@ section.block{padding:90px 0}
   backdrop-filter:blur(4px);
 }
 .event-card-v3 img{
-  width:100%; aspect-ratio:3/4.2; object-fit:cover; display:block;
+  width:100%; aspect-ratio:3/3.6; object-fit:cover; object-position:top center; display:block;
   animation:ecp-breathe 6s ease-in-out infinite;
 }
 .event-card-v3:hover img{animation-play-state:paused; transform:scale(1.05)}
@@ -882,8 +882,8 @@ footer{padding-bottom:90px}
   .hero.hero-carousel .hero-copy{font-size:12px; line-height:1.5; margin:0}
   #eventsAnchor{padding-top:0!important}
   .event-carousel-track{padding:10px 16px 18px; gap:10px}
-  .event-card-v3{width:72vw; border-radius:20px}
-  .event-card-v3 img{aspect-ratio:3/3.3}
+  .event-card-v3{width:66vw; border-radius:20px}
+  .event-card-v3 img{aspect-ratio:3/2.9; object-position:top center}
   .event-card-v3-badge{width:32px; height:32px; font-size:13px; top:12px; left:12px}
   .event-card-v3-info{padding:14px 16px 16px}
   .event-card-v3-info small{font-size:9.5px}
@@ -2592,7 +2592,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-08-mobile-compact-fold' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-08-card-crop-fix' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
