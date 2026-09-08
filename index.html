@@ -251,6 +251,13 @@ section.block{padding:90px 0}
   display:flex; gap:20px; overflow-x:auto; scroll-snap-type:x proximity;
   padding:8px 24px 32px; -webkit-overflow-scrolling:touch;
 }
+/* 카드가 화면 밖으로 더 있다는 걸 알려주는 오른쪽 페이드 힌트 (스크롤 가능함을 암시) */
+.event-carousel-fade{
+  position:absolute; top:0; right:0; bottom:32px; width:56px; z-index:3;
+  background:linear-gradient(to right, transparent, var(--bg) 88%);
+  pointer-events:none;
+}
+@media(max-width:640px){.event-carousel-fade{width:34px}}
 .event-carousel-track::-webkit-scrollbar{height:0}
 .event-card-v3{
   position:relative; flex:0 0 auto; width:min(70vw,320px);
@@ -1069,9 +1076,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     </div>
   </header>
 
-  <section class="block" id="eventsAnchor" style="padding-top:0;">
+  <section class="block" id="eventsAnchor" style="padding-top:0; position:relative;">
+    <div class="event-carousel-fade" aria-hidden="true"></div>
     <div class="event-carousel-track">
-      <button class="event-card-v3" onclick="goTo('tool','결혼식')">
+      <button class="event-card-v3" onclick="goTo('tool','결혼식')" aria-label="결혼식 택일 시작">
         <span class="event-card-v3-badge">緣</span>
         <img src="char-wedding.jpg" alt="결혼식 캐릭터">
         <div class="event-card-v3-info">
@@ -1081,7 +1089,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <b>결혼일 찾기 <i>→</i></b>
         </div>
       </button>
-      <button class="event-card-v3" onclick="goTo('tool','개업')">
+      <button class="event-card-v3" onclick="goTo('tool','개업')" aria-label="개업 택일 시작">
         <span class="event-card-v3-badge">開</span>
         <img src="char-opening.jpg" alt="개업 캐릭터">
         <div class="event-card-v3-info">
@@ -1091,7 +1099,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <b>개업일 찾기 <i>→</i></b>
         </div>
       </button>
-      <button class="event-card-v3" onclick="goTo('tool','계약체결')">
+      <button class="event-card-v3" onclick="goTo('tool','계약체결')" aria-label="계약체결 택일 시작">
         <span class="event-card-v3-badge">約</span>
         <img src="char-contract.jpg" alt="계약체결 캐릭터">
         <div class="event-card-v3-info">
@@ -1101,7 +1109,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <b>서명일 찾기 <i>→</i></b>
         </div>
       </button>
-      <button class="event-card-v3" onclick="goTo('tool','이사')">
+      <button class="event-card-v3" onclick="goTo('tool','이사')" aria-label="이사 택일 시작">
         <span class="event-card-v3-badge">移</span>
         <img src="char-moving.jpg" alt="이사 캐릭터">
         <div class="event-card-v3-info">
@@ -2665,7 +2673,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-08-remove-dup-refund-btn' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-08-a11y-scroll-hint' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
