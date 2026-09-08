@@ -229,11 +229,19 @@ section.block{padding:90px 0}
 .saju-event-card{
   cursor:pointer; padding:22px 18px; border:1px solid var(--line-soft); border-radius:18px;
   background:rgba(255,255,255,.02); text-align:center; transition:.2s;
+  position:relative; overflow:hidden;
 }
 .saju-event-card:hover{border-color:rgba(215,180,106,.4); background:rgba(215,180,106,.05); transform:translateY(-2px)}
-.saju-event-card svg{width:30px; height:30px; margin-bottom:10px}
-.saju-event-card h3{font-family:var(--serif); font-weight:400; font-size:18px; color:var(--white); margin:0 0 4px}
-.saju-event-card p{font-size:12px; color:var(--muted); margin:0}
+.saju-event-card svg{width:38px; height:38px; margin-bottom:10px; position:relative; z-index:2}
+.saju-event-card h3{font-family:var(--serif); font-weight:400; font-size:18px; color:var(--white); margin:0 0 4px; position:relative; z-index:2}
+.saju-event-card p{font-size:12px; color:var(--muted); margin:0; position:relative; z-index:2}
+.ec-halo{
+  position:absolute; top:14px; left:50%; width:56px; height:56px; margin-left:-28px;
+  border-radius:50%; z-index:1; pointer-events:none;
+  background:radial-gradient(circle, rgba(215,180,106,.28), rgba(215,180,106,.05) 55%, transparent 75%);
+  animation:ec-halo-kf 2.8s ease-in-out infinite;
+}
+@keyframes ec-halo-kf{0%,100%{transform:scale(.82); opacity:.55}50%{transform:scale(1.18); opacity:1}}
 @media(max-width:480px){.saju-event-cards{grid-template-columns:1fr}}
 .event-grid-photo{display:grid; grid-template-columns:repeat(4,1fr); gap:16px}
 
@@ -1290,19 +1298,23 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <div class="container" style="max-width:640px;">
       <div class="saju-event-cards">
         <div class="saju-event-card" onclick="selectEventAndFocus('결혼식')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d7b46a" stroke-width="1.4"><circle class="ec-ring1" cx="9" cy="14" r="5"/><circle class="ec-ring2" cx="15" cy="14" r="5"/></svg>
+          <span class="ec-halo"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#d7b46a" stroke-width="1.5"><circle class="ec-ring1" cx="9" cy="14" r="5"/><circle class="ec-ring2" cx="15" cy="14" r="5"/></svg>
           <h3>결혼식</h3><p>예식 날짜 고르기</p>
         </div>
         <div class="saju-event-card" onclick="selectEventAndFocus('이사')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d7b46a" stroke-width="1.4"><g class="ec-float"><path d="M4 20V10l8-6 8 6v10H4z"/><path d="M9 20v-6h6v6"/></g></svg>
+          <span class="ec-halo"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#d7b46a" stroke-width="1.5"><g class="ec-bounce"><path d="M4 20V10l8-6 8 6v10H4z"/><path d="M9 20v-6h6v6"/></g></svg>
           <h3>이사</h3><p>입주 날짜 고르기</p>
         </div>
         <div class="saju-event-card" onclick="selectEventAndFocus('개업')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d7b46a" stroke-width="1.4"><circle cx="12" cy="12" r="5"/><path class="ec-spin" d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+          <span class="ec-halo"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#d7b46a" stroke-width="1.5"><circle class="ec-pop" cx="12" cy="12" r="5"/><path class="ec-spin2" d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
           <h3>개업</h3><p>오픈일 고르기</p>
         </div>
         <div class="saju-event-card" onclick="selectEventAndFocus('계약체결')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d7b46a" stroke-width="1.4"><rect x="5" y="3" width="14" height="18" rx="1"/><path class="ec-write" d="M8 8h8M8 12h8M8 16h5"/></svg>
+          <span class="ec-halo"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#d7b46a" stroke-width="1.5"><rect x="5" y="3" width="14" height="18" rx="1"/><path class="ec-draw" d="M8 8h8M8 12h8M8 16h5"/></svg>
           <h3>계약체결</h3><p>서명일 고르기</p>
         </div>
       </div>
@@ -2594,7 +2606,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-08-6cards-unified' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-08-event-card-halo-anim' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -4722,16 +4734,18 @@ function calculateTodayFortune(){
 @keyframes sh-sparkle-kf{0%,100%{opacity:.4;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
 .sh-sparkle{transform-origin:center;transform-box:fill-box;animation:sh-sparkle-kf 1.8s ease-in-out infinite}
 @media (prefers-reduced-motion: reduce){.sh-spin,.sh-twinkle,.sh-pulse,.sh-float,.sh-sparkle{animation:none}}
-@keyframes ec-ring-kf{0%,100%{transform:translateX(0)}50%{transform:translateX(1.2px)}}
-.ec-ring1{transform-box:fill-box;animation:ec-ring-kf 2.4s ease-in-out infinite}
-.ec-ring2{transform-box:fill-box;animation:ec-ring-kf 2.4s ease-in-out infinite reverse}
-@keyframes ec-float-kf{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.6px)}}
-.ec-float{transform-box:fill-box;animation:ec-float-kf 2.6s ease-in-out infinite}
-@keyframes ec-spin-kf{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-.ec-spin{transform-origin:12px 12px;animation:ec-spin-kf 6s linear infinite}
-@keyframes ec-write-kf{0%,100%{opacity:.55}50%{opacity:1}}
-.ec-write{animation:ec-write-kf 1.8s ease-in-out infinite}
-@media (prefers-reduced-motion: reduce){.ec-ring1,.ec-ring2,.ec-float,.ec-spin,.ec-write{animation:none}}
+@keyframes ec-ring-kf{0%,100%{transform:rotate(0deg) translateX(0)}50%{transform:rotate(-8deg) translateX(-1px)}}
+.ec-ring1{transform-box:fill-box; transform-origin:center; animation:ec-ring-kf 1.9s ease-in-out infinite}
+.ec-ring2{transform-box:fill-box; transform-origin:center; animation:ec-ring-kf 1.9s ease-in-out infinite reverse}
+@keyframes ec-bounce-kf{0%,100%{transform:translateY(0) rotate(0deg)}30%{transform:translateY(-4px) rotate(-3deg)}60%{transform:translateY(0.5px) rotate(2deg)}}
+.ec-bounce{transform-box:fill-box; transform-origin:bottom center; animation:ec-bounce-kf 2.2s ease-in-out infinite}
+@keyframes ec-pop-kf{0%,50%,100%{transform:scale(1)}25%{transform:scale(1.22)}}
+.ec-pop{transform-box:fill-box; transform-origin:center; animation:ec-pop-kf 2s ease-in-out infinite}
+@keyframes ec-spin2-kf{from{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.1)}to{transform:rotate(360deg) scale(1)}}
+.ec-spin2{transform-origin:12px 12px; animation:ec-spin2-kf 3.4s cubic-bezier(.5,0,.5,1) infinite}
+.ec-draw{stroke-dasharray:26; stroke-dashoffset:26; animation:ec-draw-kf 2.4s ease-in-out infinite}
+@keyframes ec-draw-kf{0%{stroke-dashoffset:26}45%,55%{stroke-dashoffset:0}100%{stroke-dashoffset:0; opacity:.35}}
+@media (prefers-reduced-motion: reduce){.ec-ring1,.ec-ring2,.ec-bounce,.ec-pop,.ec-spin2,.ec-draw,.ec-halo{animation:none}}
 .saju-hub-kicker{font-size:9px;letter-spacing:.17em;color:var(--gold);font-weight:800;margin-bottom:8px}
 .saju-hub-card strong{font-family:"Noto Serif KR",serif;font-size:19px}
 .saju-hub-card small{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.75;max-width:260px}
