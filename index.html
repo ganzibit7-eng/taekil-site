@@ -890,6 +890,8 @@ footer{padding-bottom:90px}
   .event-card-v3-info h3{font-size:17px; margin:5px 0 6px}
   .event-card-v3-info p{font-size:11.5px; line-height:1.5; margin:0 0 9px}
   .event-card-v3-info b{font-size:12px}
+  /* 사주/기록 페이지 등 작은 히어로(hero-sm)도 홈과 비슷하게 위쪽 여백을 좁힙니다. */
+  .hero.hero-sm{padding-top:44px!important; padding-bottom:26px!important}
 }
 </style>
 
@@ -1307,7 +1309,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     </div>
   </section>
 
-  <section class="block" style="padding-top:10px;" id="toolFormAnchor">
+  <section class="block" style="padding-top:10px; display:none;" id="toolFormAnchor">
     <div class="container" style="max-width:720px;">
       <div class="tool-shell">
         <p class="lead" id="toolSelectedLabel">생년월일과 가능한 기간만 알려주세요. 좋은 후보부터 비교해서 보여드릴게요.</p>
@@ -1782,6 +1784,8 @@ function goTo(route, presetEvent) {
     });
     const label = document.getElementById('toolSelectedLabel');
     if (label) label.innerHTML = `<strong style="color:var(--gold-hi)">${presetEvent}</strong> 날짜를 찾아드릴게요. 생년월일과 가능한 기간을 알려주세요.`;
+    const anchor = document.getElementById('toolFormAnchor');
+    if (anchor) anchor.style.display = 'block'; // 홈 카드 등에서 특정 목적을 지정하고 들어온 경우 바로 폼을 보여줍니다.
   }
   if (route === 'history') loadHistory();
   if (route === 'profile') renderProfile();
@@ -1977,8 +1981,9 @@ function selectEventAndFocus(eventVal) {
   });
   const label = document.getElementById('toolSelectedLabel');
   if (label) label.innerHTML = `<strong style="color:var(--gold-hi)">${eventVal}</strong> 날짜를 찾아드릴게요. 생년월일과 가능한 기간을 알려주세요.`;
+  const anchor = document.getElementById('toolFormAnchor');
+  if (anchor) anchor.style.display = 'block'; // 카드를 눌러야만 날짜 입력 폼이 나타납니다.
   setTimeout(() => {
-    const anchor = document.getElementById('toolFormAnchor');
     if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 50);
 }
@@ -2592,7 +2597,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-08-mobile-slight-loosen' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-08-tool-form-hidden' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
