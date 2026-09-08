@@ -1443,17 +1443,14 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <p class="section-desc">날짜를 정하기 전에, 오늘의 운세와 내 사주 핵심부터 가볍게 확인해보세요.</p>
       </div>
 
-      <div class="fortune-grid" style="grid-template-columns:1fr; max-width:420px; margin-bottom:20px;">
-        <button class="fortune-card fortune-feature" onclick="openFortuneModal('today')">
-          <span class="fortune-icon">☀</span>
-          <span class="fortune-kicker">FREE · TODAY</span>
+      <div class="saju-hub-grid">
+        <button class="saju-hub-card" onclick="openFortuneModal('today')">
+          <svg class="saju-hub-art" viewBox="0 0 64 64"><circle cx="32" cy="32" r="13" fill="var(--gold-hi)"/><g class="sh-twinkle"><line x1="32" y1="6" x2="32" y2="15" stroke="var(--gold-hi)" stroke-width="2.4" stroke-linecap="round"/><line x1="32" y1="49" x2="32" y2="58" stroke="var(--gold-hi)" stroke-width="2.4" stroke-linecap="round"/><line x1="6" y1="32" x2="15" y2="32" stroke="var(--gold-hi)" stroke-width="2.4" stroke-linecap="round"/><line x1="49" y1="32" x2="58" y2="32" stroke="var(--gold-hi)" stroke-width="2.4" stroke-linecap="round"/></g></svg>
+          <span class="saju-hub-kicker">FREE · TODAY</span>
           <strong>오늘의 운세</strong>
           <small>생년월일을 넣고 오늘의 기운을 바로 확인</small>
           <b>무료로 보기 →</b>
         </button>
-      </div>
-
-      <div class="saju-hub-grid">
         <button class="saju-hub-card featured" onclick="openSajuInsight('profile')">
           <svg class="saju-hub-art" viewBox="0 0 64 64"><circle cx="32" cy="32" r="22" fill="none" stroke="var(--gold-hi)" stroke-width="1.4"/><path class="sh-spin" d="M32 10a22 22 0 0 1 0 44 11 11 0 0 1 0-22 11 11 0 0 0 0-22z" fill="var(--gold-hi)" opacity=".9"/><circle class="sh-spin" cx="32" cy="21" r="3.4" fill="#0c0b09"/><circle cx="32" cy="43" r="3.4" fill="var(--gold-hi)"/></svg>
           <span class="saju-hub-kicker">FREE PREVIEW</span>
@@ -2597,7 +2594,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-08-tool-form-hidden' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-08-6cards-unified' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
