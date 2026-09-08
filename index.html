@@ -1504,9 +1504,15 @@ footer{padding-bottom:90px}
           <div class="admin-stat"><small>총 방문수</small><b id="statVisits">–</b></div>
           <div class="admin-stat"><small>총 가입자수</small><b id="statSignups">–</b></div>
           <div class="admin-stat"><small>총 구매수</small><b id="statPurchases">–</b></div>
+          <div class="admin-stat"><small>예상 누적 매출</small><b id="statRevenue" style="font-size:20px;">–</b></div>
+          <div class="admin-stat"><small>현재 프리미엄 회원</small><b id="statActivePremium">–</b></div>
+          <div class="admin-stat"><small>답변 대기 문의</small><b id="statPendingInquiries" style="color:var(--warn);">–</b></div>
         </div>
         <div class="section-head" style="margin-top:40px;">
           <div><div class="section-kicker">MEMBERS</div><h2 class="section-title" style="font-size:24px;">회원 목록</h2></div>
+        </div>
+        <div class="field full" style="margin-bottom:14px;">
+          <input type="text" id="adminUserSearch" placeholder="이메일/닉네임으로 검색" oninput="filterAdminUserList(this.value)" style="width:100%; padding:12px 14px; background:#090908; border:1px solid rgba(255,255,255,.10); border-radius:12px; color:var(--white); font-family:inherit; font-size:13.5px;">
         </div>
         <div class="price-note" style="margin-top:0; margin-bottom:14px;">⚠ 자가확인(대조 필요) — 서버 검증 없이 손님이 직접 "결제했다"고 눌러서 켜진 프리미엄이에요. 페이앱 결제현황에서 시간·금액이 실제로 맞는지 한 번 대조해보시는 걸 권해요. 표시가 없으면(서버 검증 또는 관리자 직접 지급) 대조하지 않으셔도 돼요.</div>
         <div id="adminUserList" class="usecase-list"></div>
@@ -2472,7 +2478,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-07-saju-page-consolidation' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-07-admin-stats-upgrade' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -2887,6 +2893,14 @@ document.addEventListener('visibilitychange', () => {
 });
 
 /* ---------- ADMIN DASHBOARD ---------- */
+function filterAdminUserList(query) {
+  const q = query.trim().toLowerCase();
+  document.querySelectorAll('#adminUserList .usecase-item').forEach(item => {
+    const match = !q || (item.dataset.searchKey || '').includes(q);
+    item.style.display = match ? '' : 'none';
+  });
+}
+
 function renderAdmin() {
   const denied = document.getElementById('adminDenied');
   const content = document.getElementById('adminContent');
@@ -2899,11 +2913,13 @@ function renderAdmin() {
   content.style.display = 'block';
 
   if (!db) return;
-  db.collection('stats').doc('counters').get().then((snap) => {
+  db.collection('stats').doc('counters').get({ source: 'server' }).then((snap) => {
     const d = snap.exists ? snap.data() : {};
     document.getElementById('statVisits').textContent = d.visits || 0;
     document.getElementById('statSignups').textContent = d.signups || 0;
     document.getElementById('statPurchases').textContent = d.purchases || 0;
+    const revenue = document.getElementById('statRevenue');
+    if (revenue) revenue.textContent = ((d.purchases || 0) * PREMIUM_PRICE).toLocaleString('ko-KR') + '원';
   }).catch(err => console.error('통계 조회 실패', err));
 
   db.collection('users').limit(200).get().then((qs) => {
@@ -2933,6 +2949,7 @@ function renderAdmin() {
       const untilStr = untilMs ? new Date(untilMs).toLocaleDateString('ko-KR') : '';
       const item = document.createElement('div');
       item.className = 'usecase-item';
+      item.dataset.searchKey = (label + ' ' + (u.nickname || '')).toLowerCase();
       item.innerHTML = `
         <div>
           <strong style="color:var(--gold-hi); font-family:var(--serif); font-weight:400;">${escapeHtml(label)}</strong> · ${escapeHtml(u.provider || '기타')}${isActivePremium ? ` · <span style="color:var(--gold-hi)">프리미엄 (${untilStr}까지)</span>` : ''}${isActivePremium && u.lastVerificationMethod === 'self-confirm' ? ` · <span style="color:var(--warn); font-size:10px; border:1px solid rgba(201,131,106,.4); padding:2px 6px; border-radius:999px;">⚠ 자가확인(대조 필요)</span>` : ''}
@@ -2945,6 +2962,17 @@ function renderAdmin() {
       `;
       list.appendChild(item);
     });
+    const activeCount = docs.filter(doc => {
+      const u = doc.data();
+      let untilMs = 0;
+      if (u.premiumUntil && typeof u.premiumUntil.toMillis === 'function') untilMs = u.premiumUntil.toMillis();
+      else if (typeof u.premiumUntil === 'number') untilMs = u.premiumUntil;
+      return u.premium === true && untilMs > Date.now();
+    }).length;
+    const activeEl = document.getElementById('statActivePremium');
+    if (activeEl) activeEl.textContent = activeCount;
+    const searchBox = document.getElementById('adminUserSearch');
+    if (searchBox && searchBox.value) filterAdminUserList(searchBox.value);
     list.querySelectorAll('.hist-delete').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const uid = e.target.dataset.uid;
@@ -2998,13 +3026,19 @@ function renderAdmin() {
 
 function renderAdminInquiries() {
   const wrap = document.getElementById('adminInquiryList');
+  const pendingEl = document.getElementById('statPendingInquiries');
   if (!wrap || !db) return;
   wrap.innerHTML = '<div class="loading-line" style="margin-top:0;">불러오는 중…</div>';
   db.collection('inquiries').limit(200).get().then((qs) => {
-    if (qs.empty) { wrap.innerHTML = '<div class="empty-note">아직 등록된 문의가 없어요.</div>'; return; }
+    if (qs.empty) {
+      wrap.innerHTML = '<div class="empty-note">아직 등록된 문의가 없어요.</div>';
+      if (pendingEl) pendingEl.textContent = '0';
+      return;
+    }
     wrap.innerHTML = '';
     const docs = [];
     qs.forEach((doc) => docs.push(doc));
+    if (pendingEl) pendingEl.textContent = docs.filter(doc => doc.data().status !== '답변완료').length;
     docs.sort((a, b) => {
       const getMs = (d) => {
         const v = d.data().createdAt;
