@@ -1483,6 +1483,9 @@ const ADMIN_EMAIL = "green092432@gmail.com";
   </header>
   <section class="block" style="padding-top:10px;">
     <div class="container" style="max-width:700px;">
+      <a href="https://pf.kakao.com/_zPpJX" target="_blank" rel="noopener" class="btn" style="width:100%; margin-bottom:24px; background:#FEE500; color:#181600; border:0; gap:8px; text-decoration:none;">
+        💬 카카오톡 채널로 빠르게 문의하기
+      </a>
       <div class="tool-shell">
         <h2>새 문의 작성</h2>
         <p class="lead">로그인 후 이용할 수 있어요. 작성한 문의와 답변은 이 목록에서 확인할 수 있어요.</p>
@@ -2318,6 +2321,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
 
   if (top.length > 0) {
     saveSearchToHistory({ eventType, bestDate: top[0].date.toLocaleDateString('ko-KR'), coupleMode, savedAt: Date.now() });
+    if (isPremium()) bumpPremiumUsageCount();
   }
 });
 
@@ -2517,7 +2521,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-07-single-setparam-call' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-08-kakao-channel-added' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -2630,6 +2634,21 @@ function bumpStat(field) {
   ).catch(err => console.error('통계 기록 실패', err));
 }
 function recordVisit() { bumpStat('visits'); }
+
+/*
+ * 프리미엄 기능을 실제로 쓸 때마다 서버(Firestore)에 이용 횟수를 1씩 늘립니다.
+ * Firestore 규칙에서 "정확히 +1만" 허용하고 그 외 값으로는 못 바꾸게 막아뒀기 때문에,
+ * 손님이 개발자도구로 이 값을 0으로 되돌리거나 마음대로 바꿀 수 없습니다.
+ * (카카오 로그인은 애초에 진짜 인증이 없어서 이 보호가 적용되지 않는다는 점은
+ * 이 서비스 전반에 걸쳐 있는 동일한 한계입니다.)
+ */
+function bumpPremiumUsageCount() {
+  const uid = getCurrentUserKey();
+  if (!db || !uid) return;
+  db.collection('users').doc(uid).update({
+    premiumUsageCount: firebase.firestore.FieldValue.increment(1)
+  }).catch(err => console.error('이용 횟수 기록 실패', err));
+}
 
 function recordSignup(uid, data) {
   if (!db) return;
@@ -3017,7 +3036,7 @@ function renderAdmin() {
         if (!confirm('이 회원에게 프리미엄 30일 이용권을 지급할까요?')) return;
         const until = Date.now() + PREMIUM_DURATION_MS;
         const ref = db.collection('users').doc(uid);
-        ref.set({ premium: true, premiumUntil: until, grantedByAdmin: true, lastVerificationMethod: 'admin-grant' }, { merge: true })
+        ref.set({ premium: true, premiumUntil: until, grantedByAdmin: true, lastVerificationMethod: 'admin-grant', premiumUsageCount: 0 }, { merge: true })
           .then(() => ref.get({ source: 'server' }))
           .then((snap) => {
             const data = snap.data() || {};
@@ -3370,7 +3389,7 @@ function showInquiryDetail(id) {
 
 /* ---------- 회원탈퇴 (본인 계정만) ---------- */
 /* ---------- 환불 요청 (프로필 → 자동으로 1:1 문의 등록) ---------- */
-function requestRefund() {
+async function requestRefund() {
   const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
   if (!loggedIn) { showToast('로그인 후 이용할 수 있어요.'); openAuthModal(); return; }
   if (!isPremium()) { showToast('프리미엄 결제 내역이 없어요.'); return; }
@@ -3380,10 +3399,23 @@ function requestRefund() {
   const orderId = localStorage.getItem('taekilso_last_order_id') || '(기록 없음)';
   const purchasedAtStr = purchasedAtMs ? new Date(purchasedAtMs).toLocaleString('ko-KR') : '(기록 없음)';
 
-  const usedCount = readHistoryStore().filter(h => (h.savedAt || 0) >= purchasedAtMs).length;
-  const usageNotice = usedCount > 0
-    ? `\n\n참고로, 결제 이후 프리미엄 기능(365일 검색 · TOP20 · 상세 리포트 등)을 이미 ${usedCount}회 이용하신 기록이 있어요. 서비스를 정상적으로 이용하신 이후의 환불 요청은 사안에 따라 제한될 수 있는 점 양해 부탁드려요.`
-    : '\n\n아직 프리미엄 기능을 이용하신 기록은 없는 것으로 확인돼요.';
+  // 이용 횟수는 이제 브라우저 기록이 아니라 서버(Firestore)에 저장된 값을 직접 확인합니다.
+  // 이 값은 본인이 늘릴 수만 있고(그것도 한 번에 1씩만) 줄이거나 마음대로 바꿀 수 없게
+  // Firestore 규칙으로 막아뒀기 때문에, 실제로 이용한 횟수를 신뢰할 수 있습니다.
+  const uid = getCurrentUserKey();
+  let usedCount = 0;
+  if (db && uid) {
+    try {
+      const snap = await db.collection('users').doc(uid).get({ source: 'server' });
+      usedCount = (snap.exists && typeof snap.data().premiumUsageCount === 'number') ? snap.data().premiumUsageCount : 0;
+    } catch (e) {
+      console.error('이용 횟수 확인 실패', e);
+    }
+  }
+
+  const usageNotice = usedCount === 0
+    ? '\n\n✓ 결제 이후 프리미엄 기능을 한 번도 이용하지 않으신 것으로 확인돼요. 이 경우 환불이 가능해요.'
+    : `\n\n참고로, 결제 이후 프리미엄 기능(365일 검색 · TOP20 · 상세 리포트 등)을 이미 ${usedCount}회 이용하신 기록이 있어요. 서비스를 정상적으로 이용하신 이후의 환불 요청은 제한될 수 있는 점 양해 부탁드려요.`;
 
   if (!confirm('프리미엄 결제(4,900원)에 대한 환불을 요청할까요?' + usageNotice + '\n\n확인을 누르면 문의가 등록되고, 순차적으로 확인 후 안내드릴게요.')) return;
 
@@ -3393,7 +3425,7 @@ function requestRefund() {
     document.getElementById('supportMessage').value =
       '프리미엄(4,900원) 결제에 대한 환불을 요청합니다.\n\n' +
       '환불 사유: \n(자세한 사유를 여기에 적어주세요)\n\n' +
-      '── 자동 기록 (관리자 확인용) ──\n' +
+      '── 자동 기록 (서버 확인값, 조작 불가) ──\n' +
       `주문번호: ${orderId}\n` +
       `결제(활성화) 시각: ${purchasedAtStr}\n` +
       `이용 만료 예정일: ${until ? new Date(until).toLocaleString('ko-KR') : '(기록 없음)'}\n` +
