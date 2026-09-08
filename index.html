@@ -852,26 +852,10 @@ footer{padding-bottom:90px}
       <svg width="16" height="16" viewBox="0 0 48 48" style="margin-right:6px;"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3c-7.6 0-14.1 4.3-17.4 10.7z"/><path fill="#4CAF50" d="M24 45c5.4 0 10.3-1.8 14.1-5l-6.5-5.5C29.5 36 26.9 37 24 37c-5.3 0-9.7-3.3-11.3-8l-6.5 5C9.9 40.6 16.4 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.4-2.3 4.4-4.3 5.9l6.5 5.5C40.8 36.9 44 30.9 44 24c0-1.4-.1-2.4-.4-3.5z"/></svg>
       Google로 시작하기
     </button>
-    <button class="btn" style="width:100%; margin-bottom:16px; background:#FEE500; color:#181600; border:0;" onclick="loginWithKakao()">
+    <button class="btn" style="width:100%; margin-bottom:9px; background:#FEE500; color:#181600; border:0;" onclick="loginWithKakao()">
       💬 카카오로 시작하기
     </button>
-    <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px; color:var(--muted-2); font-size:11px;">
-      <div style="flex:1; height:1px; background:var(--line-soft);"></div>또는 이메일로<div style="flex:1; height:1px; background:var(--line-soft);"></div>
-    </div>
-    <div class="field" style="margin-bottom:14px;">
-      <label>이메일</label>
-      <input type="email" id="authEmail" placeholder="you@example.com">
-    </div>
-    <div class="field" style="margin-bottom:18px;">
-      <label>비밀번호</label>
-      <input type="password" id="authPassword" placeholder="6자 이상">
-    </div>
     <div id="authError" class="auth-error" style="display:none;"></div>
-    <button class="btn btn-primary form-submit" id="authSubmitBtn" onclick="submitAuth()">로그인</button>
-    <div class="auth-switch">
-      <span id="authSwitchLabel">계정이 없으신가요?</span>
-      <span class="action" onclick="toggleAuthMode()" id="authSwitchAction">회원가입</span>
-    </div>
     <div class="auth-close" onclick="closeAuthModal()">닫기</div>
   </div>
 </div>
@@ -2368,7 +2352,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-07-server-connected' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-07-email-login-removed' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
