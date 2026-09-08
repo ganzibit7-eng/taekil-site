@@ -1582,7 +1582,7 @@ const PREMIUM_DAYS = 30;
 // 현재 정적 호스팅 버전은 결제 완료 후 브라우저에서 30일 이용권을 활성화합니다.
 // 실제 운영/판매 단계에서는 반드시 PayApp 결제 결과를 서버에서 검증하고
 // users/{uid}.premiumUntil을 기록하는 방식으로 전환하세요.
-const PAYAPP_FEEDBACK_URL = '';
+const PAYAPP_FEEDBACK_URL = 'https://taekilso-backend-lemon.vercel.app/api/payapp-feedback';
 const PAYAPP_RETURN_URL = window.location.origin + window.location.pathname + '?premium=1';
 const PREMIUM_PRICE = 4900;
 const PREMIUM_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30일
@@ -2368,7 +2368,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-07-remove-auto-grant' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-07-server-connected' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -2673,7 +2673,7 @@ const KAKAO_JS_KEY = "0f7299964f7c22f2c6d1caaca0d33a7d";
 const KAKAO_REST_KEY = "189da591834b8e3edfffa2c7afa41c0d";
 const KAKAO_REDIRECT_URI = window.location.origin + window.location.pathname;
 // 무료(Spark) 운영에서는 별도 Cloud Function 없이 카카오 프로필을 브라우저 세션으로 유지합니다.
-const KAKAO_TOKEN_FUNCTION_URL = '';
+const KAKAO_TOKEN_FUNCTION_URL = 'https://taekilso-backend-lemon.vercel.app/api/kakao-custom-token';
 let kakaoReady = false;
 try {
   if (KAKAO_JS_KEY !== "YOUR_KAKAO_JS_KEY" && window.Kakao && !Kakao.isInitialized()) {
@@ -3364,6 +3364,27 @@ async function exchangeKakaoCode(code) {
     showToast('카카오로 로그인했어요');
     reconcilePremiumWithAccount('kakao_' + profile.id);
     flushLocalOnlyInquiries();
+
+    // 서버(Vercel 함수)가 연결되어 있으면, 이 카카오 로그인을 실제 Firebase 로그인
+    // 세션으로도 이어줍니다. 이렇게 하면 결제 주문(paymentOrders) 생성 시
+    // request.auth.uid를 요구하는 규칙도 카카오 회원에게 동일하게 적용할 수 있습니다.
+    if (KAKAO_TOKEN_FUNCTION_URL && firebaseReady) {
+      try {
+        const bridgeRes = await fetch(KAKAO_TOKEN_FUNCTION_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accessToken: tokenData.access_token })
+        });
+        const bridgeData = await bridgeRes.json();
+        if (bridgeData.customToken) {
+          await firebase.auth().signInWithCustomToken(bridgeData.customToken);
+        } else {
+          console.warn('카카오→Firebase 연결 실패', bridgeData);
+        }
+      } catch (bridgeErr) {
+        console.warn('카카오→Firebase 연결 중 오류', bridgeErr);
+      }
+    }
   } catch (err) {
     console.error('카카오 로그인 처리 실패', err);
     showToast('카카오 로그인 실패: ' + (err && err.message ? err.message : String(err)));
