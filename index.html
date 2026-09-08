@@ -1978,11 +1978,17 @@ function setupCalTypeToggle(toggleId, leapWrapId) {
     if (toggleId === 'birthCalType') updateSajuPreview();
   });
 }
+// fortuneCalType/insightCalType는 각각 "오늘의 운세"/"내 사주 핵심" 모달 안에 있는데,
+// 그 모달들의 HTML은 문서 훨씬 뒷부분에 있습니다. 지금 이 지점에서 바로 찾으면
+// 아직 브라우저가 거기까지 읽지 않은 상태라 null이 나올 수 있어서, 문서 전체가
+// 다 파싱된 뒤로 미뤄서 실행합니다.
 setupCalTypeToggle('birthCalType', 'birthLeapWrap');
 setupCalTypeToggle('partnerCalType', 'partnerLeapWrap');
-setupCalTypeToggle('fortuneCalType', 'fortuneLeapWrap');
-setupCalTypeToggle('insightCalType', 'insightLeapWrap');
 applyLockedBirthTo('birth');
+setTimeout(() => {
+  setupCalTypeToggle('fortuneCalType', 'fortuneLeapWrap');
+  setupCalTypeToggle('insightCalType', 'insightLeapWrap');
+}, 0);
 
 /* ---------- 생년월일 고정(잠금) ---------- */
 const BIRTH_LOCK_KEY = 'taekilso_locked_birth';
@@ -2505,7 +2511,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-07-early-var-init-race-fix' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-07-modal-calType-defer-fix' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
