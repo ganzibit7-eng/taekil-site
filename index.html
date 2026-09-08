@@ -2523,11 +2523,61 @@ async function waitForAuthSettled(timeoutMs) {
   ]);
 }
 const ADMIN_EMAIL = "green092432@gmail.com";
-try {
-  if (firebaseConfig.apiKey !== "YOUR_API_KEY" && window.firebase) {
-    firebase.initializeApp(firebaseConfig);
+
+// Firebase CDN이 브라우저/확장프로그램/네트워크 환경 때문에 처음 로드되지 않는 경우를 대비한
+// 자동 재시도 로더입니다. 기존 gstatic 스크립트가 정상적으로 올라왔다면 아무 작업도 하지 않습니다.
+const firebaseSdkFallbackUrls = [
+  'https://cdn.jsdelivr.net/npm/firebase@10.7.1/firebase-app-compat.js',
+  'https://cdn.jsdelivr.net/npm/firebase@10.7.1/firebase-auth-compat.js',
+  'https://cdn.jsdelivr.net/npm/firebase@10.7.1/firebase-firestore-compat.js'
+];
+
+function loadScriptOnce(src, test) {
+  if (test()) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = false;
+    script.onload = () => test() ? resolve() : reject(new Error('SDK 로드 후 전역 객체를 찾지 못했습니다: ' + src));
+    script.onerror = () => reject(new Error('Firebase SDK를 불러오지 못했습니다: ' + src));
+    document.head.appendChild(script);
+  });
+}
+
+const firebaseSdkReady = (async () => {
+  try {
+    await loadScriptOnce(firebaseSdkFallbackUrls[0], () => !!window.firebase);
+    await loadScriptOnce(firebaseSdkFallbackUrls[1], () => !!(window.firebase && window.firebase.auth));
+    await loadScriptOnce(firebaseSdkFallbackUrls[2], () => !!(window.firebase && window.firebase.firestore));
+    return true;
+  } catch (err) {
+    console.error('[Firebase SDK] 로드 실패:', err);
+    return false;
+  }
+})();
+
+async function initializeFirebase() {
+  if (firebaseReady) return true;
+  const sdkOk = await firebaseSdkReady;
+  if (!sdkOk || !window.firebase || !firebase.auth || !firebase.firestore) {
+    const reason = !window.firebase
+      ? 'Firebase JavaScript SDK가 로드되지 않았습니다. 네트워크/브라우저 확장 프로그램이 gstatic.com 또는 jsdelivr.com을 차단하고 있는지 확인해주세요.'
+      : 'Firebase Authentication 또는 Firestore SDK가 완전히 로드되지 않았습니다.';
+    console.error('[Firebase 초기화] ' + reason);
+    const notice = document.getElementById('authSetupNotice');
+    if (notice) notice.textContent = 'Firebase 연결 실패: ' + reason;
+    return false;
+  }
+  try {
+    if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'YOUR_API_KEY') {
+      throw new Error('firebaseConfig.apiKey가 비어 있습니다.');
+    }
+    if (!firebase.apps || !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
     firebaseReady = true;
     db = firebase.firestore();
+
 
     // 이미 카카오로 로그인된 상태로 새로 접속한 경우에도(=onAuthStateChanged가 트리거되지
     // 않는 경우) 프리미엄 동기화와 임시저장 문의 재전송을 시도합니다.
@@ -2580,8 +2630,18 @@ try {
       }
     });
     recordVisit();
+    return true;
+  } catch (err) {
+    firebaseReady = false;
+    console.error('Firebase 초기화 실패', err);
+    const notice = document.getElementById('authSetupNotice');
+    if (notice) notice.textContent = 'Firebase 초기화 실패: ' + (err && err.message ? err.message : String(err));
+    return false;
   }
-} catch (err) { console.error('Firebase 초기화 실패', err); }
+}
+
+// 정적 CDN 로드가 끝난 뒤 Firebase를 초기화합니다.
+const firebaseInitializationPromise = initializeFirebase();
 
 function formatAuthError(err) {
   const code = err && err.code ? err.code : '';
@@ -3421,9 +3481,12 @@ function confirmDeleteAccount() {
 }
 
 async function loginWithGoogle() {
+  if (!firebaseReady) {
+    await firebaseInitializationPromise;
+  }
   if (!firebaseReady || !window.firebase || !firebase.auth) {
     document.getElementById('authSetupNotice').style.display = 'block';
-    showAuthError('Firebase Authentication이 연결되지 않았어요. firebaseConfig와 Authentication 설정을 확인해주세요.');
+    showAuthError('Firebase Authentication 연결에 실패했어요. 브라우저 콘솔의 [Firebase SDK] 오류를 확인해주세요.');
     return;
   }
 
@@ -3923,6 +3986,13 @@ function openAuthModal() {
   document.getElementById('authOverlay').style.display = 'flex';
   document.getElementById('authSetupNotice').style.display = firebaseReady ? 'none' : 'block';
   document.getElementById('authError').style.display = 'none';
+  if (!firebaseReady) {
+    firebaseInitializationPromise.then((ok) => {
+      if (ok) {
+        document.getElementById('authSetupNotice').style.display = 'none';
+      }
+    });
+  }
 }
 function closeAuthModal() { document.getElementById('authOverlay').style.display = 'none'; }
 function toggleAuthMode() {
