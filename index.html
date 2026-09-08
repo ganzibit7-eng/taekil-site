@@ -2500,14 +2500,14 @@ const firebaseConfig = {
 
 // inline onclick에서 TDZ가 발생하지 않도록 var를 사용합니다.
 var firebaseReady = false;
-let firebaseAuthUser = null;
-let firebaseAuthReady = false;
-let firebaseAuthInitPromise = null;
-let firebaseAuthInstance = null;
+var firebaseAuthUser = null;
+var firebaseAuthReady = false;
+var firebaseAuthInitPromise = null;
+var firebaseAuthInstance = null;
 // inline onclick이 Firebase 초기화 코드보다 먼저 실행돼도 안전하도록 지연 초기화합니다.
 var firebaseInitializationPromise = null;
-let db = null;
-let firebaseInitError = null;
+var db = null;
+var firebaseInitError = null;
 let resolveFirebaseAuthSettled;
 const firebaseAuthSettled = new Promise((resolve) => { resolveFirebaseAuthSettled = resolve; });
 async function waitForAuthSettled(timeoutMs) {
@@ -2855,7 +2855,7 @@ const KAKAO_REST_KEY = "189da591834b8e3edfffa2c7afa41c0d";
 const KAKAO_REDIRECT_URI = window.location.origin + window.location.pathname;
 // 무료(Spark) 운영에서는 별도 Cloud Function 없이 카카오 프로필을 브라우저 세션으로 유지합니다.
 const KAKAO_TOKEN_FUNCTION_URL = 'https://taekilso-backend-lemon.vercel.app/api/kakao-custom-token';
-let kakaoReady = false;
+var kakaoReady = false;
 try {
   if (KAKAO_JS_KEY !== "YOUR_KAKAO_JS_KEY" && window.Kakao && !Kakao.isInitialized()) {
     Kakao.init(KAKAO_JS_KEY);
