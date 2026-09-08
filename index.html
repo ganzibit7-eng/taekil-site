@@ -2504,6 +2504,8 @@ let firebaseAuthUser = null;
 let firebaseAuthReady = false;
 let firebaseAuthInitPromise = null;
 let firebaseAuthInstance = null;
+// inline onclick이 Firebase 초기화 코드보다 먼저 실행돼도 안전하도록 지연 초기화합니다.
+var firebaseInitializationPromise = null;
 let db = null;
 let firebaseInitError = null;
 let resolveFirebaseAuthSettled;
@@ -2628,7 +2630,14 @@ async function initializeFirebase() {
   }
 }
 
-const firebaseInitializationPromise = initializeFirebase();
+// 페이지가 파싱되는 동안 로그인 버튼이 먼저 눌릴 수 있으므로 여기서는 즉시 실행하지 않습니다.
+function ensureFirebaseInitialization() {
+  if (!firebaseInitializationPromise) {
+    firebaseInitializationPromise = initializeFirebase();
+  }
+  return firebaseInitializationPromise;
+}
+ensureFirebaseInitialization();
 
 function formatAuthError(err) {
   const code = err && err.code ? err.code : '';
@@ -3468,9 +3477,7 @@ function confirmDeleteAccount() {
 }
 
 async function loginWithGoogle() {
-  if (!firebaseReady) {
-    await firebaseInitializationPromise;
-  }
+  await ensureFirebaseInitialization();
   if (!firebaseReady || !window.firebase || !firebase.auth) {
     document.getElementById('authSetupNotice').style.display = 'block';
     showAuthError('Firebase Authentication 연결에 실패했어요. 브라우저 콘솔의 [Firebase SDK] 오류를 확인해주세요.');
@@ -3974,7 +3981,7 @@ function openAuthModal() {
   document.getElementById('authSetupNotice').style.display = firebaseReady ? 'none' : 'block';
   document.getElementById('authError').style.display = 'none';
   if (!firebaseReady) {
-    firebaseInitializationPromise.then((ok) => {
+    ensureFirebaseInitialization().then((ok) => {
       if (ok) {
         document.getElementById('authSetupNotice').style.display = 'none';
       }
@@ -3992,8 +3999,8 @@ function toggleAuthMode() {
 async function submitAuth() {
   const errEl = document.getElementById('authError');
   errEl.style.display = 'none';
-  if (!firebaseReady && typeof firebaseInitializationPromise !== 'undefined') {
-    await firebaseInitializationPromise;
+  if (!firebaseReady) {
+    await ensureFirebaseInitialization();
   }
   if (!firebaseReady || !window.firebase || !firebase.auth) {
     errEl.textContent = 'Firebase Authentication 연결에 실패했어요. 콘솔의 [Firebase 초기화] 오류를 확인해주세요.';
