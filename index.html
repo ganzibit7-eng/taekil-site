@@ -2517,7 +2517,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-07-domcontent-defer-and-stats-rule-fix' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-07-single-setparam-call' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -3650,7 +3650,7 @@ async function payPremium() {
       createdAt: Date.now()
     }));
 
-    PayApp.setParam({
+    const payParams = {
       userid: PAYAPP_USERID,
       shopname: '택일소',
       goodname: '택일소 프리미엄 30일 이용권',
@@ -3662,11 +3662,12 @@ async function payPremium() {
       var1: orderId,
       memo: '30일 이용권 · 365일 택일 검색 · TOP20 · 정밀 리포트 · 궁합 택일',
       redirectpay: '1'
-    });
-
-    // 서버 검증 함수가 연결되어 있으면 feedbackurl도 함께 보냅니다. 페이앱이 이 주소로
-    // 서버끼리 직접 결제 결과를 통보해서, 브라우저를 신뢰하지 않고도 확실하게 검증합니다.
-    if (PAYAPP_FEEDBACK_URL) PayApp.setParam('feedbackurl', PAYAPP_FEEDBACK_URL);
+    };
+    // 서버 검증 함수가 연결되어 있으면 feedbackurl도 처음부터 같이 보냅니다. setParam을
+    // 두 번 나눠 호출하면 페이앱 쪽에서 두 번째 호출 때 앞서 설정한 값이 초기화되는 등
+    // 예상치 못한 동작이 있을 수 있어서, 하나의 객체로 합쳐서 한 번만 호출합니다.
+    if (PAYAPP_FEEDBACK_URL) payParams.feedbackurl = PAYAPP_FEEDBACK_URL;
+    PayApp.setParam(payParams);
 
     PayApp.setTarget('_self');
     PayApp.payrequest();
