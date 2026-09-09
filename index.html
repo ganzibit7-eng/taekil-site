@@ -5132,7 +5132,8 @@ function appendAiChatServiceCta(userMessage) {
     wrap.appendChild(btn);
   });
   win.appendChild(wrap);
-  scrollAiChatToBottom(win);
+  // 이 버튼은 답변 바로 아래 붙는 보조 요소라, 여기서 다시 스크롤을 내리지 않습니다.
+  // (답변은 위에서 이미 "시작 지점"에 맞춰 스크롤해 둔 상태를 유지합니다.)
 }
 
 /* 무료 질문을 다 쓰면 보여주는 화면: 질문권 2종(할인가 표시) + 프리미엄 구독. */
@@ -5171,7 +5172,7 @@ function appendAiChatUpsell(userMessage='') {
   div.innerHTML = label;
   div.onclick = () => goTo('profile');
   win.appendChild(div);
-  scrollAiChatToBottom(win);
+  // 답변 바로 아래 붙는 보조 카드라 여기서도 스크롤을 다시 내리지 않습니다.
 }
 
 function escapeAiHtml(text){
@@ -5199,14 +5200,28 @@ function scrollAiChatToBottom(win) {
   });
 }
 
-function appendAiChatMessage(role, text) {
+/* AI 답변이 길 때, 맨 아래(답변의 끝)가 아니라 "답변이 시작하는 지점"이
+   채팅창 맨 위로 오도록 스크롤합니다. 사용자가 답변을 처음부터 읽을 수 있게 하기 위함. */
+function scrollAiChatToMessageStart(win, div) {
+  if (!win || !div) return;
+  const target = () => Math.max(0, div.offsetTop - 6);
+  win.scrollTop = target();
+  requestAnimationFrame(() => {
+    win.scrollTop = target();
+    requestAnimationFrame(() => { win.scrollTop = target(); });
+  });
+}
+
+function appendAiChatMessage(role, text, opts) {
   const win = document.getElementById('aiChatWindow');
   const div = document.createElement('div');
   div.className = 'ai-chat-msg ' + role;
   if (role === 'assistant') div.innerHTML = formatAiReply(text);
   else div.textContent = text;
   win.appendChild(div);
-  scrollAiChatToBottom(win);
+  const scrollMode = (opts && opts.scroll) || 'bottom'; // 'bottom' | 'start' | 'none'
+  if (scrollMode === 'bottom') scrollAiChatToBottom(win);
+  else if (scrollMode === 'start') scrollAiChatToMessageStart(win, div);
   return div;
 }
 
@@ -5386,7 +5401,7 @@ async function sendAiChatMessage() {
       return;
     }
 
-    appendAiChatMessage('assistant', data.reply);
+    appendAiChatMessage('assistant', data.reply, { scroll: 'start' });
     window.__aiChatHistory.push({ role: 'assistant', content: data.reply });
     appendAiChatServiceCta(message);
     if (!isPremium()) appendAiChatUpsell(message);
