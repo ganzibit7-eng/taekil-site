@@ -588,6 +588,13 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
   background:rgba(18,16,13,.82); border:1px solid rgba(255,255,255,.14); backdrop-filter:blur(4px);
   border-radius:16px 16px 16px 4px; padding:12px 14px; color:#fff; font-size:12.5px; line-height:1.65; margin-bottom:12px; max-width:88%;
 }
+/* 소개 화면에서부터 "여기서 뭘 할 수 있는지" 바로 보여주는 4개 고민 카테고리 버튼 */
+.ai-chat-intro-categories{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;}
+.ai-chat-intro-categories button{
+  background:rgba(16,14,11,.7); border:1px solid rgba(255,255,255,.18); color:#fff;
+  padding:11px 8px; border-radius:12px; font-size:11.5px; font-weight:600; backdrop-filter:blur(5px); cursor:pointer;
+}
+.ai-chat-intro-categories button:hover{background:rgba(215,180,106,.22); border-color:rgba(215,180,106,.5)}
 .ai-chat-setup-row{display:grid; grid-template-columns:.72fr 1fr .78fr .78fr; gap:6px; margin-bottom:10px;}
 .ai-chat-setup-row.ai-chat-detail-row{grid-template-columns:1fr 1fr 1fr 1fr;}
 .ai-chat-setup-label{display:block; color:rgba(255,255,255,.62); font-size:9.5px; margin:0 0 5px 2px;}
@@ -663,6 +670,30 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
   display:flex; align-items:center; justify-content:center; font-size:14px;
 }
 .ai-chat-disclaimer{font-size:10px; color:var(--muted-2); margin-top:10px; text-align:center; padding:0 16px;}
+
+/* 홈 화면 - 상담 아래 "실제 날짜 찾기" 미니 카드 4개 */
+.home-mini-event-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px;}
+.home-mini-event-grid button{
+  position:relative; aspect-ratio:3/4; border-radius:14px; overflow:hidden; border:1px solid var(--line-soft);
+  padding:0; cursor:pointer; background:#0d0d0c;
+}
+.home-mini-event-grid img{width:100%; height:100%; object-fit:cover; object-position:top center; display:block;}
+.home-mini-event-grid span{
+  position:absolute; left:0; right:0; bottom:0; padding:8px 4px 6px; text-align:center;
+  font-size:10.5px; font-weight:700; color:#fff; background:linear-gradient(to top, rgba(0,0,0,.85), transparent);
+}
+@media(max-width:480px){.home-mini-event-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* 홈 화면 - "더 깊이 보고 싶다면" 리스트 */
+.home-deeper-list{display:flex; flex-direction:column; gap:9px;}
+.home-deeper-list button{
+  display:flex; align-items:center; justify-content:space-between; text-align:left; cursor:pointer;
+  background:var(--panel); border:1px solid var(--line-soft); border-radius:14px; padding:14px 16px;
+}
+.home-deeper-list button:hover{border-color:rgba(215,180,106,.35)}
+.home-deeper-list b{font-family:var(--serif); font-weight:400; font-size:14px; color:var(--white); display:block;}
+.home-deeper-list small{font-size:11px; color:var(--muted); display:block; margin-top:2px;}
+.home-deeper-list i{font-style:normal; color:var(--gold-hi); font-size:16px; flex-shrink:0; margin-left:10px;}
 @media(prefers-reduced-motion: reduce){.acp-online-dot{animation:none}}
 
 .usecase-item{
@@ -1089,6 +1120,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <div class="brand" onclick="goTo('home')"><span class="brand-mark"></span>택일소</div>
       <div class="nav-right">
         <div class="nav-links" id="navLinks">
+          <a data-route="home" onclick="goTo('home')" style="color:var(--gold-hi); font-weight:700;">✨ AI 상담</a>
           <div class="nav-dropdown" id="navTaekilDropdown">
             <a class="nav-dropdown-trigger" onclick="toggleNavDropdown(event)">택일 <span class="nav-dropdown-caret">▾</span></a>
             <div class="nav-dropdown-menu" id="navTaekilMenu">
@@ -1169,8 +1201,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 <nav class="bottom-tabbar" id="bottomTabbar">
   <span class="bt-item active" data-route="home" onclick="goTo('home')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>
-    <span>홈</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4 8.6 8.6 0 0 1-3.7-.9L3 20l1-4.7A8.4 8.4 0 1 1 21 11.5z"/></svg>
+    <span>AI상담</span>
   </span>
   <span class="bt-item" data-route="tool" onclick="goTo('tool')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -1216,6 +1248,12 @@ const ADMIN_EMAIL = "green092432@gmail.com";
             안녕하세요. 저는 택일소의 AI 상담사예요.<br>
             당신의 사주를 바탕으로 함께 이야기해드릴게요.<br><br>
             오늘 어떤 고민이 있으세요?
+          </div>
+          <div class="ai-chat-intro-categories">
+            <button onclick="handleHomeCategoryClick(this, '연애·궁합이 궁금해요')">❤️ 연애·궁합</button>
+            <button onclick="handleHomeCategoryClick(this, '돈, 재물운이 궁금해요')">💰 돈·재물</button>
+            <button onclick="handleHomeCategoryClick(this, '직업, 사업운이 궁금해요')">💼 직업·사업</button>
+            <button onclick="handleHomeCategoryClick(this, '결혼, 이사, 개업, 계약 날짜를 잡고 싶어요')">📅 결혼·이사·개업·계약</button>
           </div>
           <button class="btn btn-primary" style="width:100%;" onclick="handleHomeChatStart(this)">✨ 내 사주로 상담 시작하기</button>
         </div>
@@ -1269,6 +1307,34 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <p class="ai-chat-disclaimer">AI 사주 상담은 참고용 정보이며, 중요한 결정은 본인의 판단으로 내려주세요. 결혼식·이사·개업·계약체결 날짜만 정확히 계산하고 싶으시면 <a onclick="goTo('tool')" style="color:var(--gold-hi); text-decoration:underline; cursor:pointer;">사주 메뉴</a>에서도 확인할 수 있어요.</p>
     </div>
   </div>
+
+  <section class="block" style="padding-top:8px;">
+    <div class="container" style="max-width:480px;">
+      <div class="section-head" style="margin-bottom:16px;">
+        <div><div class="section-kicker">DATE</div><h2 class="section-title" style="font-size:22px;">상담 후엔<br>실제 날짜까지</h2></div>
+      </div>
+      <div class="home-mini-event-grid">
+        <button onclick="goTo('tool','결혼식')"><img src="char-wedding.jpg" alt="결혼식"><span>💍 결혼식</span></button>
+        <button onclick="goTo('tool','이사')"><img src="char-moving.jpg" alt="이사"><span>🏠 이사</span></button>
+        <button onclick="goTo('tool','개업')"><img src="char-opening.jpg" alt="개업"><span>🏮 개업</span></button>
+        <button onclick="goTo('tool','계약체결')"><img src="char-contract.jpg" alt="계약체결"><span>📜 계약</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" style="padding-top:0;">
+    <div class="container" style="max-width:480px;">
+      <div class="section-head" style="margin-bottom:16px;">
+        <div><div class="section-kicker">GO DEEPER</div><h2 class="section-title" style="font-size:22px;">더 깊이<br>보고 싶다면</h2></div>
+      </div>
+      <div class="home-deeper-list">
+        <button onclick="openSajuInsight('profile')"><b>AI 정밀사주</b><small>내 사주 심층 분석 · 대운 흐름</small><i>→</i></button>
+        <button onclick="openSajuInsight('love')"><b>궁합·연애 분석</b><small>두 사람의 오행 궁합</small><i>→</i></button>
+        <button onclick="openSajuInsight('money')"><b>재물·직업 분석</b><small>강점과 흐름을 자세히</small><i>→</i></button>
+        <button onclick="goTo('profile')"><b>프리미엄 전체 서비스</b><small>365일 택일 · 상세 리포트 등</small><i>→</i></button>
+      </div>
+    </div>
+  </section>
 
   <section class="block">
     <div class="container" style="max-width:760px;">
@@ -2793,7 +2859,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-09-question-packs' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-09-home-redesign-v2' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -5170,12 +5236,26 @@ function startAiChat() {
   document.getElementById('aiChatWindow').innerHTML = '';
   appendAiChatMessage('system-note', '사주 정보를 기억했어요. 이번 상담에서는 입력하신 생년월일과 출생시간을 기준으로 질문에 맞는 부분부터 깊게 살펴볼게요.');
   updateAiChatStatus(null, 3, isPremium());
+
+  // 소개 화면에서 고민 카테고리를 먼저 눌렀던 경우, 여기서 그 질문을 자동으로 이어서 보냅니다.
+  if (window.__pendingCategoryQuestion) {
+    const q = window.__pendingCategoryQuestion;
+    window.__pendingCategoryQuestion = null;
+    setTimeout(() => quickAskAiChat(q), 300);
+  }
 }
 
 /* 빠른 질문 버튼 - 입력창에 채우고 바로 전송합니다. */
 /* 홈 화면 챗봇 소개 화면의 "시작하기" 버튼입니다.
    로그인 안 된 상태면 여기서만 로그인을 요청하고, 로그인 완료되면 자동으로
    생년월일 입력 단계로 이어집니다(다시 시작하기를 누를 필요 없게). */
+/* 소개 화면의 4개 고민 카테고리 버튼입니다. 로그인/생년월일 입력이 끝나면
+   자동으로 그 질문을 이어서 보내도록, 원하는 질문을 잠깐 기억해둡니다. */
+function handleHomeCategoryClick(btn, questionText) {
+  window.__pendingCategoryQuestion = questionText;
+  handleHomeChatStart(btn);
+}
+
 async function handleHomeChatStart(btn) {
   // 카카오로 로그인된 상태면 firebaseAuthReady와 무관하게 바로 진행할 수 있습니다.
   if (getKakaoUser()) { showAiChatSetupStep(); return; }
