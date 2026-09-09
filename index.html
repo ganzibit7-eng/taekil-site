@@ -102,6 +102,20 @@ button{cursor:pointer}
 .nav{display:flex;align-items:center;justify-content:space-between;gap:20px}
 .nav-right{display:flex;align-items:center;gap:8px;position:relative}
 .hamburger{display:none;background:none;border:none;color:var(--white);font-size:18px;width:38px;height:38px;border-radius:50%;align-items:center;justify-content:center;transition:.2s}
+/* 상단 메뉴의 "택일" 드롭다운 (결혼식/이사/개업/계약체결을 한데 모음) */
+.nav-dropdown{position:relative}
+.nav-dropdown-trigger{display:inline-flex; align-items:center; gap:3px; cursor:pointer;}
+.nav-dropdown-caret{font-size:9px; transition:transform .2s;}
+.nav-dropdown.open .nav-dropdown-caret{transform:rotate(180deg)}
+.nav-dropdown-menu{
+  display:none; position:absolute; top:calc(100% + 12px); left:50%; transform:translateX(-50%);
+  min-width:150px; padding:8px; border-radius:14px;
+  background:rgba(12,12,11,.96); border:1px solid var(--line-soft); backdrop-filter:blur(16px);
+  box-shadow:0 20px 50px rgba(0,0,0,.4); z-index:60;
+}
+.nav-dropdown.open .nav-dropdown-menu{display:block}
+.nav-dropdown-menu a{display:block; padding:9px 12px; border-radius:9px; font-size:13px; color:var(--white); white-space:nowrap;}
+.nav-dropdown-menu a:hover{background:rgba(215,180,106,.12); color:var(--gold-hi)}
 .hamburger:hover{background:rgba(255,255,255,.08)}
 .brand{
   display:flex;align-items:center;gap:12px;
@@ -1050,10 +1064,15 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <div class="brand" onclick="goTo('home')"><span class="brand-mark"></span>택일소</div>
       <div class="nav-right">
         <div class="nav-links" id="navLinks">
-          <a data-route="wedding" onclick="goTo('wedding')">결혼식</a>
-          <a data-route="moving" onclick="goTo('moving')">이사</a>
-          <a data-route="opening" onclick="goTo('opening')">개업</a>
-          <a data-route="contract" onclick="goTo('contract')">계약체결</a>
+          <div class="nav-dropdown" id="navTaekilDropdown">
+            <a class="nav-dropdown-trigger" onclick="toggleNavDropdown(event)">택일 <span class="nav-dropdown-caret">▾</span></a>
+            <div class="nav-dropdown-menu" id="navTaekilMenu">
+              <a onclick="goTo('wedding')">💍 결혼식</a>
+              <a onclick="goTo('moving')">🏠 이사</a>
+              <a onclick="goTo('opening')">🏮 개업</a>
+              <a onclick="goTo('contract')">📜 계약체결</a>
+            </div>
+          </div>
           <a data-route="tool" onclick="goTo('tool')">사주</a>
           <a data-route="history" onclick="goTo('history')">내 기록</a>
         </div>
@@ -2727,7 +2746,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-09-remove-legacy-selfconfirm' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-09-nav-taekil-dropdown' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -3894,6 +3913,17 @@ function logout() {
 }
 
 let authMode = 'login';
+
+/* 상단 메뉴 "택일" 드롭다운 열고 닫기 */
+function toggleNavDropdown(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('navTaekilDropdown');
+  if (dd) dd.classList.toggle('open');
+}
+document.addEventListener('click', () => {
+  const dd = document.getElementById('navTaekilDropdown');
+  if (dd) dd.classList.remove('open');
+});
 
 function handleAuthNavClick() {
   if (getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser)) {
