@@ -588,7 +588,17 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
   background:rgba(18,16,13,.82); border:1px solid rgba(255,255,255,.14); backdrop-filter:blur(4px);
   border-radius:16px 16px 16px 4px; padding:12px 14px; color:#fff; font-size:12.5px; line-height:1.65; margin-bottom:12px; max-width:88%;
 }
-.ai-chat-setup-row{display:grid; grid-template-columns:.8fr 1fr .8fr .8fr; gap:6px; margin-bottom:10px;}
+.ai-chat-setup-row{display:grid; grid-template-columns:.72fr 1fr .78fr .78fr; gap:6px; margin-bottom:10px;}
+.ai-chat-setup-row.ai-chat-detail-row{grid-template-columns:1fr 1fr 1fr 1fr;}
+.ai-chat-setup-label{display:block; color:rgba(255,255,255,.62); font-size:9.5px; margin:0 0 5px 2px;}
+.ai-chat-birth-extra{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;}
+.ai-chat-birth-extra select{width:100%; padding:9px 6px; font-size:11px; border-radius:9px; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.22); color:#fff; text-align:center;}
+.ai-chat-profile-note{font-size:9.5px; line-height:1.45; color:rgba(255,255,255,.62); margin:-2px 2px 10px;}
+.ai-chat-msg.assistant .ai-chat-heading{font-weight:700; color:var(--gold-hi); margin-bottom:4px;}
+.ai-chat-msg.assistant .ai-chat-strong{font-weight:700; color:#fff;}
+.ai-chat-msg.assistant .ai-chat-bullet{display:block; padding-left:10px; position:relative;}
+.ai-chat-msg.assistant .ai-chat-bullet::before{content:'•'; position:absolute; left:0; color:var(--gold-hi);}
+
 .ai-chat-setup-row select{padding:9px 3px; font-size:11px; border-radius:9px; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.22); color:#fff; text-align:center;}
 
 .ai-chat-panel-overlay{position:absolute; inset:0; z-index:3; display:flex; flex-direction:column; justify-content:flex-end; padding:14px;}
@@ -1206,6 +1216,22 @@ const ADMIN_EMAIL = "green092432@gmail.com";
             <select id="aiChatMonth"></select>
             <select id="aiChatDay"></select>
           </div>
+          <div class="ai-chat-birth-extra">
+            <div>
+              <label class="ai-chat-setup-label" for="aiChatHour">출생시간</label>
+              <select id="aiChatHour"></select>
+            </div>
+            <div>
+              <label class="ai-chat-setup-label" for="aiChatGender">성별 <span style="opacity:.65">(선택)</span></label>
+              <select id="aiChatGender">
+                <option value="unknown">선택 안 함</option>
+                <option value="female">여성</option>
+                <option value="male">남성</option>
+              </select>
+            </div>
+          </div>
+          <label style="display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.72);font-size:10px;margin:0 2px 8px;"><input id="aiChatLeap" type="checkbox" style="accent-color:var(--gold-hi)" onchange="this.disabled=false"> 윤달(음력)인 경우 체크</label>
+          <div class="ai-chat-profile-note">출생시간을 알면 시주까지 반영해 상담 깊이를 높일 수 있어요. 모르면 '시간 모름'으로 시작할 수 있습니다.</div>
           <button class="btn btn-primary" style="width:100%;" onclick="startAiChat()">✨ 내 사주로 상담 시작하기</button>
         </div>
 
@@ -4843,23 +4869,94 @@ function goHomeSection(id){
 /* ---------- AI 사주 상담 ---------- */
 window.__aiChatHistory = [];
 window.__aiChatSaju = null;
+window.__aiChatProfile = null;
 
 function fillAiChatDateSelects(){
   const y=document.getElementById('aiChatYear'),m=document.getElementById('aiChatMonth'),d=document.getElementById('aiChatDay');
+  const h=document.getElementById('aiChatHour');
   if(!y||!m||!d||y.options.length) return;
   const now=new Date();
   for(let yy=1940;yy<=now.getFullYear();yy++){const o=document.createElement('option');o.value=yy;o.textContent=yy+'년';y.appendChild(o);}
   for(let mm=1;mm<=12;mm++){const o=document.createElement('option');o.value=mm;o.textContent=mm+'월';m.appendChild(o);}
   for(let dd=1;dd<=31;dd++){const o=document.createElement('option');o.value=dd;o.textContent=dd+'일';d.appendChild(o);}
+  if(h && !h.options.length){
+    const unknown=document.createElement('option'); unknown.value='unknown'; unknown.textContent='시간 모름'; h.appendChild(unknown);
+    for(let hh=0;hh<24;hh++){const o=document.createElement('option');o.value=hh;o.textContent=String(hh).padStart(2,'0')+'시';h.appendChild(o);}
+    h.value='unknown';
+  }
   y.value=1990; m.value=1; d.value=1;
 }
 
-/* AI 답변 아래에 살짝 보여주는 "더 자세히 보기" 유도입니다.
-   개별 유료 상품(궁합/재물 등)이 아직 없어서, 지금은 프리미엄으로 연결해둡니다.
-   개별 상품이 생기면 이 부분을 눌렀을 때 해당 상품 결제로 바로 연결하도록 바꾸면 됩니다. */
-/* 사용자 질문에 결혼/이사/개업/계약 같은 "날짜 정하기" 키워드가 있으면,
-   AI 답변만으로 끝내지 않고 실제 택일 계산 서비스로 바로 연결하는 버튼을 보여줍니다.
-   AI가 기존 서비스와 경쟁하는 게 아니라, 그 서비스로 안내하는 역할을 하도록 합니다. */
+function getAiEightCharData(birthDate, hourValue){
+  const result = { pillars:{}, fiveElements:{}, tenGods:{}, hiddenStems:{} };
+  try {
+    if (typeof Solar === 'undefined' || !Solar.fromYmdHms) return result;
+    const hasHour = hourValue !== 'unknown' && hourValue !== '' && Number.isFinite(Number(hourValue));
+    const hh = hasHour ? Number(hourValue) : 12;
+    const solar = Solar.fromYmdHms(birthDate.getFullYear(), birthDate.getMonth()+1, birthDate.getDate(), hh, 0, 0);
+    const lunar = solar.getLunar();
+    const ec = lunar && lunar.getEightChar ? lunar.getEightChar() : null;
+    if (!ec) return result;
+
+    const getters = [
+      ['year','getYear'],['month','getMonth'],['day','getDay'],['hour','getTime'],
+    ];
+    getters.forEach(([key,fn])=>{
+      if (key==='hour' && !hasHour) return;
+      if (typeof ec[fn] === 'function') result.pillars[key] = ec[fn]();
+    });
+    const ohGetters = [
+      ['year','getYearWuXing'],['month','getMonthWuXing'],['day','getDayWuXing'],['hour','getTimeWuXing'],
+    ];
+    ohGetters.forEach(([key,fn])=>{
+      if (key==='hour' && !hasHour) return;
+      if (typeof ec[fn] === 'function') result.fiveElements[key] = ec[fn]();
+    });
+    const ssGetters = [
+      ['yearGan','getYearShiShenGan'],['monthGan','getMonthShiShenGan'],['dayGan','getDayShiShenGan'],['hourGan','getTimeShiShenGan'],
+      ['yearZhi','getYearShiShenZhi'],['monthZhi','getMonthShiShenZhi'],['dayZhi','getDayShiShenZhi'],['hourZhi','getTimeShiShenZhi']
+    ];
+    ssGetters.forEach(([key,fn])=>{
+      if (key.startsWith('hour') && !hasHour) return;
+      if (typeof ec[fn] === 'function') result.tenGods[key] = ec[fn]();
+    });
+    const hideGetters = [
+      ['year','getYearHideGan'],['month','getMonthHideGan'],['day','getDayHideGan'],['hour','getTimeHideGan']
+    ];
+    hideGetters.forEach(([key,fn])=>{
+      if (key==='hour' && !hasHour) return;
+      if (typeof ec[fn] === 'function') result.hiddenStems[key] = ec[fn]();
+    });
+    if (lunar && typeof lunar.getYear === 'function') result.lunar = `${lunar.getYear()}년 ${lunar.getMonth()}월 ${lunar.getDay()}일`;
+    result.hasHour = hasHour;
+  } catch (e) {
+    console.warn('[ai-chat] 사주 4주 계산 보강 실패', e);
+  }
+  return result;
+}
+
+function buildAiChatSajuSummary({y,m,d,calType,hourValue,gender,birth}){
+  const idx = dayGanjiIndex(birth), oh = ohaengOf(idx);
+  const data = getAiEightCharData(birth, hourValue);
+  const lines = [
+    `생년월일: ${y}년 ${m}월 ${d}일 (${calType === 'lunar' ? '음력' : '양력'})`,
+    `출생시간: ${hourValue === 'unknown' ? '모름' : String(hourValue).padStart(2,'0') + '시'}`,
+    `성별: ${gender === 'female' ? '여성' : gender === 'male' ? '남성' : '선택 안 함'}`,
+    `일진 기준 일주: ${ganjiFull(idx)}`,
+    `일주 기준 핵심 오행: ${oh} 기운`
+  ];
+  if (data.lunar) lines.push(`변환 음력 날짜: ${data.lunar}`);
+  if (Object.keys(data.pillars).length) {
+    lines.push(`사주 팔자(계산 라이브러리 결과): ${Object.entries(data.pillars).map(([k,v])=>`${k}=${v}`).join(', ')}`);
+  }
+  if (Object.keys(data.fiveElements).length) lines.push(`주별 오행: ${Object.entries(data.fiveElements).map(([k,v])=>`${k}=${v}`).join(', ')}`);
+  if (Object.keys(data.tenGods).length) lines.push(`십신 정보(계산 라이브러리 제공 범위): ${Object.entries(data.tenGods).map(([k,v])=>`${k}=${v}`).join(', ')}`);
+  if (Object.keys(data.hiddenStems).length) lines.push(`지장간 정보(계산 라이브러리 제공 범위): ${Object.entries(data.hiddenStems).map(([k,v])=>`${k}=${v}`).join(', ')}`);
+  lines.push('주의: 위 정보 중 실제 계산 라이브러리가 제공한 값만 사용하고, 전달되지 않은 대운·세운·용신 등은 임의로 추정하지 않습니다.');
+  return { text: lines.join('\n'), data };
+}
+
+/* 사용자 질문에 날짜 선택이 포함되면 실제 택일 기능으로 연결합니다. */
 function appendAiChatServiceCta(userMessage) {
   const map = [
     { key: '결혼', label: '💍 결혼 택일 바로 알아보기', event: '결혼식' },
@@ -4882,21 +4979,39 @@ function appendAiChatServiceCta(userMessage) {
   win.scrollTop = win.scrollHeight;
 }
 
-function appendAiChatUpsell() {
+function appendAiChatUpsell(userMessage='') {
   const win = document.getElementById('aiChatWindow');
   const div = document.createElement('div');
   div.className = 'ai-chat-upsell';
-  div.innerHTML = '🔓 더 자세히 알고 싶다면 <b>프리미엄</b>에서 정밀 분석을 확인해보세요.';
+  let label = '🔓 내 사주 정밀분석으로 더 깊게 보기';
+  if (/사업|창업|개업|장사|매출|파트너/.test(userMessage)) label = '🔓 사업·직업 흐름을 더 깊게 분석하기';
+  else if (/연애|궁합|배우자|재회|썸/.test(userMessage)) label = '🔓 연애·궁합 흐름을 더 깊게 분석하기';
+  else if (/돈|재물|수입|금전|투자|지출/.test(userMessage)) label = '🔓 재물 흐름을 더 깊게 분석하기';
+  div.innerHTML = label;
   div.onclick = () => goTo('profile');
   win.appendChild(div);
   win.scrollTop = win.scrollHeight;
+}
+
+function escapeAiHtml(text){
+  return String(text || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+function formatAiReply(text){
+  let html = escapeAiHtml(text).replace(/\r\n/g,'\n');
+  html = html.replace(/^###\s*(.+)$/gm,'<div class="ai-chat-heading">$1</div>');
+  html = html.replace(/^##\s*(.+)$/gm,'<div class="ai-chat-heading">$1</div>');
+  html = html.replace(/\*\*(.+?)\*\*/g,'<span class="ai-chat-strong">$1</span>');
+  html = html.replace(/^[-•]\s+(.+)$/gm,'<span class="ai-chat-bullet">$1</span>');
+  html = html.replace(/\n\n+/g,'<br><br>').replace(/\n/g,'<br>');
+  return html;
 }
 
 function appendAiChatMessage(role, text) {
   const win = document.getElementById('aiChatWindow');
   const div = document.createElement('div');
   div.className = 'ai-chat-msg ' + role;
-  div.textContent = text;
+  if (role === 'assistant') div.innerHTML = formatAiReply(text);
+  else div.textContent = text;
   win.appendChild(div);
   win.scrollTop = win.scrollHeight;
   return div;
@@ -4905,11 +5020,8 @@ function appendAiChatMessage(role, text) {
 function updateAiChatStatus(freeUsed, freeLimit, isPremiumNow) {
   const el = document.getElementById('aiChatStatus');
   if (!el) return;
-  if (isPremiumNow) {
-    el.textContent = '✦ 프리미엄 상담 이용 중 (하루 30턴까지)';
-  } else if (freeUsed != null) {
-    el.textContent = `무료 상담 ${freeUsed}/${freeLimit}회 사용`;
-  }
+  if (isPremiumNow) el.textContent = '✦ 프리미엄 상담 이용 중 (하루 30턴까지)';
+  else if (freeUsed != null) el.textContent = `무료 상담 ${freeUsed}/${freeLimit}회 사용`;
 }
 
 function startAiChat() {
@@ -4918,17 +5030,24 @@ function startAiChat() {
   const d = +document.getElementById('aiChatDay').value;
   if (!y || !m || !d) { showToast('생년월일을 모두 선택해주세요.'); return; }
   const calType = document.getElementById('aiChatCalType').value;
-  const birth = resolveBirthDate(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`, calType, false);
+  const hourEl = document.getElementById('aiChatHour');
+  const hourValue = hourEl ? hourEl.value : 'unknown';
+  const genderEl = document.getElementById('aiChatGender');
+  const gender = genderEl ? genderEl.value : 'unknown';
+  const leapEl = document.getElementById('aiChatLeap');
+  const isLeap = calType === 'lunar' && !!(leapEl && leapEl.checked);
+  const birth = resolveBirthDate(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`, calType, isLeap);
   if (!birth) return;
 
-  const idx = dayGanjiIndex(birth), oh = ohaengOf(idx);
-  window.__aiChatSaju = `생년월일: ${y}년 ${m}월 ${d}일(${calType === 'lunar' ? '음력' : '양력'}), 일주: ${ganjiFull(idx)}, 핵심 오행: ${oh} 기운`;
+  const built = buildAiChatSajuSummary({y,m,d,calType,hourValue,gender,birth});
+  window.__aiChatProfile = { y,m,d,calType,isLeap,hourValue,gender,birth: birth.toISOString(), data: built.data };
+  window.__aiChatSaju = built.text;
   window.__aiChatHistory = [];
 
   document.getElementById('aiChatSetup').style.display = 'none';
   document.getElementById('aiChatPanel').style.display = 'block';
   document.getElementById('aiChatWindow').innerHTML = '';
-  appendAiChatMessage('system-note', '사주 정보를 기억했어요. 편하게 물어보세요. (예: 올해 돈은 언제 들어와요?)');
+  appendAiChatMessage('system-note', '사주 정보를 기억했어요. 이번 상담에서는 입력하신 생년월일과 출생시간을 기준으로 질문에 맞는 부분부터 깊게 살펴볼게요.');
   updateAiChatStatus(null, 3, isPremium());
 }
 
@@ -5026,6 +5145,7 @@ async function sendAiChatMessage() {
       body: JSON.stringify({
         uid,
         sajuSummary: window.__aiChatSaju,
+        sajuProfile: window.__aiChatProfile,
         history: window.__aiChatHistory.slice(-12),
         message
       })
@@ -5053,7 +5173,7 @@ async function sendAiChatMessage() {
     appendAiChatMessage('assistant', data.reply);
     window.__aiChatHistory.push({ role: 'assistant', content: data.reply });
     appendAiChatServiceCta(message);
-    if (!isPremium()) appendAiChatUpsell();
+    if (!isPremium()) appendAiChatUpsell(message);
     if (data.freeUsed != null) updateAiChatStatus(data.freeUsed, data.freeLimit, false);
     else updateAiChatStatus(null, null, true);
   } catch (err) {
