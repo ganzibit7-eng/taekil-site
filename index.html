@@ -5243,7 +5243,7 @@ function startAiChat() {
   window.__aiChatHistory = [];
 
   document.getElementById('aiChatSetup').style.display = 'none';
-  document.getElementById('aiChatPanel').style.display = 'block';
+  document.getElementById('aiChatPanel').style.display = 'flex';
   document.getElementById('aiChatWindow').innerHTML = '';
   appendAiChatMessage('system-note', '사주 정보를 기억했어요. 이번 상담에서는 입력하신 생년월일과 출생시간을 기준으로 질문에 맞는 부분부터 깊게 살펴볼게요.');
   updateAiChatStatus(null, 3, isPremium());
