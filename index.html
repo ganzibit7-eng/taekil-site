@@ -1029,7 +1029,6 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <a data-route="opening" onclick="goTo('opening')">개업</a>
           <a data-route="contract" onclick="goTo('contract')">계약체결</a>
           <a data-route="tool" onclick="goTo('tool')">사주</a>
-          <a data-route="ai-chat" onclick="goTo('ai-chat')">AI 상담</a>
           <a data-route="history" onclick="goTo('history')">내 기록</a>
         </div>
         <a id="authNavBtn" class="nav-cta" onclick="handleAuthNavClick()">로그인</a>
@@ -1123,10 +1122,6 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 8v4l3 2"/></svg>
     <span>기록</span>
   </span>
-  <span class="bt-item" data-route="ai-chat" onclick="goTo('ai-chat')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4 8.6 8.6 0 0 1-3.7-.9L3 20l1-4.7A8.4 8.4 0 1 1 21 11.5z"/></svg>
-    <span>AI 상담</span>
-  </span>
   <span class="bt-item" id="bottomProfileTab" onclick="handleAuthNavClick()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.8-4 5-6 8-6s6.2 2 8 6"/></svg>
     <span id="bottomProfileLabel">로그인</span>
@@ -1137,98 +1132,69 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 <!-- ============ HOME ============ -->
 <section id="view-home" class="view">
-  <header class="hero hero-carousel">
-    <div class="hero-inner">
-      <div class="eyebrow">TAEKILSO · CHOOSE YOUR DAY</div>
-      <h1>당신에게 중요한 날,<br><em>좋은 날부터 골라보세요.</em></h1>
-      <p class="hero-copy">결혼식 · 이사 · 개업 · 계약체결<br>네 가지 순간에 맞는 택일을 시작합니다.</p>
-    </div>
-  </header>
+  <div class="block" style="padding-top:14px; padding-bottom:8px;">
+    <div class="container" style="max-width:480px;">
+      <div class="ai-chat-stage">
+        <video class="ai-chat-bgvideo" autoplay muted loop playsinline poster="ai-consultant-poster.jpg">
+          <source src="ai-consultant-loop.mp4" type="video/mp4">
+        </video>
+        <div class="ai-chat-vignette-top"></div>
+        <div class="ai-chat-vignette-bottom"></div>
 
-  <section class="block" id="eventsAnchor" style="padding-top:0; position:relative;">
-    <div class="event-carousel-fade" aria-hidden="true"></div>
-    <div class="event-carousel-track">
-      <button class="event-card-v3" onclick="goTo('tool','결혼식')" aria-label="결혼식 택일 시작">
-        <span class="event-card-v3-badge">緣</span>
-        <img src="char-wedding.jpg" alt="결혼식 캐릭터">
-        <div class="event-card-v3-info">
-          <small>01 · WEDDING</small>
-          <h3>결혼식 택일</h3>
-          <p>두 사람의 인연이 가장 빛나는 날,<br>사주로 좋은 흐름을 찾아드립니다.</p>
-          <b>결혼일 찾기 <i>→</i></b>
+        <div class="ai-chat-topbar-overlay">
+          <div class="ai-chat-avatar-mini">
+            <img src="ai-consultant-poster.jpg" alt="택일 AI 상담사">
+            <span class="acp-online-dot"></span>
+          </div>
+          <div class="ai-chat-name-block">
+            <strong>택일 AI 상담사</strong>
+            <small>당신의 운을 함께하는 AI 상담사입니다.</small>
+          </div>
         </div>
-      </button>
-      <button class="event-card-v3" onclick="goTo('tool','개업')" aria-label="개업 택일 시작">
-        <span class="event-card-v3-badge">開</span>
-        <img src="char-opening.jpg" alt="개업 캐릭터">
-        <div class="event-card-v3-info">
-          <small>02 · OPENING</small>
-          <h3>개업 택일</h3>
-          <p>새로운 사업의 첫날,<br>좋은 흐름으로 시작할 수 있도록 돕습니다.</p>
-          <b>개업일 찾기 <i>→</i></b>
-        </div>
-      </button>
-      <button class="event-card-v3" onclick="goTo('tool','계약체결')" aria-label="계약체결 택일 시작">
-        <span class="event-card-v3-badge">約</span>
-        <img src="char-contract.jpg" alt="계약체결 캐릭터">
-        <div class="event-card-v3-info">
-          <small>03 · CONTRACT</small>
-          <h3>계약체결 택일</h3>
-          <p>중요한 서명이 이뤄지는 날,<br>신중하게 고를 수 있도록 돕습니다.</p>
-          <b>서명일 찾기 <i>→</i></b>
-        </div>
-      </button>
-      <button class="event-card-v3" onclick="goTo('tool','이사')" aria-label="이사 택일 시작">
-        <span class="event-card-v3-badge">移</span>
-        <img src="char-moving.jpg" alt="이사 캐릭터">
-        <div class="event-card-v3-info">
-          <small>04 · MOVING</small>
-          <h3>이사 택일</h3>
-          <p>새로운 공간으로 옮기는 날,<br>편안한 흐름의 날짜를 찾아드립니다.</p>
-          <b>입주일 찾기 <i>→</i></b>
-        </div>
-      </button>
-    </div>
-  </section>
 
-  <section class="block">
-    <div class="container">
-      <div class="section-head">
-        <div><div class="section-kicker">WHY</div><h2 class="section-title">날짜도<br>나와 맞는지 볼 수 있어요</h2></div>
-        <p class="section-desc">사람마다 타고난 기운이 다르고 날짜에도 그날의 기운이 있다고 봅니다. 택일소는 이 둘을 대조해 여러 후보 중 비교적 무난한 날짜를 찾는 데 도움을 드립니다.</p>
-      </div>
-      <div class="features">
-        <div class="feature">
-          <div class="feature-num">01</div>
-          <h3>되돌릴 수 없는 결정</h3>
-          <p>결혼식 날짜나 개업일은 한 번 정하면 바꾸기 어렵습니다. 미리 대조해볼 가치가 있습니다.</p>
+        <!-- STEP 0: 소개 + 시작하기 (모두에게 동일하게 보임, 로그인 불필요) -->
+        <div id="homeIntroOverlay" class="ai-chat-setup-overlay">
+          <div class="ai-chat-bubble-npc">
+            안녕하세요, 택일소예요 😊<br>
+            결혼식·이사·개업·계약체결처럼 중요한 날부터 연애·재물·사업까지,<br>
+            사주를 바탕으로 편하게 상담해드려요.<br><br>
+            무료로 운세를 확인해보시겠어요?
+          </div>
+          <button class="btn btn-primary" style="width:100%;" onclick="handleHomeChatStart()">운세 확인하고 상담 시작하기</button>
         </div>
-        <div class="feature">
-          <div class="feature-num">02</div>
-          <h3>감으로 정하지 않기</h3>
-          <p>달력에서 눈에 띄는 날짜를 고르는 대신, 본인의 사주와 맞춰본 비교 기준을 가지고 날짜를 고를 수 있습니다.</p>
-        </div>
-        <div class="feature">
-          <div class="feature-num">03</div>
-          <h3>참고용 정보</h3>
-          <p>단정짓는 점괘가 아니라, 여러 선택지 중 하나를 고를 때 참고할 수 있는 담백한 자료입니다.</p>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <section class="block process" id="processAnchor">
-    <div class="container">
-      <div class="section-head">
-        <div><div class="section-kicker">PROCESS</div><h2 class="section-title">이렇게<br>계산합니다</h2></div>
+        <!-- STEP 1: 생년월일 입력 (시작하기 클릭 + 로그인 후에만 보임) -->
+        <div id="aiChatSetup" class="ai-chat-setup-overlay" style="display:none;">
+          <div class="ai-chat-bubble-npc">좋아요! 상담 내내 기억할 수 있게<br>생년월일만 알려주세요.</div>
+          <div class="ai-chat-setup-row">
+            <select id="aiChatCalType"><option value="solar">양력</option><option value="lunar">음력</option></select>
+            <select id="aiChatYear"></select>
+            <select id="aiChatMonth"></select>
+            <select id="aiChatDay"></select>
+          </div>
+          <button class="btn btn-primary" style="width:100%;" onclick="startAiChat()">상담 시작하기</button>
+        </div>
+
+        <!-- STEP 2: 채팅 -->
+        <div id="aiChatPanel" class="ai-chat-panel-overlay" style="display:none;">
+          <div class="ai-chat-window" id="aiChatWindow"></div>
+          <div class="ai-chat-quick-actions" id="aiChatQuickActions">
+            <button onclick="quickAskAiChat('연애운이 궁금해요')">❤️ 연애운이 궁금해요</button>
+            <button onclick="quickAskAiChat('재물운이 궁금해요')">🪙 재물운이 궁금해요</button>
+            <button onclick="quickAskAiChat('사업운이 궁금해요')">💼 사업운이 궁금해요</button>
+            <button onclick="quickAskAiChat('이사·택일을 하고 싶어요')">📅 이사 / 택일을 하고 싶어요</button>
+            <button onclick="quickAskAiChat('전체 운세를 알고 싶어요')">✨ 전체 운세를 알고 싶어요</button>
+          </div>
+          <div class="ai-chat-status" id="aiChatStatus"></div>
+          <div class="ai-chat-inputrow">
+            <textarea id="aiChatInput" rows="1" placeholder="궁금한 내용을 입력해 주세요..." maxlength="500" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiChatMessage();}"></textarea>
+            <button class="btn btn-primary" id="aiChatSendBtn" onclick="sendAiChatMessage()" aria-label="전송">➤</button>
+          </div>
+        </div>
       </div>
-      <div class="steps">
-        <div class="step"><div class="step-no">STEP 01</div><h3>일주 계산</h3><p>태어난 날의 60갑자를 구해 타고난 오행(목·화·토·금·수)을 확인합니다.</p></div>
-        <div class="step"><div class="step-no">STEP 02</div><h3>날짜 대조</h3><p>찾아볼 기간의 날마다 일진을 계산해 본인 오행과의 상생·상극 관계를 점수로 매깁니다.</p></div>
-        <div class="step"><div class="step-no">STEP 03</div><h3>이유 설명</h3><p>점수가 높은 날들을 골라 왜 그 날이 무난한지, 무엇을 유의해야 하는지 담백하게 안내합니다.</p></div>
-      </div>
+      <p class="ai-chat-disclaimer">AI 사주 상담은 참고용 정보이며, 중요한 결정은 본인의 판단으로 내려주세요. 결혼식·이사·개업·계약체결 날짜만 정확히 계산하고 싶으시면 <a onclick="goTo('tool')" style="color:var(--gold-hi); text-decoration:underline; cursor:pointer;">사주 메뉴</a>에서도 확인할 수 있어요.</p>
     </div>
-  </section>
+  </div>
 
   <section class="block">
     <div class="container" style="max-width:760px;">
@@ -1656,60 +1622,6 @@ const ADMIN_EMAIL = "green092432@gmail.com";
   </section>
 </section>
 
-<!-- ============ AI 사주 상담 ============ -->
-<section id="view-ai-chat" class="view ai-chat-immersive">
-  <div class="block" style="padding-top:14px; padding-bottom:8px;">
-    <div class="container" style="max-width:480px;">
-      <div class="ai-chat-stage">
-        <video class="ai-chat-bgvideo" autoplay muted loop playsinline poster="ai-consultant-poster.jpg">
-          <source src="ai-consultant-loop.mp4" type="video/mp4">
-        </video>
-        <div class="ai-chat-vignette-top"></div>
-        <div class="ai-chat-vignette-bottom"></div>
-
-        <div class="ai-chat-topbar-overlay">
-          <div class="ai-chat-avatar-mini">
-            <img src="ai-consultant-poster.jpg" alt="택일 AI 상담사">
-            <span class="acp-online-dot"></span>
-          </div>
-          <div class="ai-chat-name-block">
-            <strong>택일 AI 상담사</strong>
-            <small>당신의 운을 함께하는 AI 상담사입니다.</small>
-          </div>
-        </div>
-
-        <div id="aiChatSetup" class="ai-chat-setup-overlay">
-          <div class="ai-chat-bubble-npc">안녕하세요 😊<br>저는 택일소의 AI 상담사예요.<br>먼저 생년월일을 알려주시면 상담을 시작할게요.</div>
-          <div class="ai-chat-setup-row">
-            <select id="aiChatCalType"><option value="solar">양력</option><option value="lunar">음력</option></select>
-            <select id="aiChatYear"></select>
-            <select id="aiChatMonth"></select>
-            <select id="aiChatDay"></select>
-          </div>
-          <button class="btn btn-primary" style="width:100%;" onclick="startAiChat()">상담 시작하기</button>
-        </div>
-
-        <div id="aiChatPanel" class="ai-chat-panel-overlay" style="display:none;">
-          <div class="ai-chat-window" id="aiChatWindow"></div>
-          <div class="ai-chat-quick-actions" id="aiChatQuickActions">
-            <button onclick="quickAskAiChat('연애운이 궁금해요')">❤️ 연애운이 궁금해요</button>
-            <button onclick="quickAskAiChat('재물운이 궁금해요')">🪙 재물운이 궁금해요</button>
-            <button onclick="quickAskAiChat('사업운이 궁금해요')">💼 사업운이 궁금해요</button>
-            <button onclick="quickAskAiChat('이사·택일을 하고 싶어요')">📅 이사 / 택일을 하고 싶어요</button>
-            <button onclick="quickAskAiChat('전체 운세를 알고 싶어요')">✨ 전체 운세를 알고 싶어요</button>
-          </div>
-          <div class="ai-chat-status" id="aiChatStatus"></div>
-          <div class="ai-chat-inputrow">
-            <textarea id="aiChatInput" rows="1" placeholder="궁금한 내용을 입력해 주세요..." maxlength="500" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiChatMessage();}"></textarea>
-            <button class="btn btn-primary" id="aiChatSendBtn" onclick="sendAiChatMessage()" aria-label="전송">➤</button>
-          </div>
-        </div>
-      </div>
-      <p class="ai-chat-disclaimer">AI 사주 상담은 참고용 정보이며, 중요한 결정은 본인의 판단으로 내려주세요.</p>
-    </div>
-  </div>
-</section>
-
 <!-- ============ SUPPORT (1:1 문의) ============ -->
 <section id="view-support" class="view">
   <header class="hero hero-sm">
@@ -1963,7 +1875,7 @@ function goTo(route, presetEvent) {
     if (anchor) anchor.style.display = 'block'; // 홈 카드 등에서 특정 목적을 지정하고 들어온 경우 바로 폼을 보여줍니다.
   }
   if (route === 'history') loadHistory();
-  if (route === 'ai-chat') fillAiChatDateSelects();
+  if (route === 'home') fillAiChatDateSelects();
   if (route === 'profile') renderProfile();
   if (route === 'admin') renderAdmin();
   if (route === 'support') renderSupportList();
@@ -2798,7 +2710,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-09-ai-chat-video-immersive' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-09-home-chatbot-unified' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -2870,6 +2782,7 @@ try {
           }
           closeAuthModal();
           showToast('구글 계정으로 로그인했어요');
+          continueHomeChatAfterLogin();
         }
       } catch (err) {
         console.error('Google redirect 로그인 결과 처리 실패', err);
@@ -3836,6 +3749,7 @@ async function loginWithGoogle() {
       const result = await firebase.auth().signInWithPopup(provider);
       closeAuthModal();
       showToast('구글 계정으로 로그인했어요');
+      continueHomeChatAfterLogin();
       if (result.additionalUserInfo && result.additionalUserInfo.isNewUser) {
         recordSignup(result.user.uid, { email: result.user.email, provider: 'google' });
       }
@@ -3911,6 +3825,7 @@ async function exchangeKakaoCode(code) {
     sessionStorage.setItem('taekilso_kakao_access_token', tokenData.access_token);
     updateAuthNav();
     showToast('카카오로 로그인했어요');
+    continueHomeChatAfterLogin();
     reconcilePremiumWithAccount('kakao_' + profile.id);
     flushLocalOnlyInquiries();
 
@@ -4351,6 +4266,7 @@ function submitAuth() {
   action.then((result) => {
     closeAuthModal();
     if (isSignup) recordSignup(result.user.uid, { email: result.user.email, provider: 'email' });
+    continueHomeChatAfterLogin();
   }).catch((err) => { errEl.textContent = err.message; errEl.style.display = 'block'; });
 }
 </script>
@@ -4921,6 +4837,32 @@ function startAiChat() {
 }
 
 /* 빠른 질문 버튼 - 입력창에 채우고 바로 전송합니다. */
+/* 홈 화면 챗봇 소개 화면의 "시작하기" 버튼입니다.
+   로그인 안 된 상태면 여기서만 로그인을 요청하고, 로그인 완료되면 자동으로
+   생년월일 입력 단계로 이어집니다(다시 시작하기를 누를 필요 없게). */
+function handleHomeChatStart() {
+  const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
+  if (!loggedIn) {
+    localStorage.setItem('taekilso_pending_chat_start', '1');
+    openAuthModal();
+    return;
+  }
+  continueHomeChatAfterLogin();
+}
+
+/* 로그인 성공 직후(구글/이메일/카카오 전부)마다 호출됩니다.
+   "시작하기"를 누르고 로그인하러 간 상태였다면, 소개 화면을 넘기고
+   생년월일 입력 단계를 바로 보여줍니다. 카카오는 전체 페이지가 새로
+   불러와지므로, 그 경우에도 이어지도록 localStorage로 표시해둡니다. */
+function continueHomeChatAfterLogin() {
+  if (localStorage.getItem('taekilso_pending_chat_start') !== '1') return;
+  localStorage.removeItem('taekilso_pending_chat_start');
+  const intro = document.getElementById('homeIntroOverlay');
+  const setup = document.getElementById('aiChatSetup');
+  if (intro) intro.style.display = 'none';
+  if (setup) setup.style.display = 'block';
+}
+
 function quickAskAiChat(text) {
   const input = document.getElementById('aiChatInput');
   if (input) input.value = text;
