@@ -2739,7 +2739,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-09-fix-start-button' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-09-fix-date-select-fill' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -5013,8 +5013,11 @@ async function handleHomeChatStart(btn) {
 }
 
 /* 소개 화면을 넘기고 생년월일 입력 단계를 보여줍니다. 이미 로그인된 상태로
-   "시작하기"를 눌렀을 때도, 로그인하러 갔다가 돌아왔을 때도 공통으로 씁니다. */
+   "시작하기"를 눌렀을 때도, 로그인하러 갔다가 돌아왔을 때도 공통으로 씁니다.
+   여기서 다시 한번 날짜 선택 목록을 채워서, 페이지 로드 타이밍 문제로
+   비어있는 채로 남는 경우가 없게 합니다(이미 채워져 있으면 그냥 넘어갑니다). */
 function showAiChatSetupStep() {
+  fillAiChatDateSelects();
   const intro = document.getElementById('homeIntroOverlay');
   const setup = document.getElementById('aiChatSetup');
   if (intro) intro.style.display = 'none';
