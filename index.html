@@ -576,6 +576,29 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
   .best-caution{background:#fbf6ea!important; border-color:#c9a44f!important; color:#333!important}
   .best-reasons span{background:#f1ede2!important; color:#333!important}
   .premium-program-panel,.pp-list,.pp-stat{background:#fff!important; color:#111!important; border-color:#ddd!important}
+
+  /* "이 리포트 PDF로 저장" 버튼용: 모달 하나만 깨끗한 문서처럼 인쇄합니다. */
+  body.printing-insight > *:not(.saju-insight-modal){display:none!important}
+  body.printing-insight{background:#fff!important}
+  .saju-insight-modal{
+    position:static!important; display:block!important; background:#fff!important;
+    backdrop-filter:none!important; padding:0!important; inset:auto!important;
+  }
+  .saju-insight-box{background:#fff!important; border:0!important; box-shadow:none!important; max-width:100%!important; padding:0!important;}
+  .saju-insight-close,.saju-insight-header,.fortune-close,.no-print{display:none!important}
+  #insightLockWrap,#insightCalType,#insightLeapWrap,.saju-insight-box>.field,.saju-insight-box>.sub,.saju-insight-box>.section-kicker{display:none!important}
+  .sir-head,.sir-tags,.sir-grid,.sir-cta{background:#fff!important; color:#111!important}
+  .sir-title,.sir-head *{color:#111!important}
+  .saju-insight-result,.saju-insight-result *{color:#222!important}
+  .saju-insight-result .fortune-kicker,.saju-insight-result .sir-deep-kicker,.saju-insight-result .sir-lock-kicker{color:#9b7938!important}
+  .sir-tags span{background:#f3efe2!important; color:#333!important; border:1px solid #e2dac0!important}
+  .sir-grid div{background:#f7f4ee!important; color:#111!important; border:1px solid #e2dac0!important}
+  .sir-cta{background:#fbf6ea!important; border:1px solid #d9c48c!important; color:#333!important}
+  .sir-lock{background:#fff!important; border:1.5px dashed #c9a44f!important;}
+  .sir-deep{background:#fbf7ec!important; border:1.5px solid #d9c48c!important; break-inside:avoid;}
+  .sir-deep-block{break-inside:avoid; margin-bottom:14px;}
+  .sir-deep-block b{color:#111!important}
+  .sir-deep-block p{color:#333!important}
 }
 
 /* usecase list (event subpages) */
@@ -2983,7 +3006,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-09-richer-report-content' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-09-report-pdf-export' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -5721,6 +5744,18 @@ function calculateTodayFortune(){
     applyLockedBirthTo('insight');
   };
   window.closeSajuInsight=function(){document.getElementById('sajuInsightModal').classList.remove('show')};
+  /* 구매한 리포트를 예쁘게 PDF로 저장할 수 있게 브라우저 인쇄 기능을 씁니다.
+     인쇄 대화상자에서 "PDF로 저장"을 고르면 실제 파일로 남길 수 있어요. */
+  window.printSajuInsight=function(title){
+    const originalTitle = document.title;
+    document.title = '택일소 - ' + title;
+    document.body.classList.add('printing-insight');
+    window.print();
+    setTimeout(() => {
+      document.title = originalTitle;
+      document.body.classList.remove('printing-insight');
+    }, 500);
+  };
   window.fillInsightDateSelects=function(){
     const y=document.getElementById('insightYear'),m=document.getElementById('insightMonth'),d=document.getElementById('insightDay');
     if(!y||!m||!d||y.options.length)return;
@@ -5788,6 +5823,7 @@ function calculateTodayFortune(){
         <div class="sir-deep">
           <div class="sir-deep-kicker">🔓 ${insightConfig.kicker} · 구매완료</div>
           ${insightConfig.blocks.map(([label,key])=>`<div class="sir-deep-block"><b>${label}</b><p>${insightConfig.deep[key]}</p></div>`).join('')}
+          <button class="btn btn-primary no-print" style="width:100%; margin-top:16px;" onclick="printSajuInsight('${insightConfig.kicker}')">📄 이 리포트 PDF로 저장</button>
         </div>` : `
         <div class="sir-lock">
           <div class="sir-lock-kicker">🔒 ${insightConfig.kicker}</div>
