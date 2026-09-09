@@ -542,8 +542,22 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
   aspect-ratio:3/4; max-height:80vh; overflow:hidden; background:#000;
   border-radius:0;
 }
+/* 모바일에서는 화면 너비 기준 비율(aspect-ratio) 대신 화면 높이 기준으로 채워서,
+   글자 아래 남는 빈 공간을 줄입니다. */
+@media(max-width:640px){
+  .ai-chat-stage{aspect-ratio:auto; height:min(72vh, 640px); max-height:none;}
+}
 @media(min-width:640px){.ai-chat-stage{border-radius:28px; margin-top:14px; box-shadow:0 30px 80px rgba(0,0,0,.5);}}
-.ai-chat-bgvideo{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0;}
+.ai-chat-bgvideo{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; transition:filter .4s;}
+/* "생각 중"일 때 캐릭터 주변이 은은하게 반응합니다(잠시 화면이 살짝 밝아지고, 안쪽으로 금빛 테두리가 맥박침). */
+.ai-chat-thinking .ai-chat-bgvideo{filter:brightness(1.08) saturate(1.1);}
+.ai-chat-thinking::after{
+  content:''; position:absolute; inset:0; z-index:2; pointer-events:none; border-radius:inherit;
+  box-shadow:inset 0 0 60px rgba(215,180,106,.35);
+  animation:ai-think-pulse-kf 1.6s ease-in-out infinite;
+}
+@keyframes ai-think-pulse-kf{0%,100%{opacity:.4}50%{opacity:1}}
+@media(prefers-reduced-motion: reduce){.ai-chat-thinking::after{animation:none}}
 .ai-chat-vignette-top{position:absolute; top:0; left:0; right:0; height:110px; z-index:1; background:linear-gradient(to bottom, rgba(0,0,0,.6), transparent); pointer-events:none;}
 .ai-chat-vignette-bottom{position:absolute; bottom:0; left:0; right:0; height:65%; z-index:1; background:linear-gradient(to top, rgba(0,0,0,.88), rgba(0,0,0,.45) 55%, transparent); pointer-events:none;}
 
@@ -573,6 +587,18 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .ai-chat-msg.user{align-self:flex-end; background:linear-gradient(135deg,var(--gold-hi),var(--gold)); color:#17130b; border-bottom-right-radius:3px;}
 .ai-chat-msg.assistant{align-self:flex-start; background:rgba(16,14,11,.82); border:1px solid rgba(255,255,255,.14); color:#fff; border-bottom-left-radius:3px; backdrop-filter:blur(4px);}
 .ai-chat-msg.system-note{align-self:center; background:rgba(0,0,0,.45); color:rgba(255,255,255,.75); font-size:11px; text-align:center; max-width:100%; border-radius:999px; padding:7px 12px;}
+.ai-chat-upsell{
+  align-self:flex-start; max-width:80%; margin-top:-2px;
+  background:rgba(215,180,106,.14); border:1px solid rgba(215,180,106,.4); color:#f0d79e;
+  font-size:11px; padding:8px 12px; border-radius:12px; cursor:pointer;
+}
+.ai-chat-upsell:hover{background:rgba(215,180,106,.24)}
+.ai-chat-cta-row{display:flex; flex-wrap:wrap; gap:6px; align-self:flex-start; max-width:100%;}
+.ai-chat-cta-row button{
+  background:linear-gradient(135deg,var(--gold-hi),var(--gold)); color:#17130b; border:0;
+  font-size:11px; font-weight:700; padding:8px 13px; border-radius:999px; cursor:pointer;
+}
+.ai-chat-cta-row button:hover{filter:brightness(1.06)}
 .ai-chat-typing span{display:inline-block; width:6px; height:6px; margin-right:3px; border-radius:50%; background:var(--gold-hi); animation:ai-typing-kf 1.1s ease-in-out infinite}
 .ai-chat-typing span:nth-child(2){animation-delay:.15s}
 .ai-chat-typing span:nth-child(3){animation-delay:.3s}
@@ -1155,35 +1181,35 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <!-- STEP 0: 소개 + 시작하기 (모두에게 동일하게 보임, 로그인 불필요) -->
         <div id="homeIntroOverlay" class="ai-chat-setup-overlay">
           <div class="ai-chat-bubble-npc">
-            안녕하세요, 택일소예요 😊<br>
-            결혼식·이사·개업·계약체결처럼 중요한 날부터 연애·재물·사업까지,<br>
-            사주를 바탕으로 편하게 상담해드려요.<br><br>
-            무료로 운세를 확인해보시겠어요?
+            안녕하세요. 저는 택일소의 AI 상담사예요.<br>
+            당신의 사주를 바탕으로 함께 이야기해드릴게요.<br><br>
+            오늘 어떤 고민이 있으세요?
           </div>
-          <button class="btn btn-primary" style="width:100%;" onclick="handleHomeChatStart()">운세 확인하고 상담 시작하기</button>
+          <button class="btn btn-primary" style="width:100%;" onclick="handleHomeChatStart()">✨ 내 사주로 상담 시작하기</button>
         </div>
 
         <!-- STEP 1: 생년월일 입력 (시작하기 클릭 + 로그인 후에만 보임) -->
         <div id="aiChatSetup" class="ai-chat-setup-overlay" style="display:none;">
-          <div class="ai-chat-bubble-npc">좋아요! 상담 내내 기억할 수 있게<br>생년월일만 알려주세요.</div>
+          <div class="ai-chat-bubble-npc">당신의 생년월일을 알려주세요.<br>사주를 바탕으로 지금 궁금한 이야기를 함께 살펴볼게요.</div>
           <div class="ai-chat-setup-row">
             <select id="aiChatCalType"><option value="solar">양력</option><option value="lunar">음력</option></select>
             <select id="aiChatYear"></select>
             <select id="aiChatMonth"></select>
             <select id="aiChatDay"></select>
           </div>
-          <button class="btn btn-primary" style="width:100%;" onclick="startAiChat()">상담 시작하기</button>
+          <button class="btn btn-primary" style="width:100%;" onclick="startAiChat()">✨ 내 사주로 상담 시작하기</button>
         </div>
 
         <!-- STEP 2: 채팅 -->
         <div id="aiChatPanel" class="ai-chat-panel-overlay" style="display:none;">
           <div class="ai-chat-window" id="aiChatWindow"></div>
           <div class="ai-chat-quick-actions" id="aiChatQuickActions">
-            <button onclick="quickAskAiChat('연애운이 궁금해요')">❤️ 연애운이 궁금해요</button>
-            <button onclick="quickAskAiChat('재물운이 궁금해요')">🪙 재물운이 궁금해요</button>
-            <button onclick="quickAskAiChat('사업운이 궁금해요')">💼 사업운이 궁금해요</button>
-            <button onclick="quickAskAiChat('이사·택일을 하고 싶어요')">📅 이사 / 택일을 하고 싶어요</button>
-            <button onclick="quickAskAiChat('전체 운세를 알고 싶어요')">✨ 전체 운세를 알고 싶어요</button>
+            <button onclick="quickAskAiChat('연애·궁합이 궁금해요')">❤️ 연애·궁합</button>
+            <button onclick="quickAskAiChat('돈, 재물운이 궁금해요')">💰 돈·재물</button>
+            <button onclick="quickAskAiChat('직업, 사업운이 궁금해요')">💼 직업·사업</button>
+            <button onclick="quickAskAiChat('결혼, 이사, 개업, 계약 날짜를 잡고 싶어요')">📅 결혼·이사·개업·계약</button>
+            <button onclick="quickAskAiChat('올해 전체운이 궁금해요')">🔮 올해 전체운</button>
+            <button onclick="focusAiChatInput()">💬 직접 질문하기</button>
           </div>
           <div class="ai-chat-status" id="aiChatStatus"></div>
           <div class="ai-chat-inputrow">
@@ -2710,7 +2736,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-09-home-chatbot-unified' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-09-mobile-fit-service-cta' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -4796,6 +4822,44 @@ function fillAiChatDateSelects(){
   y.value=1990; m.value=1; d.value=1;
 }
 
+/* AI 답변 아래에 살짝 보여주는 "더 자세히 보기" 유도입니다.
+   개별 유료 상품(궁합/재물 등)이 아직 없어서, 지금은 프리미엄으로 연결해둡니다.
+   개별 상품이 생기면 이 부분을 눌렀을 때 해당 상품 결제로 바로 연결하도록 바꾸면 됩니다. */
+/* 사용자 질문에 결혼/이사/개업/계약 같은 "날짜 정하기" 키워드가 있으면,
+   AI 답변만으로 끝내지 않고 실제 택일 계산 서비스로 바로 연결하는 버튼을 보여줍니다.
+   AI가 기존 서비스와 경쟁하는 게 아니라, 그 서비스로 안내하는 역할을 하도록 합니다. */
+function appendAiChatServiceCta(userMessage) {
+  const map = [
+    { key: '결혼', label: '💍 결혼 택일 바로 알아보기', event: '결혼식' },
+    { key: '이사', label: '🏠 이사 택일 바로 알아보기', event: '이사' },
+    { key: '개업', label: '🏮 개업 택일 바로 알아보기', event: '개업' },
+    { key: '계약', label: '📜 계약 택일 바로 알아보기', event: '계약체결' },
+  ];
+  const matched = map.filter(m => userMessage.includes(m.key));
+  if (!matched.length) return;
+  const win = document.getElementById('aiChatWindow');
+  const wrap = document.createElement('div');
+  wrap.className = 'ai-chat-cta-row';
+  matched.forEach(m => {
+    const btn = document.createElement('button');
+    btn.textContent = m.label;
+    btn.onclick = () => goTo('tool', m.event);
+    wrap.appendChild(btn);
+  });
+  win.appendChild(wrap);
+  win.scrollTop = win.scrollHeight;
+}
+
+function appendAiChatUpsell() {
+  const win = document.getElementById('aiChatWindow');
+  const div = document.createElement('div');
+  div.className = 'ai-chat-upsell';
+  div.innerHTML = '🔓 더 자세히 알고 싶다면 <b>프리미엄</b>에서 정밀 분석을 확인해보세요.';
+  div.onclick = () => goTo('profile');
+  win.appendChild(div);
+  win.scrollTop = win.scrollHeight;
+}
+
 function appendAiChatMessage(role, text) {
   const win = document.getElementById('aiChatWindow');
   const div = document.createElement('div');
@@ -4869,6 +4933,12 @@ function quickAskAiChat(text) {
   sendAiChatMessage();
 }
 
+/* "직접 질문하기" - 입력창에 포커스만 주고 전송하지 않습니다. */
+function focusAiChatInput() {
+  const input = document.getElementById('aiChatInput');
+  if (input) input.focus();
+}
+
 async function sendAiChatMessage() {
   const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
   if (!loggedIn) { showToast('로그인 후 이용할 수 있어요.'); openAuthModal(); return; }
@@ -4889,6 +4959,8 @@ async function sendAiChatMessage() {
   const typingEl = appendAiChatMessage('assistant', '');
   typingEl.classList.add('ai-chat-typing');
   typingEl.innerHTML = '<span></span><span></span><span></span>';
+  const stage = document.querySelector('.ai-chat-stage');
+  if (stage) stage.classList.add('ai-chat-thinking'); // 캐릭터 주변이 은은하게 반응합니다.
 
   try {
     const res = await fetch(AI_CHAT_URL, {
@@ -4923,6 +4995,8 @@ async function sendAiChatMessage() {
 
     appendAiChatMessage('assistant', data.reply);
     window.__aiChatHistory.push({ role: 'assistant', content: data.reply });
+    appendAiChatServiceCta(message);
+    if (!isPremium()) appendAiChatUpsell();
     if (data.freeUsed != null) updateAiChatStatus(data.freeUsed, data.freeLimit, false);
     else updateAiChatStatus(null, null, true);
   } catch (err) {
@@ -4931,6 +5005,7 @@ async function sendAiChatMessage() {
     console.error('AI 상담 오류', err);
   } finally {
     sendBtn.disabled = false;
+    if (stage) stage.classList.remove('ai-chat-thinking');
   }
 }
 
