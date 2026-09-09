@@ -87,6 +87,21 @@ button{cursor:pointer}
 .view{display:none}
 .view.visible{display:block}
 
+/* home: 프레젠테이션처럼 섹션 하나씩 스냅되는 풀스크린 스크롤 */
+html.snap-active{scroll-snap-type:y mandatory;}
+#view-home > .block{
+  scroll-snap-align:start;
+  scroll-snap-stop:always;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  box-sizing:border-box;
+}
+@media(max-width:820px){
+  #view-home > .block{min-height:calc(100vh - 64px);}
+}
+
 /* navigation */
 .topbar{
   position:sticky; top:14px; z-index:50;
@@ -1164,7 +1179,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <div class="brand" onclick="goTo('home')"><span class="brand-mark"></span>택일소</div>
       <div class="nav-right">
         <div class="nav-links" id="navLinks">
-          <a data-route="home" onclick="goTo('home')" style="color:var(--gold-hi); font-weight:700;">✨ AI 상담</a>
+          <a data-route="home" onclick="goTo('home')" style="color:var(--gold-hi); font-weight:700;">✨ AI사주</a>
           <div class="nav-dropdown" id="navTaekilDropdown">
             <a class="nav-dropdown-trigger" onclick="toggleNavDropdown(event)">택일 <span class="nav-dropdown-caret">▾</span></a>
             <div class="nav-dropdown-menu" id="navTaekilMenu">
@@ -1246,7 +1261,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <nav class="bottom-tabbar" id="bottomTabbar">
   <span class="bt-item active" data-route="home" onclick="goTo('home')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4 8.6 8.6 0 0 1-3.7-.9L3 20l1-4.7A8.4 8.4 0 1 1 21 11.5z"/></svg>
-    <span>AI상담</span>
+    <span>AI사주</span>
   </span>
   <span class="bt-item" data-route="tool" onclick="goTo('tool')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -2062,6 +2077,7 @@ function goTo(route, presetEvent) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('visible'));
   const target = document.getElementById('view-' + route);
   if (target) target.classList.add('visible');
+  document.documentElement.classList.toggle('snap-active', route === 'home');
   document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
   const navLink = document.querySelector('.nav-links a[data-route="' + route + '"]');
   if (navLink) navLink.classList.add('active');
