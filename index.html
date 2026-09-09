@@ -1084,18 +1084,6 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 <div id="toastHost"></div>
 
-<div id="paymentConfirmOverlay" style="display:none; position:fixed; inset:0; z-index:100; align-items:center; justify-content:center; padding:24px; background:rgba(0,0,0,.76); backdrop-filter:blur(16px);">
-  <div class="modal-box">
-    <div class="modal-title">결제를 완료하셨나요?</div>
-    <p style="color:var(--muted); font-size:13px; line-height:1.7; margin:-4px 0 20px;">
-      방금 결제창에서 실제로 결제(29,900원)를 완료하고 돌아오신 경우 "네, 결제했어요"를 눌러주세요.
-      관리자가 결제 내역을 확인한 뒤 프리미엄을 적용해드려요(보통 몇 시간 이내). 결제 없이 그냥 닫고 오신 경우 "아니요"를 눌러주시면 돼요.
-    </p>
-    <button class="btn btn-primary form-submit" onclick="confirmPaymentCompleted()">네, 결제했어요 (확인 요청)</button>
-    <div class="auth-close" onclick="dismissPaymentConfirm()">아니요, 결제 안 했어요</div>
-  </div>
-</div>
-
 <div class="fortune-modal" id="fortuneModal" onclick="if(event.target===this) closeFortuneModal()">
   <div class="fortune-box">
     <button class="fortune-close" onclick="closeFortuneModal()" aria-label="닫기">×</button>
@@ -2739,7 +2727,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-09-fix-date-select-fill' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-09-remove-legacy-selfconfirm' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -4159,25 +4147,6 @@ function tryActivatePendingPremium() {
       } else {
         showToast('결제 확인에 시간이 좀 더 걸리고 있어요. 잠시 후 프로필 화면을 다시 확인해주세요. 결제하셨는데 계속 안 뜨면 고객센터로 문의해주세요.');
       }
-    } else {
-      // 서버 검증 함수가 아직 연결되지 않은 경우의 임시(B안) 방식: 손님이 직접
-      // "결제를 완료했다"고 확인하는 절차를 한 번 더 거치게 합니다.
-      //
-      // 다만 이 확인창도 결국 본인이 "예"를 누르면 끝이라, 결제 버튼만 누르고 실제로는
-      // 결제 없이 이 주소로 직접 들어와서(또는 URL을 그대로 다시 열어서) 확인창을
-      // 악용할 수 있었습니다. 그래서 "정말로 페이앱에서 돌아온 것이 맞는지"를
-      // document.referrer(직전 페이지 주소)로 한 번 더 확인합니다. 직접 주소를 쳐서
-      // 들어오거나 즐겨찾기로 들어온 경우 referrer가 비어있어서 이 확인을 통과하지 못합니다.
-      // (개발자도구로 완전히 우회하는 것까지 막지는 못하지만, URL을 다시 여는 것 같은
-      // 손쉬운 방식은 막아줍니다. 완벽한 차단은 서버 검증이 붙어야 가능해요.)
-      const cameFromPayapp = document.referrer && /payapp\.kr/i.test(document.referrer);
-      if (!cameFromPayapp) {
-        localStorage.removeItem('taekilso_pending_order');
-        sessionStorage.removeItem('taekilso_pending_order');
-        showToast('결제창을 거치지 않고 이 주소로 직접 들어오신 것 같아요. 정상적으로 결제하셨다면 고객센터로 결제 내역과 함께 문의해주세요.');
-        return;
-      }
-      openPaymentConfirmModal(pending);
     }
   }
 })();
@@ -4204,68 +4173,6 @@ async function checkPremiumOnServer(uid) {
     }
   } catch (e) { console.error('결제 확인 중 오류', e); }
   return false;
-}
-
-function openPaymentConfirmModal(pending) {
-  const overlay = document.getElementById('paymentConfirmOverlay');
-  if (!overlay) return;
-  overlay.style.display = 'flex';
-  overlay.dataset.orderId = pending.orderId;
-}
-
-/*
- * 서버 검증이 아직 연결되지 않은 동안에는, 결제 완료 여부를 손님 본인의 "예/아니오" 클릭에
- * 맡기지 않습니다(클릭만으로 활성화되는 방식은 결제 없이도 뚫릴 수 있다는 게 실제로 확인됐습니다).
- * 대신 결제 버튼을 누르고 돌아온 사실 자체를 "확인 요청"으로 자동 등록해서, 관리자가
- * 페이앱 결제현황과 직접 대조한 뒤 관리자 대시보드에서 "프리미엄 지급" 버튼으로 승인하게 합니다.
- */
-function confirmPaymentCompleted() {
-  const overlay = document.getElementById('paymentConfirmOverlay');
-  overlay.style.display = 'none';
-  submitPaymentConfirmationRequest();
-}
-
-function dismissPaymentConfirm() {
-  const overlay = document.getElementById('paymentConfirmOverlay');
-  overlay.style.display = 'none';
-  localStorage.removeItem('taekilso_pending_order');
-  sessionStorage.removeItem('taekilso_pending_order');
-  showToast('알겠어요. 결제를 다시 진행하시려면 프리미엄 버튼을 눌러주세요.');
-}
-
-async function submitPaymentConfirmationRequest() {
-  const pending = (() => { try { return JSON.parse(localStorage.getItem('taekilso_pending_order') || 'null'); } catch(e) { return null; } })();
-  if (!pending || !pending.orderId) {
-    showToast('결제 확인 정보를 찾지 못했어요. 결제가 완료됐는데 이 메시지가 뜨면 고객센터로 문의해주세요.');
-    return;
-  }
-  if (!getKakaoUser()) { await waitForAuthSettled(6000); }
-
-  const kakaoUser = getKakaoUser();
-  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser) ? firebaseAuthUser : null;
-  const uid = getCurrentUserKey();
-  const name = kakaoUser ? kakaoUser.nickname : (fbUser ? (fbUser.displayName || fbUser.email) : '회원');
-
-  if (!uid || !db) {
-    showToast('로그인 상태를 확인하지 못했어요. 다시 로그인 후 프로필에서 "프리미엄으로 업그레이드"를 눌러 재시도해주세요.');
-    return;
-  }
-
-  try {
-    await db.collection('inquiries').add({
-      uid, name, title: '[결제 확인 요청] 프리미엄 30일 이용권',
-      message: `결제 버튼을 누르고 돌아왔습니다. 아래 정보와 페이앱 결제현황을 대조해서 확인 후 승인해주세요.\n\n주문번호: ${pending.orderId}\n금액: ${pending.amount}원\n결제 버튼을 누른 시각: ${new Date(pending.createdAt).toLocaleString('ko-KR')}`,
-      status: '대기',
-      reply: '',
-      isPaymentConfirmRequest: true,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    localStorage.removeItem('taekilso_pending_order');
-    sessionStorage.removeItem('taekilso_pending_order');
-    showToast('결제 확인 요청을 접수했어요. 확인 후 프리미엄이 적용되면 알려드릴게요.');
-  } catch (err) {
-    showToast('확인 요청 등록 실패: ' + err.message);
-  }
 }
 
 // Kept only as a compatibility hook. Never call this from a URL or payment return page.
