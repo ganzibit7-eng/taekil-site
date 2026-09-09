@@ -1185,7 +1185,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
             당신의 사주를 바탕으로 함께 이야기해드릴게요.<br><br>
             오늘 어떤 고민이 있으세요?
           </div>
-          <button class="btn btn-primary" style="width:100%;" onclick="handleHomeChatStart()">✨ 내 사주로 상담 시작하기</button>
+          <button class="btn btn-primary" style="width:100%;" onclick="handleHomeChatStart(this)">✨ 내 사주로 상담 시작하기</button>
         </div>
 
         <!-- STEP 1: 생년월일 입력 (시작하기 클릭 + 로그인 후에만 보임) -->
@@ -2739,7 +2739,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-09-first-paid-product' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-09-fix-start-button' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -4986,14 +4986,39 @@ function startAiChat() {
 /* 홈 화면 챗봇 소개 화면의 "시작하기" 버튼입니다.
    로그인 안 된 상태면 여기서만 로그인을 요청하고, 로그인 완료되면 자동으로
    생년월일 입력 단계로 이어집니다(다시 시작하기를 누를 필요 없게). */
-function handleHomeChatStart() {
+async function handleHomeChatStart(btn) {
+  // 카카오로 로그인된 상태면 firebaseAuthReady와 무관하게 바로 진행할 수 있습니다.
+  if (getKakaoUser()) { showAiChatSetupStep(); return; }
+
+  // 구글 로그인 상태 확인이 아직 끝나지 않았을 수 있어서(특히 접속 직후), 그 확인이
+  // 끝날 때까지 살짝 기다렸다가 판단합니다. 이걸 안 하면 실제로는 로그인돼 있는데도
+  // "로그인 안 됨"으로 착각해서 버튼이 안 먹히는 것처럼 보일 수 있습니다.
+  if (!firebaseAuthReady) {
+    const originalText = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = '확인 중…'; }
+    await Promise.race([
+      firebaseAuthSettled,
+      new Promise((r) => setTimeout(r, 4000)) // 너무 오래 걸리면 그냥 진행합니다.
+    ]);
+    if (btn) { btn.disabled = false; btn.textContent = originalText; }
+  }
+
   const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
   if (!loggedIn) {
     localStorage.setItem('taekilso_pending_chat_start', '1');
     openAuthModal();
     return;
   }
-  continueHomeChatAfterLogin();
+  showAiChatSetupStep();
+}
+
+/* 소개 화면을 넘기고 생년월일 입력 단계를 보여줍니다. 이미 로그인된 상태로
+   "시작하기"를 눌렀을 때도, 로그인하러 갔다가 돌아왔을 때도 공통으로 씁니다. */
+function showAiChatSetupStep() {
+  const intro = document.getElementById('homeIntroOverlay');
+  const setup = document.getElementById('aiChatSetup');
+  if (intro) intro.style.display = 'none';
+  if (setup) setup.style.display = 'block';
 }
 
 /* 로그인 성공 직후(구글/이메일/카카오 전부)마다 호출됩니다.
@@ -5003,10 +5028,7 @@ function handleHomeChatStart() {
 function continueHomeChatAfterLogin() {
   if (localStorage.getItem('taekilso_pending_chat_start') !== '1') return;
   localStorage.removeItem('taekilso_pending_chat_start');
-  const intro = document.getElementById('homeIntroOverlay');
-  const setup = document.getElementById('aiChatSetup');
-  if (intro) intro.style.display = 'none';
-  if (setup) setup.style.display = 'block';
+  showAiChatSetupStep();
 }
 
 function quickAskAiChat(text) {
