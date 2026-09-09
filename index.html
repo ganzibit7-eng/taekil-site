@@ -535,7 +535,33 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
 }
 
 /* usecase list (event subpages) */
-.usecase-list{display:flex;flex-direction:column;gap:10px}
+/* ---- AI 사주 상담 채팅 화면 ---- */
+.ai-chat-status{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 16px; border-radius:12px; background:rgba(215,180,106,.06);
+  border:1px solid rgba(215,180,106,.18); font-size:12px; color:var(--muted); margin-bottom:14px;
+}
+.ai-chat-window{
+  display:flex; flex-direction:column; gap:12px;
+  min-height:320px; max-height:56vh; overflow-y:auto;
+  padding:6px 2px 12px;
+}
+.ai-chat-msg{max-width:82%; padding:12px 15px; border-radius:16px; font-size:13.5px; line-height:1.65; white-space:pre-wrap;}
+.ai-chat-msg.user{align-self:flex-end; background:linear-gradient(135deg,var(--gold-hi),var(--gold)); color:#17130b; border-bottom-right-radius:4px;}
+.ai-chat-msg.assistant{align-self:flex-start; background:var(--panel); border:1px solid var(--line-soft); color:var(--white); border-bottom-left-radius:4px;}
+.ai-chat-msg.system-note{align-self:center; background:transparent; color:var(--muted-2); font-size:11.5px; text-align:center; max-width:100%;}
+.ai-chat-typing span{display:inline-block; width:6px; height:6px; margin-right:3px; border-radius:50%; background:var(--gold-hi); animation:ai-typing-kf 1.1s ease-in-out infinite}
+.ai-chat-typing span:nth-child(2){animation-delay:.15s}
+.ai-chat-typing span:nth-child(3){animation-delay:.3s}
+@keyframes ai-typing-kf{0%,80%,100%{opacity:.25; transform:translateY(0)}40%{opacity:1; transform:translateY(-3px)}}
+.ai-chat-inputrow{display:flex; gap:8px; align-items:flex-end; border-top:1px solid var(--line-soft); padding-top:14px;}
+.ai-chat-inputrow textarea{
+  flex:1; resize:none; max-height:120px; padding:12px 14px; background:#090908;
+  border:1px solid rgba(255,255,255,.10); border-radius:14px; color:var(--white);
+  font-family:inherit; font-size:13.5px;
+}
+.ai-chat-disclaimer{font-size:10.5px; color:var(--muted-2); margin-top:10px; text-align:center;}
+
 .usecase-item{
   padding:16px 18px;border:1px solid var(--line-soft);border-radius:16px;
   font-size:13.5px;color:#c8c5bd;display:flex;justify-content:space-between;gap:12px;align-items:center;
@@ -965,6 +991,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <a data-route="opening" onclick="goTo('opening')">개업</a>
           <a data-route="contract" onclick="goTo('contract')">계약체결</a>
           <a data-route="tool" onclick="goTo('tool')">사주</a>
+          <a data-route="ai-chat" onclick="goTo('ai-chat')">AI 상담</a>
           <a data-route="history" onclick="goTo('history')">내 기록</a>
         </div>
         <a id="authNavBtn" class="nav-cta" onclick="handleAuthNavClick()">로그인</a>
@@ -998,7 +1025,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
   <div class="modal-box">
     <div class="modal-title">결제를 완료하셨나요?</div>
     <p style="color:var(--muted); font-size:13px; line-height:1.7; margin:-4px 0 20px;">
-      방금 결제창에서 실제로 결제(4,900원)를 완료하고 돌아오신 경우 "네, 결제했어요"를 눌러주세요.
+      방금 결제창에서 실제로 결제(29,900원)를 완료하고 돌아오신 경우 "네, 결제했어요"를 눌러주세요.
       관리자가 결제 내역을 확인한 뒤 프리미엄을 적용해드려요(보통 몇 시간 이내). 결제 없이 그냥 닫고 오신 경우 "아니요"를 눌러주시면 돼요.
     </p>
     <button class="btn btn-primary form-submit" onclick="confirmPaymentCompleted()">네, 결제했어요 (확인 요청)</button>
@@ -1057,6 +1084,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
   <span class="bt-item" data-route="history" onclick="goTo('history')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 8v4l3 2"/></svg>
     <span>기록</span>
+  </span>
+  <span class="bt-item" data-route="ai-chat" onclick="goTo('ai-chat')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4 8.6 8.6 0 0 1-3.7-.9L3 20l1-4.7A8.4 8.4 0 1 1 21 11.5z"/></svg>
+    <span>AI 상담</span>
   </span>
   <span class="bt-item" id="bottomProfileTab" onclick="handleAuthNavClick()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.8-4 5-6 8-6s6.2 2 8 6"/></svg>
@@ -1194,7 +1225,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <div class="price-card featured premium-plan-card">
           <div class="popular">MOST POPULAR · PREMIUM</div>
           <h3>정밀 택일 리포트</h3>
-          <div class="plan-price"><strong>4,900원</strong><span>/ 30일</span></div>
+          <div class="plan-price"><strong>29,900원</strong><span>/ 30일</span></div>
           <p class="plan-lead">결제일로부터 <b>30일간</b> 프리미엄 기능을 이용할 수 있어요. 만료 후 다시 필요한 기간만 구매하세요.</p>
           <ul>
             <li><b>최대 365일</b> 후보 날짜 비교</li>
@@ -1587,6 +1618,45 @@ const ADMIN_EMAIL = "green092432@gmail.com";
   </section>
 </section>
 
+<!-- ============ AI 사주 상담 ============ -->
+<section id="view-ai-chat" class="view">
+  <header class="hero hero-sm">
+    <div class="hero-inner">
+      <div class="eyebrow">AI 사주 상담</div>
+      <h1>내 사주를 아는 <em>AI 상담사</em></h1>
+      <p class="hero-copy">생년월일을 알려주시면, 그 정보를 기억한 채로 계속 이어서 상담해드려요.<br>궁금한 걸 편하게 물어보세요.</p>
+    </div>
+  </header>
+  <section class="block" style="padding-top:10px;">
+    <div class="container" style="max-width:640px;">
+      <div class="tool-shell" id="aiChatSetup">
+        <h2>먼저 생년월일을 알려주세요</h2>
+        <p class="lead">상담 내내 이 정보를 기억하고 답변해드려요.</p>
+        <div class="form-grid">
+          <div class="field">
+            <label>양력/음력</label>
+            <select id="aiChatCalType"><option value="solar">양력</option><option value="lunar">음력</option></select>
+          </div>
+          <div class="field"><label>연도</label><select id="aiChatYear"></select></div>
+          <div class="field"><label>월</label><select id="aiChatMonth"></select></div>
+          <div class="field"><label>일</label><select id="aiChatDay"></select></div>
+        </div>
+        <button class="btn btn-primary form-submit" onclick="startAiChat()">상담 시작하기</button>
+      </div>
+
+      <div id="aiChatPanel" style="display:none;">
+        <div class="ai-chat-status" id="aiChatStatus"></div>
+        <div class="ai-chat-window" id="aiChatWindow"></div>
+        <div class="ai-chat-inputrow">
+          <textarea id="aiChatInput" rows="1" placeholder="궁금한 걸 물어보세요 (예: 올해 돈은 언제 들어와요?)" maxlength="500" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiChatMessage();}"></textarea>
+          <button class="btn btn-primary" id="aiChatSendBtn" onclick="sendAiChatMessage()">보내기</button>
+        </div>
+        <p class="ai-chat-disclaimer">AI 사주 상담은 참고용 정보이며, 중요한 결정은 본인의 판단으로 내려주세요.</p>
+      </div>
+    </div>
+  </section>
+</section>
+
 <!-- ============ SUPPORT (1:1 문의) ============ -->
 <section id="view-support" class="view">
   <header class="hero hero-sm">
@@ -1739,8 +1809,9 @@ const PREMIUM_DAYS = 30;
 // 실제 운영/판매 단계에서는 반드시 PayApp 결제 결과를 서버에서 검증하고
 // users/{uid}.premiumUntil을 기록하는 방식으로 전환하세요.
 const PAYAPP_FEEDBACK_URL = 'https://taekilso-backend-lemon.vercel.app/api/payapp-feedback';
+const AI_CHAT_URL = 'https://taekilso-backend-lemon.vercel.app/api/ai-chat';
 const PAYAPP_RETURN_URL = window.location.origin + window.location.pathname + '?premium=1';
-const PREMIUM_PRICE = 4900;
+const PREMIUM_PRICE = 29900;
 const PREMIUM_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30일
 
 let verifiedPremium = (localStorage.getItem(PREMIUM_KEY) === 'true' && !!localStorage.getItem(PREMIUM_OWNER_KEY));
@@ -1839,6 +1910,7 @@ function goTo(route, presetEvent) {
     if (anchor) anchor.style.display = 'block'; // 홈 카드 등에서 특정 목적을 지정하고 들어온 경우 바로 폼을 보여줍니다.
   }
   if (route === 'history') loadHistory();
+  if (route === 'ai-chat') fillAiChatDateSelects();
   if (route === 'profile') renderProfile();
   if (route === 'admin') renderAdmin();
   if (route === 'support') renderSupportList();
@@ -2416,7 +2488,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
         <div class="pr-tag">🔒 여기서부터 정밀 분석</div>
         <p><b>무료 결과는 핵심 후보만 보여드렸어요.</b><br>프리미엄에서는 두 분의 기운을 더 깊이 비교하고, 전체 후보·점수·월별 BEST·상세 이유까지 한 번에 확인할 수 있어요.</p>
         <div class="pp-list" style="margin-top:12px"><div><strong>무료</strong><br>TOP 5 · 기본 점수 · 손없는 날</div><div><strong>30일 프리미엄</strong><br>365일 · TOP 20 · 상세 리포트 · 궁합 택일</div></div>
-        <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="payPremium()">4,900원으로 30일 전체 결과 보기 →</button>
+        <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="payPremium()">29,900원으로 30일 전체 결과 보기 →</button>
         <div style="font-size:10px;color:var(--muted-2);margin-top:9px;text-align:center">자동결제 없음 · 30일 후 자동 만료</div>
       `;
     }
@@ -2428,7 +2500,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
         <div class="pr-tag">✦ 무료 결과 확인 완료</div>
         <p><b>지금 고른 기간 안에서 더 좋은 날짜가 있는지 확인해보세요.</b><br>무료는 TOP 5를 보여드리고, 프리미엄에서는 최대 365일 전체 후보를 다시 비교해 TOP 20과 월별 BEST까지 확인할 수 있어요.</p>
         <div class="pp-list" style="margin-top:12px"><div><strong>무료로 확인한 것</strong><br>추천 TOP 5 · 일진 · 오행 · 손없는 날</div><div><strong>프리미엄에서 추가</strong><br>365일 · TOP 20 · 상세 이유 · 월별 BEST</div></div>
-        <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="payPremium()">4,900원으로 30일 전체 분석 열기 →</button>
+        <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="payPremium()">29,900원으로 30일 전체 분석 열기 →</button>
         <div style="font-size:10px;color:var(--muted-2);margin-top:9px;text-align:center">자동결제 없음 · 결제일로부터 30일</div>
       `;
     } else {
@@ -2673,7 +2745,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-08-a11y-scroll-hint' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-08-premium-29900' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -3640,13 +3712,13 @@ async function requestRefund() {
     ? '\n\n✓ 결제 이후 프리미엄 기능을 한 번도 이용하지 않으신 것으로 확인돼요. 이 경우 환불이 가능해요.'
     : `\n\n참고로, 결제 이후 프리미엄 기능(365일 검색 · TOP20 · 상세 리포트 등)을 이미 ${usedCount}회 이용하신 기록이 있어요. 서비스를 정상적으로 이용하신 이후의 환불 요청은 제한될 수 있는 점 양해 부탁드려요.`;
 
-  if (!confirm('프리미엄 결제(4,900원)에 대한 환불을 요청할까요?' + usageNotice + '\n\n확인을 누르면 문의가 등록되고, 순차적으로 확인 후 안내드릴게요.')) return;
+  if (!confirm('프리미엄 결제(29,900원)에 대한 환불을 요청할까요?' + usageNotice + '\n\n확인을 누르면 문의가 등록되고, 순차적으로 확인 후 안내드릴게요.')) return;
 
   goTo('support');
   setTimeout(() => {
     document.getElementById('supportTitle').value = '프리미엄 결제 환불 요청';
     document.getElementById('supportMessage').value =
-      '프리미엄(4,900원) 결제에 대한 환불을 요청합니다.\n\n' +
+      '프리미엄(29,900원) 결제에 대한 환불을 요청합니다.\n\n' +
       '환불 사유: \n(자세한 사유를 여기에 적어주세요)\n\n' +
       '── 자동 기록 (서버 확인값, 조작 불가) ──\n' +
       `주문번호: ${orderId}\n` +
@@ -4173,7 +4245,7 @@ function buildPremiumProgramPanel() {
   if (!panel) return;
   if (!isPremium()) {
     panel.style.display='block';
-    panel.innerHTML = `<div class="premium-lock-card"><b>🔒 여기부터 프리미엄 분석입니다</b><p>30일 동안 365일 전체 후보 · TOP 20 · 월별 베스트 · 두 사람 궁합 · 상세 리포트를 이용할 수 있어요.</p><button class="btn btn-primary" onclick="payPremium()">4,900원으로 30일 이용하기</button></div>`;
+    panel.innerHTML = `<div class="premium-lock-card"><b>🔒 여기부터 프리미엄 분석입니다</b><p>30일 동안 365일 전체 후보 · TOP 20 · 월별 베스트 · 두 사람 궁합 · 상세 리포트를 이용할 수 있어요.</p><button class="btn btn-primary" onclick="payPremium()">29,900원으로 30일 이용하기</button></div>`;
     return;
   }
   const list = window.__chronological || [];
@@ -4741,6 +4813,125 @@ function goHomeSection(id){
     if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
   },60);
 }
+/* ---------- AI 사주 상담 ---------- */
+window.__aiChatHistory = [];
+window.__aiChatSaju = null;
+
+function fillAiChatDateSelects(){
+  const y=document.getElementById('aiChatYear'),m=document.getElementById('aiChatMonth'),d=document.getElementById('aiChatDay');
+  if(!y||!m||!d||y.options.length) return;
+  const now=new Date();
+  for(let yy=1940;yy<=now.getFullYear();yy++){const o=document.createElement('option');o.value=yy;o.textContent=yy+'년';y.appendChild(o);}
+  for(let mm=1;mm<=12;mm++){const o=document.createElement('option');o.value=mm;o.textContent=mm+'월';m.appendChild(o);}
+  for(let dd=1;dd<=31;dd++){const o=document.createElement('option');o.value=dd;o.textContent=dd+'일';d.appendChild(o);}
+  y.value=1990; m.value=1; d.value=1;
+}
+
+function appendAiChatMessage(role, text) {
+  const win = document.getElementById('aiChatWindow');
+  const div = document.createElement('div');
+  div.className = 'ai-chat-msg ' + role;
+  div.textContent = text;
+  win.appendChild(div);
+  win.scrollTop = win.scrollHeight;
+  return div;
+}
+
+function updateAiChatStatus(freeUsed, freeLimit, isPremiumNow) {
+  const el = document.getElementById('aiChatStatus');
+  if (!el) return;
+  if (isPremiumNow) {
+    el.textContent = '✦ 프리미엄 상담 이용 중 (하루 30턴까지)';
+  } else if (freeUsed != null) {
+    el.textContent = `무료 상담 ${freeUsed}/${freeLimit}회 사용`;
+  }
+}
+
+function startAiChat() {
+  const y = +document.getElementById('aiChatYear').value;
+  const m = +document.getElementById('aiChatMonth').value;
+  const d = +document.getElementById('aiChatDay').value;
+  if (!y || !m || !d) { showToast('생년월일을 모두 선택해주세요.'); return; }
+  const calType = document.getElementById('aiChatCalType').value;
+  const birth = resolveBirthDate(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`, calType, false);
+  if (!birth) return;
+
+  const idx = dayGanjiIndex(birth), oh = ohaengOf(idx);
+  window.__aiChatSaju = `생년월일: ${y}년 ${m}월 ${d}일(${calType === 'lunar' ? '음력' : '양력'}), 일주: ${ganjiFull(idx)}, 핵심 오행: ${oh} 기운`;
+  window.__aiChatHistory = [];
+
+  document.getElementById('aiChatSetup').style.display = 'none';
+  document.getElementById('aiChatPanel').style.display = 'block';
+  document.getElementById('aiChatWindow').innerHTML = '';
+  appendAiChatMessage('system-note', '사주 정보를 기억했어요. 편하게 물어보세요. (예: 올해 돈은 언제 들어와요?)');
+  updateAiChatStatus(null, 3, isPremium());
+}
+
+async function sendAiChatMessage() {
+  const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
+  if (!loggedIn) { showToast('로그인 후 이용할 수 있어요.'); openAuthModal(); return; }
+
+  const input = document.getElementById('aiChatInput');
+  const message = input.value.trim();
+  if (!message) return;
+  if (message.length > 500) { showToast('질문은 500자 이내로 적어주세요.'); return; }
+
+  const uid = getCurrentUserKey();
+  const sendBtn = document.getElementById('aiChatSendBtn');
+  input.value = '';
+  sendBtn.disabled = true;
+
+  appendAiChatMessage('user', message);
+  window.__aiChatHistory.push({ role: 'user', content: message });
+
+  const typingEl = appendAiChatMessage('assistant', '');
+  typingEl.classList.add('ai-chat-typing');
+  typingEl.innerHTML = '<span></span><span></span><span></span>';
+
+  try {
+    const res = await fetch(AI_CHAT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        uid,
+        sajuSummary: window.__aiChatSaju,
+        history: window.__aiChatHistory.slice(-12),
+        message
+      })
+    });
+    const data = await res.json().catch(() => ({}));
+    typingEl.remove();
+
+    if (!res.ok) {
+      if (data.error === 'FREE_LIMIT_REACHED') {
+        appendAiChatMessage('system-note', data.message || '무료 상담을 모두 사용하셨어요.');
+        const upgradeBtn = document.createElement('button');
+        upgradeBtn.className = 'btn btn-primary';
+        upgradeBtn.style.cssText = 'width:100%; margin-top:6px;';
+        upgradeBtn.textContent = '프리미엄으로 업그레이드하고 계속 상담받기';
+        upgradeBtn.onclick = () => { goTo('profile'); };
+        document.getElementById('aiChatWindow').appendChild(upgradeBtn);
+      } else if (data.error === 'DAILY_LIMIT_REACHED') {
+        appendAiChatMessage('system-note', data.message || '오늘 상담 가능 횟수를 모두 사용하셨어요.');
+      } else {
+        appendAiChatMessage('system-note', '답변을 받아오지 못했어요. 잠시 후 다시 시도해주세요.');
+      }
+      return;
+    }
+
+    appendAiChatMessage('assistant', data.reply);
+    window.__aiChatHistory.push({ role: 'assistant', content: data.reply });
+    if (data.freeUsed != null) updateAiChatStatus(data.freeUsed, data.freeLimit, false);
+    else updateAiChatStatus(null, null, true);
+  } catch (err) {
+    typingEl.remove();
+    appendAiChatMessage('system-note', '연결에 문제가 있었어요. 잠시 후 다시 시도해주세요.');
+    console.error('AI 상담 오류', err);
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
 function fillFortuneDateSelects(){
   const y=document.getElementById('fortuneYear'),m=document.getElementById('fortuneMonth'),d=document.getElementById('fortuneDay');
   if(!y||!m||!d||y.options.length) return;
