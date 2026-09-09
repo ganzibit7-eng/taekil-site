@@ -87,6 +87,21 @@ button{cursor:pointer}
 .view{display:none}
 .view.visible{display:block}
 
+/* home: 프레젠테이션처럼 섹션 하나씩 스냅되는 풀스크린 스크롤 */
+html.snap-active{scroll-snap-type:y mandatory;}
+#view-home > .block{
+  scroll-snap-align:start;
+  scroll-snap-stop:always;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  box-sizing:border-box;
+}
+@media(max-width:820px){
+  #view-home > .block{min-height:calc(100vh - 64px);}
+}
+
 /* navigation */
 .topbar{
   position:sticky; top:14px; z-index:50;
@@ -2085,6 +2100,7 @@ function goTo(route, presetEvent) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('visible'));
   const target = document.getElementById('view-' + route);
   if (target) target.classList.add('visible');
+  document.documentElement.classList.toggle('snap-active', route === 'home');
   document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
   const navLink = document.querySelector('.nav-links a[data-route="' + route + '"]');
   if (navLink) navLink.classList.add('active');
@@ -2963,7 +2979,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-09-merged-and-restored' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-09-ppt-snap-restored' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
