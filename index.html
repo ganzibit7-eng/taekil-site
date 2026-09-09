@@ -722,25 +722,68 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .footer-link:hover{color:var(--gold-hi)}
 
 /* profile */
-.profile-card{
-  text-align:center; padding:44px 30px; border:1px solid rgba(215,180,106,.3); border-radius:28px;
-  background:linear-gradient(150deg,rgba(215,180,106,.10),#0c0c0b);
+.pf-card{
+  display:flex; align-items:center; gap:18px;
+  padding:28px 26px; border:1px solid rgba(215,180,106,.22); border-radius:24px;
+  background:linear-gradient(150deg,rgba(215,180,106,.09),#0c0c0b 65%);
+  margin-bottom:16px;
 }
-.profile-avatar{
-  width:72px; height:72px; margin:0 auto 20px; border-radius:50%;
+.pf-avatar{
+  flex-shrink:0; width:60px; height:60px; border-radius:50%;
   background:linear-gradient(135deg,var(--gold-hi),var(--gold));
   display:flex; align-items:center; justify-content:center;
-  font-family:var(--serif); font-size:28px; color:#17130b; font-weight:700;
+  font-family:var(--serif); font-size:22px; color:#17130b; font-weight:700;
+  box-shadow:0 8px 22px rgba(215,180,106,.22);
 }
-.profile-name{font-family:var(--serif); font-size:26px; margin-bottom:6px}
-.profile-meta{color:var(--muted); font-size:13px; margin-bottom:16px}
-.profile-tier{
-  display:inline-block; padding:6px 16px; border-radius:999px; font-size:11px; font-weight:800; letter-spacing:.08em;
+.pf-id{flex:1; min-width:0}
+.pf-name{font-family:var(--serif); font-size:19px; line-height:1.3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.pf-meta{color:var(--muted); font-size:12.5px; margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.pf-badge-row{display:flex; align-items:center; gap:8px; margin-top:11px; flex-wrap:wrap}
+.pf-badge{
+  display:inline-block; padding:5px 13px; border-radius:999px; font-size:10.5px; font-weight:800; letter-spacing:.06em;
   background:rgba(255,255,255,.06); color:#c8c5bd;
 }
-.profile-tier.gold{background:rgba(215,180,106,.15); color:var(--gold-hi)}
-.profile-actions{display:flex; gap:10px; margin-top:24px}
-.profile-actions .btn{flex:1}
+.pf-badge.gold{background:rgba(215,180,106,.15); color:var(--gold-hi)}
+.pf-expiry{color:var(--muted-2); font-size:11px}
+@media(max-width:480px){
+  .pf-card{flex-direction:column; text-align:center; padding:30px 22px}
+  .pf-name,.pf-meta{white-space:normal}
+  .pf-badge-row{justify-content:center}
+}
+
+.pf-upgrade{
+  width:100%; display:flex; align-items:center; justify-content:center; gap:9px;
+  padding:18px 20px; border-radius:18px; border:0;
+  background:linear-gradient(135deg,var(--gold-hi),var(--gold));
+  color:#17130b; font-weight:800; font-size:14.5px; text-align:center;
+  margin-bottom:22px; box-shadow:0 14px 40px rgba(215,180,106,.18);
+  transition:.25s var(--ease);
+}
+.pf-upgrade:before{content:"✦"; font-size:14px}
+.pf-upgrade:hover{transform:translateY(-2px); box-shadow:0 18px 55px rgba(215,180,106,.28)}
+.pf-upgrade:disabled{opacity:.8; cursor:default; transform:none}
+
+.pf-menu{
+  display:flex; flex-direction:column;
+  border:1px solid var(--line-soft); border-radius:20px; overflow:hidden;
+  margin-bottom:20px; background:rgba(255,255,255,.02);
+}
+.pf-menu-item{
+  display:flex; align-items:center; gap:14px;
+  padding:17px 20px; cursor:pointer; transition:.2s;
+  border-bottom:1px solid var(--line-soft);
+}
+.pf-menu-item:last-child{border-bottom:0}
+.pf-menu-item:hover{background:rgba(255,255,255,.035)}
+.pf-menu-icon{font-size:16px; width:20px; text-align:center; flex-shrink:0; opacity:.85}
+.pf-menu-label{flex:1; font-size:13.5px; font-weight:600; color:#e7e4da}
+.pf-menu-arrow{color:var(--muted-2); font-size:14px; flex-shrink:0; transition:.2s}
+.pf-menu-item:hover .pf-menu-arrow{transform:translateX(3px); color:var(--gold-hi)}
+
+.pf-danger-row{
+  display:flex; justify-content:space-between; align-items:center;
+  margin-top:28px; padding-top:18px; border-top:1px solid var(--line-soft);
+}
 
 .admin-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
 .admin-stat{padding:22px; border:1px solid var(--line-soft); border-radius:18px; background:rgba(255,255,255,.02); text-align:center}
@@ -1737,26 +1780,47 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     </div>
   </header>
   <section class="block" style="padding-top:10px;">
-    <div class="container" style="max-width:620px;">
-      <div class="profile-card">
-        <div class="profile-avatar" id="profileAvatar">택</div>
-        <div class="profile-name" id="profileName">이름</div>
-        <div class="profile-meta" id="profileMeta">로그인 방식</div>
-        <div class="profile-tier" id="profileTier">무료 회원</div>
-        <div id="premiumExpiry" style="display:none;margin-top:7px;color:var(--muted-2);font-size:11px;"></div>
+    <div class="container" style="max-width:560px;">
+
+      <div class="pf-card">
+        <div class="pf-avatar" id="profileAvatar">택</div>
+        <div class="pf-id">
+          <div class="pf-name" id="profileName">이름</div>
+          <div class="pf-meta" id="profileMeta">로그인 방식</div>
+          <div class="pf-badge-row">
+            <span class="pf-badge" id="profileTier">무료 회원</span>
+            <span class="pf-expiry" id="premiumExpiry" style="display:none;"></span>
+          </div>
+        </div>
       </div>
-      <div class="profile-actions">
-        <button class="btn" onclick="goTo('history')">내 검색 기록 보기</button>
-        <button class="btn btn-primary" id="profileUpgradeBtn" onclick="payPremium()">프리미엄으로 업그레이드</button>
+
+      <button class="pf-upgrade" id="profileUpgradeBtn" onclick="payPremium()">프리미엄으로 업그레이드</button>
+
+      <div class="pf-menu">
+        <div class="pf-menu-item" onclick="goTo('history')">
+          <span class="pf-menu-icon">🕘</span>
+          <span class="pf-menu-label">내 검색 기록 보기</span>
+          <span class="pf-menu-arrow">→</span>
+        </div>
+        <div class="pf-menu-item" onclick="goTo('support')">
+          <span class="pf-menu-icon">💬</span>
+          <span class="pf-menu-label">고객센터 · 1:1 문의</span>
+          <span class="pf-menu-arrow">→</span>
+        </div>
+        <div id="adminEntryWrap" style="display:none;">
+          <div class="pf-menu-item" onclick="goTo('admin')">
+            <span class="pf-menu-icon" style="color:var(--gold-hi);">✦</span>
+            <span class="pf-menu-label" style="color:var(--gold-hi);">관리자 대시보드</span>
+            <span class="pf-menu-arrow">→</span>
+          </div>
+        </div>
       </div>
-      <button class="btn" style="width:100%; margin-top:10px;" onclick="goTo('support')">💬 고객센터 · 1:1 문의</button>
-      <div id="adminEntryWrap" style="display:none; margin-top:14px;">
-        <button class="btn" style="width:100%; border-color:rgba(215,180,106,.4); color:var(--gold-hi);" onclick="goTo('admin')">✦ 관리자 대시보드</button>
-      </div>
-      <div class="reset-row" style="border-top:1px solid var(--line-soft); margin-top:30px; justify-content:space-between;">
+
+      <div class="pf-danger-row">
         <span class="text-action" onclick="logout()">로그아웃</span>
         <span class="text-action" style="color:var(--warn);" onclick="confirmDeleteAccount()">계정 삭제</span>
       </div>
+
     </div>
   </section>
 </section>
