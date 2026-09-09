@@ -620,6 +620,19 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
 }
 .ai-chat-upsell:hover{background:rgba(215,180,106,.24)}
 .ai-chat-cta-row{display:flex; flex-wrap:wrap; gap:6px; align-self:flex-start; max-width:100%;}
+.ai-chat-offer-grid{display:flex; flex-direction:column; gap:8px; align-self:stretch; margin-top:4px;}
+.ai-chat-offer-card{
+  display:flex; flex-direction:column; gap:4px; text-align:left; cursor:pointer;
+  background:rgba(16,14,11,.82); border:1px solid rgba(215,180,106,.35); border-radius:14px;
+  padding:11px 14px; color:#fff; backdrop-filter:blur(4px);
+}
+.ai-chat-offer-card b{font-size:12.5px; font-family:var(--serif); font-weight:400; color:var(--gold-hi);}
+.ai-chat-offer-card span{font-size:11px; color:rgba(255,255,255,.75);}
+.ai-chat-offer-card span s{color:rgba(255,255,255,.4); margin-right:5px;}
+.ai-chat-offer-card span em{font-style:normal; font-weight:700; color:#fff;}
+.ai-chat-offer-card:hover{border-color:rgba(215,180,106,.6); background:rgba(215,180,106,.1)}
+.ai-chat-offer-premium{border-color:rgba(255,255,255,.2)}
+.ai-chat-offer-premium b{color:#fff}
 .ai-chat-cta-row button{
   background:linear-gradient(135deg,var(--gold-hi),var(--gold)); color:#17130b; border:0;
   font-size:11px; font-weight:700; padding:8px 13px; border-radius:999px; cursor:pointer;
@@ -1839,6 +1852,12 @@ const AI_CHAT_URL = 'https://taekilso-backend-lemon.vercel.app/api/ai-chat';
 const PAID_REPORTS = {
   ai_jeongmil_saju: { price: 4900, goodname: 'AI 정밀사주 리포트', memo: '내 사주 심층 분석 · 대운 흐름 · 연도별 조언' }
 };
+// 질문권(소모성 상품): 무료 3개를 다 쓴 뒤 이어서 물어볼 수 있게 해주는 상품입니다.
+// price가 실제 결제되는 금액(할인가)이고, originalPrice는 화면에 취소선으로 보여줄 정가입니다.
+const AI_QUESTION_PACKS = {
+  ai_question_pack_5: { price: 1900, originalPrice: 2900, goodname: 'AI 질문권 5개', memo: 'AI 상담 질문 5개 추가', count: 5 },
+  ai_question_pack_10: { price: 3200, originalPrice: 4900, goodname: 'AI 질문권 10개', memo: 'AI 상담 질문 10개 추가', count: 10 }
+};
 const PAYAPP_RETURN_URL = window.location.origin + window.location.pathname + '?premium=1';
 const PREMIUM_PRICE = 29900;
 const PREMIUM_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30일
@@ -2774,7 +2793,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-09-fix-flex-scroll' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-09-question-packs' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -4039,6 +4058,70 @@ async function purchaseReport(productId) {
     showToast('결제창을 열지 못했어요. 잠시 후 다시 시도해주세요.');
   }
 }
+
+/* ---------- AI 질문권(소모성, 여러 번 구매 가능) ---------- */
+async function purchaseQuestionPack(packId) {
+  const pack = AI_QUESTION_PACKS[packId];
+  if (!pack) return;
+  if (!getKakaoUser() && !(firebaseReady && firebaseAuthReady && firebaseAuthUser)) {
+    showToast('먼저 로그인해주세요.');
+    openAuthModal();
+    return;
+  }
+  if (typeof PayApp === 'undefined') { showToast('결제 모듈을 불러오지 못했어요. 잠시 후 다시 시도해주세요.'); return; }
+
+  const orderId = 'TAK-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+  const uidForOrder = getCurrentUserKey();
+  try {
+    if (PAYAPP_FEEDBACK_URL) {
+      if (!db) { showToast('결제 요청 저장소에 연결하지 못했어요. 잠시 후 다시 시도해주세요.'); return; }
+      await db.collection('paymentOrders').doc(orderId).set({
+        uid: uidForOrder,
+        amount: pack.price,
+        product: packId,
+        status: 'pending',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+    localStorage.setItem('taekilso_pending_order', JSON.stringify({
+      orderId, amount: pack.price, product: packId, createdAt: Date.now()
+    }));
+
+    const payParams = {
+      userid: PAYAPP_USERID,
+      shopname: '택일소',
+      goodname: pack.goodname,
+      price: String(pack.price),
+      recvphone: '01000000000',
+      smsuse: 'n',
+      checkretry: 'y',
+      returnurl: PAYAPP_RETURN_URL,
+      var1: orderId,
+      memo: pack.memo,
+      redirectpay: '1'
+    };
+    if (PAYAPP_FEEDBACK_URL) payParams.feedbackurl = PAYAPP_FEEDBACK_URL;
+    PayApp.setParam(payParams);
+    PayApp.setTarget('_self');
+    PayApp.payrequest();
+    showToast('결제창을 열었어요. 결제 완료 후 화면에 나오는 "확인" 버튼을 꼭 눌러주세요.');
+  } catch (e) {
+    console.error(e);
+    localStorage.removeItem('taekilso_pending_order');
+    showToast('결제창을 열지 못했어요. 잠시 후 다시 시도해주세요.');
+  }
+}
+
+/* 질문권처럼 소모성이라 users 문서의 특정 필드로 "구매됨"을 판단할 수 없는 상품은,
+   주문(paymentOrders) 문서 자체의 상태가 'paid'로 바뀌었는지로 확인합니다. */
+async function checkOrderPaidOnServer(orderId) {
+  if (!db || !orderId) return false;
+  try {
+    const snap = await db.collection('paymentOrders').doc(orderId).get({ source: 'server' });
+    return !!(snap.exists && snap.data().status === 'paid');
+  } catch (e) { console.error('주문 확인 중 오류', e); return false; }
+}
+
 async function checkReportOnServer(uid, productId) {
   if (!db || !uid) return false;
   try {
@@ -4200,19 +4283,27 @@ function tryActivatePendingPremium() {
       showPaymentPendingStatus('결제 확인 중이에요…');
       const uid = getCurrentUserKey();
       const isReportProduct = pending.product && PAID_REPORTS[pending.product];
+      const isQuestionPack = pending.product && AI_QUESTION_PACKS[pending.product];
       let confirmed = false;
       for (let i = 0; i < 10 && !confirmed; i++) {
         await new Promise((r) => setTimeout(r, 1500));
         confirmed = isReportProduct
           ? await checkReportOnServer(uid, pending.product)
+          : isQuestionPack
+          ? await checkOrderPaidOnServer(pending.orderId)
           : await checkPremiumOnServer(uid);
       }
       hidePaymentPendingStatus();
       if (confirmed) {
         localStorage.removeItem('taekilso_pending_order');
         sessionStorage.removeItem('taekilso_pending_order');
-        showToast(isReportProduct ? '구매가 완료됐어요! 바로 확인하실 수 있어요.' : '프리미엄이 활성화됐어요! 30일간 이용하실 수 있어요.');
-        if (isReportProduct) window.dispatchEvent(new CustomEvent('taekilso:reportPurchased', { detail: { productId: pending.product } }));
+        if (isQuestionPack) {
+          showToast(`질문권 ${AI_QUESTION_PACKS[pending.product].count}개가 충전됐어요! 바로 이어서 물어보실 수 있어요.`);
+          window.dispatchEvent(new CustomEvent('taekilso:questionPackPurchased'));
+        } else {
+          showToast(isReportProduct ? '구매가 완료됐어요! 바로 확인하실 수 있어요.' : '프리미엄이 활성화됐어요! 30일간 이용하실 수 있어요.');
+          if (isReportProduct) window.dispatchEvent(new CustomEvent('taekilso:reportPurchased', { detail: { productId: pending.product } }));
+        }
       } else {
         showToast('결제 확인에 시간이 좀 더 걸리고 있어요. 잠시 후 프로필 화면을 다시 확인해주세요. 결제하셨는데 계속 안 뜨면 고객센터로 문의해주세요.');
       }
@@ -4979,6 +5070,31 @@ function appendAiChatServiceCta(userMessage) {
   win.scrollTop = win.scrollHeight;
 }
 
+/* 무료 질문을 다 쓰면 보여주는 화면: 질문권 2종(할인가 표시) + 프리미엄 구독. */
+function appendQuestionPackOffers() {
+  const win = document.getElementById('aiChatWindow');
+  const wrap = document.createElement('div');
+  wrap.className = 'ai-chat-offer-grid';
+  wrap.innerHTML = Object.entries(AI_QUESTION_PACKS).map(([id, p]) => `
+    <button class="ai-chat-offer-card" onclick="purchaseQuestionPack('${id}')">
+      <b>${p.goodname}</b>
+      <span><s>${p.originalPrice.toLocaleString('ko-KR')}원</s> <em>${p.price.toLocaleString('ko-KR')}원</em></span>
+    </button>
+  `).join('') + `
+    <button class="ai-chat-offer-card ai-chat-offer-premium" onclick="goTo('profile')">
+      <b>프리미엄 구독</b>
+      <span>30일간 하루 30개까지 · 29,900원</span>
+    </button>
+  `;
+  win.appendChild(wrap);
+  win.scrollTop = win.scrollHeight;
+}
+window.addEventListener('taekilso:questionPackPurchased', () => {
+  // 질문권 충전이 확인되면, 방금 막혔던 안내/구매 카드를 지우고 바로 이어서 물어볼 수 있게 합니다.
+  const offers = document.querySelectorAll('.ai-chat-offer-grid');
+  offers.forEach(el => el.remove());
+});
+
 function appendAiChatUpsell(userMessage='') {
   const win = document.getElementById('aiChatWindow');
   const div = document.createElement('div');
@@ -5017,11 +5133,16 @@ function appendAiChatMessage(role, text) {
   return div;
 }
 
-function updateAiChatStatus(freeUsed, freeLimit, isPremiumNow) {
+function updateAiChatStatus(freeUsed, freeLimit, isPremiumNow, extra) {
   const el = document.getElementById('aiChatStatus');
   if (!el) return;
-  if (isPremiumNow) el.textContent = '✦ 프리미엄 상담 이용 중 (하루 30턴까지)';
-  else if (freeUsed != null) el.textContent = `무료 상담 ${freeUsed}/${freeLimit}회 사용`;
+  if (isPremiumNow) {
+    el.textContent = '✦ 프리미엄 이용 중 (하루 30개까지)';
+  } else if (extra && extra.usingCredit) {
+    el.textContent = `질문권 ${extra.questionCreditsLeft}개 남음`;
+  } else if (freeUsed != null) {
+    el.textContent = `무료 질문 ${freeUsed}/${freeLimit}개 사용`;
+  }
 }
 
 function startAiChat() {
@@ -5155,13 +5276,8 @@ async function sendAiChatMessage() {
 
     if (!res.ok) {
       if (data.error === 'FREE_LIMIT_REACHED') {
-        appendAiChatMessage('system-note', data.message || '무료 상담을 모두 사용하셨어요.');
-        const upgradeBtn = document.createElement('button');
-        upgradeBtn.className = 'btn btn-primary';
-        upgradeBtn.style.cssText = 'width:100%; margin-top:6px;';
-        upgradeBtn.textContent = '프리미엄으로 업그레이드하고 계속 상담받기';
-        upgradeBtn.onclick = () => { goTo('profile'); };
-        document.getElementById('aiChatWindow').appendChild(upgradeBtn);
+        appendAiChatMessage('system-note', data.message || '무료 질문을 모두 사용하셨어요.');
+        appendQuestionPackOffers();
       } else if (data.error === 'DAILY_LIMIT_REACHED') {
         appendAiChatMessage('system-note', data.message || '오늘 상담 가능 횟수를 모두 사용하셨어요.');
       } else {
@@ -5174,7 +5290,7 @@ async function sendAiChatMessage() {
     window.__aiChatHistory.push({ role: 'assistant', content: data.reply });
     appendAiChatServiceCta(message);
     if (!isPremium()) appendAiChatUpsell(message);
-    if (data.freeUsed != null) updateAiChatStatus(data.freeUsed, data.freeLimit, false);
+    if (data.freeUsed != null) updateAiChatStatus(data.freeUsed, data.freeLimit, false, data);
     else updateAiChatStatus(null, null, true);
   } catch (err) {
     typingEl.remove();
