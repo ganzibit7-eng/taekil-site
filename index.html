@@ -2746,7 +2746,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-09-nav-taekil-dropdown' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-09-fix-kakao-user-doc' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -3862,6 +3862,17 @@ async function exchangeKakaoCode(code) {
     updateAuthNav();
     showToast('카카오로 로그인했어요');
     continueHomeChatAfterLogin();
+    // 카카오 로그인은 구글/이메일과 달리 가입 시점에 users 문서를 따로 만들지 않았어서,
+    // AI 상담 등 서버(Admin SDK)가 이 문서 존재를 전제로 하는 기능에서 문제가 될 수 있었습니다.
+    // 매번 병합(merge) 저장이라 이미 있어도 안전하고, 없으면 새로 만들어줍니다.
+    if (db) {
+      db.collection('users').doc('kakao_' + profile.id).set({
+        email: profile.email || null,
+        nickname: profile.nickname,
+        provider: 'kakao',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true }).catch(err => console.error('카카오 사용자 문서 저장 실패', err));
+    }
     reconcilePremiumWithAccount('kakao_' + profile.id);
     flushLocalOnlyInquiries();
 
