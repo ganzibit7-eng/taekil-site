@@ -2017,8 +2017,12 @@ const PREMIUM_DAYS = 30;
 const PAYAPP_FEEDBACK_URL = 'https://taekilso-backend-lemon.vercel.app/api/payapp-feedback';
 const AI_CHAT_URL = 'https://taekilso-backend-lemon.vercel.app/api/ai-chat';
 const PAID_REPORTS = {
-  ai_jeongmil_saju: { price: 4900, goodname: 'AI 정밀사주 리포트', memo: '내 사주 심층 분석 · 대운 흐름 · 연도별 조언' }
+  ai_jeongmil_saju: { price: 4900, goodname: 'AI 정밀사주 리포트', memo: '내 사주 심층 분석 · 대운 흐름 · 연도별 조언' },
+  ai_gunghap: { price: 7900, goodname: 'AI 궁합·연애 분석', memo: '연애 패턴 심층 분석 · 궁합 포인트' },
+  ai_jaemul: { price: 5900, goodname: 'AI 재물·직업 분석', memo: '재물 흐름 심층 분석 · 직업 강점' }
 };
+// type(profile/love/money) <-> 상품ID 매핑. 잠금/구매 로직에서 공용으로 씁니다.
+const INSIGHT_PRODUCT_MAP = { profile: 'ai_jeongmil_saju', love: 'ai_gunghap', money: 'ai_jaemul' };
 // 질문권(소모성 상품): 무료 3개를 다 쓴 뒤 이어서 물어볼 수 있게 해주는 상품입니다.
 // price가 실제 결제되는 금액(할인가)이고, originalPrice는 화면에 취소선으로 보여줄 정가입니다.
 const AI_QUESTION_PACKS = {
@@ -2979,7 +2983,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-09-ppt-snap-restored' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-09-gunghap-jaemul-products' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -5755,17 +5759,40 @@ function calculateTodayFortune(){
       수:{personality:'유연하고 직관이 발달한 편입니다. 정보를 흡수하고 상황에 맞춰 방향을 바꾸는 데 능하지만, 결정을 계속 미루다 타이밍을 놓치는 경우가 있습니다.', daeun:'흐름을 타는 시기와 방향을 잡지 못하는 시기가 함께 오는 편으로 봅니다. 방향이 흐릿할 때는 큰 결정을 미루고 정보를 더 모으는 편이 안전합니다.', yearTip:'2026년은 여러 선택지 중 하나를 정해 밀어붙이는 결단이 특히 도움이 되는 흐름입니다.'}
     }[oh];
     const isProfilePurchased = hasPurchasedReport('ai_jeongmil_saju');
-    const deepSectionHtml = type !== 'profile' ? '' : (isProfilePurchased ? `
+    const deepAnalysisLove = {
+      목:{personality:'관계에서 먼저 다가가고 이끄는 편입니다. 호감이 생기면 속도가 빠른 편이라, 상대가 준비되기 전에 진도를 너무 빨리 나가면 부담스러워할 수 있습니다.', daeun:'새로운 인연이 자주 찾아오는 시기와, 한 사람에게 정착하고 싶어지는 시기가 번갈아 오는 편으로 봅니다.', yearTip:'2026년은 감정을 서두르기보다, 상대의 속도에 한 박자 맞춰주는 편이 관계를 오래 가져가는 데 도움이 됩니다.'},
+      화:{personality:'표현이 솔직하고 애정 표현이 큰 편입니다. 관계에 몰입할 때 에너지가 크지만, 감정 기복이 그대로 다툼으로 이어질 수 있습니다.', daeun:'열정적으로 가까워지는 시기와 서로 지쳐서 거리를 두는 시기가 뚜렷하게 오는 편입니다.', yearTip:'2026년엔 다툼이 생겼을 때 그 자리에서 결론 내기보다, 하루 정도 시간을 두고 다시 이야기하는 습관이 관계에 도움이 됩니다.'},
+      토:{personality:'신뢰를 오래 쌓는 안정적인 연애 스타일입니다. 한 사람에게 진득한 편이지만, 관계가 편해지면 표현을 점점 줄이는 경향이 있습니다.', daeun:'오래 만나던 관계가 자연스럽게 다음 단계(결혼 등)로 넘어가는 흐름이 오는 편으로 봅니다.', yearTip:'2026년엔 편해진 사이일수록 의도적으로 애정 표현을 챙기는 게 관계 만족도에 크게 작용합니다.'},
+      금:{personality:'상대를 볼 때 기준이 뚜렷한 편입니다. 신뢰가 쌓이면 깊이 있는 관계를 만들지만, 상대의 사소한 실수를 오래 마음에 담아둘 수 있습니다.', daeun:'까다롭게 고르는 시기 이후, 확신이 서는 상대를 만나 관계가 급진전되는 흐름이 오는 편입니다.', yearTip:'2026년엔 완벽한 상대를 기다리기보다, 지금 관계에서 좋은 점을 먼저 보는 연습이 도움이 됩니다.'},
+      수:{personality:'대화가 잘 통하는 사람에게 끌리는 편입니다. 유연하게 맞춰주는 장점이 있지만, 갈등이 생기면 회피하고 넘어가려는 경향이 있습니다.', daeun:'여러 인연을 두루 만나는 시기와, 한 사람에게 깊이 집중하는 시기가 함께 오는 편으로 봅니다.', yearTip:'2026년엔 불편한 이야기도 피하지 않고 직접 꺼내는 편이, 관계를 다음 단계로 넘어가게 하는 데 유리합니다.'}
+    }[oh];
+    const deepAnalysisMoney = {
+      목:{personality:'새로운 기회를 스스로 만들어내는 데 능합니다. 사업 확장이나 새 프로젝트에 강하지만, 벌여둔 일이 많아지면 자금 관리가 흐트러질 수 있습니다.', daeun:'수입원이 늘어나는 확장기와, 벌여둔 것을 정리하며 자산을 다지는 시기가 번갈아 오는 편입니다.', yearTip:'2026년엔 새 수입원을 늘리기보다, 지금 있는 것 중 가장 성과 좋은 하나에 자원을 몰아주는 편이 유리합니다.'},
+      화:{personality:'추진력 있게 밀어붙여 성과를 내는 편입니다. 큰 돈이 움직일 때 순간적인 판단력이 좋지만, 감정적으로 흥분한 상태에서 지출·투자 결정을 내리기 쉽습니다.', daeun:'큰 수익 기회가 오는 시기와, 그만큼 지출도 커지는 시기가 함께 오는 흐름입니다.', yearTip:'2026년엔 큰 금액이 오가는 결정은, 감정이 격해진 그 순간이 아니라 하루 지나 다시 판단하는 편이 안전합니다.'},
+      토:{personality:'꾸준히 모으고 지키는 재물운입니다. 계획적인 소비와 저축에 강하지만, 변화하는 기회를 너무 신중하게 재다가 놓치는 경우가 있습니다.', daeun:'안정적으로 자산이 쌓이는 시기가 길게 이어지다, 한 번씩 큰 결단이 필요한 시점이 오는 흐름입니다.', yearTip:'2026년엔 이미 충분히 검토한 기회라면, 완벽한 확신이 없어도 한 번은 움직여볼 만한 흐름입니다.'},
+      금:{personality:'숫자와 조건을 정확히 따지는 편이라 손해 보는 거래가 적습니다. 다만 기준이 까다로워 좋은 기회도 조건이 안 맞으면 쉽게 포기하는 경향이 있습니다.', daeun:'꼼꼼히 정리하는 시기 이후, 확실한 조건의 기회를 잡아 수익이 크게 느는 흐름이 오는 편입니다.', yearTip:'2026년엔 100% 조건이 맞는 걸 기다리기보다, 80% 정도 맞으면 움직이는 유연함이 기회를 늘려줍니다.'},
+      수:{personality:'정보를 빠르게 흡수해 흐름을 잘 타는 재물운입니다. 유연한 대응이 강점이지만, 결정을 계속 미루다 타이밍을 놓치는 경우가 있습니다.', daeun:'여러 정보를 모으는 시기와, 방향을 정해 집중하는 시기가 함께 오는 흐름으로 봅니다.', yearTip:'2026년엔 정보가 어느 정도 모였다면, 더 기다리지 않고 하나를 정해 실행하는 결단이 특히 유리합니다.'}
+    }[oh];
+    const insightConfig = {
+      profile: { productId: 'ai_jeongmil_saju', deep: deepAnalysis, kicker: 'AI 정밀사주',
+        lockDesc: '성격 심층 분석 · 대운(인생 큰 흐름) · 2026년 특별 조언까지 확인할 수 있어요.',
+        blocks: [['성격 심층 분석','personality'],['대운(인생 큰 흐름)','daeun'],['2026년 특별 조언','yearTip']] },
+      love: { productId: 'ai_gunghap', deep: deepAnalysisLove, kicker: 'AI 궁합·연애 분석',
+        lockDesc: '연애 패턴 심층 분석 · 관계 흐름 · 2026년 연애 조언까지 확인할 수 있어요.',
+        blocks: [['연애 패턴 심층 분석','personality'],['관계 흐름(대운)','daeun'],['2026년 연애 조언','yearTip']] },
+      money: { productId: 'ai_jaemul', deep: deepAnalysisMoney, kicker: 'AI 재물·직업 분석',
+        lockDesc: '재물 흐름 심층 분석 · 대운 흐름 · 2026년 재물 조언까지 확인할 수 있어요.',
+        blocks: [['재물 흐름 심층 분석','personality'],['재물 대운 흐름','daeun'],['2026년 재물 조언','yearTip']] }
+    }[type];
+    const deepSectionHtml = !insightConfig ? '' : (hasPurchasedReport(insightConfig.productId) ? `
         <div class="sir-deep">
-          <div class="sir-deep-kicker">🔓 AI 정밀사주 · 구매완료</div>
-          <div class="sir-deep-block"><b>성격 심층 분석</b><p>${deepAnalysis.personality}</p></div>
-          <div class="sir-deep-block"><b>대운(인생 큰 흐름)</b><p>${deepAnalysis.daeun}</p></div>
-          <div class="sir-deep-block"><b>2026년 특별 조언</b><p>${deepAnalysis.yearTip}</p></div>
+          <div class="sir-deep-kicker">🔓 ${insightConfig.kicker} · 구매완료</div>
+          ${insightConfig.blocks.map(([label,key])=>`<div class="sir-deep-block"><b>${label}</b><p>${insightConfig.deep[key]}</p></div>`).join('')}
         </div>` : `
         <div class="sir-lock">
-          <div class="sir-lock-kicker">🔒 AI 정밀사주</div>
-          <p>성격 심층 분석 · 대운(인생 큰 흐름) · 2026년 특별 조언까지 확인할 수 있어요.</p>
-          <button class="btn btn-primary" style="width:100%" onclick="purchaseReport('ai_jeongmil_saju')">정밀사주 보기 · 4,900원</button>
+          <div class="sir-lock-kicker">🔒 ${insightConfig.kicker}</div>
+          <p>${insightConfig.lockDesc}</p>
+          <button class="btn btn-primary" style="width:100%" onclick="purchaseReport('${insightConfig.productId}')">${insightConfig.kicker.replace('AI ','')} 보기 · ${PAID_REPORTS[insightConfig.productId].price.toLocaleString('ko-KR')}원</button>
         </div>`);
     document.getElementById('sajuInsightResult').innerHTML=`
       <div class="saju-insight-result">
