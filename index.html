@@ -5983,7 +5983,10 @@ function escapeAiHtml(text){
   return String(text || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 }
 function formatAiReply(text){
-  let html = escapeAiHtml(text).replace(/\r\n/g,'\n');
+  let clean = String(text || '')
+    .replace(/\\([#*_~`>\-])/g,'$1')
+    .replace(/(^|\n)(\s*\d+)\\\.(\s+)/g,'$1$2.$3');
+  let html = escapeAiHtml(clean).replace(/\r\n/g,'\n');
   html = html.replace(/^###\s*(.+)$/gm,'<div class="ai-chat-heading">$1</div>');
   html = html.replace(/^##\s*(.+)$/gm,'<div class="ai-chat-heading">$1</div>');
   html = html.replace(/\*\*(.+?)\*\*/g,'<span class="ai-chat-strong">$1</span>');
