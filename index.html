@@ -3997,6 +3997,27 @@ function getMyInquiryList() {
   catch (e) { return []; }
 }
 
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[ch]));
+}
+
+function saveLocalInquiryRef(id, title) {
+  const list = getMyInquiryList().filter(x => x.id !== id);
+  list.unshift({
+    id,
+    title,
+    createdAt: Date.now()
+  });
+  localStorage.setItem(SUPPORT_LIST_KEY, JSON.stringify(list));
+}
+
 function showSupportStatus(msg, kind) {
   const el = document.getElementById('supportStatus');
   if (!el) return;
