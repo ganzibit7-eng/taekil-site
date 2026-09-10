@@ -98,6 +98,20 @@ html.snap-active{scroll-snap-type:y mandatory;}
   justify-content:center;
   box-sizing:border-box;
 }
+
+/* 홈 마지막 FAQ는 여기서부터 일반 페이지처럼 자연스럽게 스크롤 */
+#view-home > .home-faq-section{
+  min-height:auto;
+  justify-content:flex-start;
+  scroll-snap-align:start;
+  scroll-snap-stop:normal;
+  padding-top:90px;
+  padding-bottom:80px;
+}
+html.snap-active.home-free-scroll{
+  scroll-snap-type:none;
+}
+
 @media(max-width:820px){
   #view-home > .block{min-height:calc(100vh - 64px);}
 }
@@ -599,6 +613,89 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
   .sir-deep-block{break-inside:avoid; margin-bottom:14px;}
   .sir-deep-block b{color:#111!important}
   .sir-deep-block p{color:#333!important}
+}
+
+
+/* 기록 허브 — 검색 기록 + 사주 보관함 */
+.history-hub{padding-bottom:110px}
+.history-summary-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px
+}
+.history-summary-card{
+  appearance:none;text-align:left;cursor:pointer;
+  padding:20px;border:1px solid var(--line-soft);border-radius:20px;
+  background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.018));
+  color:var(--white);transition:.25s var(--ease)
+}
+.history-summary-card:hover,.history-summary-card.active{
+  transform:translateY(-2px);
+  border-color:rgba(215,180,106,.38);
+  background:linear-gradient(145deg,rgba(215,180,106,.11),rgba(255,255,255,.025))
+}
+.history-summary-card span{display:block;font-size:11px;color:var(--muted);margin-bottom:8px}
+.history-summary-card strong{display:block;font-family:var(--serif);font-size:31px;font-weight:400;color:var(--gold-hi);line-height:1}
+.history-summary-card small{display:block;font-size:11px;color:var(--muted-2);margin-top:9px}
+
+.history-tabbar{
+  display:grid;grid-template-columns:1fr 1fr;
+  padding:4px;border:1px solid var(--line-soft);border-radius:999px;
+  background:rgba(255,255,255,.025);margin:0 0 18px
+}
+.history-tab{
+  min-height:42px;border:0;border-radius:999px;background:transparent;
+  color:var(--muted);font-size:12.5px;font-weight:700;cursor:pointer;transition:.2s
+}
+.history-tab.active{
+  background:rgba(215,180,106,.13);color:var(--gold-hi);
+  box-shadow:inset 0 0 0 1px rgba(215,180,106,.18)
+}
+
+.history-panel{display:none}
+.history-panel.active{display:block}
+.history-panel-head{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:16px;
+  margin-bottom:14px;padding:0 2px
+}
+.history-panel-head b{display:block;font-family:var(--serif);font-weight:400;font-size:19px;color:var(--white)}
+.history-panel-head small{display:block;margin-top:4px;color:var(--muted-2);font-size:11px}
+.history-clear-btn{
+  border:0;background:transparent;color:var(--muted-2);font-size:11px;cursor:pointer;padding:8px
+}
+.history-clear-btn:hover{color:var(--warn)}
+.history-empty-box{
+  text-align:center;padding:34px 18px;border:1px dashed var(--line-soft);
+  border-radius:18px;line-height:1.8;background:rgba(255,255,255,.018)
+}
+.history-empty-box button{
+  border:0;background:transparent;color:var(--gold-hi);
+  font-weight:700;font-size:12px;margin-top:7px;cursor:pointer
+}
+
+.history-vault-card{margin:0}
+.history-add-saju-btn{min-height:40px;padding:0 15px;font-size:11px;white-space:nowrap}
+.history-vault-guide{
+  display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;
+  margin:14px 0 4px;padding:10px 12px;border-radius:12px;
+  background:rgba(215,180,106,.055);color:var(--muted);font-size:10px
+}
+.history-vault-guide i{font-style:normal;color:var(--gold-dark)}
+.saju-vault-item{
+  transition:.2s var(--ease)
+}
+.saju-vault-item:hover{
+  background:rgba(255,255,255,.055)
+}
+.saju-vault-actions button:first-child{
+  background:linear-gradient(135deg,rgba(240,215,158,.18),rgba(215,180,106,.12))
+}
+
+@media(max-width:520px){
+  .history-summary-grid{gap:8px}
+  .history-summary-card{padding:16px 14px}
+  .history-summary-card strong{font-size:27px}
+  .saju-vault-head{flex-direction:column}
+  .history-add-saju-btn{width:100%}
+  .history-vault-guide{justify-content:flex-start}
 }
 
 /* usecase list (event subpages) */
@@ -1513,18 +1610,18 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     </div>
   </section>
 
-  <section class="block">
+  <section class="block home-faq-section" id="homeFaqSection">
     <div class="container" style="max-width:760px;">
       <div class="section-head"><div><div class="section-kicker">FAQ</div><h2 class="section-title">자주 묻는 질문</h2></div></div>
       <div class="faq-list">
         <details class="faq-item"><summary>결과는 얼마나 정확한가요?</summary><p>전통 명리학의 오행 상생상극 원리를 단순화해 참고용으로 제공하는 도구예요. 실제 중요한 결정은 여러 정보를 함께 고려하시길 권합니다.</p></details>
         <details class="faq-item"><summary>태어난 시간을 몰라도 되나요?</summary><p>네, 이용할 수 있어요. 출생시간을 모르면 년·월·일주 등 확인 가능한 범위로 분석하고, 출생시간을 입력하면 시주까지 포함해 AI 상담의 해석 범위가 더 넓어집니다. 출생시간이 필요한 일부 해석은 제공 범위가 달라질 수 있어요.</p></details>
-        <details class="faq-item"><summary>회원가입을 꼭 해야 하나요?</summary><p>아니요. 기본 기능은 회원가입 없이 바로 사용할 수 있어요. 검색 기록 저장, 궁합 상세 리포트 같은 기능만 추후 회원 전용으로 제공될 예정이에요.</p></details>
+        <details class="faq-item"><summary>회원가입을 꼭 해야 하나요?</summary><p>아니요. 기본 택일 기능은 회원가입 없이도 이용할 수 있어요. AI 사주 상담, 결제·프리미엄 상태, 사주 보관함 동기화, 문의 내역처럼 계정에 연결되는 기능은 로그인 후 이용합니다.</p></details>
         <details class="faq-item"><summary>내 정보는 어디에 저장되나요?</summary><p>기본 택일 계산과 일부 검색 기록은 브라우저에서 처리·저장됩니다. AI 상담을 이용할 때는 답변 생성을 위해 선택한 사주 정보와 질문·최근 대화 일부가 택일소 서버를 거쳐 AI 제공업체로 전송될 수 있습니다. 로그인·결제 상태는 계정 기능 제공을 위해 Firebase에 저장됩니다.</p></details>
         <details class="faq-item"><summary>사주 계산에는 어떤 정보를 쓰나요?</summary><p>택일 기능은 서비스가 계산한 일주 정보를 핵심 기준으로 사용하고, AI 사주 상담은 계산 라이브러리가 제공하는 년주·월주·일주와 출생시간이 있는 경우 시주, 오행·십신·지장간 정보를 함께 참고합니다. 대운·세운·용신처럼 현재 계산 데이터에 없는 요소는 AI가 임의로 만들어내지 않도록 제한하고 있어요.</p></details>
         <details class="faq-item"><summary>AI가 사주를 대신 봐주나요?</summary><p>택일소의 날짜 추천은 정해진 오행·일진 기준으로 계산됩니다. 생성형 AI가 임의로 운세를 만들어내는 방식과 달리, 계산 기준을 먼저 고정하고 결과를 설명하는 방향을 우선합니다.</p></details>
         <details class="faq-item"><summary>유료 결제하면 무엇이 달라지나요?</summary><p>무료에서는 AI 상담 평생 3개와 최대 30일·TOP 5 중심으로 확인하고, 프리미엄에서는 <b>AI 상담 하루 20개</b>와 최대 365일 후보·TOP 20·월별 베스트·두 사람 궁합 택일·상세 리포트와 전체 캘린더, 정밀사주·궁합·재물 심층 분석을 <b>30일간</b> 이용할 수 있습니다.</p></details>
-        <details class="faq-item"><summary>결과를 저장하거나 출력할 수 있나요?</summary><p>추천 결과 화면에서 브라우저 인쇄 기능을 이용해 PDF로 저장할 수 있도록 구성했습니다. 회원 로그인 상태에서는 검색 기록과 프리미엄 상태를 계정에 연결하는 구조로 확장할 수 있습니다.</p></details>
+        <details class="faq-item"><summary>결과를 저장하거나 출력할 수 있나요?</summary><p>추천 결과는 브라우저 인쇄 기능으로 PDF 저장이 가능해요. 로그인 상태에서는 사주 보관함을 계정과 동기화해 다른 기기에서도 다시 불러올 수 있도록 구성했습니다.</p></details>
       </div>
     </div>
   </section>
@@ -1842,14 +1939,76 @@ const ADMIN_EMAIL = "green092432@gmail.com";
   <header class="hero hero-sm">
     <div class="hero-inner">
       <div class="eyebrow">내 기록</div>
-      <h1 style="font-size:clamp(28px,4.6vw,46px);">지난 검색을<br>다시 볼 수 있어요</h1>
-      <p class="hero-copy">이 브라우저에서 찾아본 날짜들이 저장됩니다. 다른 사람에게는 보이지 않아요.</p>
+      <h1 style="font-size:clamp(28px,4.6vw,46px);">찾아본 날짜와<br>저장한 사주를 한곳에</h1>
+      <p class="hero-copy">택일 검색 기록을 다시 보고, 가족·연인·사업 파트너의 사주도 보관해 AI 상담에서 바로 불러올 수 있어요.</p>
     </div>
   </header>
-  <section class="block" style="padding-top:10px;">
-    <div class="container" style="max-width:720px;">
-      <div id="historyList" class="usecase-list"></div>
-      <div id="historyEmpty" class="empty-note" style="display:none;">아직 저장된 기록이 없습니다. '바로 찾기'에서 날짜를 찾아보면 여기에 남습니다.</div>
+
+  <section class="block history-hub" style="padding-top:10px;">
+    <div class="container" style="max-width:760px;">
+
+      <div class="history-summary-grid">
+        <button class="history-summary-card active" id="historySummarySearch" onclick="switchHistoryTab('search')">
+          <span>검색 기록</span>
+          <strong id="historySearchCount">0</strong>
+          <small>지난 택일 결과 다시 보기</small>
+        </button>
+
+        <button class="history-summary-card" id="historySummaryVault" onclick="switchHistoryTab('vault')">
+          <span>사주 보관함</span>
+          <strong id="historyVaultCount">0</strong>
+          <small>나와 소중한 사람들의 사주</small>
+        </button>
+      </div>
+
+      <div class="history-tabbar" role="tablist" aria-label="기록 종류">
+        <button id="historyTabSearch" class="history-tab active" role="tab" aria-selected="true" onclick="switchHistoryTab('search')">검색 기록</button>
+        <button id="historyTabVault" class="history-tab" role="tab" aria-selected="false" onclick="switchHistoryTab('vault')">사주 보관함</button>
+      </div>
+
+      <div id="historySearchPanel" class="history-panel active">
+        <div class="history-panel-head">
+          <div>
+            <b>택일 검색 기록</b>
+            <small>이 브라우저에서 찾아본 추천 날짜가 저장돼요.</small>
+          </div>
+          <button class="history-clear-btn" id="historyClearBtn" onclick="clearAllSearchHistory()">전체 삭제</button>
+        </div>
+
+        <div id="historyList" class="usecase-list"></div>
+        <div id="historyEmpty" class="empty-note history-empty-box" style="display:none;">
+          아직 저장된 검색 기록이 없어요.<br>
+          <button onclick="goTo('home')">날짜 찾아보기 →</button>
+        </div>
+      </div>
+
+      <div id="historyVaultPanel" class="history-panel">
+        <div class="saju-vault-card history-vault-card">
+          <div class="saju-vault-head">
+            <div>
+              <b>사주 보관함</b>
+              <small>가족·연인·사업 파트너의 사주를 저장하고 AI 상담에서 바로 불러오세요. 로그인 상태에서는 Firebase 계정과 동기화되고, 이 브라우저에도 백업됩니다.</small>
+            </div>
+            <button class="btn history-add-saju-btn" onclick="openAiProfileCreator()">+ 사주 추가</button>
+          </div>
+
+          <div class="history-vault-guide">
+            <span>① 사주 저장</span>
+            <i>→</i>
+            <span>② 상담 대상 선택</span>
+            <i>→</i>
+            <span>③ AI에게 바로 질문</span>
+          </div>
+
+          <div id="sajuVaultList" class="saju-vault-list"></div>
+
+          <div id="sajuVaultEmpty" class="empty-note history-empty-box">
+            저장된 사주가 아직 없어요.<br>
+            <button onclick="openAiProfileCreator()">첫 사주 저장하기 →</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
 </section>
@@ -1878,17 +2037,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       </div>
 
       <button class="pf-upgrade" id="profileUpgradeBtn" onclick="payPremium()">프리미엄으로 업그레이드</button>
-
-      <div class="saju-vault-card">
-        <div class="saju-vault-head"><div><b>사주 보관함</b><small>가족·연인·사업 파트너의 사주를 저장해 AI 상담에서 바로 불러올 수 있어요. 사주 보관함은 현재 이 브라우저에 계정별로 저장됩니다. 다른 기기에서는 자동 동기화되지 않으니 중요한 정보는 다시 확인해주세요.</small></div><button class="btn" onclick="openAiProfileCreator()">+ 사주 추가</button></div>
-        <div id="sajuVaultList" class="saju-vault-list"></div>
-        <div id="sajuVaultEmpty" class="empty-note">저장된 사주가 아직 없습니다.</div>
-      </div>
-
-      <div class="pf-menu">
+<div class="pf-menu">
         <div class="pf-menu-item" onclick="goTo('history')">
           <span class="pf-menu-icon">🕘</span>
-          <span class="pf-menu-label">내 검색 기록 보기</span>
+          <span class="pf-menu-label">내 기록 · 사주 보관함</span>
           <span class="pf-menu-arrow">→</span>
         </div>
         <div class="pf-menu-item" onclick="goTo('support')">
@@ -1978,6 +2130,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <div class="admin-stat"><small>누적 방문수</small><b id="statVisits">–</b></div>
           <div class="admin-stat"><small>오늘 방문수</small><b id="statTodayVisits">–</b></div>
           <div class="admin-stat"><small>총 가입자수</small><b id="statSignups">–</b></div>
+          <div class="admin-stat"><small>카카오 가입자</small><b id="statKakaoMembers">–</b></div>
           <div class="admin-stat"><small>총 구매수</small><b id="statPurchases">–</b></div>
           <div class="admin-stat"><small>누적 매출</small><b id="statRevenue" style="font-size:20px;">–</b></div>
           <div class="admin-stat"><small>현재 프리미엄 회원</small><b id="statActivePremium">–</b></div>
@@ -1993,7 +2146,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         </div>
         <div class="price-note" style="margin-top:0; margin-bottom:14px;">⚠ 자가확인(대조 필요) — 서버 검증 없이 손님이 직접 "결제했다"고 눌러서 켜진 프리미엄이에요. 페이앱 결제현황에서 시간·금액이 실제로 맞는지 한 번 대조해보시는 걸 권해요. 표시가 없으면(서버 검증 또는 관리자 직접 지급) 대조하지 않으셔도 돼요.</div>
         <div id="adminUserList" class="usecase-list"></div>
-        <div class="price-note" style="margin-top:20px;">※ "제거"는 이 목록에서만 지워요. 실제 로그인 계정 삭제는 각 회원이 본인 프로필에서 "계정 삭제"를 눌러야 완전히 지워져요 (서버 없이 운영 중이라 관리자가 남의 계정을 직접 지울 수는 없어요).</div>
+        <div class="price-note" style="margin-top:20px;">※ 회원 목록은 Firestore users 실제 문서를 기준으로 표시합니다. "제거"는 서비스 회원 문서를 삭제하는 관리 기능이며 Firebase Authentication 계정 자체 삭제와는 별개입니다.</div>
 
         <div class="section-head" style="margin-top:40px;">
           <div><div class="section-kicker">SUPPORT</div><h2 class="section-title" style="font-size:24px;">1:1 문의 관리</h2></div>
@@ -2071,6 +2224,7 @@ const PREMIUM_DAYS = 30;
 // users/{uid}.premiumUntil을 기록하는 방식으로 전환하세요.
 const PAYAPP_FEEDBACK_URL = 'https://taekilso-backend-lemon.vercel.app/api/payapp-feedback';
 const AI_CHAT_URL = 'https://taekilso-backend-lemon.vercel.app/api/ai-chat';
+const PREMIUM_USAGE_URL = 'https://taekilso-backend-lemon.vercel.app/api/premium-usage';
 // 질문권(소모성 상품): 무료 3개를 다 쓴 뒤 이어서 물어볼 수 있게 해주는 상품입니다.
 // price가 실제 결제되는 금액(할인가)이고, originalPrice는 화면에 취소선으로 보여줄 정가입니다.
 const AI_QUESTION_PACKS = {
@@ -2148,6 +2302,39 @@ function showToast(msg) {
   host.appendChild(t);
   setTimeout(() => t.remove(), 3000);
 }
+
+let homeFreeScrollMode = false;
+
+function updateHomeFreeScrollMode() {
+  const home = document.getElementById('view-home');
+  const faq = document.getElementById('homeFaqSection');
+  const homeVisible = !!(home && home.classList.contains('visible'));
+
+  if (!homeVisible || !faq) {
+    homeFreeScrollMode = false;
+    document.documentElement.classList.remove('home-free-scroll');
+    return;
+  }
+
+  const faqTop = faq.getBoundingClientRect().top + window.scrollY;
+
+  // FAQ의 상단에 도달하면 PPT형 snap을 풀어 FAQ → footer를 자유롭게 이동합니다.
+  if (!homeFreeScrollMode && window.scrollY >= faqTop - 8) {
+    homeFreeScrollMode = true;
+    document.documentElement.classList.add('home-free-scroll');
+    return;
+  }
+
+  // 다시 FAQ보다 위로 충분히 올라오면 기존 PPT형 snap을 복구합니다.
+  if (homeFreeScrollMode && window.scrollY < faqTop - 140) {
+    homeFreeScrollMode = false;
+    document.documentElement.classList.remove('home-free-scroll');
+  }
+}
+
+window.addEventListener('scroll', updateHomeFreeScrollMode, { passive:true });
+window.addEventListener('resize', updateHomeFreeScrollMode, { passive:true });
+
 function goTo(route, presetEvent) {
   // admin 화면을 떠날 때는 실시간 통계 감시를 꺼서, 다른 화면 보는 동안 불필요하게
   // 계속 서버와 연결되어 있지 않도록 합니다.
@@ -2159,6 +2346,8 @@ function goTo(route, presetEvent) {
   const target = document.getElementById('view-' + route);
   if (target) target.classList.add('visible');
   document.documentElement.classList.toggle('snap-active', route === 'home');
+  document.documentElement.classList.remove('home-free-scroll');
+  homeFreeScrollMode = false;
   document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
   const navLink = document.querySelector('.nav-links a[data-route="' + route + '"]');
   if (navLink) navLink.classList.add('active');
@@ -2183,7 +2372,10 @@ function goTo(route, presetEvent) {
     const anchor = document.getElementById('toolFormAnchor');
     if (anchor) anchor.style.display = 'block'; // 홈 카드 등에서 특정 목적을 지정하고 들어온 경우 바로 폼을 보여줍니다.
   }
-  if (route === 'history') loadHistory();
+  if (route === 'history') {
+    loadHistory();
+    updateHistoryCounts();
+  }
   if (route === 'home' && typeof fillAiChatDateSelects === 'function') { fillAiChatDateSelects(); updateHomeGuestHint(); }
   if (route === 'profile') renderProfile();
   if (route === 'admin') renderAdmin();
@@ -2623,33 +2815,121 @@ function saveSearchToHistory(entry) {
     const list = readHistoryStore();
     list.push({ id: 'h_' + Date.now(), ...entry });
     localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+    updateHistoryCounts();
   } catch (err) { console.error('기록 저장 실패', err); }
 }
+
+let currentHistoryTab = 'search';
+
+function updateHistoryCounts() {
+  const searchCount = readHistoryStore().length;
+  const vaultCount = getSajuVault().length;
+
+  const searchEl = document.getElementById('historySearchCount');
+  const vaultEl = document.getElementById('historyVaultCount');
+  if (searchEl) searchEl.textContent = String(searchCount);
+  if (vaultEl) vaultEl.textContent = String(vaultCount);
+
+  const clearBtn = document.getElementById('historyClearBtn');
+  if (clearBtn) clearBtn.style.display = searchCount ? '' : 'none';
+}
+
+function switchHistoryTab(tab) {
+  currentHistoryTab = tab === 'vault' ? 'vault' : 'search';
+
+  const isVault = currentHistoryTab === 'vault';
+  const searchPanel = document.getElementById('historySearchPanel');
+  const vaultPanel = document.getElementById('historyVaultPanel');
+  const searchTab = document.getElementById('historyTabSearch');
+  const vaultTab = document.getElementById('historyTabVault');
+  const searchCard = document.getElementById('historySummarySearch');
+  const vaultCard = document.getElementById('historySummaryVault');
+
+  if (searchPanel) searchPanel.classList.toggle('active', !isVault);
+  if (vaultPanel) vaultPanel.classList.toggle('active', isVault);
+
+  if (searchTab) {
+    searchTab.classList.toggle('active', !isVault);
+    searchTab.setAttribute('aria-selected', String(!isVault));
+  }
+  if (vaultTab) {
+    vaultTab.classList.toggle('active', isVault);
+    vaultTab.setAttribute('aria-selected', String(isVault));
+  }
+
+  if (searchCard) searchCard.classList.toggle('active', !isVault);
+  if (vaultCard) vaultCard.classList.toggle('active', isVault);
+
+  if (isVault) {
+    renderSajuVault();
+    const authUser = firebaseReady && firebase.auth ? firebase.auth().currentUser : null;
+    if (authUser && !authUser.isAnonymous) syncSajuVaultFromCloud(authUser.uid);
+  }
+
+  updateHistoryCounts();
+}
+
+function clearAllSearchHistory() {
+  const entries = readHistoryStore();
+  if (!entries.length) return;
+  if (!confirm('저장된 검색 기록을 모두 삭제할까요? 사주 보관함은 삭제되지 않습니다.')) return;
+
+  localStorage.removeItem(HISTORY_KEY);
+  loadHistory();
+  showToast('검색 기록을 모두 삭제했어요.');
+}
+
 function loadHistory() {
   const listEl = document.getElementById('historyList');
   const emptyEl = document.getElementById('historyEmpty');
-  const entries = readHistoryStore().sort((a, b) => b.savedAt - a.savedAt);
+  if (!listEl || !emptyEl) return;
 
-  if (entries.length === 0) { listEl.innerHTML = ''; emptyEl.style.display = 'block'; return; }
-  emptyEl.style.display = 'none';
-  listEl.innerHTML = '';
-  entries.forEach((data) => {
-    const item = document.createElement('div');
-    item.className = 'usecase-item';
-    const savedDate = new Date(data.savedAt).toLocaleDateString('ko-KR');
-    item.innerHTML = `
-      <div><strong style="color:var(--gold-hi); font-family:var(--serif); font-weight:400;">${data.eventType}</strong> · 최고 추천일 ${data.bestDate} · 검색일 ${savedDate}</div>
-      <span data-id="${data.id}" class="hist-delete">삭제</span>
-    `;
-    listEl.appendChild(item);
-  });
-  listEl.querySelectorAll('.hist-delete').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const id = e.target.dataset.id;
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(readHistoryStore().filter(x => x.id !== id)));
-      loadHistory();
+  const entries = readHistoryStore().sort((a, b) => Number(b.savedAt || 0) - Number(a.savedAt || 0));
+
+  if (entries.length === 0) {
+    listEl.innerHTML = '';
+    emptyEl.style.display = 'block';
+  } else {
+    emptyEl.style.display = 'none';
+    listEl.innerHTML = '';
+
+    entries.forEach((data) => {
+      const item = document.createElement('div');
+      item.className = 'usecase-item';
+
+      const savedDate = data.savedAt
+        ? new Date(data.savedAt).toLocaleDateString('ko-KR')
+        : '날짜 없음';
+
+      item.innerHTML = `
+        <div>
+          <strong style="color:var(--gold-hi); font-family:var(--serif); font-weight:400;">${escapeHtml(data.eventType || '택일')}</strong>
+          · 최고 추천일 ${escapeHtml(data.bestDate || '-')}
+          <small style="display:block;color:var(--muted-2);font-size:10px;margin-top:5px;">검색일 ${escapeHtml(savedDate)}</small>
+        </div>
+        <span data-id="${escapeHtml(data.id || '')}" class="hist-delete">삭제</span>
+      `;
+      listEl.appendChild(item);
     });
-  });
+
+    listEl.querySelectorAll('.hist-delete').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = e.currentTarget.dataset.id;
+        localStorage.setItem(
+          HISTORY_KEY,
+          JSON.stringify(readHistoryStore().filter(x => x.id !== id))
+        );
+        loadHistory();
+      });
+    });
+  }
+
+  renderSajuVault();
+  updateHistoryCounts();
+
+  // 사용자가 마지막으로 보던 기록 탭을 유지합니다.
+  switchHistoryTab(currentHistoryTab);
 }
 
 document.getElementById('submitBtn').addEventListener('click', async () => {
@@ -2794,7 +3074,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
 
   if (top.length > 0) {
     saveSearchToHistory({ eventType, bestDate: top[0].date.toLocaleDateString('ko-KR'), coupleMode, savedAt: Date.now() });
-    if (isPremium()) bumpPremiumUsageCount();
+    if (isPremium()) bumpPremiumUsageCount('date_search');
   }
 });
 
@@ -3160,21 +3440,57 @@ function recordVisit() {
  * (카카오 로그인은 애초에 진짜 인증이 없어서 이 보호가 적용되지 않는다는 점은
  * 이 서비스 전반에 걸쳐 있는 동일한 한계입니다.)
  */
-function bumpPremiumUsageCount() {
-  const uid = getCurrentUserKey();
-  if (!db || !uid) return;
-  db.collection('users').doc(uid).update({
-    premiumUsageCount: firebase.firestore.FieldValue.increment(1)
-  }).catch(err => console.error('이용 횟수 기록 실패', err));
+async function bumpPremiumUsageCount(featureName = 'premium_feature') {
+  try {
+    const headers = await getAiRequestHeaders();
+    const res = await fetch(PREMIUM_USAGE_URL, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        feature: String(featureName || 'premium_feature').slice(0, 60)
+      })
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      console.warn('프리미엄 이용 기록 실패', data.error || res.status);
+    }
+  } catch (err) {
+    // 기록 서버 장애 때문에 사용자가 실제 프리미엄 기능을 못 쓰게 하지는 않습니다.
+    console.warn('프리미엄 이용 기록 전송 실패', err);
+  }
 }
 
-function recordSignup(uid, data) {
-  if (!db) return;
-  db.collection('users').doc(uid).set({
-    ...data,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    premium: false
-  }, { merge: true }).then(() => bumpStat('signups')).catch(err => console.error('가입 기록 실패', err));
+async function recordSignup(uid, data) {
+  if (!db || !uid) return;
+
+  try {
+    const ref = db.collection('users').doc(uid);
+    const snap = await ref.get({ source: 'server' });
+
+    if (!snap.exists) {
+      await ref.set({
+        ...(data || {}),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        premium: false
+      }, { merge: true });
+
+      // 레거시 통계도 유지하되, 관리자 화면의 총 가입자수는 실제 users 문서 수를 사용합니다.
+      bumpStat('signups');
+      return;
+    }
+
+    // 기존 회원 재로그인은 가입자수에 다시 더하지 않고, 빠진 프로필만 보완합니다.
+    const existing = snap.data() || {};
+    const patch = {};
+    if (!existing.email && data && data.email) patch.email = data.email;
+    if (!existing.nickname && data && data.nickname) patch.nickname = data.nickname;
+    if (!existing.provider && data && data.provider) patch.provider = data.provider;
+    if (Object.keys(patch).length) await ref.set(patch, { merge: true });
+
+  } catch (err) {
+    console.error('가입 기록 실패', err);
+  }
 }
 
 function recordPurchase(orderId, verificationMethod) {
@@ -3247,6 +3563,7 @@ function backfillUserProfile(uid, existingData) {
 
 function reconcilePremiumWithAccount(uid) {
   if (!db || !uid) return;
+  syncSajuVaultFromCloud(uid);
 
   db.collection('users').doc(uid).get({ source: 'server' }).then((snap) => {
     const data = snap.exists ? (snap.data() || {}) : {};
@@ -3282,38 +3599,48 @@ function reconcilePremiumWithAccount(uid) {
  * Firestore 연결이 안 될 때 임시로 이 브라우저에만 저장해뒀던 문의(1:1 문의/환불 요청)를,
  * 로그인 시점(=Firestore가 다시 연결됐을 가능성이 있는 시점)마다 서버로 다시 올려봅니다.
  */
-function flushLocalOnlyInquiries() {
+async function flushLocalOnlyInquiries() {
   if (!db) return;
+
   const list = getMyInquiryList();
   const pending = list.filter(item => item.localOnly);
   if (!pending.length) return;
 
-  const kakaoUser = getKakaoUser();
-  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser) ? firebaseAuthUser : null;
-  const uid = getCurrentUserKey();
-  const name = kakaoUser ? (kakaoUser.nickname || '카카오 사용자') : (fbUser ? (fbUser.displayName || fbUser.email || '회원') : '회원');
-  if (!uid) return;
+  const authUser = await ensureFirestorePaymentAuth().catch(() => null);
+  if (!authUser || authUser.isAnonymous) return;
 
-  pending.forEach((item) => {
-    db.collection('inquiries').add({
-      uid,
-      ownerUid: fbUser ? fbUser.uid : null,
-      name,
-      title: item.title,
-      message: item.message || '',
-      status: '대기',
-      reply: '',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      createdAtMs: item.createdAt || Date.now(),
-      source: kakaoUser ? 'kakao' : 'firebase'
-    }).then((docRef) => {
+  const kakaoUser = getKakaoUser();
+  const name = kakaoUser
+    ? (kakaoUser.nickname || '카카오 사용자')
+    : (authUser.displayName || authUser.email || '회원');
+
+  for (const item of pending) {
+    try {
+      const docRef = await db.collection('inquiries').add({
+        uid: authUser.uid,
+        ownerUid: authUser.uid,
+        firebaseUid: authUser.uid,
+        name,
+        title: String(item.title || '').slice(0, 120),
+        message: String(item.message || '').slice(0, 5000),
+        status: '대기',
+        reply: '',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdAtMs: item.createdAt || Date.now(),
+        source: kakaoUser ? 'kakao' : 'firebase'
+      });
+
       const cur = getMyInquiryList().filter(x => x.id !== item.id);
       cur.unshift({ id: docRef.id, title: item.title, createdAt: item.createdAt || Date.now() });
       localStorage.setItem(SUPPORT_LIST_KEY, JSON.stringify(cur));
-      showToast('임시 저장돼있던 문의("' + item.title + '")를 서버에 다시 등록했어요.');
-      if (document.getElementById('view-support')?.classList.contains('visible')) renderSupportList();
-    }).catch((err) => console.warn('임시 문의 재전송 실패', err));
-  });
+
+      if (document.getElementById('view-support')?.classList.contains('visible')) {
+        renderSupportList();
+      }
+    } catch (err) {
+      console.warn('임시 문의 재전송 실패', err);
+    }
+  }
 }
 
 /* ---------- KAKAO LOGIN (client-side only — no backend session yet) ---------- */
@@ -3465,7 +3792,7 @@ function renderAdmin() {
   adminStatsUnsub = db.collection('stats').doc('counters').onSnapshot((snap) => {
     const d = snap.exists ? snap.data() : {};
     document.getElementById('statVisits').textContent = d.visits || 0;
-    document.getElementById('statSignups').textContent = d.signups || 0;
+    // 총 가입자수는 아래 users 실제 문서 조회 결과로 표시합니다. stats.signups는 레거시 참고값만 유지합니다.
     document.getElementById('statPurchases').textContent = d.purchases || 0;
     const revenue = document.getElementById('statRevenue');
     // 실제 매출: 서버가 결제마다 실제 금액을 그대로 더해서 기록한 값입니다(상품마다 가격이
@@ -3487,9 +3814,16 @@ function renderAdmin() {
     document.getElementById('statTodayVisits').textContent = snap.exists ? (snap.data().count || 0) : 0;
   }, (err) => console.error('오늘 방문수 실시간 조회 실패', err));
 
-  db.collection('users').limit(200).get().then((qs) => {
+  db.collection('users').get().then((qs) => {
     const list = document.getElementById('adminUserList');
-    if (qs.empty) { list.innerHTML = '<div class="empty-note">아직 가입한 회원이 없어요.</div>'; return; }
+    if (qs.empty) {
+      list.innerHTML = '<div class="empty-note">아직 가입한 회원이 없어요.</div>';
+      const signupEl = document.getElementById('statSignups');
+      const kakaoEl = document.getElementById('statKakaoMembers');
+      if (signupEl) signupEl.textContent = '0';
+      if (kakaoEl) kakaoEl.textContent = '0';
+      return;
+    }
     list.innerHTML = '';
     // createdAt이 없는 회원(예: Firestore가 꺼져있던 시기에 만들어진 기록)도 빠짐없이 보여주기 위해
     // orderBy 대신 가져온 뒤 이 자리에서 정렬합니다. createdAt이 없으면 맨 뒤로 보냅니다.
@@ -3504,6 +3838,17 @@ function renderAdmin() {
       };
       return getMs(b) - getMs(a);
     });
+    const actualMemberCount = docs.length;
+    const kakaoMemberCount = docs.filter((doc) => {
+      const u = doc.data() || {};
+      return u.provider === 'kakao' || String(doc.id).startsWith('kakao_');
+    }).length;
+
+    const signupEl = document.getElementById('statSignups');
+    const kakaoEl = document.getElementById('statKakaoMembers');
+    if (signupEl) signupEl.textContent = actualMemberCount;
+    if (kakaoEl) kakaoEl.textContent = kakaoMemberCount;
+
     docs.forEach((doc) => {
       const u = doc.data();
       const label = u.email || u.nickname || ('회원 (' + doc.id.slice(0, 8) + '…)');
@@ -3514,10 +3859,10 @@ function renderAdmin() {
       const untilStr = untilMs ? new Date(untilMs).toLocaleDateString('ko-KR') : '';
       const item = document.createElement('div');
       item.className = 'usecase-item';
-      item.dataset.searchKey = (label + ' ' + (u.nickname || '')).toLowerCase();
+      item.dataset.searchKey = (label + ' ' + (u.nickname || '') + ' ' + (u.provider || '') + ' ' + doc.id).toLowerCase();
       item.innerHTML = `
         <div>
-          <strong style="color:var(--gold-hi); font-family:var(--serif); font-weight:400;">${escapeHtml(label)}</strong> · ${escapeHtml(u.provider || '기타')}${isActivePremium ? ` · <span style="color:var(--gold-hi)">프리미엄 (${untilStr}까지)</span>` : ''}${isActivePremium && u.lastVerificationMethod === 'self-confirm' ? ` · <span style="color:var(--warn); font-size:10px; border:1px solid rgba(201,131,106,.4); padding:2px 6px; border-radius:999px;">⚠ 자가확인(대조 필요)</span>` : ''}
+          <strong style="color:var(--gold-hi); font-family:var(--serif); font-weight:400;">${escapeHtml(label)}</strong> · ${escapeHtml(u.provider || '기타')}${isActivePremium ? ` · <span style="color:var(--gold-hi)">프리미엄 (${untilStr}까지)</span>` : ''}${isActivePremium && u.lastVerificationMethod === 'self-confirm' ? ` · <span style="color:var(--warn); font-size:10px; border:1px solid rgba(201,131,106,.4); padding:2px 6px; border-radius:999px;">⚠ 자가확인(대조 필요)</span>` : ''}<div style="font-size:10px;color:var(--muted-2);margin-top:4px;">UID ${escapeHtml(doc.id)}</div>
         </div>
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
           <span class="text-action" data-grant-uid="${doc.id}" style="font-size:11px;">프리미엄 30일 지급</span>
@@ -3666,9 +4011,8 @@ async function submitInquiry(prefill) {
   showSupportStatus('확인 중이에요…', 'info');
 
   const kakaoUser = getKakaoUser();
-  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser) ? firebaseAuthUser : null;
-  const loggedIn = kakaoUser || fbUser;
-  if (!loggedIn) {
+  const currentFbUser = (firebaseReady && firebase.auth) ? firebase.auth().currentUser : null;
+  if (!kakaoUser && !currentFbUser) {
     showSupportStatus('로그인 후 문의를 남길 수 있어요. 위의 "로그인" 버튼을 먼저 눌러주세요.', 'error');
     openAuthModal();
     return;
@@ -3678,28 +4022,35 @@ async function submitInquiry(prefill) {
   const messageEl = document.getElementById('supportMessage');
   const title = (titleEl?.value || '').trim();
   const message = (messageEl?.value || '').trim();
+
   if (!title || !message) {
     showSupportStatus('제목과 내용을 모두 입력해주세요.', 'error');
     return;
   }
+  if (title.length > 120) {
+    showSupportStatus('문의 제목은 120자 이내로 적어주세요.', 'error');
+    return;
+  }
+  if (message.length > 5000) {
+    showSupportStatus('문의 내용은 5,000자 이내로 적어주세요.', 'error');
+    return;
+  }
 
-  // Firestore/네트워크 요청이 응답 없이 멈추는 상황(광고 차단 확장 프로그램 등)을 대비한 안전장치.
-  let timedOut = false;
-  const timeoutId = setTimeout(() => {
-    timedOut = true;
-    showSupportStatus('저장이 너무 오래 걸리고 있어요. 인터넷 연결이나 광고 차단(애드블록) 확장 프로그램이 Firebase 요청을 막고 있지 않은지 확인해주세요. (10초 넘게 응답이 없어요)', 'error');
-  }, 10000);
+  const authUser = await ensureFirestorePaymentAuth();
+  if (!authUser || authUser.isAnonymous) {
+    showSupportStatus('로그인 보안 연결을 확인하지 못했어요. 로그아웃 후 다시 로그인한 뒤 문의해주세요.', 'error');
+    return;
+  }
 
-  const baseUid = getCurrentUserKey() || ('guest_' + Date.now());
-  let ownerUid = fbUser ? fbUser.uid : null;
-  const name = kakaoUser ? (kakaoUser.nickname || '카카오 사용자')
-    : (fbUser ? (fbUser.displayName || fbUser.email || '회원') : '회원');
-
-  showSupportStatus('등록하는 중이에요…', 'info');
+  const ownerUid = authUser.uid;
+  const name = kakaoUser
+    ? (kakaoUser.nickname || '카카오 사용자')
+    : (authUser.displayName || authUser.email || '회원');
 
   const payload = {
-    uid: baseUid,
+    uid: ownerUid,
     ownerUid,
+    firebaseUid: ownerUid,
     name,
     title,
     message,
@@ -3710,86 +4061,34 @@ async function submitInquiry(prefill) {
     source: kakaoUser ? 'kakao' : 'firebase'
   };
 
-  // 1차: 현재 로그인 세션으로 Firestore 저장
-  if (db) {
-    try {
-      // Firebase-authenticated users write with their own UID. Kakao-only users
-      // are routed through the anonymous-auth fallback below so Firestore rules
-      // can still enforce request.auth.uid == ownerUid.
-      if (kakaoUser && (!fbUser || fbUser.isAnonymous)) throw { code: 'kakao_requires_anonymous' };
-      const docRef = await db.collection('inquiries').add(payload);
-      clearTimeout(timeoutId);
-      saveLocalInquiryRef(docRef.id, title);
-      clearInquiryForm(prefill);
-      showSupportStatus('✓ 문의가 정상적으로 등록됐어요. 아래 내 문의 내역에서 확인할 수 있어요.', 'success');
-      showToast('문의가 등록됐어요.');
-      renderSupportList();
-      return;
-    } catch (firstErr) {
-      console.warn('1차 문의 저장 실패', firstErr);
-      // 카카오 로그인은 Firebase Auth 세션이 아니므로, 익명 인증이 활성화되어 있다면
-      // 익명 Firebase 세션으로 한 번 더 저장합니다. 실제 문의 내용은 Firestore에만 저장됩니다.
-      if (kakaoUser && firebaseReady && firebaseAuthReady && firebase.auth) {
-        try {
-          const current = firebase.auth().currentUser;
-          if (!current || current.isAnonymous) {
-            const anonResult = await firebase.auth().signInAnonymously();
-            const anonUid = anonResult.user.uid;
-            payload.uid = 'kakao_' + kakaoUser.id;
-            payload.firebaseUid = anonUid;
-            payload.ownerUid = anonUid;
-            const docRef = await db.collection('inquiries').add(payload);
-            clearTimeout(timeoutId);
-            saveLocalInquiryRef(docRef.id, title);
-            clearInquiryForm(prefill);
-            showSupportStatus('✓ 문의가 정상적으로 등록됐어요. 답변이 달리면 이 화면에서 확인할 수 있어요.', 'success');
-            showToast('문의가 등록됐어요.');
-            renderSupportList();
-            return;
-          }
-        } catch (anonErr) {
-          clearTimeout(timeoutId);
-          console.warn('익명 인증 문의 저장 실패', anonErr);
-          const anonCode = anonErr && anonErr.code ? '[' + anonErr.code + '] ' : '';
-          const anonMsg = anonErr && anonErr.message ? anonErr.message : String(anonErr);
-          if (anonErr && anonErr.code === 'auth/admin-restricted-operation') {
-            showSupportStatus('등록 실패: Firebase 콘솔 → Authentication → Sign-in method에서 "익명(Anonymous)" 로그인이 꺼져있어요. 켜주신 다음 다시 시도해주세요.', 'error');
-          } else {
-            showSupportStatus('등록 실패(익명 인증 단계): ' + anonCode + anonMsg, 'error');
-          }
-          return;
-        }
-      }
+  let timedOut = false;
+  const timeoutId = setTimeout(() => {
+    timedOut = true;
+    showSupportStatus('저장이 너무 오래 걸리고 있어요. 인터넷 연결 상태를 확인한 뒤 다시 시도해주세요.', 'error');
+  }, 10000);
 
-      clearTimeout(timeoutId);
-      const code = firstErr && firstErr.code ? '[' + firstErr.code + '] ' : '';
-      const messageText = firstErr && firstErr.message ? firstErr.message : 'Firestore 저장에 실패했어요.';
-      showSupportStatus('등록 실패: ' + code + messageText + ' · Firebase Firestore 보안 규칙에서 로그인 사용자의 inquiries 생성 권한을 확인해주세요.', 'error');
-      return;
-    }
+  try {
+    if (!db) throw new Error('FIRESTORE_NOT_READY');
+
+    showSupportStatus('등록하는 중이에요…', 'info');
+    const docRef = await db.collection('inquiries').add(payload);
+    clearTimeout(timeoutId);
+
+    if (timedOut) return;
+
+    saveLocalInquiryRef(docRef.id, title);
+    clearInquiryForm(prefill);
+    showSupportStatus('✓ 문의가 정상적으로 등록됐어요. 아래 내 문의 내역에서 확인할 수 있어요.', 'success');
+    showToast('문의가 등록됐어요.');
+    renderSupportList();
+
+  } catch (err) {
+    clearTimeout(timeoutId);
+    console.error('문의 저장 실패', err);
+    const code = err && err.code ? '[' + err.code + '] ' : '';
+    const msg = err && err.message ? err.message : String(err);
+    showSupportStatus('문의 등록에 실패했어요. ' + code + msg, 'error');
   }
-  clearTimeout(timeoutId);
-
-  // Firebase가 내려간 경우에도 사용자가 작성 내용을 잃지 않도록 로컬 임시보관.
-  // 서버 문의로 표시하지 않고 "임시 저장"임을 명확히 안내합니다.
-  const localId = 'local_' + Date.now().toString(36);
-  const list = getMyInquiryList();
-  list.unshift({ id: localId, title, createdAt: Date.now(), localOnly: true, message });
-  localStorage.setItem(SUPPORT_LIST_KEY, JSON.stringify(list));
-  clearInquiryForm(prefill);
-  showSupportStatus('✓ 현재 서버 연결이 없어 이 기기에 임시 저장했어요. 연결이 복구되면 다시 등록해주세요.', 'success');
-  showToast('문의가 기기에 임시 저장됐어요.');
-  renderSupportList();
-}
-
-function escapeHtml(value) {
-  return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-}
-
-function saveLocalInquiryRef(id, title) {
-  const list = getMyInquiryList().filter(x => x.id !== id);
-  list.unshift({ id, title, createdAt: Date.now() });
-  localStorage.setItem(SUPPORT_LIST_KEY, JSON.stringify(list));
 }
 
 function clearInquiryForm(prefill) {
@@ -4092,15 +4391,12 @@ async function loginWithGoogle() {
 async function ensureKakaoFirebaseSession(accessToken) {
   if (!firebaseReady || !window.firebase || !firebase.auth || !KAKAO_TOKEN_FUNCTION_URL) return null;
 
-  const current = firebase.auth().currentUser;
-  if (current && !current.isAnonymous) {
-    firebaseAuthUser = current;
-    firebaseAuthReady = true;
-    return current;
-  }
-
   const token = accessToken || sessionStorage.getItem('taekilso_kakao_access_token');
   if (!token) return null;
+
+  // 카카오 로그인을 시작한 경우 기존 Google/이메일 Firebase 세션을 재사용하지 않습니다.
+  // 서버가 검증한 카카오 계정의 customToken으로 반드시 세션을 교체해야
+  // 카카오 프로필과 다른 Firebase UID가 섞이지 않습니다.
 
   try {
     const bridgeRes = await fetch(KAKAO_TOKEN_FUNCTION_URL, {
@@ -4230,25 +4526,11 @@ async function exchangeKakaoCode(code) {
     const firestoreUid = bridgedUser && !bridgedUser.isAnonymous ? bridgedUser.uid : null;
 
     if (db && firestoreUid) {
-      const userRef = db.collection('users').doc(firestoreUid);
-
-      userRef.get().then((snap) => {
-        if (!snap.exists) {
-          return userRef.set({
-            email: profile.email || null,
-            nickname: profile.nickname,
-            provider: 'kakao',
-            premium: false,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true }).then(() => bumpStat('signups'));
-        }
-
-        return userRef.set({
-          email: profile.email || null,
-          nickname: profile.nickname,
-          provider: 'kakao'
-        }, { merge: true });
-      }).catch(err => console.error('카카오 사용자 문서 저장 실패', err));
+      await recordSignup(firestoreUid, {
+        email: profile.email || null,
+        nickname: profile.nickname,
+        provider: 'kakao'
+      });
 
       reconcilePremiumWithAccount(firestoreUid);
       flushLocalOnlyInquiries();
@@ -5398,8 +5680,100 @@ function getSajuVault(){
 }
 function setSajuVault(list){
   try { localStorage.setItem(getSajuVaultKey(), JSON.stringify((list||[]).slice(0,50))); } catch(e) { console.warn('사주 보관함 저장 실패', e); }
-  renderSajuVault(); refreshAiProfileSelectors();
+  renderSajuVault(); refreshAiProfileSelectors(); updateHistoryCounts();
 }
+
+function getSajuVaultCloudRef(uid) {
+  if (!db || !uid) return null;
+  return db.collection('users').doc(uid).collection('sajuProfiles');
+}
+
+function sanitizeSajuProfileForCloud(profile) {
+  return {
+    name: String(profile.name || '').slice(0, 20),
+    relation: String(profile.relation || '').slice(0, 30),
+    y: Number(profile.y || 0),
+    m: Number(profile.m || 0),
+    d: Number(profile.d || 0),
+    calType: profile.calType === 'lunar' ? 'lunar' : 'solar',
+    isLeap: !!profile.isLeap,
+    hourValue: String(profile.hourValue || 'unknown').slice(0, 10),
+    gender: String(profile.gender || 'unknown').slice(0, 10),
+    birth: String(profile.birth || '').slice(0, 60),
+    summary: String(profile.summary || '').slice(0, 2500),
+    data: profile.data || {},
+    updatedAt: Number(profile.updatedAt || Date.now())
+  };
+}
+
+async function syncSajuVaultFromCloud(uid) {
+  const authUser = firebaseReady && firebase.auth ? firebase.auth().currentUser : null;
+  const ownerUid = uid || (authUser && !authUser.isAnonymous ? authUser.uid : null);
+  if (!ownerUid || !db) return;
+
+  try {
+    const snap = await getSajuVaultCloudRef(ownerUid).limit(50).get();
+    const remote = snap.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+    const local = getSajuVault();
+
+    const merged = new Map();
+    [...remote, ...local].forEach((p) => {
+      if (!p || !p.id) return;
+      const prev = merged.get(p.id);
+      if (!prev || Number(p.updatedAt || 0) >= Number(prev.updatedAt || 0)) {
+        merged.set(p.id, p);
+      }
+    });
+
+    const list = Array.from(merged.values())
+      .sort((a,b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0))
+      .slice(0, 50);
+
+    setSajuVault(list);
+
+    // 기존에 이 브라우저에만 있던 사주도 로그인 계정으로 올립니다.
+    const batch = db.batch();
+    let writes = 0;
+    for (const p of list) {
+      if (!p.id) continue;
+      batch.set(
+        getSajuVaultCloudRef(ownerUid).doc(p.id),
+        sanitizeSajuProfileForCloud(p),
+        { merge:true }
+      );
+      writes++;
+    }
+    if (writes) await batch.commit();
+
+  } catch (err) {
+    console.warn('사주 보관함 클라우드 동기화 실패', err);
+  }
+}
+
+async function saveSajuProfileToCloud(profile) {
+  const authUser = firebaseReady && firebase.auth ? firebase.auth().currentUser : null;
+  if (!db || !authUser || authUser.isAnonymous || !profile || !profile.id) return;
+
+  try {
+    await getSajuVaultCloudRef(authUser.uid)
+      .doc(profile.id)
+      .set(sanitizeSajuProfileForCloud(profile), { merge:true });
+  } catch (err) {
+    console.warn('사주 프로필 서버 저장 실패', err);
+  }
+}
+
+async function deleteSajuProfileFromCloud(id) {
+  const authUser = firebaseReady && firebase.auth ? firebase.auth().currentUser : null;
+  if (!db || !authUser || authUser.isAnonymous || !id) return;
+
+  try {
+    await getSajuVaultCloudRef(authUser.uid).doc(id).delete();
+  } catch (err) {
+    console.warn('사주 프로필 서버 삭제 실패', err);
+  }
+}
+
 function makeSajuProfileId(){ return 'sp_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 function refreshAiProfileSelectors(){
   const list=getSajuVault(); const saved=document.getElementById('aiChatSavedProfile'); const compare=document.getElementById('aiChatCompareProfile');
@@ -5415,9 +5789,12 @@ function loadAiSavedProfile(id){
 function saveSajuProfileRecord(profile){
   const list=getSajuVault(); const picker=document.getElementById('aiChatSavedProfile'); const existingId=picker ? picker.value : '';
   const rec={...profile,id:existingId||profile.id||makeSajuProfileId(),updatedAt:Date.now()};
-  const idx=list.findIndex(x=>x.id===rec.id); if(idx>=0) list[idx]=rec; else list.unshift(rec); setSajuVault(list); return rec;
+  const idx=list.findIndex(x=>x.id===rec.id); if(idx>=0) list[idx]=rec; else list.unshift(rec);
+  setSajuVault(list);
+  saveSajuProfileToCloud(rec);
+  return rec;
 }
-function deleteSajuProfile(id){ if(!confirm('이 사주를 보관함에서 삭제할까요?')) return; setSajuVault(getSajuVault().filter(p=>p.id!==id)); }
+function deleteSajuProfile(id){ if(!confirm('이 사주를 보관함에서 삭제할까요?')) return; setSajuVault(getSajuVault().filter(p=>p.id!==id)); deleteSajuProfileFromCloud(id); }
 function useSajuProfileInChat(id){ goTo('home'); showAiChatSetupStep(); setTimeout(()=>{refreshAiProfileSelectors(); const el=document.getElementById('aiChatSavedProfile'); if(el){el.value=id;loadAiSavedProfile(id)}},50); }
 function renderSajuVault(){
   const list=getSajuVault(), host=document.getElementById('sajuVaultList'), empty=document.getElementById('sajuVaultEmpty'); if(!host)return;
