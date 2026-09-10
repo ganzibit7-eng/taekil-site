@@ -1956,8 +1956,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <div class="admin-stat"><small>오늘 방문수</small><b id="statTodayVisits">–</b></div>
           <div class="admin-stat"><small>총 가입자수</small><b id="statSignups">–</b></div>
           <div class="admin-stat"><small>총 구매수</small><b id="statPurchases">–</b></div>
-          <div class="admin-stat"><small>예상 누적 매출</small><b id="statRevenue" style="font-size:20px;">–</b></div>
+          <div class="admin-stat"><small>누적 매출</small><b id="statRevenue" style="font-size:20px;">–</b></div>
           <div class="admin-stat"><small>현재 프리미엄 회원</small><b id="statActivePremium">–</b></div>
+          <div class="admin-stat"><small>프리미엄 구매수</small><b id="statPurchasesPremium">–</b></div>
+          <div class="admin-stat"><small>질문권 구매수</small><b id="statPurchasesQuestionPacks">–</b></div>
           <div class="admin-stat"><small>답변 대기 문의</small><b id="statPendingInquiries" style="color:var(--warn);">–</b></div>
         </div>
         <div class="section-head" style="margin-top:40px;">
@@ -3012,7 +3014,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-09-realtime-admin-stats' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-09-accurate-revenue-dashboard' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -3481,7 +3483,17 @@ function renderAdmin() {
     document.getElementById('statSignups').textContent = d.signups || 0;
     document.getElementById('statPurchases').textContent = d.purchases || 0;
     const revenue = document.getElementById('statRevenue');
-    if (revenue) revenue.textContent = ((d.purchases || 0) * PREMIUM_PRICE).toLocaleString('ko-KR') + '원';
+    // 실제 매출: 서버가 결제마다 실제 금액을 그대로 더해서 기록한 값입니다(상품마다 가격이
+    // 달라서, 예전처럼 "구매수 × 프리미엄 가격"으로 어림잡으면 질문권 구매까지 프리미엄
+    // 가격으로 잘못 계산됩니다).
+    if (revenue) revenue.textContent = (d.revenue || 0).toLocaleString('ko-KR') + '원';
+    const byProduct = d.purchasesByProduct || {};
+    const premiumCount = byProduct.taekilso_premium_30days || 0;
+    const qpCount = (byProduct.ai_question_pack_5 || 0) + (byProduct.ai_question_pack_10 || 0);
+    const premiumEl = document.getElementById('statPurchasesPremium');
+    const qpEl = document.getElementById('statPurchasesQuestionPacks');
+    if (premiumEl) premiumEl.textContent = premiumCount;
+    if (qpEl) qpEl.textContent = qpCount;
   }, (err) => console.error('통계 실시간 조회 실패', err));
 
   const todayKey = new Date().toISOString().slice(0, 10);
