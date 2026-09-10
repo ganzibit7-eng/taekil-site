@@ -2124,6 +2124,12 @@ function showToast(msg) {
   setTimeout(() => t.remove(), 3000);
 }
 function goTo(route, presetEvent) {
+  // admin 화면을 떠날 때는 실시간 통계 감시를 꺼서, 다른 화면 보는 동안 불필요하게
+  // 계속 서버와 연결되어 있지 않도록 합니다.
+  if (route !== 'admin') {
+    if (typeof adminStatsUnsub === 'function') { adminStatsUnsub(); adminStatsUnsub = null; }
+    if (typeof adminDailyVisitsUnsub === 'function') { adminDailyVisitsUnsub(); adminDailyVisitsUnsub = null; }
+  }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('visible'));
   const target = document.getElementById('view-' + route);
   if (target) target.classList.add('visible');
@@ -3006,7 +3012,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-09-premium-only-simplify' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-09-realtime-admin-stats' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -3450,6 +3456,8 @@ function filterAdminUserList(query) {
   });
 }
 
+let adminStatsUnsub = null;
+let adminDailyVisitsUnsub = null;
 function renderAdmin() {
   const denied = document.getElementById('adminDenied');
   const content = document.getElementById('adminContent');
@@ -3462,19 +3470,25 @@ function renderAdmin() {
   content.style.display = 'block';
 
   if (!db) return;
-  db.collection('stats').doc('counters').get({ source: 'server' }).then((snap) => {
+
+  // 실시간 반영: 관리자가 이 화면을 보고 있는 동안 방문/가입/구매 수가 바뀌면
+  // 새로고침 없이 바로 업데이트되도록 한 번 조회하는 대신 계속 지켜보는(onSnapshot)
+  // 방식으로 바꿨습니다. 화면을 다시 열 때마다 이전 감시를 정리하고 새로 시작합니다.
+  if (adminStatsUnsub) adminStatsUnsub();
+  adminStatsUnsub = db.collection('stats').doc('counters').onSnapshot((snap) => {
     const d = snap.exists ? snap.data() : {};
     document.getElementById('statVisits').textContent = d.visits || 0;
     document.getElementById('statSignups').textContent = d.signups || 0;
     document.getElementById('statPurchases').textContent = d.purchases || 0;
     const revenue = document.getElementById('statRevenue');
     if (revenue) revenue.textContent = ((d.purchases || 0) * PREMIUM_PRICE).toLocaleString('ko-KR') + '원';
-  }).catch(err => console.error('통계 조회 실패', err));
+  }, (err) => console.error('통계 실시간 조회 실패', err));
 
   const todayKey = new Date().toISOString().slice(0, 10);
-  db.collection('dailyVisits').doc(todayKey).get({ source: 'server' }).then((snap) => {
+  if (adminDailyVisitsUnsub) adminDailyVisitsUnsub();
+  adminDailyVisitsUnsub = db.collection('dailyVisits').doc(todayKey).onSnapshot((snap) => {
     document.getElementById('statTodayVisits').textContent = snap.exists ? (snap.data().count || 0) : 0;
-  }).catch(err => console.error('오늘 방문수 조회 실패', err));
+  }, (err) => console.error('오늘 방문수 실시간 조회 실패', err));
 
   db.collection('users').limit(200).get().then((qs) => {
     const list = document.getElementById('adminUserList');
@@ -4123,15 +4137,27 @@ async function exchangeKakaoCode(code) {
     showToast('카카오로 로그인했어요');
     continueHomeChatAfterLogin();
     // 카카오 로그인은 구글/이메일과 달리 가입 시점에 users 문서를 따로 만들지 않았어서,
-    // AI 상담 등 서버(Admin SDK)가 이 문서 존재를 전제로 하는 기능에서 문제가 될 수 있었습니다.
-    // 매번 병합(merge) 저장이라 이미 있어도 안전하고, 없으면 새로 만들어줍니다.
+    // AI 상담 등 서버(Admin SDK)가 이 문서 존재를 전제로 하는 기능에서 문제가 될 수 있었고,
+    // "총 가입자수" 통계에도 전혀 반영되지 않고 있었습니다. 이 문서가 처음 생기는 순간에만
+    // 가입으로 집계하고, 이미 있는 회원은 createdAt을 다시 덮어쓰지 않도록 고칩니다.
     if (db) {
-      db.collection('users').doc('kakao_' + profile.id).set({
-        email: profile.email || null,
-        nickname: profile.nickname,
-        provider: 'kakao',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true }).catch(err => console.error('카카오 사용자 문서 저장 실패', err));
+      const kakaoUserRef = db.collection('users').doc('kakao_' + profile.id);
+      kakaoUserRef.get().then((snap) => {
+        if (!snap.exists) {
+          return kakaoUserRef.set({
+            email: profile.email || null,
+            nickname: profile.nickname,
+            provider: 'kakao',
+            premium: false,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true }).then(() => bumpStat('signups'));
+        }
+        // 기존 회원이면 닉네임/이메일 정도만 최신화하고, 가입일(createdAt)은 건드리지 않습니다.
+        return kakaoUserRef.set({
+          email: profile.email || null,
+          nickname: profile.nickname
+        }, { merge: true });
+      }).catch(err => console.error('카카오 사용자 문서 저장 실패', err));
     }
     reconcilePremiumWithAccount('kakao_' + profile.id);
     flushLocalOnlyInquiries();
