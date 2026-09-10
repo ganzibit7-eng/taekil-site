@@ -6410,6 +6410,14 @@ async function sendAiChatMessage() {
 
     appendAiChatMessage('assistant', data.reply, { scroll: 'start' });
     window.__aiChatHistory.push({ role: 'assistant', content: data.reply });
+
+    if (data.restricted) {
+      // 수명·질병·도박·구체 투자지시 등 제한 질문은 결제 유도나 서비스 CTA를 붙이지 않고,
+      // 민감한 질문을 계정 상담 기록에도 자동 저장하지 않습니다. 사용량도 서버에서 차감하지 않습니다.
+      showToast('이 질문은 사주로 단정하지 않는 범위에서 안내했어요.');
+      return;
+    }
+
     saveCurrentAiConversation();
     appendAiChatServiceCta(message);
     if (!isPremium()) appendAiChatUpsell(message);
