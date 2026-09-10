@@ -328,6 +328,41 @@ section.block{padding:90px 0}
 .event-card-v3-info p{margin:0 0 16px; font-size:13px; line-height:1.6; color:var(--muted)}
 .event-card-v3-info b{font-size:13px; font-weight:700; color:var(--gold-hi)}
 .event-card-v3-info b i{font-style:normal; margin-left:2px}
+
+.ai-history-list{display:grid;gap:10px}
+.ai-history-item{
+  border:1px solid var(--line-soft);border-radius:18px;padding:16px;
+  background:rgba(255,255,255,.025);transition:.2s var(--ease)
+}
+.ai-history-item:hover{border-color:rgba(215,180,106,.28);background:rgba(255,255,255,.04)}
+.ai-history-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.ai-history-title{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--white)}
+.ai-history-meta{font-size:10px;color:var(--muted-2);margin-top:4px;line-height:1.5}
+.ai-history-preview{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.65}
+.ai-history-actions{display:flex;gap:7px;margin-top:12px}
+.ai-history-actions button{
+  border:1px solid var(--line-soft);border-radius:999px;background:rgba(255,255,255,.035);
+  color:var(--muted);font-size:10px;padding:7px 11px;cursor:pointer
+}
+.ai-history-actions button:first-child{color:var(--gold-hi);border-color:rgba(215,180,106,.25)}
+.ai-history-actions button:hover{background:rgba(255,255,255,.07)}
+
+.date-compare-toolbar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin:0 0 14px;padding:13px 15px;border:1px solid rgba(215,180,106,.22);
+  border-radius:16px;background:rgba(215,180,106,.055)
+}
+.date-compare-toolbar span{font-size:11px;color:var(--muted);line-height:1.5}
+.date-compare-toolbar button{
+  flex:0 0 auto;border:0;border-radius:999px;padding:9px 13px;
+  background:rgba(215,180,106,.16);color:var(--gold-hi);font-size:10.5px;font-weight:700;cursor:pointer
+}
+.date-compare-toolbar button:disabled{opacity:.38;cursor:not-allowed}
+.date-compare-check{
+  display:inline-flex;align-items:center;gap:5px;color:var(--gold-hi)!important;cursor:pointer
+}
+.date-compare-check input{accent-color:var(--gold-hi)}
+
 @media(max-width:520px){.event-carousel-track{padding:8px 16px 28px; gap:14px}}
 
 .event-card-photo{position:relative; aspect-ratio:3/4; border-radius:16px!important; overflow:hidden!important; cursor:pointer; padding:0!important; min-height:0!important; background:#111; box-shadow:0 20px 60px rgba(0,0,0,.3)}
@@ -619,7 +654,7 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
 /* 기록 허브 — 검색 기록 + 사주 보관함 */
 .history-hub{padding-bottom:110px}
 .history-summary-grid{
-  display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px
 }
 .history-summary-card{
   appearance:none;text-align:left;cursor:pointer;
@@ -637,7 +672,7 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .history-summary-card small{display:block;font-size:11px;color:var(--muted-2);margin-top:9px}
 
 .history-tabbar{
-  display:grid;grid-template-columns:1fr 1fr;
+  display:grid;grid-template-columns:repeat(3,1fr);
   padding:4px;border:1px solid var(--line-soft);border-radius:999px;
   background:rgba(255,255,255,.025);margin:0 0 18px
 }
@@ -690,7 +725,7 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
 }
 
 @media(max-width:520px){
-  .history-summary-grid{gap:8px}
+  .history-summary-grid{grid-template-columns:1fr;gap:8px}
   .history-summary-card{padding:16px 14px}
   .history-summary-card strong{font-size:27px}
   .saju-vault-head{flex-direction:column}
@@ -1497,8 +1532,9 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <label style="display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.72);font-size:10px;margin:0 2px 8px;"><input id="aiChatLeap" type="checkbox" style="accent-color:var(--gold-hi)" onchange="this.disabled=false"> 윤달(음력)인 경우 체크</label>
           <div class="ai-chat-profile-note">출생시간을 알면 시주까지 반영해 상담 깊이를 높일 수 있어요. 모르면 '시간 모름'으로 시작할 수 있습니다. (태양시 기준 계산 방식은 기존 기능을 그대로 사용합니다.)</div>
           <div class="ai-chat-profile-picker" style="margin-bottom:8px;">
-            <label class="ai-chat-setup-label" for="aiChatCompareProfile">함께 비교할 사람 <span style="opacity:.65">(선택)</span></label>
+            <label class="ai-chat-setup-label" for="aiChatCompareProfile">함께 비교할 사람 <span style="opacity:.65">(선택 · 최대 2명)</span></label>
             <select id="aiChatCompareProfile"><option value="">비교하지 않음</option></select>
+            <select id="aiChatCompareProfile2" style="margin-top:7px;"><option value="">두 번째 비교 대상 없음</option></select>
           </div>
           <button class="btn btn-primary" style="width:100%;" onclick="startAiChat()">✨ 저장하고 상담 시작하기</button>
         </div>
@@ -1617,7 +1653,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <details class="faq-item"><summary>결과는 얼마나 정확한가요?</summary><p>전통 명리학의 오행 상생상극 원리를 단순화해 참고용으로 제공하는 도구예요. 실제 중요한 결정은 여러 정보를 함께 고려하시길 권합니다.</p></details>
         <details class="faq-item"><summary>태어난 시간을 몰라도 되나요?</summary><p>네, 이용할 수 있어요. 출생시간을 모르면 년·월·일주 등 확인 가능한 범위로 분석하고, 출생시간을 입력하면 시주까지 포함해 AI 상담의 해석 범위가 더 넓어집니다. 출생시간이 필요한 일부 해석은 제공 범위가 달라질 수 있어요.</p></details>
         <details class="faq-item"><summary>회원가입을 꼭 해야 하나요?</summary><p>아니요. 기본 택일 기능은 회원가입 없이도 이용할 수 있어요. AI 사주 상담, 결제·프리미엄 상태, 사주 보관함 동기화, 문의 내역처럼 계정에 연결되는 기능은 로그인 후 이용합니다.</p></details>
-        <details class="faq-item"><summary>내 정보는 어디에 저장되나요?</summary><p>기본 택일 계산과 일부 검색 기록은 브라우저에서 처리·저장됩니다. AI 상담을 이용할 때는 답변 생성을 위해 선택한 사주 정보와 질문·최근 대화 일부가 택일소 서버를 거쳐 AI 제공업체로 전송될 수 있습니다. 로그인·결제 상태는 계정 기능 제공을 위해 Firebase에 저장됩니다.</p></details>
+        <details class="faq-item"><summary>내 정보는 어디에 저장되나요?</summary><p>기본 택일 계산과 일부 검색 기록은 브라우저에서 처리·저장됩니다. AI 상담을 이용할 때는 답변 생성을 위해 선택한 사주 정보와 질문·최근 대화 일부가 택일소 서버를 거쳐 AI 제공업체로 전송될 수 있습니다. 로그인·결제 상태와 사용자가 저장한 사주·AI 상담 기록은 계정 기능 제공과 기기 간 동기화를 위해 Firebase에 저장될 수 있습니다.</p></details>
         <details class="faq-item"><summary>사주 계산에는 어떤 정보를 쓰나요?</summary><p>택일 기능은 서비스가 계산한 일주 정보를 핵심 기준으로 사용하고, AI 사주 상담은 계산 라이브러리가 제공하는 년주·월주·일주와 출생시간이 있는 경우 시주, 오행·십신·지장간 정보를 함께 참고합니다. 대운·세운·용신처럼 현재 계산 데이터에 없는 요소는 AI가 임의로 만들어내지 않도록 제한하고 있어요.</p></details>
         <details class="faq-item"><summary>AI가 사주를 대신 봐주나요?</summary><p>택일소의 날짜 추천은 정해진 오행·일진 기준으로 계산됩니다. 생성형 AI가 임의로 운세를 만들어내는 방식과 달리, 계산 기준을 먼저 고정하고 결과를 설명하는 방향을 우선합니다.</p></details>
         <details class="faq-item"><summary>유료 결제하면 무엇이 달라지나요?</summary><p>무료에서는 AI 상담 평생 3개와 최대 30일·TOP 5 중심으로 확인하고, 프리미엄에서는 <b>AI 상담 하루 20개</b>와 최대 365일 후보·TOP 20·월별 베스트·두 사람 궁합 택일·상세 리포트와 전체 캘린더, 정밀사주·궁합·재물 심층 분석을 <b>30일간</b> 이용할 수 있습니다.</p></details>
@@ -1959,11 +1995,18 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <strong id="historyVaultCount">0</strong>
           <small>나와 소중한 사람들의 사주</small>
         </button>
+
+        <button class="history-summary-card" id="historySummaryAi" onclick="switchHistoryTab('ai')">
+          <span>AI 상담</span>
+          <strong id="historyAiCount">0</strong>
+          <small>연우와 나눈 상담 이어보기</small>
+        </button>
       </div>
 
       <div class="history-tabbar" role="tablist" aria-label="기록 종류">
         <button id="historyTabSearch" class="history-tab active" role="tab" aria-selected="true" onclick="switchHistoryTab('search')">검색 기록</button>
         <button id="historyTabVault" class="history-tab" role="tab" aria-selected="false" onclick="switchHistoryTab('vault')">사주 보관함</button>
+        <button id="historyTabAi" class="history-tab" role="tab" aria-selected="false" onclick="switchHistoryTab('ai')">AI 상담</button>
       </div>
 
       <div id="historySearchPanel" class="history-panel active">
@@ -2006,6 +2049,20 @@ const ADMIN_EMAIL = "green092432@gmail.com";
             저장된 사주가 아직 없어요.<br>
             <button onclick="openAiProfileCreator()">첫 사주 저장하기 →</button>
           </div>
+        </div>
+      </div>
+
+      <div id="historyAiPanel" class="history-panel">
+        <div class="history-panel-head">
+          <div>
+            <b>AI 상담 기록</b>
+            <small>연우와 나눈 최근 상담을 다시 열어 이어서 질문할 수 있어요.</small>
+          </div>
+        </div>
+        <div id="aiConversationHistoryList" class="ai-history-list"></div>
+        <div id="aiConversationHistoryEmpty" class="empty-note history-empty-box">
+          아직 저장된 AI 상담이 없어요.<br>
+          <button onclick="goTo('home')">연우와 상담 시작하기 →</button>
         </div>
       </div>
 
@@ -2824,46 +2881,59 @@ let currentHistoryTab = 'search';
 function updateHistoryCounts() {
   const searchCount = readHistoryStore().length;
   const vaultCount = getSajuVault().length;
+  const aiCount = getAiConversationStore().length;
 
   const searchEl = document.getElementById('historySearchCount');
   const vaultEl = document.getElementById('historyVaultCount');
+  const aiEl = document.getElementById('historyAiCount');
   if (searchEl) searchEl.textContent = String(searchCount);
   if (vaultEl) vaultEl.textContent = String(vaultCount);
+  if (aiEl) aiEl.textContent = String(aiCount);
 
   const clearBtn = document.getElementById('historyClearBtn');
   if (clearBtn) clearBtn.style.display = searchCount ? '' : 'none';
 }
 
 function switchHistoryTab(tab) {
-  currentHistoryTab = tab === 'vault' ? 'vault' : 'search';
+  currentHistoryTab = ['search','vault','ai'].includes(tab) ? tab : 'search';
 
-  const isVault = currentHistoryTab === 'vault';
   const searchPanel = document.getElementById('historySearchPanel');
   const vaultPanel = document.getElementById('historyVaultPanel');
+  const aiPanel = document.getElementById('historyAiPanel');
+
   const searchTab = document.getElementById('historyTabSearch');
   const vaultTab = document.getElementById('historyTabVault');
+  const aiTab = document.getElementById('historyTabAi');
+
   const searchCard = document.getElementById('historySummarySearch');
   const vaultCard = document.getElementById('historySummaryVault');
+  const aiCard = document.getElementById('historySummaryAi');
 
-  if (searchPanel) searchPanel.classList.toggle('active', !isVault);
-  if (vaultPanel) vaultPanel.classList.toggle('active', isVault);
+  const map = {
+    search: [searchPanel, searchTab, searchCard],
+    vault: [vaultPanel, vaultTab, vaultCard],
+    ai: [aiPanel, aiTab, aiCard]
+  };
 
-  if (searchTab) {
-    searchTab.classList.toggle('active', !isVault);
-    searchTab.setAttribute('aria-selected', String(!isVault));
-  }
-  if (vaultTab) {
-    vaultTab.classList.toggle('active', isVault);
-    vaultTab.setAttribute('aria-selected', String(isVault));
-  }
+  Object.entries(map).forEach(([key, parts]) => {
+    const active = key === currentHistoryTab;
+    if (parts[0]) parts[0].classList.toggle('active', active);
+    if (parts[1]) {
+      parts[1].classList.toggle('active', active);
+      parts[1].setAttribute('aria-selected', String(active));
+    }
+    if (parts[2]) parts[2].classList.toggle('active', active);
+  });
 
-  if (searchCard) searchCard.classList.toggle('active', !isVault);
-  if (vaultCard) vaultCard.classList.toggle('active', isVault);
-
-  if (isVault) {
+  if (currentHistoryTab === 'vault') {
     renderSajuVault();
     const authUser = firebaseReady && firebase.auth ? firebase.auth().currentUser : null;
     if (authUser && !authUser.isAnonymous) syncSajuVaultFromCloud(authUser.uid);
+  }
+
+  if (currentHistoryTab === 'ai') {
+    renderAiConversationHistory();
+    syncAiConversationHistoryFromCloud();
   }
 
   updateHistoryCounts();
@@ -3119,6 +3189,79 @@ function askAiAboutResult(eventType, dateStr) {
   }, 150);
 }
 
+
+function updateDateCompareToolbar(){
+  const btn = document.getElementById('dateCompareAiBtn');
+  const label = document.getElementById('dateCompareCount');
+  const count = window.__resultCompareSelections ? window.__resultCompareSelections.size : 0;
+  if (label) label.textContent = `${count}개 선택`;
+  if (btn) {
+    btn.disabled = count < 2;
+    btn.textContent = count >= 2 ? `선택한 ${count}개 날짜 AI 비교` : '2~3개 선택 후 AI 비교';
+  }
+}
+
+function toggleDateCompare(index, checked){
+  if (!window.__resultCompareSelections) window.__resultCompareSelections = new Set();
+
+  if (checked) {
+    if (window.__resultCompareSelections.size >= 3) {
+      const box = document.querySelector(`input[data-date-compare-index="${index}"]`);
+      if (box) box.checked = false;
+      showToast('날짜는 최대 3개까지 비교할 수 있어요.');
+      return;
+    }
+    window.__resultCompareSelections.add(index);
+  } else {
+    window.__resultCompareSelections.delete(index);
+  }
+
+  updateDateCompareToolbar();
+}
+
+function compareSelectedDatesWithAi(){
+  const indexes = Array.from(window.__resultCompareSelections || []);
+  if (indexes.length < 2) {
+    showToast('비교할 날짜를 2개 이상 선택해주세요.');
+    return;
+  }
+
+  const candidates = indexes
+    .map(i => (window.__visibleResultCandidates || [])[i])
+    .filter(Boolean)
+    .slice(0,3);
+
+  if (candidates.length < 2) {
+    showToast('선택한 날짜 정보를 다시 확인해주세요.');
+    return;
+  }
+
+  const eventType = (window.__ctx && window.__ctx.eventType) || '택일';
+  const details = candidates.map((t, idx) => {
+    const dateText = `${t.date.getFullYear()}년 ${t.date.getMonth()+1}월 ${t.date.getDate()}일 ${dowNames[t.date.getDay()]}요일`;
+    const reasons = (t.reasons || []).slice(0,4).join(', ') || '특이 사유 없음';
+    return `${idx+1}) ${dateText} / 종합점수 ${to100(t.score)}점 / 일진 ${t.ganji}(${t.ganjiHanja}) / 오행 ${t.ohaeng} / 계산상 이유: ${reasons}`;
+  }).join('\n');
+
+  window.__pendingCategoryQuestion =
+    `방금 택일소에서 계산한 ${eventType} 후보 날짜 ${candidates.length}개를 비교해주세요.\n` +
+    `아래 값은 실제 택일 계산 결과이므로 이 정보만 근거로 장단점과 우선순위를 설명해주세요.\n\n${details}\n\n` +
+    `가장 추천하는 날짜를 1개 고르고, 나머지 날짜와 비교한 이유와 현실적으로 함께 확인할 점도 알려주세요.`;
+
+  goTo('home');
+  setTimeout(() => {
+    const panel = document.getElementById('aiChatPanel');
+    if (panel && panel.style.display === 'flex') {
+      const q = window.__pendingCategoryQuestion;
+      window.__pendingCategoryQuestion = null;
+      quickAskAiChat(q);
+    } else {
+      handleHomeChatStart();
+      showToast('상담할 사주를 선택하면 방금 고른 날짜 비교를 이어서 해드릴게요.');
+    }
+  }, 120);
+}
+
 function cautionTextFor(eventType) {
   if (eventType === '이사') return '실제 이사 일정·방향·계약 조건을 함께 확인하세요.';
   if (eventType === '개업') return '인허가·공사·직원 일정 등 현실 조건을 우선 확인하세요.';
@@ -3136,6 +3279,8 @@ function renderResultCards(top, eventType, coupleMode, coupleRelation) {
   const narratives = top.map(t => generateNarrative(t, eventType, coupleMode, coupleRelation));
   const container = document.getElementById('dateCards');
   container.innerHTML = '';
+  window.__visibleResultCandidates = top;
+  window.__resultCompareSelections = new Set();
   const hero = document.getElementById('bestResultHero');
   const countEl = document.getElementById('resultCount');
   if (top.length === 0) {
@@ -3144,6 +3289,14 @@ function renderResultCards(top, eventType, coupleMode, coupleRelation) {
     if (countEl) countEl.textContent = '';
     return;
   }
+  const toolbar = document.createElement('div');
+  toolbar.className = 'date-compare-toolbar';
+  toolbar.innerHTML = `
+    <span><b style="color:var(--gold-hi)">후보 날짜 직접 비교</b><br><span id="dateCompareCount">0개 선택</span> · 추천 날짜 중 2~3개를 골라 연우에게 비교해보세요.</span>
+    <button id="dateCompareAiBtn" onclick="compareSelectedDatesWithAi()" disabled>2~3개 선택 후 AI 비교</button>
+  `;
+  container.appendChild(toolbar);
+
   const best = top[0];
   const bestScore = to100(best.score);
   if (countEl) countEl.textContent = `${top.length}개 추천`;
@@ -3192,6 +3345,7 @@ function renderResultCards(top, eventType, coupleMode, coupleRelation) {
       <div class="badges">${badgeList}</div>
       <div class="result-narrative">${generateNarrative(t, eventType, coupleMode, coupleRelation)}</div>
       <div class="result-actions">
+        <label class="mini-action date-compare-check"><input type="checkbox" data-date-compare-index="${i}" onchange="toggleDateCompare(${i}, this.checked)"> 비교 담기</label>
         <span class="mini-action" onclick="buildIcs(window.__result_${i}, '${eventType}')">📅 캘린더 추가</span>
         <span class="mini-action" onclick="shareResult(window.__result_${i}, '${eventType}')">공유하기</span>
         <span class="mini-action" onclick="window.print()">PDF 저장</span>
@@ -5478,6 +5632,201 @@ function goHomeSection(id){
   },60);
 }
 /* ---------- AI 사주 상담 ---------- */
+const AI_CONVERSATION_KEY = 'taekilso_ai_conversations_v1';
+window.__aiConversationId = null;
+
+function makeAiConversationId(){
+  return 'ac_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+}
+
+function getAiConversationStore(){
+  try {
+    const raw = localStorage.getItem(AI_CONVERSATION_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function setAiConversationStore(list){
+  const clean = Array.isArray(list) ? list.slice(0,30) : [];
+  localStorage.setItem(AI_CONVERSATION_KEY, JSON.stringify(clean));
+  updateHistoryCounts();
+}
+
+function sanitizeAiConversationSubject(s){
+  if (!s || typeof s !== 'object') return null;
+  return {
+    name: String(s.name || '').slice(0,30),
+    relation: String(s.relation || '').slice(0,30),
+    summary: String(s.summary || '').slice(0,6000),
+    profile: s.profile || {},
+    data: s.data || {}
+  };
+}
+
+function buildCurrentAiConversationRecord(){
+  if (!window.__aiConversationId || !Array.isArray(window.__aiChatHistory) || !window.__aiChatHistory.length) return null;
+
+  const messages = window.__aiChatHistory
+    .filter(m => m && (m.role === 'user' || m.role === 'assistant'))
+    .slice(-20)
+    .map(m => ({ role:m.role, content:String(m.content || '').slice(0,4000) }));
+
+  const subjects = (window.__aiChatSubjects || [])
+    .slice(0,3)
+    .map(sanitizeAiConversationSubject)
+    .filter(Boolean);
+
+  const firstUser = messages.find(m => m.role === 'user');
+  const titleBase = firstUser ? firstUser.content : 'AI 사주 상담';
+  const now = Date.now();
+  const existing = getAiConversationStore().find(x => x.id === window.__aiConversationId);
+
+  return {
+    id: window.__aiConversationId,
+    title: titleBase.length > 34 ? titleBase.slice(0,34) + '…' : titleBase,
+    subjects,
+    messages,
+    createdAtMs: existing ? Number(existing.createdAtMs || now) : now,
+    updatedAtMs: now,
+    preview: messages.length ? String(messages[messages.length-1].content || '').slice(0,120) : ''
+  };
+}
+
+async function saveCurrentAiConversation(){
+  const record = buildCurrentAiConversationRecord();
+  if (!record) return;
+
+  const local = getAiConversationStore().filter(x => x.id !== record.id);
+  local.unshift(record);
+  setAiConversationStore(local);
+
+  const authUser = firebaseReady && firebase.auth ? firebase.auth().currentUser : null;
+  if (!db || !authUser || authUser.isAnonymous) return;
+
+  try {
+    await db.collection('users').doc(authUser.uid)
+      .collection('aiConversations').doc(record.id)
+      .set(record, { merge:true });
+  } catch (err) {
+    console.warn('AI 상담 기록 서버 저장 실패', err);
+  }
+}
+
+async function syncAiConversationHistoryFromCloud(){
+  const authUser = firebaseReady && firebase.auth ? firebase.auth().currentUser : null;
+  if (!db || !authUser || authUser.isAnonymous) {
+    renderAiConversationHistory();
+    return;
+  }
+
+  try {
+    const snap = await db.collection('users').doc(authUser.uid)
+      .collection('aiConversations')
+      .orderBy('updatedAtMs','desc')
+      .limit(30)
+      .get();
+
+    const merged = new Map();
+    [...getAiConversationStore(), ...snap.docs.map(d => ({...d.data(), id:d.id}))].forEach(rec => {
+      if (!rec || !rec.id) return;
+      const prev = merged.get(rec.id);
+      if (!prev || Number(rec.updatedAtMs || 0) >= Number(prev.updatedAtMs || 0)) merged.set(rec.id, rec);
+    });
+
+    const list = Array.from(merged.values())
+      .sort((a,b) => Number(b.updatedAtMs || 0) - Number(a.updatedAtMs || 0))
+      .slice(0,30);
+    setAiConversationStore(list);
+    renderAiConversationHistory();
+  } catch (err) {
+    console.warn('AI 상담 기록 동기화 실패', err);
+    renderAiConversationHistory();
+  }
+}
+
+function renderAiConversationHistory(){
+  const host = document.getElementById('aiConversationHistoryList');
+  const empty = document.getElementById('aiConversationHistoryEmpty');
+  if (!host) return;
+
+  const list = getAiConversationStore()
+    .sort((a,b) => Number(b.updatedAtMs || 0) - Number(a.updatedAtMs || 0));
+
+  if (!list.length) {
+    host.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+
+  if (empty) empty.style.display = 'none';
+  host.innerHTML = list.map(rec => {
+    const names = (rec.subjects || []).map(s => s.name).filter(Boolean).join(' · ');
+    const dt = rec.updatedAtMs ? new Date(rec.updatedAtMs).toLocaleString('ko-KR') : '';
+    return `<div class="ai-history-item">
+      <div class="ai-history-top">
+        <div>
+          <div class="ai-history-title">${escapeHtml(rec.title || 'AI 사주 상담')}</div>
+          <div class="ai-history-meta">${escapeHtml(names || '상담 대상')} · ${escapeHtml(dt)}</div>
+        </div>
+      </div>
+      <div class="ai-history-preview">${escapeHtml(rec.preview || '')}</div>
+      <div class="ai-history-actions">
+        <button onclick="resumeAiConversation('${rec.id}')">이어서 상담</button>
+        <button onclick="deleteAiConversation('${rec.id}')">삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function resumeAiConversation(id){
+  const rec = getAiConversationStore().find(x => x.id === id);
+  if (!rec) { showToast('상담 기록을 찾지 못했어요.'); return; }
+
+  window.__aiConversationId = rec.id;
+  window.__aiChatSubjects = Array.isArray(rec.subjects) ? rec.subjects.slice(0,3) : [];
+  window.__aiChatProfile = window.__aiChatSubjects[0]?.profile || null;
+  window.__aiChatSaju = window.__aiChatSubjects[0]?.summary || '';
+  window.__aiChatHistory = Array.isArray(rec.messages) ? rec.messages.slice(-20) : [];
+
+  goTo('home');
+  setTimeout(() => {
+    const intro = document.getElementById('homeIntroOverlay');
+    const setup = document.getElementById('aiChatSetup');
+    const panel = document.getElementById('aiChatPanel');
+    const win = document.getElementById('aiChatWindow');
+    if (intro) intro.style.display = 'none';
+    if (setup) setup.style.display = 'none';
+    if (panel) panel.style.display = 'flex';
+    if (win) {
+      win.innerHTML = '';
+      appendAiChatMessage('system-note', '저장한 상담을 불러왔어요. 이전 대화에 이어서 질문할 수 있어요.');
+      window.__aiChatHistory.forEach(m => appendAiChatMessage(m.role, m.content, {scroll:'none'}));
+      scrollAiChatToBottom(win);
+    }
+    const quick = document.getElementById('aiChatQuickActions');
+    if (quick) quick.style.display = 'none';
+    updateAiChatStatus(null, null, isPremium());
+  }, 80);
+}
+
+async function deleteAiConversation(id){
+  if (!confirm('이 AI 상담 기록을 삭제할까요?')) return;
+  setAiConversationStore(getAiConversationStore().filter(x => x.id !== id));
+  renderAiConversationHistory();
+
+  const authUser = firebaseReady && firebase.auth ? firebase.auth().currentUser : null;
+  if (db && authUser && !authUser.isAnonymous) {
+    try {
+      await db.collection('users').doc(authUser.uid).collection('aiConversations').doc(id).delete();
+    } catch (err) {
+      console.warn('AI 상담 기록 서버 삭제 실패', err);
+    }
+  }
+}
+
 window.__aiChatHistory = [];
 window.__aiChatSaju = null;
 window.__aiChatProfile = null;
@@ -5797,9 +6146,26 @@ async function deleteSajuProfileFromCloud(id) {
 
 function makeSajuProfileId(){ return 'sp_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 function refreshAiProfileSelectors(){
-  const list=getSajuVault(); const saved=document.getElementById('aiChatSavedProfile'); const compare=document.getElementById('aiChatCompareProfile');
-  if(saved){ const cur=saved.value; saved.innerHTML='<option value="">+ 새 사주 입력</option>'+list.map(p=>`<option value="${p.id}">${escapeHtml(p.name||'이름 없음')} · ${escapeHtml(p.relation||'')}</option>`).join(''); if(list.some(p=>p.id===cur)) saved.value=cur; }
-  if(compare){ const cur=compare.value; compare.innerHTML='<option value="">비교하지 않음</option>'+list.map(p=>`<option value="${p.id}">${escapeHtml(p.name||'이름 없음')} · ${escapeHtml(p.relation||'')}</option>`).join(''); if(list.some(p=>p.id===cur)) compare.value=cur; }
+  const list=getSajuVault();
+  const saved=document.getElementById('aiChatSavedProfile');
+  const compares=[
+    document.getElementById('aiChatCompareProfile'),
+    document.getElementById('aiChatCompareProfile2')
+  ];
+  const options=list.map(p=>`<option value="${p.id}">${escapeHtml(p.name||'이름 없음')} · ${escapeHtml(p.relation||'')}</option>`).join('');
+
+  if(saved){
+    const cur=saved.value;
+    saved.innerHTML='<option value="">+ 새 사주 입력</option>'+options;
+    if(list.some(p=>p.id===cur)) saved.value=cur;
+  }
+
+  compares.forEach((el,idx)=>{
+    if(!el) return;
+    const cur=el.value;
+    el.innerHTML=`<option value="">${idx===0?'비교하지 않음':'두 번째 비교 대상 없음'}</option>`+options;
+    if(list.some(p=>p.id===cur)) el.value=cur;
+  });
 }
 function loadAiSavedProfile(id){
   if(!id) return; const p=getSajuVault().find(x=>x.id===id); if(!p) return;
@@ -5848,18 +6214,35 @@ function startAiChat() {
   window.__aiChatProfile = { ...saved };
   window.__aiChatSaju = built.text;
   const subjects = [{ name, relation, summary: built.text, profile: saved, data: built.data }];
-  const compareId = (document.getElementById('aiChatCompareProfile') || {}).value;
-  if (compareId && compareId !== saved.id) {
+  const compareIds = [
+    (document.getElementById('aiChatCompareProfile') || {}).value,
+    (document.getElementById('aiChatCompareProfile2') || {}).value
+  ].filter(Boolean);
+
+  const usedIds = new Set([saved.id]);
+  compareIds.forEach(compareId => {
+    if (usedIds.has(compareId) || subjects.length >= 3) return;
     const other = getSajuVault().find(p => p.id === compareId);
-    if (other) subjects.push({ name: other.name, relation: other.relation, summary: other.summary || '', profile: other, data: other.data || {} });
-  }
+    if (other) {
+      usedIds.add(compareId);
+      subjects.push({
+        name: other.name,
+        relation: other.relation,
+        summary: other.summary || '',
+        profile: other,
+        data: other.data || {}
+      });
+    }
+  });
+
   window.__aiChatSubjects = subjects;
   window.__aiChatHistory = [];
+  window.__aiConversationId = makeAiConversationId();
 
   document.getElementById('aiChatSetup').style.display = 'none';
   document.getElementById('aiChatPanel').style.display = 'flex';
   document.getElementById('aiChatWindow').innerHTML = '';
-  appendAiChatMessage('system-note', subjects.length > 1 ? `${name}님과 비교 대상의 사주를 함께 불러왔어요. 두 사람의 관계와 궁합을 함께 질문할 수 있어요.` : `${name}님의 사주를 저장했어요. 이번 상담에서 계속 기억하고 볼게요.`);
+  appendAiChatMessage('system-note', subjects.length > 1 ? `${subjects.length}명의 사주를 함께 불러왔어요. 관계·궁합·공동 일정처럼 여러 사람을 함께 비교해 질문할 수 있어요.` : `${name}님의 사주를 저장했어요. 이번 상담에서 계속 기억하고 볼게요.`);
   updateAiChatStatus(null, 3, isPremium());
 
   // 소개 화면에서 고민 카테고리를 먼저 눌렀던 경우, 여기서 그 질문을 자동으로 이어서 보냅니다.
@@ -6024,6 +6407,7 @@ async function sendAiChatMessage() {
 
     appendAiChatMessage('assistant', data.reply, { scroll: 'start' });
     window.__aiChatHistory.push({ role: 'assistant', content: data.reply });
+    saveCurrentAiConversation();
     appendAiChatServiceCta(message);
     if (!isPremium()) appendAiChatUpsell(message);
     if (data.freeUsed != null) updateAiChatStatus(data.freeUsed, data.freeLimit, false, data);
