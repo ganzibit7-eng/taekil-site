@@ -7205,7 +7205,7 @@ async function sendAiChatMessage() {
     quickActionsEl.style.display = 'none';
   }
 
-  appendAiChatMessage('user', message);
+  const userQuestionEl = appendAiChatMessage('user', message);
   window.__aiChatHistory.push({ role: 'user', content: message });
   setActiveAiSession(window.__aiConversationId);
 
@@ -7258,8 +7258,8 @@ async function sendAiChatMessage() {
       // 민감한 질문을 계정 상담 기록에도 자동 저장하지 않습니다. 사용량도 서버에서 차감하지 않습니다.
       showToast('이 질문은 사주로 단정하지 않는 범위에서 안내했어요.');
       const restrictedWin = document.getElementById('aiChatWindow');
-      scrollAiChatToMessageStart(restrictedWin, answerEl);
-      setTimeout(() => scrollAiChatToMessageStart(restrictedWin, answerEl), 120);
+      scrollAiChatToMessageStart(restrictedWin, userQuestionEl || answerEl);
+      setTimeout(() => scrollAiChatToMessageStart(restrictedWin, userQuestionEl || answerEl), 120);
       return;
     }
 
@@ -7281,17 +7281,18 @@ async function sendAiChatMessage() {
     }
 
     // CTA/꼬리질문을 답변 아래에 붙이는 과정에서 스크롤이 다시 맨 아래로 내려가므로,
-    // 모든 요소가 렌더링된 뒤 최종적으로 "방금 받은 답변의 첫 문단"을 채팅창 상단에 맞춥니다.
+    // 모든 요소가 렌더링된 뒤 최종적으로 "고객이 방금 보낸 질문"부터 보이게 맞춥니다.
+    // 질문 아래로 바로 AI 답변이 이어지기 때문에 사용자는 질문 → 답변 순서로 자연스럽게 읽을 수 있습니다.
     // 폰트/레이아웃 지연까지 고려해 여러 프레임과 짧은 지연 후 한 번 더 보정합니다.
     const answerWin = document.getElementById('aiChatWindow');
-    const restoreAnswerStart = () => scrollAiChatToMessageStart(answerWin, answerEl);
-    restoreAnswerStart();
+    const restoreQuestionStart = () => scrollAiChatToMessageStart(answerWin, userQuestionEl || answerEl);
+    restoreQuestionStart();
     requestAnimationFrame(() => {
-      restoreAnswerStart();
-      requestAnimationFrame(restoreAnswerStart);
+      restoreQuestionStart();
+      requestAnimationFrame(restoreQuestionStart);
     });
-    setTimeout(restoreAnswerStart, 120);
-    setTimeout(restoreAnswerStart, 320);
+    setTimeout(restoreQuestionStart, 120);
+    setTimeout(restoreQuestionStart, 320);
   } catch (err) {
     typingEl.remove();
     appendAiChatMessage('system-note', '연결에 문제가 있었어요. 잠시 후 다시 시도해주세요.');
