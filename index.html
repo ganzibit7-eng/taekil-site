@@ -3513,6 +3513,12 @@ try {
           resolveFirebaseAuthSettled();
           if (user) {
             if (!user.isAnonymous && getPremiumOwnerKey() && getPremiumOwnerKey() !== user.uid) clearLocalPremium();
+
+            // Firebase Authentication에는 계정이 있지만 Firestore users/{uid} 문서가
+            // 과거 오류로 빠져 있는 회원도 로그인 시 자동 복구합니다.
+            // recordSignup은 이미 존재하는 문서를 다시 가입자로 세지 않습니다.
+            if (!user.isAnonymous) ensureMemberDocumentFromAuth(user);
+
             reconcilePremiumWithAccount(user.uid);
             flushLocalOnlyInquiries();
           }
@@ -3646,6 +3652,33 @@ async function recordSignup(uid, data) {
     console.error('가입 기록 실패', err);
   }
 }
+
+function inferAuthProvider(user) {
+  if (!user) return '';
+  if (String(user.uid || '').startsWith('kakao_')) return 'kakao';
+
+  const providers = Array.isArray(user.providerData)
+    ? user.providerData.map(p => p && p.providerId).filter(Boolean)
+    : [];
+
+  if (providers.includes('google.com')) return 'google';
+  if (providers.includes('password')) return 'email';
+  return providers[0] || 'firebase';
+}
+
+async function ensureMemberDocumentFromAuth(user) {
+  if (!user || user.isAnonymous || !db) return;
+
+  const provider = inferAuthProvider(user);
+  const kakaoProfile = provider === 'kakao' ? getKakaoUser() : null;
+
+  await recordSignup(user.uid, {
+    email: user.email || (kakaoProfile && kakaoProfile.email) || null,
+    nickname: user.displayName || (kakaoProfile && kakaoProfile.nickname) || null,
+    provider
+  });
+}
+
 
 function recordPurchase(orderId, verificationMethod) {
   // 과거 버전 호환용 함수명만 유지합니다.
@@ -3926,6 +3959,7 @@ function filterAdminUserList(query) {
 
 let adminStatsUnsub = null;
 let adminDailyVisitsUnsub = null;
+let adminUsersUnsub = null;
 function renderAdmin() {
   const denied = document.getElementById('adminDenied');
   const content = document.getElementById('adminContent');
@@ -3968,7 +4002,8 @@ function renderAdmin() {
     document.getElementById('statTodayVisits').textContent = snap.exists ? (snap.data().count || 0) : 0;
   }, (err) => console.error('오늘 방문수 실시간 조회 실패', err));
 
-  db.collection('users').get().then((qs) => {
+  if (adminUsersUnsub) adminUsersUnsub();
+  adminUsersUnsub = db.collection('users').onSnapshot((qs) => {
     const list = document.getElementById('adminUserList');
     if (qs.empty) {
       list.innerHTML = '<div class="empty-note">아직 가입한 회원이 없어요.</div>';
@@ -4083,7 +4118,11 @@ function renderAdmin() {
           .catch(err => showToast('회수 실패: [' + (err.code || '') + '] ' + err.message));
       });
     });
-  }).catch(err => console.error('회원 목록 조회 실패', err));
+  }, (err) => {
+    console.error('회원 목록 실시간 조회 실패', err);
+    const list = document.getElementById('adminUserList');
+    if (list) list.innerHTML = '<div class="empty-note">회원 목록을 불러오지 못했어요.</div>';
+  });
 
   renderAdminInquiries();
 }
