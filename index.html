@@ -1201,6 +1201,54 @@ footer{padding-bottom:90px}
 }
 </style>
 
+
+<style id="mobile-fixed-header-video-safe-v2">
+/* 모바일: 택일소/로그인 배너는 화면 상단에 고정하고, 영상은 반드시 그 아래에서 시작 */
+@media (max-width: 640px) {
+  :root{ --mobile-topbar-space: 88px; }
+
+  .topbar{
+    position:fixed !important;
+    top:8px !important;
+    left:50% !important;
+    transform:translateX(-50%) !important;
+    width:calc(100% - 16px) !important;
+    margin:0 !important;
+    z-index:1000 !important;
+    box-sizing:border-box !important;
+  }
+
+  /* 고정 배너가 본문을 덮지 않도록 정확히 자리 확보 */
+  main{
+    padding-top:var(--mobile-topbar-space) !important;
+  }
+
+  /* 홈 영상은 확보된 배너 공간 바로 다음에서 시작 */
+  #view-home > .block:first-child{
+    padding-top:0 !important;
+    margin-top:0 !important;
+  }
+  #view-home > .block:first-child > .container{
+    padding-top:0 !important;
+    margin-top:0 !important;
+  }
+  #view-home .ai-chat-stage{
+    margin-top:0 !important;
+  }
+
+  /* 상단 고정 배너와 영상 사이에 아주 작은 시각적 여백만 유지 */
+  #view-home .ai-chat-stage{
+    transform:none !important;
+  }
+}
+
+/* 아주 작은 화면에서는 배너 자체가 살짝 낮아지므로 공간도 같이 줄임 */
+@media (max-width: 390px) {
+  :root{ --mobile-topbar-space: 82px; }
+  .topbar{padding:9px 10px 9px 14px !important;}
+}
+</style>
+
 </head>
 <body>
 
