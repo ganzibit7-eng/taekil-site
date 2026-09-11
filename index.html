@@ -1315,6 +1315,35 @@ footer{padding-bottom:90px}
 
 /* AI 질문창 우측 아래/상하 크기조절 화살표 제거 */
 #aiChatInput { resize: none !important; }
+
+/* 모바일 키보드가 열렸을 때 AI 입력창을 키보드 바로 위의 visual viewport 안에 고정 */
+@media(max-width:640px){
+  body.ai-keyboard-open{overflow:hidden;}
+  body.ai-keyboard-open #aiChatPanel{
+    position:fixed !important;
+    z-index:500 !important;
+    inset:auto !important;
+    left:0 !important;
+    right:0 !important;
+    width:100vw !important;
+    max-width:100vw !important;
+    box-sizing:border-box !important;
+    background:
+      linear-gradient(to bottom, rgba(10,9,8,.96), rgba(10,9,8,.985)) !important;
+    padding:8px 10px max(8px, env(safe-area-inset-bottom)) !important;
+    border-radius:0 !important;
+  }
+  body.ai-keyboard-open #aiChatWindow{
+    padding-top:10px !important;
+  }
+  body.ai-keyboard-open .ai-chat-status{
+    margin-bottom:5px !important;
+  }
+  body.ai-keyboard-open .ai-chat-inputrow{
+    flex-shrink:0;
+    background:rgba(10,9,8,.96);
+  }
+}
 </style>
 
 <style id="taekilso-v3-upgrade">
@@ -7046,6 +7075,106 @@ function quickAskAiChat(text) {
   sendAiChatMessage();
 }
 
+/* 모바일 가상 키보드 대응
+   - visualViewport 높이가 줄어들면 AI 패널 자체를 "보이는 화면" 높이에 맞춥니다.
+   - 따라서 입력창은 키보드 뒤에 가려지지 않고 항상 키보드 바로 위에 남습니다.
+   - 키보드가 닫히면 기존 카드 안의 absolute 레이아웃으로 정확히 복귀합니다. */
+(function setupAiMobileKeyboardViewport(){
+  const vv = window.visualViewport;
+  let keyboardTimer = null;
+
+  function getParts(){
+    return {
+      input: document.getElementById('aiChatInput'),
+      panel: document.getElementById('aiChatPanel'),
+      win: document.getElementById('aiChatWindow')
+    };
+  }
+
+  function clearKeyboardMode(){
+    const { panel } = getParts();
+    document.body.classList.remove('ai-keyboard-open');
+    if (panel) {
+      panel.style.removeProperty('top');
+      panel.style.removeProperty('height');
+    }
+  }
+
+  function syncKeyboardViewport(forceFocus){
+    const { input, panel, win } = getParts();
+    if (!input || !panel) return;
+
+    const mobile = window.matchMedia('(max-width: 640px)').matches;
+    const focused = forceFocus || document.activeElement === input;
+
+    if (!mobile || !focused) {
+      clearKeyboardMode();
+      return;
+    }
+
+    if (vv) {
+      const viewportHeight = Math.round(vv.height);
+      const layoutHeight = Math.max(
+        window.innerHeight || 0,
+        document.documentElement.clientHeight || 0
+      );
+
+      // 일반 주소창 축소/확대가 아니라 실제 키보드가 열린 정도의 큰 높이 감소만 처리.
+      const keyboardOpen = viewportHeight < layoutHeight - 120;
+
+      if (keyboardOpen) {
+        document.body.classList.add('ai-keyboard-open');
+        panel.style.top = Math.round(vv.offsetTop || 0) + 'px';
+        panel.style.height = viewportHeight + 'px';
+
+        // 포커스 직후 브라우저가 자동 스크롤을 한 번 더 하는 경우가 있어
+        // 입력창을 다시 visual viewport 안으로 정렬합니다.
+        requestAnimationFrame(() => {
+          try { input.scrollIntoView({ block:'nearest', inline:'nearest' }); } catch(e) {}
+          if (win) win.style.scrollBehavior = 'auto';
+        });
+        return;
+      }
+    }
+
+    // visualViewport 미지원 브라우저 fallback:
+    // 키보드가 뜬 직후 입력창을 화면의 보이는 영역으로 끌어올립니다.
+    clearKeyboardMode();
+    setTimeout(() => {
+      try { input.scrollIntoView({ block:'center', behavior:'smooth' }); } catch(e) {}
+    }, 180);
+  }
+
+  function queueSync(){
+    clearTimeout(keyboardTimer);
+    keyboardTimer = setTimeout(() => syncKeyboardViewport(false), 30);
+  }
+
+  document.addEventListener('focusin', (e) => {
+    if (e.target && e.target.id === 'aiChatInput') {
+      setTimeout(() => syncKeyboardViewport(true), 80);
+      setTimeout(() => syncKeyboardViewport(true), 280);
+    }
+  });
+
+  document.addEventListener('focusout', (e) => {
+    if (e.target && e.target.id === 'aiChatInput') {
+      setTimeout(() => {
+        if (document.activeElement?.id !== 'aiChatInput') clearKeyboardMode();
+      }, 120);
+    }
+  });
+
+  if (vv) {
+    vv.addEventListener('resize', queueSync);
+    vv.addEventListener('scroll', queueSync);
+  }
+  window.addEventListener('orientationchange', () => {
+    clearKeyboardMode();
+    setTimeout(queueSync, 300);
+  });
+})();
+
 /* "직접 질문하기" - 입력창에 포커스만 주고 전송하지 않습니다. */
 function focusAiChatInput() {
   const input = document.getElementById('aiChatInput');
@@ -7121,13 +7250,16 @@ async function sendAiChatMessage() {
       return;
     }
 
-    appendAiChatMessage('assistant', data.reply, { scroll: 'start' });
+    const answerEl = appendAiChatMessage('assistant', data.reply, { scroll: 'start' });
     window.__aiChatHistory.push({ role: 'assistant', content: data.reply });
 
     if (data.restricted) {
       // 수명·질병·도박·구체 투자지시 등 제한 질문은 결제 유도나 서비스 CTA를 붙이지 않고,
       // 민감한 질문을 계정 상담 기록에도 자동 저장하지 않습니다. 사용량도 서버에서 차감하지 않습니다.
       showToast('이 질문은 사주로 단정하지 않는 범위에서 안내했어요.');
+      const restrictedWin = document.getElementById('aiChatWindow');
+      scrollAiChatToMessageStart(restrictedWin, answerEl);
+      setTimeout(() => scrollAiChatToMessageStart(restrictedWin, answerEl), 120);
       return;
     }
 
@@ -7147,6 +7279,19 @@ async function sendAiChatMessage() {
       // 프리미엄/질문권 사용자는 잠금 없이 계속 꼬리질문이 이어집니다.
       showAiFollowups(message, data.reply, 1, 3, false);
     }
+
+    // CTA/꼬리질문을 답변 아래에 붙이는 과정에서 스크롤이 다시 맨 아래로 내려가므로,
+    // 모든 요소가 렌더링된 뒤 최종적으로 "방금 받은 답변의 첫 문단"을 채팅창 상단에 맞춥니다.
+    // 폰트/레이아웃 지연까지 고려해 여러 프레임과 짧은 지연 후 한 번 더 보정합니다.
+    const answerWin = document.getElementById('aiChatWindow');
+    const restoreAnswerStart = () => scrollAiChatToMessageStart(answerWin, answerEl);
+    restoreAnswerStart();
+    requestAnimationFrame(() => {
+      restoreAnswerStart();
+      requestAnimationFrame(restoreAnswerStart);
+    });
+    setTimeout(restoreAnswerStart, 120);
+    setTimeout(restoreAnswerStart, 320);
   } catch (err) {
     typingEl.remove();
     appendAiChatMessage('system-note', '연결에 문제가 있었어요. 잠시 후 다시 시도해주세요.');
