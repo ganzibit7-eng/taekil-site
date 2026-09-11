@@ -784,6 +784,49 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
   text-align:center; font-size:11.5px; color:var(--gold-hi); margin:0 0 10px;
   padding:8px 10px; border-radius:999px; background:rgba(215,180,106,.1); border:1px solid rgba(215,180,106,.25);
 }
+
+/* 첫 진입 이탈을 줄이기 위한 홈 상담 인트로. 기존 상담/로그인 로직은 그대로 사용합니다. */
+.home-conversion-intro{padding:14px 16px 16px;}
+.home-conversion-kicker{
+  display:inline-flex;align-items:center;gap:6px;width:max-content;max-width:100%;
+  margin:0 0 8px;padding:5px 9px;border-radius:999px;
+  border:1px solid rgba(240,215,158,.28);background:rgba(16,14,11,.52);
+  color:var(--gold-hi);font-size:9px;font-weight:800;letter-spacing:.06em;backdrop-filter:blur(6px)
+}
+.home-conversion-bubble{margin-bottom:9px;max-width:94%;padding:12px 14px;}
+.home-conversion-bubble strong{display:block;font-family:var(--serif);font-size:19px;font-weight:400;line-height:1.25;color:#fff;margin-bottom:5px;}
+.home-conversion-bubble span{display:block;color:rgba(255,255,255,.78);font-size:11.5px;line-height:1.55;}
+.home-conversion-question{font-size:10.5px;font-weight:700;color:rgba(255,255,255,.82);margin:0 2px 7px;}
+.home-conversion-categories{margin-bottom:9px;gap:7px;}
+.home-conversion-categories button{padding:9px 7px;font-size:10.8px;line-height:1.2;min-height:38px;}
+.home-conversion-categories button span{margin-right:2px;}
+.home-answer-preview{
+  margin:0 0 8px;padding:9px 11px;border-radius:12px;
+  border:1px solid rgba(255,255,255,.11);background:rgba(7,7,6,.58);backdrop-filter:blur(7px)
+}
+.home-answer-preview-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px;}
+.home-answer-preview-head span{color:var(--gold-hi);font-size:9.5px;font-weight:800;}
+.home-answer-preview-head small{color:rgba(255,255,255,.48);font-size:8.5px;}
+.home-answer-preview p{margin:0;color:rgba(255,255,255,.70);font-size:9.8px;line-height:1.45;}
+.home-answer-preview b{color:#fff;font-weight:700;}
+.home-start-chat-btn{min-height:48px;font-size:13px;box-shadow:0 10px 28px rgba(215,180,106,.16);}
+.home-conversion-trust{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:8px;color:rgba(255,255,255,.55);font-size:8.8px;}
+.home-conversion-trust i{font-style:normal;color:rgba(215,180,106,.65)}
+@media(max-width:390px){
+  .home-conversion-intro{padding:12px 13px 13px}
+  .home-conversion-bubble strong{font-size:17px}
+  .home-conversion-bubble span{font-size:10.8px}
+  .home-answer-preview p{font-size:9.2px}
+  .home-conversion-categories button{font-size:10.2px;padding:8px 5px}
+  .ai-chat-guest-hint{font-size:10.5px;padding:7px 8px}
+}
+@media(max-height:700px) and (max-width:640px){
+  .home-answer-preview{display:none}
+  .home-conversion-bubble{padding:10px 12px}
+  .home-conversion-bubble strong{font-size:17px}
+  .home-conversion-categories button{min-height:34px;padding:7px 5px}
+  .home-conversion-trust{display:none}
+}
 .ai-chat-setup-row{display:grid; grid-template-columns:.72fr 1fr .78fr .78fr; gap:6px; margin-bottom:10px;}
 .ai-chat-setup-row.ai-chat-detail-row{grid-template-columns:1fr 1fr 1fr 1fr;}
 .ai-chat-setup-label{display:block; color:rgba(255,255,255,.62); font-size:9.5px; margin:0 0 5px 2px;}
@@ -1478,20 +1521,29 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         </div>
 
         <!-- STEP 0: 소개 + 시작하기 (모두에게 동일하게 보임, 로그인 불필요) -->
-        <div id="homeIntroOverlay" class="ai-chat-setup-overlay">
-          <div class="ai-chat-bubble-npc">
-            안녕하세요, 저는 연우예요.<br>
-            당신의 사주를 바탕으로 함께 이야기해드릴게요.<br><br>
-            오늘 어떤 고민이 있으세요?
+        <div id="homeIntroOverlay" class="ai-chat-setup-overlay home-conversion-intro">
+          <div class="home-conversion-kicker">AI 사주 상담 · 연우</div>
+          <div class="ai-chat-bubble-npc home-conversion-bubble">
+            <strong>사주, 어렵게 찾지 마세요.</strong>
+            <span>지금 고민을 말하면 내 사주 구조를 바탕으로 함께 풀어드려요.</span>
           </div>
-          <div class="ai-chat-intro-categories">
-            <button onclick="handleHomeCategoryClick(this, '연애·궁합이 궁금해요')">❤️ 연애·궁합</button>
-            <button onclick="handleHomeCategoryClick(this, '돈, 재물운이 궁금해요')">💰 돈·재물</button>
-            <button onclick="handleHomeCategoryClick(this, '직업, 사업운이 궁금해요')">💼 직업·사업</button>
-            <button onclick="handleHomeCategoryClick(this, '결혼, 이사, 개업, 계약 날짜를 잡고 싶어요')">📅 결혼·이사·개업·계약</button>
+
+          <div class="home-conversion-question">오늘 가장 궁금한 건 무엇인가요?</div>
+          <div class="ai-chat-intro-categories home-conversion-categories">
+            <button onclick="handleHomeCategoryClick(this, '올해 연애운과 궁합이 궁금해요')"><span>❤️</span> 연애·궁합</button>
+            <button onclick="handleHomeCategoryClick(this, '올해 돈 흐름과 재물운이 궁금해요')"><span>💰</span> 돈·재물</button>
+            <button onclick="handleHomeCategoryClick(this, '지금 직업이나 사업 방향이 저와 잘 맞는지 궁금해요')"><span>💼</span> 직업·사업</button>
+            <button onclick="handleHomeCategoryClick(this, '결혼, 이사, 개업, 계약 중 중요한 날짜를 잡고 싶어요')"><span>📅</span> 중요한 날짜</button>
           </div>
-          <p id="homeGuestHint" class="ai-chat-guest-hint">지금 회원가입하고 무료로 체험해보세요 (무료 질문 3개)</p>
-          <button class="btn btn-primary" style="width:100%;" onclick="handleHomeChatStart(this)">✨ 내 사주로 상담 시작하기</button>
+
+          <div class="home-answer-preview" aria-label="연우 상담 답변 예시">
+            <div class="home-answer-preview-head"><span>연우 답변 미리보기</span><small>예시</small></div>
+            <p><b>“올해 재물운이 궁금해요.”</b><br>단순히 돈이 들어오는 시기만 보기보다, 내 사주에서 재물을 다루는 방식과 주의할 흐름을 함께 설명해드려요.</p>
+          </div>
+
+          <p id="homeGuestHint" class="ai-chat-guest-hint">가입 후 AI 사주 질문 3회 무료 · 결제 없이 시작</p>
+          <button id="homeStartChatBtn" class="btn btn-primary home-start-chat-btn" style="width:100%;" onclick="handleHomeChatStart(this)">✨ 연우에게 무료로 3번 물어보기</button>
+          <div class="home-conversion-trust"><span>사주 저장</span><i>·</i><span>여러 사람 비교</span><i>·</i><span>중요한 날짜 비교</span></div>
         </div>
 
         <!-- STEP 1: 생년월일 입력 (시작하기 클릭 + 로그인 후에만 보임) -->
@@ -6310,13 +6362,23 @@ function handleHomeCategoryClick(btn, questionText) {
    로그인 확인이 아직 안 끝난 아주 이른 시점이면, 확인이 끝난 뒤 다시 판단합니다. */
 async function updateHomeGuestHint() {
   const hint = document.getElementById('homeGuestHint');
-  if (!hint) return;
-  if (getKakaoUser()) { hint.style.display = 'none'; return; }
+  const startBtn = document.getElementById('homeStartChatBtn');
+
+  if (getKakaoUser()) {
+    if (hint) hint.style.display = 'none';
+    if (startBtn) startBtn.textContent = '✨ 연우와 상담 시작하기';
+    return;
+  }
+
   if (!firebaseAuthReady) {
     await Promise.race([firebaseAuthSettled, new Promise((r) => setTimeout(r, 3000))]);
   }
+
   const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
-  hint.style.display = loggedIn ? 'none' : 'block';
+  if (hint) hint.style.display = loggedIn ? 'none' : 'block';
+  if (startBtn) startBtn.textContent = loggedIn
+    ? '✨ 연우와 상담 시작하기'
+    : '✨ 연우에게 무료로 3번 물어보기';
 }
 
 async function handleHomeChatStart(btn) {
