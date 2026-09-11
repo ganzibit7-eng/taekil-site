@@ -4883,6 +4883,7 @@ function handleAuthNavClick() {
 async function purchaseQuestionPack(packId) {
   const pack = AI_QUESTION_PACKS[packId];
   if (!pack) return;
+  trackAiFunnel('question_pack_purchase_start', { product: packId, pendingQuestion: getPendingPaidAiQuestion() });
   if (!getKakaoUser() && !(firebaseReady && firebaseAuthReady && firebaseAuthUser)) {
     showToast('먼저 로그인해주세요.');
     openAuthModal();
@@ -4949,6 +4950,7 @@ async function checkOrderPaidOnServer(orderId) {
 }
 
 async function payPremium() {
+  trackAiFunnel('premium_purchase_start', { pendingQuestion: getPendingPaidAiQuestion() });
   // Spark 무료 운영: 결제창을 열기 위해 Firebase Auth를 강제하지 않습니다.
   // 카카오 로그인 정보는 localStorage로 유지되므로 결제 버튼을 눌렀다고 로그아웃되지 않습니다.
   if (!getKakaoUser() && !(firebaseReady && firebaseAuthReady && firebaseAuthUser)) {
@@ -5082,10 +5084,14 @@ function tryActivatePendingPremium() {
         localStorage.removeItem('taekilso_pending_order');
         sessionStorage.removeItem('taekilso_pending_order');
         if (isQuestionPack) {
-          showToast(`질문권 ${AI_QUESTION_PACKS[pending.product].count}개가 충전됐어요! 바로 이어서 물어보실 수 있어요.`);
+          trackAiFunnel('question_pack_purchase_confirmed', { product: pending.product });
+          showToast(`질문권 ${AI_QUESTION_PACKS[pending.product].count}개가 충전됐어요! 선택하신 질문을 바로 이어갈게요.`);
           window.dispatchEvent(new CustomEvent('taekilso:questionPackPurchased'));
+          setTimeout(() => resumePendingPaidAiQuestion(), 500);
         } else {
-          showToast('프리미엄이 활성화됐어요! 30일간 이용하실 수 있어요.');
+          trackAiFunnel('premium_purchase_confirmed', {});
+          showToast('프리미엄이 활성화됐어요! 선택하신 질문을 바로 이어갈게요.');
+          setTimeout(() => resumePendingPaidAiQuestion(), 500);
         }
       } else {
         showToast('결제 확인에 시간이 좀 더 걸리고 있어요. 잠시 후 프로필 화면을 다시 확인해주세요. 결제하셨는데 계속 안 뜨면 고객센터로 문의해주세요.');
@@ -6359,6 +6365,9 @@ function startAiChat() {
   appendAiChatMessage('system-note', subjects.length > 1 ? `${subjects.length}명의 사주를 함께 불러왔어요. 관계·궁합·공동 일정처럼 여러 사람을 함께 비교해 질문할 수 있어요.` : `${name}님의 사주를 저장했어요. 이번 상담에서 계속 기억하고 볼게요.`);
   updateAiChatStatus(null, 3, isPremium());
 
+  // 결제 후 돌아온 경우 상담 화면이 준비되는 즉시, 사용자가 눌렀던 잠금 질문을 자동으로 이어갑니다.
+  if (getPendingPaidAiQuestion()) setTimeout(() => resumePendingPaidAiQuestion(), 650);
+
   // 소개 화면에서 고민 카테고리를 먼저 눌렀던 경우, 여기서 그 질문을 자동으로 이어서 보냅니다.
   if (window.__pendingCategoryQuestion) {
     const q = window.__pendingCategoryQuestion;
@@ -6573,7 +6582,7 @@ function aiFollowupSet(question, reply, used){
 
   const result = [];
   for (const label of pool[topic]) {
-    if (result.length >= 3) break; // 네 번째 자리는 '다른 사주도 물어볼래?'로 고정
+    if (result.length >= 3) break; // 네 번째 자리는 '다른 주제도 볼래'로 고정
     const normalized = normalizeAiFollowupText(label);
     const intent = aiFollowupIntent(label);
 
@@ -6620,7 +6629,7 @@ function aiFollowupSet(question, reply, used){
 
 function showAiOtherSajuTopics(locked){
   if (locked){
-    openAiFollowupPurchase('다른 사주 주제도 이어서 물어보기');
+    openAiFollowupPurchase('다른 주제도 이어서 보기');
     return;
   }
 
@@ -6654,6 +6663,7 @@ function showAiOtherSajuTopics(locked){
     b.type = 'button';
     b.textContent = item.label;
     b.onclick = () => {
+      trackAiFunnel('topic_switch_click',{topic:item.key,question:item.q});
       clearAiFollowupSuggestions();
       quickAskAiChat(item.q);
     };
@@ -6687,6 +6697,7 @@ function showAiFollowups(question, reply, used, limit, locked){
     b.textContent=(locked?'🔒 ':'')+label;
     b.onclick=()=>{
       if(locked){ openAiFollowupPurchase(label); return; }
+      trackAiFunnel('followup_click',{question:label});
       clearAiFollowupSuggestions();
       quickAskAiChat(label);
     };
@@ -6697,7 +6708,7 @@ function showAiFollowups(question, reply, used, limit, locked){
   const other=document.createElement('button');
   other.type='button';
   other.className=locked?'locked':'';
-  other.textContent=(locked?'🔒 ':'')+'다른 사주도 물어볼래?';
+  other.textContent=(locked?'🔒 ':'')+'다른 주제도 볼래';
   other.onclick=()=>showAiOtherSajuTopics(locked);
   wrap.appendChild(other);
 
@@ -6705,10 +6716,73 @@ function showAiFollowups(question, reply, used, limit, locked){
   scrollAiChatToBottom(win);
 }
 
+
+const AI_PENDING_PAID_QUESTION_KEY = 'taekilso_pending_paid_ai_question_v1';
+const AI_FUNNEL_KEY = 'taekilso_ai_funnel_v1';
+
+function savePendingPaidAiQuestion(question){
+  const q=String(question||'').trim();
+  if(!q) return;
+  window.__pendingPaidAiQuestion=q;
+  try{
+    localStorage.setItem(AI_PENDING_PAID_QUESTION_KEY, JSON.stringify({
+      question:q, uid:getCurrentUserKey()||'', createdAt:Date.now()
+    }));
+  }catch(e){}
+}
+
+function getPendingPaidAiQuestion(){
+  try{
+    const x=JSON.parse(localStorage.getItem(AI_PENDING_PAID_QUESTION_KEY)||'null');
+    if(!x||!x.question) return '';
+    if(Date.now()-Number(x.createdAt||0)>24*60*60*1000){
+      localStorage.removeItem(AI_PENDING_PAID_QUESTION_KEY); return '';
+    }
+    const uid=getCurrentUserKey()||'';
+    if(x.uid && uid && x.uid!==uid) return '';
+    return String(x.question||'').trim();
+  }catch(e){ return ''; }
+}
+
+function clearPendingPaidAiQuestion(){
+  window.__pendingPaidAiQuestion='';
+  try{localStorage.removeItem(AI_PENDING_PAID_QUESTION_KEY);}catch(e){}
+}
+
+function trackAiFunnel(eventName, extra){
+  const name=String(eventName||'').slice(0,60);
+  if(!name) return;
+  const item={event:name, at:Date.now(), ...(extra||{})};
+  try{
+    const list=JSON.parse(localStorage.getItem(AI_FUNNEL_KEY)||'[]');
+    const safe=Array.isArray(list)?list:[];
+    safe.push(item);
+    localStorage.setItem(AI_FUNNEL_KEY,JSON.stringify(safe.slice(-200)));
+  }catch(e){}
+  // 기존 Firestore 구조/Rules를 건드리지 않기 위해 우선 브라우저 퍼널 로그로 안전하게 수집합니다.
+  try{
+    window.dispatchEvent(new CustomEvent('taekilso:aiFunnel',{detail:item}));
+  }catch(e){}
+}
+
+function resumePendingPaidAiQuestion(){
+  const q=getPendingPaidAiQuestion();
+  if(!q) return false;
+  const panel=document.getElementById('aiChatPanel');
+  const input=document.getElementById('aiChatInput');
+  if(!panel || panel.style.display==='none' || !input) return false;
+  clearPendingPaidAiQuestion();
+  trackAiFunnel('paid_question_auto_resume',{question:q});
+  input.value=q;
+  setTimeout(()=>sendAiChatMessage(),250);
+  return true;
+}
+
 function openAiFollowupPurchase(question){
-  window.__pendingPaidAiQuestion = question;
-  // 기존 구매 UI를 그대로 사용합니다. 프리미엄/질문권 구매 함수나 모달 구조는 변경하지 않습니다.
+  savePendingPaidAiQuestion(question);
+  trackAiFunnel('locked_followup_click',{question:String(question||'')});
   appendAiChatMessage('system-note','무료 질문 3개를 모두 사용했어요. 이 질문이 궁금하다면 질문권 또는 프리미엄으로 상담을 이어갈 수 있어요.');
+  if (typeof appendQuestionPackOffers === 'function') appendQuestionPackOffers();
   if (typeof appendAiChatUpsell === 'function') appendAiChatUpsell(question);
   scrollAiChatToBottom(document.getElementById('aiChatWindow'));
 }
@@ -6808,6 +6882,8 @@ async function sendAiChatMessage() {
     if (data.freeUsed != null) {
       updateAiChatStatus(data.freeUsed, data.freeLimit, false, data);
       const freeDone = Number(data.freeUsed) >= Number(data.freeLimit || 3);
+      trackAiFunnel(`free_question_${Number(data.freeUsed)}`, { question: message });
+      if (freeDone) trackAiFunnel('free_limit_exhausted', { question: message });
       showAiFollowups(message, data.reply, data.freeUsed, data.freeLimit || 3, freeDone);
       // 무료 3회가 끝난 시점에는 기존 구매 안내도 함께 보여줍니다.
       if (freeDone) appendAiChatUpsell(message);
