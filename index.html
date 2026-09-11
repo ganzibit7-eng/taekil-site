@@ -6167,17 +6167,9 @@ function restoreActiveAiConversation(options){
   return true;
 }
 
-async function autoRestoreActiveAiConversation(){
-  // 로그인 복원이 끝나기 전에 다른 계정의 로컬 상담을 띄우지 않도록 잠깐 기다립니다.
-  if (typeof waitForAuthSettled === 'function') {
-    await waitForAuthSettled(5000);
-  }
-  return restoreActiveAiConversation({ silent:true });
-}
-
-window.addEventListener('load', () => {
-  setTimeout(() => { autoRestoreActiveAiConversation(); }, 180);
-});
+// 일반 접속/새로고침에서는 이전 AI 상담을 자동으로 열지 않습니다.
+// 결제 완료 후 돌아온 경우에는 아래 결제 확인 흐름에서만
+// restoreActiveAiConversation()을 호출해 결제 전 상담을 이어갑니다.
 
 async function deleteAiConversation(id){
   if (!confirm('이 AI 상담 기록을 삭제할까요?')) return;
