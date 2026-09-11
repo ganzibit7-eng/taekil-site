@@ -7258,18 +7258,26 @@ async function sendAiChatMessage() {
     saveCurrentAiConversation();
     appendAiChatServiceCta(message);
 
-    if (data.freeUsed != null) {
+    // 사용권 판정은 반드시 '질문권 사용 여부'를 무료 사용량보다 먼저 봅니다.
+    // 질문권 사용자의 응답에도 freeUsed=3이 함께 오기 때문에,
+    // freeUsed만 먼저 검사하면 질문권이 남아 있어도 무료 소진자로 잘못 판단해
+    // 결제 안내/잠금 꼬리질문을 다시 보여주는 문제가 생깁니다.
+    if (data.usingCredit) {
+      updateAiChatStatus(null, null, false, data);
+      // 질문권이 1개 차감된 뒤 서버가 보내준 실제 잔여 개수로 즉시 표시합니다.
+      showAiFollowups(message, data.reply, 1, 3, false);
+    } else if (data.isAdmin || data.freeUsed == null) {
+      // 관리자/프리미엄은 기존처럼 잠금 없이 계속 상담합니다.
+      updateAiChatStatus(null, null, true, data);
+      showAiFollowups(message, data.reply, 1, 3, false);
+    } else {
+      // 실제 무료 질문을 사용한 경우에만 무료 3회 제한 로직을 적용합니다.
       updateAiChatStatus(data.freeUsed, data.freeLimit, false, data);
       const freeDone = Number(data.freeUsed) >= Number(data.freeLimit || 3);
       trackAiFunnel(`free_question_${Number(data.freeUsed)}`, { question: message });
       if (freeDone) trackAiFunnel('free_limit_exhausted', { question: message });
       showAiFollowups(message, data.reply, data.freeUsed, data.freeLimit || 3, freeDone);
-      // 무료 3회가 끝난 시점에는 기존 구매 안내도 함께 보여줍니다.
       if (freeDone) appendAiChatUpsell(message);
-    } else {
-      updateAiChatStatus(null, null, true, data);
-      // 프리미엄/질문권 사용자는 잠금 없이 계속 꼬리질문이 이어집니다.
-      showAiFollowups(message, data.reply, 1, 3, false);
     }
 
     // CTA/꼬리질문을 답변 아래에 붙이는 과정에서 스크롤이 다시 맨 아래로 내려가므로,
