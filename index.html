@@ -873,6 +873,33 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
   font-size:11px; padding:8px 12px; border-radius:12px; cursor:pointer;
 }
 .ai-chat-upsell:hover{background:rgba(215,180,106,.24)}
+.ai-chat-followups{
+  align-self:flex-start;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  max-width:96%;
+  margin-top:-2px;
+  margin-bottom:2px;
+}
+.ai-chat-followups button{
+  appearance:none;
+  border:1px solid rgba(215,180,106,.38);
+  background:rgba(16,14,11,.76);
+  color:#f6e8c3;
+  padding:7px 11px;
+  border-radius:999px;
+  font-family:inherit;
+  font-size:10.8px;
+  line-height:1.2;
+  cursor:pointer;
+  backdrop-filter:blur(5px);
+}
+.ai-chat-followups button:hover{
+  background:rgba(215,180,106,.2);
+  border-color:rgba(215,180,106,.62);
+}
+.ai-chat-followups button:active{transform:translateY(1px)}
 .ai-chat-cta-row{display:flex; flex-wrap:wrap; gap:6px; align-self:flex-start; max-width:100%;}
 .ai-chat-offer-grid{display:flex; flex-direction:column; gap:8px; align-self:stretch; margin-top:4px;}
 .ai-chat-offer-card{
@@ -6348,6 +6375,7 @@ function startAiChat() {
   document.getElementById('aiChatSetup').style.display = 'none';
   document.getElementById('aiChatPanel').style.display = 'flex';
   document.getElementById('aiChatWindow').innerHTML = '';
+  clearAiFollowupSuggestions();
   appendAiChatMessage('system-note', subjects.length > 1 ? `${subjects.length}명의 사주를 함께 불러왔어요. 관계·궁합·공동 일정처럼 여러 사람을 함께 비교해 질문할 수 있어요.` : `${name}님의 사주를 저장했어요. 이번 상담에서 계속 기억하고 볼게요.`);
   updateAiChatStatus(null, 3, isPremium());
 
@@ -6442,6 +6470,63 @@ function continueHomeChatAfterLogin() {
   showAiChatSetupStep();
 }
 
+function clearAiFollowupSuggestions() {
+  document.querySelectorAll('.ai-chat-followups').forEach(el => el.remove());
+}
+
+function getAiFollowupSuggestions(question, reply) {
+  const text = `${question || ''} ${reply || ''}`;
+
+  if (/돈|재물|수입|금전|재테크|투자|지출|사업|매출/.test(text)) {
+    return ['좋은 점은?', '뭘 조심해야 해?', '돈을 모으려면?', '나한테 맞는 돈 버는 방식은?'];
+  }
+  if (/연애|궁합|배우자|결혼|썸|재회|사랑|남자친구|여자친구/.test(text)) {
+    return ['잘 맞는 점은?', '뭘 조심해야 해?', '내가 바꾸면 좋은 점은?', '더 자세히 봐줘'];
+  }
+  if (/직업|직장|취업|이직|진로|회사|창업|일운/.test(text)) {
+    return ['내 강점은?', '뭘 조심해야 해?', '어떤 환경이 잘 맞아?', '현실적으로 어떻게 하면 돼?'];
+  }
+  if (/색|컬러|숫자|번호|방향|환경|오행|행운/.test(text)) {
+    return ['나한테 좋은 건 더 뭐야?', '생활에서 어떻게 활용해?', '조심할 건 뭐야?', '다른 특징도 알려줘'];
+  }
+  if (/이사|개업|계약|택일|날짜|후보/.test(text)) {
+    return ['왜 그렇게 보는 거야?', '가장 중요한 기준은?', '뭘 조심해야 해?', '다른 후보와 비교해줘'];
+  }
+  if (/성격|기질|장점|단점|특징|사주 구조/.test(text)) {
+    return ['내 강점은?', '단점은?', '뭘 조심해야 해?', '생활에 어떻게 활용해?'];
+  }
+
+  return ['더 자세히 봐줘', '좋은 점은?', '뭘 조심해야 해?', '현실적으로 어떻게 하면 돼?'];
+}
+
+function appendAiFollowupSuggestions(question, reply) {
+  const win = document.getElementById('aiChatWindow');
+  if (!win) return;
+
+  clearAiFollowupSuggestions();
+
+  const suggestions = getAiFollowupSuggestions(question, reply).slice(0, 4);
+  if (!suggestions.length) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'ai-chat-followups';
+  wrap.setAttribute('aria-label', '이어 묻기');
+
+  suggestions.forEach((label) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = label;
+    btn.addEventListener('click', () => {
+      clearAiFollowupSuggestions();
+      quickAskAiChat(label);
+    });
+    wrap.appendChild(btn);
+  });
+
+  win.appendChild(wrap);
+  scrollAiChatToBottom(win);
+}
+
 function quickAskAiChat(text) {
   const input = document.getElementById('aiChatInput');
   if (input) input.value = text;
@@ -6467,6 +6552,7 @@ async function sendAiChatMessage() {
   const sendBtn = document.getElementById('aiChatSendBtn');
   input.value = '';
   sendBtn.disabled = true;
+  clearAiFollowupSuggestions();
 
   // 대화가 시작되면 하단에 항상 떠 있던 추천 질문 6개 버튼을 숨겨서
   // 실제 채팅창(.ai-chat-window)이 쓸 수 있는 세로 공간을 되돌려줍니다.
@@ -6532,6 +6618,11 @@ async function sendAiChatMessage() {
     }
 
     saveCurrentAiConversation();
+
+    // 가장 최근 답변을 바탕으로 한 번에 이어 물을 수 있는 짧은 질문을 보여줍니다.
+    // 추천 문구 생성 자체에는 AI 호출이 없고, 사용자가 버튼을 눌렀을 때만 일반 질문 1회로 전송됩니다.
+    appendAiFollowupSuggestions(message, data.reply);
+
     appendAiChatServiceCta(message);
     if (!isPremium()) appendAiChatUpsell(message);
     if (data.freeUsed != null) updateAiChatStatus(data.freeUsed, data.freeLimit, false, data);
