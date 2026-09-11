@@ -6151,7 +6151,12 @@ function appendAiChatMessage(role, text, opts) {
 function updateAiChatStatus(freeUsed, freeLimit, isPremiumNow, extra) {
   const el = document.getElementById('aiChatStatus');
   if (!el) return;
-  if (isPremiumNow) {
+
+  if (extra && extra.isAdmin) {
+    const used = Number.isFinite(Number(extra.premiumDailyUsed)) ? Number(extra.premiumDailyUsed) : null;
+    const limit = Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 100;
+    el.textContent = used == null ? `✦ 관리자 AI (하루 ${limit}개까지)` : `✦ 관리자 AI 오늘 ${used}/${limit}개 사용`;
+  } else if (isPremiumNow) {
     const used = extra && Number.isFinite(Number(extra.premiumDailyUsed)) ? Number(extra.premiumDailyUsed) : null;
     const limit = extra && Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 20;
     el.textContent = used == null ? `✦ 프리미엄 이용 중 (하루 ${limit}개까지)` : `✦ 프리미엄 오늘 ${used}/${limit}개 사용`;
