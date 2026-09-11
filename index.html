@@ -1353,11 +1353,11 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           </div>
           <div class="ai-chat-intro-title">오늘 가장 궁금한 건 무엇인가요?</div>
           <div class="ai-chat-intro-categories">
-            <button onclick="handleHomeCategoryClick(this, '올해 연애운과 인연의 흐름을 자세히 봐줘')">💕 연애·재회</button>
-            <button onclick="handleHomeCategoryClick(this, '재물운과 돈이 들어오고 나가는 흐름을 자세히 봐줘')">💰 재물·사업</button>
-            <button onclick="handleHomeCategoryClick(this, '직장운과 이직, 앞으로의 진로 흐름을 자세히 봐줘')">💼 직장·이직</button>
-            <button onclick="handleHomeCategoryClick(this, '두 사람의 궁합과 관계 흐름을 자세히 봐줘')">💑 궁합</button>
-            <button class="ai-chat-category-wide" onclick="handleHomeCategoryClick(this, '내 사주를 전체적으로 보고 지금 가장 중요한 흐름을 알려줘')">🔮 내 사주 전체보기</button>
+            <button onclick="handleHomeCategoryClick(this, '연애·재회', '올해 연애운과 인연의 흐름을 자세히 봐줘')">💕 연애·재회</button>
+            <button onclick="handleHomeCategoryClick(this, '재물·사업', '재물운과 돈이 들어오고 나가는 흐름을 자세히 봐줘')">💰 재물·사업</button>
+            <button onclick="handleHomeCategoryClick(this, '직장·이직', '직장운과 이직, 앞으로의 진로 흐름을 자세히 봐줘')">💼 직장·이직</button>
+            <button onclick="handleHomeCategoryClick(this, '궁합', '두 사람의 궁합과 관계 흐름을 자세히 봐줘')">💑 궁합</button>
+            <button class="ai-chat-category-wide" onclick="handleHomeCategoryClick(this, '전체사주', '내 사주를 전체적으로 보고 지금 가장 중요한 흐름을 알려줘')">🔮 내 사주 전체보기</button>
           </div>
           <p id="homeGuestHint" class="ai-chat-guest-hint"><b>회원가입하면 질문 3개 무료</b> · 카드 등록 없이 시작</p>
           <button class="btn btn-primary" style="width:100%;" onclick="handleHomeChatStart(this)">✨ 연우에게 무료로 물어보기</button>
@@ -5220,34 +5220,96 @@ window.addEventListener('load', ()=>{ try{ updatePremiumUI(); }catch(e){} });
 }
 
 @media(max-width:640px){
-  /* 짧은 휴대폰도 상단 캐릭터 영역을 확보하고, 부족하면 페이지가 자연스럽게 스크롤됩니다. */
-  #view-home>.block{padding-top:84px!important;}
+  /* 첫 AI 화면은 상단바 + 하단 탭 사이의 실제 보이는 높이에 맞춥니다.
+     760px 최소높이를 강제하지 않아 작은 휴대폰에서도 CTA까지 한 화면에 들어옵니다. */
+  #view-home > .block:first-child{
+    min-height:0!important;
+    height:calc(100svh - 122px)!important;
+    padding-top:4px!important;
+    padding-bottom:4px!important;
+    justify-content:flex-start!important;
+  }
+  #view-home > .block:first-child .container{height:100%;}
   .ai-chat-stage{
-    height:max(760px, calc(100svh - 84px));
-    min-height:760px;
-    max-height:none;
+    aspect-ratio:auto!important;
+    height:100%!important;
+    min-height:0!important;
+    max-height:none!important;
   }
-  .ai-chat-bgvideo{
-    object-position:56% 20%;
-  }
+  .ai-chat-bgvideo{object-position:56% 18%;}
   .ai-chat-vignette-bottom{
-    height:64%;
-    background:linear-gradient(to top,rgba(8,7,11,.98) 0%,rgba(8,7,11,.88) 36%,rgba(8,7,11,.40) 68%,transparent 100%);
+    height:68%;
+    background:linear-gradient(to top,rgba(8,7,11,.99) 0%,rgba(8,7,11,.92) 38%,rgba(8,7,11,.48) 70%,transparent 100%);
   }
-  .ai-chat-topbar-overlay{top:18px;left:18px;}
-  .ai-chat-avatar-mini{width:44px;height:44px;}
-  .ai-chat-name-block strong{font-size:15px;font-weight:600;}
-  .ai-chat-name-block small{font-size:10.5px;}
-  .ai-chat-intro-overlay{padding:16px 18px 20px;}
-  .ai-chat-intro-copy{margin-bottom:17px;max-width:92%;}
-  .ai-chat-intro-copy h1{font-size:29px;}
-  .ai-chat-intro-copy p{font-size:14.5px;line-height:1.5;}
+  .ai-chat-topbar-overlay{top:12px;left:14px;}
+  .ai-chat-avatar-mini{width:38px;height:38px;}
+  .ai-chat-name-block strong{font-size:14px;font-weight:600;}
+  .ai-chat-name-block small{font-size:9.5px;}
+
+  .ai-chat-intro-overlay{
+    padding:10px 14px 12px;
+  }
+  .ai-chat-intro-copy{
+    margin:0 2px 10px;
+    max-width:92%;
+  }
+  .ai-chat-intro-copy h1{
+    font-size:clamp(22px,6.3vw,28px);
+    line-height:1.16;
+  }
+  .ai-chat-intro-copy p{
+    margin-top:6px;
+    font-size:12.5px;
+    line-height:1.38;
+  }
+  .ai-chat-intro-overlay .ai-chat-intro-title{
+    margin:0 2px 7px;
+    font-size:11.5px;
+  }
+  .ai-chat-intro-overlay .ai-chat-intro-categories{
+    gap:6px;
+    margin-bottom:8px;
+  }
+  .ai-chat-intro-overlay .ai-chat-intro-categories button{
+    min-height:42px;
+    padding:7px 6px;
+    border-radius:13px;
+    font-size:11.5px;
+  }
+  .ai-chat-intro-overlay .ai-chat-guest-hint{
+    margin:0 0 7px;
+    padding:7px 8px;
+    border-radius:12px;
+    font-size:10.5px;
+    line-height:1.25;
+  }
+  .ai-chat-intro-overlay>.btn{
+    min-height:50px;
+    padding:11px 12px;
+    font-size:14px;
+  }
 }
+
+/* 높이가 짧은 모바일(예: 667px 안팎)은 한 단계 더 압축합니다. */
+@media(max-width:640px) and (max-height:720px){
+  #view-home > .block:first-child{height:calc(100svh - 116px)!important;}
+  .ai-chat-topbar-overlay{top:9px;}
+  .ai-chat-avatar-mini{width:34px;height:34px;}
+  .ai-chat-name-block small{display:none;}
+  .ai-chat-intro-overlay{padding:8px 12px 10px;}
+  .ai-chat-intro-copy{margin-bottom:7px;}
+  .ai-chat-intro-copy h1{font-size:22px;line-height:1.12;}
+  .ai-chat-intro-copy p{margin-top:4px;font-size:11.5px;line-height:1.3;}
+  .ai-chat-intro-overlay .ai-chat-intro-title{margin-bottom:5px;font-size:10.5px;}
+  .ai-chat-intro-overlay .ai-chat-intro-categories{gap:5px;margin-bottom:6px;}
+  .ai-chat-intro-overlay .ai-chat-intro-categories button{min-height:36px;padding:5px;font-size:10.5px;border-radius:11px;}
+  .ai-chat-intro-overlay .ai-chat-guest-hint{margin-bottom:5px;padding:5px 7px;font-size:9.5px;}
+  .ai-chat-intro-overlay>.btn{min-height:44px;padding:9px 10px;font-size:13px;}
+}
+
 @media(max-width:390px){
-  .ai-chat-stage{height:760px;min-height:760px;}
-  .ai-chat-intro-copy h1{font-size:27px;}
-  .ai-chat-intro-overlay .ai-chat-intro-categories button{min-height:51px;font-size:12px;}
-  .ai-chat-intro-overlay>.btn{min-height:58px;font-size:15px;}
+  .ai-chat-intro-copy h1{font-size:21px;}
+  .ai-chat-intro-overlay .ai-chat-intro-categories button{font-size:10.5px;}
 }
 
 .ai-chat-intro-title{color:rgba(255,255,255,.82);font-size:11px;font-weight:700;margin:0 2px 8px;letter-spacing:-.01em}
@@ -5590,7 +5652,8 @@ function startAiChat() {
    생년월일 입력 단계로 이어집니다(다시 시작하기를 누를 필요 없게). */
 /* 소개 화면의 4개 고민 카테고리 버튼입니다. 로그인/생년월일 입력이 끝나면
    자동으로 그 질문을 이어서 보내도록, 원하는 질문을 잠깐 기억해둡니다. */
-function handleHomeCategoryClick(btn, questionText) {
+function handleHomeCategoryClick(btn, topic, questionText) {
+  window.__aiChatTopic = String(topic || '').slice(0, 30);
   window.__pendingCategoryQuestion = questionText;
   handleHomeChatStart(btn);
 }
@@ -5609,6 +5672,7 @@ async function updateHomeGuestHint() {
 }
 
 async function handleHomeChatStart(btn) {
+  if (!window.__aiChatTopic) window.__aiChatTopic = '전체사주';
   // 카카오로 로그인된 상태면 firebaseAuthReady와 무관하게 바로 진행할 수 있습니다.
   if (getKakaoUser()) { showAiChatSetupStep(); return; }
 
@@ -5666,14 +5730,16 @@ function getAiFollowupQuestions(userMessage='') {
   if (/결혼|이사|개업|계약|날짜|택일/.test(m)) return ['좋은 시기를 먼저 알려줘', '피하면 좋은 시기도 있어?', '실제 날짜까지 골라줘'];
   return ['올해 가장 중요한 흐름은?', '연애운도 이어서 봐줘', '재물·직업운도 봐줘'];
 }
-function appendAiFollowupQuestions(userMessage='') {
+function appendAiFollowupQuestions(userMessage='', serverSuggestions=null) {
   const win = document.getElementById('aiChatWindow');
   if (!win) return;
   const old = win.querySelectorAll('.ai-followup-wrap');
   old.forEach(el => el.remove());
   const wrap = document.createElement('div');
   wrap.className = 'ai-followup-wrap';
-  const qs = getAiFollowupQuestions(userMessage);
+  const qs = Array.isArray(serverSuggestions) && serverSuggestions.length
+    ? serverSuggestions.map(q => String(q || '').trim()).filter(Boolean).slice(0, 3)
+    : getAiFollowupQuestions(userMessage);
   wrap.innerHTML = `<div class="ai-followup-label">연우에게 이어서 물어보기</div><div class="ai-followup-chips"></div>`;
   const chips = wrap.querySelector('.ai-followup-chips');
   qs.forEach(q => {
@@ -5740,6 +5806,7 @@ async function sendAiChatMessage() {
         sajuProfile: window.__aiChatProfile,
         subjects: window.__aiChatSubjects || [],
         history: window.__aiChatHistory.slice(-12),
+        topic: window.__aiChatTopic || '전체사주',
         message
       })
     });
@@ -5768,7 +5835,7 @@ async function sendAiChatMessage() {
     appendAiChatMessage('assistant', data.reply, { scroll: 'start' });
     window.__aiChatHistory.push({ role: 'assistant', content: data.reply });
     appendAiChatServiceCta(message);
-    appendAiFollowupQuestions(message);
+    appendAiFollowupQuestions(message, data.suggestions);
     if (!isPremium()) appendAiChatUpsell(message);
     if (data.freeUsed != null) updateAiChatStatus(data.freeUsed, data.freeLimit, false, data);
     else updateAiChatStatus(null, null, true, data);
