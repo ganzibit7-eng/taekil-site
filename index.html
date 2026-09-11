@@ -1359,7 +1359,6 @@ const ADMIN_EMAIL = "green092432@gmail.com";
             <button onclick="handleHomeCategoryClick(this, '재물·사업', '재물운과 돈이 들어오고 나가는 흐름을 자세히 봐줘')">💰 재물·사업</button>
             <button onclick="handleHomeCategoryClick(this, '직장·이직', '직장운과 이직, 앞으로의 진로 흐름을 자세히 봐줘')">💼 직장·이직</button>
             <button onclick="handleHomeCategoryClick(this, '궁합', '두 사람의 궁합과 관계 흐름을 자세히 봐줘')">💑 궁합</button>
-            <button class="ai-chat-category-wide" onclick="handleHomeCategoryClick(this, '전체사주', '내 사주를 전체적으로 보고 지금 가장 중요한 흐름을 알려줘')">🔮 내 사주 전체보기</button>
           </div>
           <p id="homeGuestHint" class="ai-chat-guest-hint"><b>회원가입하면 질문 3개 무료</b> · 카드 등록 없이 시작</p>
           <button class="btn btn-primary" style="width:100%;" onclick="handleHomeChatStart(this)">✨ 연우에게 무료로 물어보기</button>
@@ -5267,7 +5266,7 @@ window.addEventListener('load', ()=>{ try{ updatePremiumUI(); }catch(e){} });
     min-height:0!important;
     max-height:none!important;
   }
-  .ai-chat-bgvideo{object-position:56% 18%;}
+  .ai-chat-bgvideo{object-position:56% 0%;}
   .ai-chat-vignette-bottom{
     height:68%;
     background:linear-gradient(to top,rgba(8,7,11,.99) 0%,rgba(8,7,11,.92) 38%,rgba(8,7,11,.48) 70%,transparent 100%);
@@ -5279,6 +5278,8 @@ window.addEventListener('load', ()=>{ try{ updatePremiumUI(); }catch(e){} });
 
   .ai-chat-intro-overlay{
     padding:10px 14px 12px;
+    /* 전체사주 버튼을 제거해 확보한 공간만큼 카피/버튼 묶음을 아래쪽에 유지해
+       연우의 머리·상반신이 더 오래 보이게 합니다. */
   }
   .ai-chat-intro-copy{
     margin:0 2px 10px;
@@ -5344,7 +5345,6 @@ window.addEventListener('load', ()=>{ try{ updatePremiumUI(); }catch(e){} });
 }
 
 .ai-chat-intro-title{color:rgba(255,255,255,.82);font-size:11px;font-weight:700;margin:0 2px 8px;letter-spacing:-.01em}
-.ai-chat-intro-categories .ai-chat-category-wide{grid-column:1/-1}
 .ai-chat-status-dots{display:inline-flex;align-items:center;gap:4px;margin-right:6px;vertical-align:middle}
 .ai-chat-status-dot{width:6px;height:6px;border-radius:50%;display:inline-block;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.32)}
 .ai-chat-status-dot.used{background:var(--gold-hi);border-color:var(--gold-hi);box-shadow:0 0 9px rgba(215,180,106,.35)}
