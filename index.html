@@ -1202,31 +1202,44 @@ footer{padding-bottom:90px}
 </style>
 
 
-<style id="mobile-fixed-header-video-safe-v2">
-/* 모바일: 택일소/로그인 배너는 화면 상단에 고정하고, 영상은 반드시 그 아래에서 시작 */
-@media (max-width: 640px) {
-  :root{ --mobile-topbar-space: 88px; }
 
+<style id="restore-original-header-and-first-ai-flow">
+/* Restore the original global header behavior.
+   The header remains visible across AI/사주/기록/etc. without overlaying the page. */
+.topbar{
+  position:sticky !important;
+  top:14px !important;
+  left:auto !important;
+  transform:none !important;
+  width:min(1120px,calc(100% - 28px)) !important;
+  height:auto !important;
+  min-height:0 !important;
+  margin:14px auto 0 !important;
+  padding:11px 12px 11px 20px !important;
+  z-index:50 !important;
+  box-sizing:border-box !important;
+}
+main{padding-top:0 !important;}
+
+/* The Yeonwoo landing screen is a normal first screen, not a PPT snap slide.
+   Snap resumes from the following home sections. */
+#view-home > .block:first-child{
+  scroll-snap-align:none !important;
+  scroll-snap-stop:normal !important;
+  min-height:auto !important;
+}
+
+@media(max-width:640px){
   .topbar{
-    position:fixed !important;
     top:8px !important;
-    left:50% !important;
-    transform:translateX(-50%) !important;
     width:calc(100% - 16px) !important;
-    margin:0 !important;
-    z-index:1000 !important;
-    box-sizing:border-box !important;
+    margin:8px auto 0 !important;
+    padding:9px 10px 9px 14px !important;
   }
-
-  /* 고정 배너가 본문을 덮지 않도록 정확히 자리 확보 */
-  main{
-    padding-top:var(--mobile-topbar-space) !important;
-  }
-
-  /* 홈 영상은 확보된 배너 공간 바로 다음에서 시작 */
   #view-home > .block:first-child{
-    padding-top:0 !important;
-    margin-top:0 !important;
+    padding-top:12px !important;
+    padding-bottom:8px !important;
+    justify-content:flex-start !important;
   }
   #view-home > .block:first-child > .container{
     padding-top:0 !important;
@@ -1234,18 +1247,8 @@ footer{padding-bottom:90px}
   }
   #view-home .ai-chat-stage{
     margin-top:0 !important;
-  }
-
-  /* 상단 고정 배너와 영상 사이에 아주 작은 시각적 여백만 유지 */
-  #view-home .ai-chat-stage{
     transform:none !important;
   }
-}
-
-/* 아주 작은 화면에서는 배너 자체가 살짝 낮아지므로 공간도 같이 줄임 */
-@media (max-width: 390px) {
-  :root{ --mobile-topbar-space: 82px; }
-  .topbar{padding:9px 10px 9px 14px !important;}
 }
 </style>
 
@@ -6211,6 +6214,7 @@ function calculateTodayFortune(){
 })();
 </script>
 
+
 </body>
 </html>
 
@@ -6534,31 +6538,6 @@ function calculateTodayFortune(){
   }
 }
 
-/* ===== 모바일 상단 배너 / 연우 영상 분리 최종 보정 =====
-   모바일에서는 택일소·로그인 배너가 영상 위에 떠서 겹치지 않도록
-   상단 배너를 일반 문서 흐름에 두고, 그 배너가 끝난 다음부터 영상이 시작됩니다. */
-@media(max-width:640px){
-  .topbar{
-    position:relative!important;
-    top:auto!important;
-    margin-top:10px!important;
-    margin-bottom:0!important;
-    z-index:50!important;
-  }
-  #view-home > .block:first-child{
-    padding-top:8px!important;
-    margin-top:0!important;
-  }
-  #view-home > .block:first-child .container{
-    padding-top:0!important;
-  }
-  .ai-chat-stage{
-    margin-top:0!important;
-  }
-  .ai-chat-topbar-overlay{
-    top:10px!important;
-  }
-}
 
 </style>
 
@@ -6580,3 +6559,20 @@ function calculateTodayFortune(){
 })();
 </script>
 
+
+<style id="taekilso-final-header-restore-v1">
+/* Final safety override: preserve the original global sticky header on every route. */
+.topbar{
+  position:sticky !important; top:14px !important; left:auto !important; transform:none !important;
+  width:min(1120px,calc(100% - 28px)) !important; height:auto !important; min-height:0 !important;
+  margin:14px auto 0 !important; padding:11px 12px 11px 20px !important; z-index:50 !important;
+}
+main{padding-top:0 !important;}
+#view-home > .block:first-child{scroll-snap-align:none !important;scroll-snap-stop:normal !important;min-height:auto !important;}
+@media(max-width:640px){
+  .topbar{top:8px !important;width:calc(100% - 16px) !important;margin:8px auto 0 !important;padding:9px 10px 9px 14px !important;}
+  #view-home > .block:first-child{padding-top:12px !important;margin-top:0 !important;padding-bottom:8px !important;justify-content:flex-start !important;}
+  #view-home > .block:first-child>.container{padding-top:0 !important;margin-top:0 !important;}
+  #view-home .ai-chat-stage{margin-top:0 !important;transform:none !important;}
+}
+</style>
