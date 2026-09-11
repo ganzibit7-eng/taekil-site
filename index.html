@@ -89,6 +89,8 @@ button{cursor:pointer}
 
 /* home: 프레젠테이션처럼 섹션 하나씩 스냅되는 풀스크린 스크롤 */
 html.snap-active{scroll-snap-type:y mandatory;}
+/* 홈의 마지막 FAQ부터 푸터까지는 일반 웹페이지처럼 부드럽게 자유 스크롤합니다. */
+html.snap-active.snap-relaxed{scroll-snap-type:none;}
 #view-home > .block{
   scroll-snap-align:start;
   scroll-snap-stop:always;
@@ -1513,13 +1515,13 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     </div>
   </section>
 
-  <section class="block">
+  <section class="block" id="homeFinalFaq">
     <div class="container" style="max-width:760px;">
       <div class="section-head"><div><div class="section-kicker">FAQ</div><h2 class="section-title">자주 묻는 질문</h2></div></div>
       <div class="faq-list">
         <details class="faq-item"><summary>결과는 얼마나 정확한가요?</summary><p>전통 명리학의 오행 상생상극 원리를 단순화해 참고용으로 제공하는 도구예요. 실제 중요한 결정은 여러 정보를 함께 고려하시길 권합니다.</p></details>
         <details class="faq-item"><summary>태어난 시간을 몰라도 되나요?</summary><p>네, 이용할 수 있어요. 출생시간을 모르면 년·월·일주 등 확인 가능한 범위로 분석하고, 출생시간을 입력하면 시주까지 포함해 AI 상담의 해석 범위가 더 넓어집니다. 출생시간이 필요한 일부 해석은 제공 범위가 달라질 수 있어요.</p></details>
-        <details class="faq-item"><summary>회원가입을 꼭 해야 하나요?</summary><p>아니요. 기본 기능은 회원가입 없이 바로 사용할 수 있어요. 검색 기록 저장, 궁합 상세 리포트 같은 기능만 추후 회원 전용으로 제공될 예정이에요.</p></details>
+        <details class="faq-item"><summary>회원가입을 꼭 해야 하나요?</summary><p>기본 택일 기능은 로그인 없이 이용할 수 있어요. 다만 무료 AI 사주 상담 3회, 질문권·프리미엄 이용, 결제 상태 확인처럼 계정별 사용량을 안전하게 관리해야 하는 기능은 로그인이 필요합니다.</p></details>
         <details class="faq-item"><summary>내 정보는 어디에 저장되나요?</summary><p>기본 택일 계산과 일부 검색 기록은 브라우저에서 처리·저장됩니다. AI 상담을 이용할 때는 답변 생성을 위해 선택한 사주 정보와 질문·최근 대화 일부가 택일소 서버를 거쳐 AI 제공업체로 전송될 수 있습니다. 로그인·결제 상태는 계정 기능 제공을 위해 Firebase에 저장됩니다.</p></details>
         <details class="faq-item"><summary>사주 계산에는 어떤 정보를 쓰나요?</summary><p>택일 기능은 서비스가 계산한 일주 정보를 핵심 기준으로 사용하고, AI 사주 상담은 계산 라이브러리가 제공하는 년주·월주·일주와 출생시간이 있는 경우 시주, 오행·십신·지장간 정보를 함께 참고합니다. 대운·세운·용신처럼 현재 계산 데이터에 없는 요소는 AI가 임의로 만들어내지 않도록 제한하고 있어요.</p></details>
         <details class="faq-item"><summary>AI가 사주를 대신 봐주나요?</summary><p>택일소의 날짜 추천은 정해진 오행·일진 기준으로 계산됩니다. 생성형 AI가 임의로 운세를 만들어내는 방식과 달리, 계산 기준을 먼저 고정하고 결과를 설명하는 방향을 우선합니다.</p></details>
@@ -2034,7 +2036,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 </main>
 
-<footer>
+<footer id="siteFooter">
   <div class="container footer-inner">
     <div class="footer-brand">택일소</div>
     <div class="footer-copy">
@@ -2137,6 +2139,34 @@ function formatPremiumUntil() {
 
 
 /* ---------- ROUTING ---------- */
+/* 홈 앞부분은 섹션별 스냅을 유지하고, 마지막 FAQ에 도달한 뒤부터는
+   개인정보처리방침/문의 링크가 있는 푸터까지 일반 페이지처럼 부드럽게 스크롤합니다. */
+function syncHomeTailScrollMode() {
+  const root = document.documentElement;
+  const home = document.getElementById('view-home');
+  const faq = document.getElementById('homeFinalFaq');
+  if (!root || !home || !faq || !home.classList.contains('visible')) {
+    if (root) root.classList.remove('snap-relaxed');
+    return;
+  }
+
+  const faqTop = faq.getBoundingClientRect().top + window.scrollY;
+  // FAQ 화면에 거의 도달하면 snap을 풀어, FAQ → footer 구간을 자유롭게 스크롤합니다.
+  const releaseAt = Math.max(0, faqTop - window.innerHeight * 0.42);
+  root.classList.toggle('snap-relaxed', window.scrollY >= releaseAt);
+}
+
+let homeTailScrollTicking = false;
+window.addEventListener('scroll', () => {
+  if (homeTailScrollTicking) return;
+  homeTailScrollTicking = true;
+  requestAnimationFrame(() => {
+    syncHomeTailScrollMode();
+    homeTailScrollTicking = false;
+  });
+}, { passive: true });
+window.addEventListener('resize', syncHomeTailScrollMode, { passive: true });
+
 function toggleMobileNav() {
   document.getElementById('navLinks').classList.toggle('mobile-open');
 }
@@ -2159,6 +2189,7 @@ function goTo(route, presetEvent) {
   const target = document.getElementById('view-' + route);
   if (target) target.classList.add('visible');
   document.documentElement.classList.toggle('snap-active', route === 'home');
+  document.documentElement.classList.remove('snap-relaxed');
   document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
   const navLink = document.querySelector('.nav-links a[data-route="' + route + '"]');
   if (navLink) navLink.classList.add('active');
@@ -2184,7 +2215,7 @@ function goTo(route, presetEvent) {
     if (anchor) anchor.style.display = 'block'; // 홈 카드 등에서 특정 목적을 지정하고 들어온 경우 바로 폼을 보여줍니다.
   }
   if (route === 'history') loadHistory();
-  if (route === 'home' && typeof fillAiChatDateSelects === 'function') { fillAiChatDateSelects(); updateHomeGuestHint(); }
+  if (route === 'home' && typeof fillAiChatDateSelects === 'function') { fillAiChatDateSelects(); updateHomeGuestHint(); requestAnimationFrame(syncHomeTailScrollMode); }
   if (route === 'profile') renderProfile();
   if (route === 'admin') renderAdmin();
   if (route === 'support') renderSupportList();
