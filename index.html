@@ -6455,6 +6455,36 @@ function calculateTodayFortune(){
   .event-track .event-card:nth-child(3) .ultra-scene::before,
   .event-track .event-card:nth-child(4) .ultra-scene::before,.event-track .event-card:nth-child(4) .ultra-scene::after{animation:none!important}
 }
+
+
+/* ===== 모바일 연우 영상 최종 위치 보정 =====
+   상단 택일소/로그인 배너 바로 아래에서 연우의 머리와 얼굴이 잘리지 않도록
+   모바일에서는 영상 프레임 전체를 우선 보여줍니다. */
+@media(max-width:640px){
+  .ai-chat-stage{
+    background:#090806!important;
+  }
+  .ai-chat-bgvideo{
+    top:0!important;
+    left:0!important;
+    right:0!important;
+    bottom:auto!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:contain!important;
+    object-position:center top!important;
+    transform:none!important;
+    transform-origin:top center!important;
+    background:#090806!important;
+  }
+  /* 연우의 작은 프로필/이름도 영상 상단 바로 아래에서 항상 보이도록 고정 */
+  .ai-chat-topbar-overlay{
+    top:10px!important;
+    left:14px!important;
+    right:14px!important;
+    z-index:5!important;
+  }
+}
 </style>
 
 <script id="takil-event-unique-scenes-script">
