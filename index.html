@@ -5268,9 +5268,9 @@ window.addEventListener('load', ()=>{ try{ updatePremiumUI(); }catch(e){} });
   }
   .ai-chat-bgvideo{
     object-position:56% 0%;
-    /* 연우가 화면 위쪽으로 붙어 보이지 않도록 영상 자체를 살짝 아래로 내립니다.
-       상단의 아주 작은 여백은 어두운 비네트가 자연스럽게 가려줍니다. */
-    transform:translateY(16px);
+    /* 모바일에서 연우의 머리/프로필 윗부분이 잘리지 않도록 영상 프레임을 충분히 아래로 내립니다.
+       상단 여백은 기존 어두운 비네트와 헤더가 자연스럽게 덮습니다. */
+    transform:translateY(52px);
   }
   .ai-chat-vignette-bottom{
     height:68%;
