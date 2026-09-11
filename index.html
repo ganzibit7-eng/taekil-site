@@ -873,33 +873,13 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
   font-size:11px; padding:8px 12px; border-radius:12px; cursor:pointer;
 }
 .ai-chat-upsell:hover{background:rgba(215,180,106,.24)}
-.ai-chat-followups{
-  align-self:flex-start;
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  max-width:96%;
-  margin-top:-2px;
-  margin-bottom:2px;
-}
-.ai-chat-followups button{
-  appearance:none;
-  border:1px solid rgba(215,180,106,.38);
-  background:rgba(16,14,11,.76);
-  color:#f6e8c3;
-  padding:7px 11px;
-  border-radius:999px;
-  font-family:inherit;
-  font-size:10.8px;
-  line-height:1.2;
-  cursor:pointer;
-  backdrop-filter:blur(5px);
-}
-.ai-chat-followups button:hover{
-  background:rgba(215,180,106,.2);
-  border-color:rgba(215,180,106,.62);
-}
-.ai-chat-followups button:active{transform:translateY(1px)}
+
+.ai-chat-followups{align-self:flex-start;display:flex;flex-wrap:wrap;gap:6px;max-width:96%;margin-top:2px;margin-bottom:3px}
+.ai-chat-followups button{border:1px solid rgba(215,180,106,.38);background:rgba(16,14,11,.78);color:#f6e8c3;padding:7px 11px;border-radius:999px;font-family:inherit;font-size:10.8px;cursor:pointer}
+.ai-chat-followups button:hover{background:rgba(215,180,106,.20)}
+.ai-chat-followups .locked{opacity:.92}
+.ai-chat-followup-note{width:100%;font-size:10.5px;color:#c7b991;margin:2px 0 1px}
+
 .ai-chat-cta-row{display:flex; flex-wrap:wrap; gap:6px; align-self:flex-start; max-width:100%;}
 .ai-chat-offer-grid{display:flex; flex-direction:column; gap:8px; align-self:stretch; margin-top:4px;}
 .ai-chat-offer-card{
@@ -6470,63 +6450,75 @@ function continueHomeChatAfterLogin() {
   showAiChatSetupStep();
 }
 
-function clearAiFollowupSuggestions() {
+function clearAiFollowupSuggestions(){
   document.querySelectorAll('.ai-chat-followups').forEach(el => el.remove());
 }
+function aiFollowupSet(question, reply, used){
+  const t = `${question||''} ${reply||''}`;
+  const topic =
+    /돈|재물|수입|금전|사업|매출/.test(t) ? 'money' :
+    /연애|궁합|배우자|결혼|썸|사랑/.test(t) ? 'love' :
+    /직업|직장|취업|이직|진로|회사|창업/.test(t) ? 'career' :
+    /색|숫자|방향|환경|오행|행운/.test(t) ? 'traits' : 'general';
 
-function getAiFollowupSuggestions(question, reply) {
-  const text = `${question || ''} ${reply || ''}`;
-
-  if (/돈|재물|수입|금전|재테크|투자|지출|사업|매출/.test(text)) {
-    return ['좋은 점은?', '뭘 조심해야 해?', '돈을 모으려면?', '나한테 맞는 돈 버는 방식은?'];
-  }
-  if (/연애|궁합|배우자|결혼|썸|재회|사랑|남자친구|여자친구/.test(text)) {
-    return ['잘 맞는 점은?', '뭘 조심해야 해?', '내가 바꾸면 좋은 점은?', '더 자세히 봐줘'];
-  }
-  if (/직업|직장|취업|이직|진로|회사|창업|일운/.test(text)) {
-    return ['내 강점은?', '뭘 조심해야 해?', '어떤 환경이 잘 맞아?', '현실적으로 어떻게 하면 돼?'];
-  }
-  if (/색|컬러|숫자|번호|방향|환경|오행|행운/.test(text)) {
-    return ['나한테 좋은 건 더 뭐야?', '생활에서 어떻게 활용해?', '조심할 건 뭐야?', '다른 특징도 알려줘'];
-  }
-  if (/이사|개업|계약|택일|날짜|후보/.test(text)) {
-    return ['왜 그렇게 보는 거야?', '가장 중요한 기준은?', '뭘 조심해야 해?', '다른 후보와 비교해줘'];
-  }
-  if (/성격|기질|장점|단점|특징|사주 구조/.test(text)) {
-    return ['내 강점은?', '단점은?', '뭘 조심해야 해?', '생활에 어떻게 활용해?'];
-  }
-
-  return ['더 자세히 봐줘', '좋은 점은?', '뭘 조심해야 해?', '현실적으로 어떻게 하면 돼?'];
+  const sets = {
+    money: [
+      ['돈이 새기 쉬운 부분은?','내 재물운의 좋은 점은?','돈을 모으려면 뭘 바꿔야 해?','나한테 맞는 돈 버는 방식은?'],
+      ['그럼 가장 조심할 선택은?','내 강점을 돈으로 연결하려면?','현실적으로 어떻게 관리해야 해?','직업운과도 연결해서 봐줘'],
+      ['나한테 가장 맞는 재물 전략은?','사업과 직장 중 어떤 방식이 더 맞아?','앞으로 돈 문제에서 기억할 핵심은?','내 사주의 다른 재물 특징도 봐줘']
+    ],
+    love: [
+      ['내 연애의 좋은 점은?','내가 조심할 관계 패턴은?','어떤 사람이 잘 맞아?','내 연애 성향을 더 봐줘'],
+      ['갈등이 생기면 뭘 조심해야 해?','내가 바꾸면 좋은 점은?','잘 맞는 상대 특징은?','결혼 관계에서는 어때?'],
+      ['관계를 오래 유지하려면?','내가 놓치기 쉬운 신호는?','궁합에서 더 중요한 건 뭐야?','내 사주의 다른 관계 특징도 봐줘']
+    ],
+    career: [
+      ['내 직업적 강점은?','일할 때 뭘 조심해야 해?','어떤 환경이 잘 맞아?','사업 성향도 있어?'],
+      ['내가 피하면 좋은 일 방식은?','강점을 살리려면?','이직할 때 뭘 봐야 해?','돈과 직업을 같이 봐줘'],
+      ['직장과 사업 중 어떤 방식이 맞아?','성공하려면 보완할 점은?','나한테 맞는 역할은?','다른 직업 특징도 더 봐줘']
+    ],
+    traits: [
+      ['나한테 좋은 건 더 뭐야?','뭘 조심해야 해?','생활에서 어떻게 활용해?','다른 특징도 알려줘'],
+      ['내 강점과 단점을 같이 봐줘','나한테 맞는 환경은?','피하면 좋은 습관은?','관계에도 영향이 있어?'],
+      ['내 사주의 핵심 특징을 더 봐줘','현실에서 가장 활용할 점은?','가장 보완할 점은?','내가 놓친 특징도 알려줘']
+    ],
+    general: [
+      ['좋은 점은?','뭘 조심해야 해?','더 자세히 봐줘','현실적으로 어떻게 하면 돼?'],
+      ['그중 가장 중요한 건?','내 강점은 어떻게 활용해?','반대로 단점은?','다른 부분과도 연결해줘'],
+      ['그럼 내가 기억할 핵심은?','더 깊게 보면 뭐가 있어?','내가 조심할 선택은?','다른 특징도 이어서 봐줘']
+    ]
+  };
+  return sets[topic][Math.min(Math.max(Number(used||1)-1,0),2)];
 }
-
-function appendAiFollowupSuggestions(question, reply) {
-  const win = document.getElementById('aiChatWindow');
-  if (!win) return;
-
+function showAiFollowups(question, reply, used, limit, locked){
+  const win=document.getElementById('aiChatWindow'); if(!win) return;
   clearAiFollowupSuggestions();
-
-  const suggestions = getAiFollowupSuggestions(question, reply).slice(0, 4);
-  if (!suggestions.length) return;
-
-  const wrap = document.createElement('div');
-  wrap.className = 'ai-chat-followups';
-  wrap.setAttribute('aria-label', '이어 묻기');
-
-  suggestions.forEach((label) => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.textContent = label;
-    btn.addEventListener('click', () => {
-      clearAiFollowupSuggestions();
-      quickAskAiChat(label);
-    });
-    wrap.appendChild(btn);
+  const wrap=document.createElement('div'); wrap.className='ai-chat-followups';
+  const list=aiFollowupSet(question,reply,used);
+  if(locked){
+    const note=document.createElement('div'); note.className='ai-chat-followup-note';
+    note.textContent='🔒 다음으로 이런 것도 물어볼 수 있어요';
+    wrap.appendChild(note);
+  }
+  list.forEach(label=>{
+    const b=document.createElement('button'); b.type='button';
+    b.className=locked?'locked':'';
+    b.textContent=(locked?'🔒 ':'')+label;
+    b.onclick=()=>{
+      if(locked){ openAiFollowupPurchase(label); return; }
+      clearAiFollowupSuggestions(); quickAskAiChat(label);
+    };
+    wrap.appendChild(b);
   });
-
-  win.appendChild(wrap);
-  scrollAiChatToBottom(win);
+  win.appendChild(wrap); scrollAiChatToBottom(win);
 }
-
+function openAiFollowupPurchase(question){
+  window.__pendingPaidAiQuestion = question;
+  // 기존 구매 UI를 그대로 사용합니다. 프리미엄/질문권 구매 함수나 모달 구조는 변경하지 않습니다.
+  appendAiChatMessage('system-note','무료 질문 3개를 모두 사용했어요. 이 질문이 궁금하다면 질문권 또는 프리미엄으로 상담을 이어갈 수 있어요.');
+  if (typeof appendAiChatUpsell === 'function') appendAiChatUpsell(question);
+  scrollAiChatToBottom(document.getElementById('aiChatWindow'));
+}
 function quickAskAiChat(text) {
   const input = document.getElementById('aiChatInput');
   if (input) input.value = text;
@@ -6618,15 +6610,19 @@ async function sendAiChatMessage() {
     }
 
     saveCurrentAiConversation();
-
-    // 가장 최근 답변을 바탕으로 한 번에 이어 물을 수 있는 짧은 질문을 보여줍니다.
-    // 추천 문구 생성 자체에는 AI 호출이 없고, 사용자가 버튼을 눌렀을 때만 일반 질문 1회로 전송됩니다.
-    appendAiFollowupSuggestions(message, data.reply);
-
     appendAiChatServiceCta(message);
-    if (!isPremium()) appendAiChatUpsell(message);
-    if (data.freeUsed != null) updateAiChatStatus(data.freeUsed, data.freeLimit, false, data);
-    else updateAiChatStatus(null, null, true, data);
+
+    if (data.freeUsed != null) {
+      updateAiChatStatus(data.freeUsed, data.freeLimit, false, data);
+      const freeDone = Number(data.freeUsed) >= Number(data.freeLimit || 3);
+      showAiFollowups(message, data.reply, data.freeUsed, data.freeLimit || 3, freeDone);
+      // 무료 3회가 끝난 시점에는 기존 구매 안내도 함께 보여줍니다.
+      if (freeDone) appendAiChatUpsell(message);
+    } else {
+      updateAiChatStatus(null, null, true, data);
+      // 프리미엄/질문권 사용자는 잠금 없이 계속 꼬리질문이 이어집니다.
+      showAiFollowups(message, data.reply, 1, 3, false);
+    }
   } catch (err) {
     typingEl.remove();
     appendAiChatMessage('system-note', '연결에 문제가 있었어요. 잠시 후 다시 시도해주세요.');
