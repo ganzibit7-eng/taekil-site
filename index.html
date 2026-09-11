@@ -733,6 +733,93 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
   .history-vault-guide{justify-content:flex-start}
 }
 
+/* ===== HOME INTRO VISUAL ONLY (stable build: no auth/payment/stat logic touched) ===== */
+#view-home #homeIntroOverlay{
+  padding:18px 18px 16px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+}
+#view-home #homeIntroOverlay .ai-chat-bubble-npc{
+  background:transparent;
+  border:0;
+  backdrop-filter:none;
+  padding:0;
+  margin:0 0 12px;
+  max-width:100%;
+  border-radius:0;
+  box-shadow:none;
+}
+#view-home #homeIntroOverlay .home-intro-title{
+  display:block;
+  color:#fff;
+  font-family:var(--serif);
+  font-size:clamp(27px,7.2vw,38px);
+  line-height:1.08;
+  letter-spacing:-.04em;
+  font-weight:700;
+  text-shadow:0 2px 18px rgba(0,0,0,.55);
+  margin-bottom:9px;
+}
+#view-home #homeIntroOverlay .home-intro-copy{
+  display:block;
+  color:rgba(255,255,255,.92);
+  font-size:13px;
+  line-height:1.5;
+  text-shadow:0 2px 14px rgba(0,0,0,.65);
+  margin-bottom:10px;
+}
+#view-home #homeIntroOverlay .home-intro-question{
+  display:block;
+  color:#fff;
+  font-size:13px;
+  font-weight:700;
+  text-shadow:0 2px 12px rgba(0,0,0,.65);
+}
+#view-home #homeIntroOverlay .ai-chat-intro-categories{
+  gap:7px;
+  margin-bottom:10px;
+}
+#view-home #homeIntroOverlay .ai-chat-intro-categories button{
+  min-height:48px;
+  padding:9px 7px;
+  border-radius:14px;
+  background:rgba(13,12,11,.82);
+  border:1px solid rgba(255,255,255,.22);
+  font-size:12px;
+  font-weight:700;
+  backdrop-filter:blur(7px);
+}
+#view-home #homeIntroOverlay .ai-chat-guest-hint{
+  margin:0 0 9px;
+  padding:8px 10px;
+  background:rgba(20,16,10,.72);
+  border:1px solid rgba(215,180,106,.48);
+  color:#f1d899;
+  font-size:10.5px;
+}
+#view-home #homeIntroOverlay > .btn.btn-primary{
+  min-height:58px;
+  border-radius:999px;
+  font-size:15px;
+  font-weight:800;
+}
+@media(max-width:640px){
+  #view-home > .block:first-child{padding-top:14px!important;}
+  #view-home .ai-chat-stage{height:calc(100svh - 146px); min-height:620px; max-height:760px;}
+  #view-home .ai-chat-bgvideo{object-position:center 26%;}
+  #view-home .ai-chat-vignette-bottom{height:72%;background:linear-gradient(to top,rgba(3,5,10,.98) 0%,rgba(5,7,12,.86) 38%,rgba(5,7,12,.34) 66%,transparent 100%);}
+  #view-home #homeIntroOverlay{padding:14px 14px 14px;}
+}
+@media(max-width:390px), (max-height:760px) and (max-width:640px){
+  #view-home .ai-chat-stage{height:calc(100svh - 136px);min-height:560px;}
+  #view-home #homeIntroOverlay .home-intro-title{font-size:25px;margin-bottom:6px;}
+  #view-home #homeIntroOverlay .home-intro-copy{font-size:12px;margin-bottom:7px;}
+  #view-home #homeIntroOverlay .ai-chat-intro-categories button{min-height:44px;font-size:11px;}
+  #view-home #homeIntroOverlay > .btn.btn-primary{min-height:52px;font-size:14px;}
+}
+/* ===== /HOME INTRO VISUAL ONLY ===== */
+
 /* usecase list (event subpages) */
 /* ---- AI 사주 상담 채팅 화면 (영상 배경 몰입형) ---- */
 .ai-chat-immersive .container{padding:0!important}
@@ -1480,18 +1567,18 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <!-- STEP 0: 소개 + 시작하기 (모두에게 동일하게 보임, 로그인 불필요) -->
         <div id="homeIntroOverlay" class="ai-chat-setup-overlay">
           <div class="ai-chat-bubble-npc">
-            안녕하세요, 저는 연우예요.<br>
-            당신의 사주를 바탕으로 함께 이야기해드릴게요.<br><br>
-            오늘 어떤 고민이 있으세요?
+            <span class="home-intro-title">사주, 한 번 보고<br>끝내지 마세요.</span>
+            <span class="home-intro-copy">궁금한 게 생기면<br>연우에게 계속 물어보세요.</span>
+            <span class="home-intro-question">오늘 가장 궁금한 건 무엇인가요?</span>
           </div>
           <div class="ai-chat-intro-categories">
-            <button onclick="handleHomeCategoryClick(this, '연애·궁합이 궁금해요')">❤️ 연애·궁합</button>
-            <button onclick="handleHomeCategoryClick(this, '돈, 재물운이 궁금해요')">💰 돈·재물</button>
-            <button onclick="handleHomeCategoryClick(this, '직업, 사업운이 궁금해요')">💼 직업·사업</button>
-            <button onclick="handleHomeCategoryClick(this, '결혼, 이사, 개업, 계약 날짜를 잡고 싶어요')">📅 결혼·이사·개업·계약</button>
+            <button onclick="handleHomeCategoryClick(this, '연애·궁합이 궁금해요')">💕 연애·재회</button>
+            <button onclick="handleHomeCategoryClick(this, '돈, 재물운이 궁금해요')">💰 재물·사업</button>
+            <button onclick="handleHomeCategoryClick(this, '직업, 사업운이 궁금해요')">💼 직장·이직</button>
+            <button onclick="handleHomeCategoryClick(this, '연애·궁합이 궁금해요')">💞 궁합</button>
           </div>
-          <p id="homeGuestHint" class="ai-chat-guest-hint">지금 회원가입하고 무료로 체험해보세요 (무료 질문 3개)</p>
-          <button class="btn btn-primary" style="width:100%;" onclick="handleHomeChatStart(this)">✨ 내 사주로 상담 시작하기</button>
+          <p id="homeGuestHint" class="ai-chat-guest-hint">회원가입하면 질문 3개 무료 · 카드 등록 없이 시작</p>
+          <button class="btn btn-primary" style="width:100%;" onclick="handleHomeChatStart(this)">✨ 연우에게 무료로 물어보기</button>
         </div>
 
         <!-- STEP 1: 생년월일 입력 (시작하기 클릭 + 로그인 후에만 보임) -->
