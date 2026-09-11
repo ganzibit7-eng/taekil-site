@@ -6453,38 +6453,70 @@ function continueHomeChatAfterLogin() {
 function clearAiFollowupSuggestions(){
   document.querySelectorAll('.ai-chat-followups').forEach(el => el.remove());
 }
+function normalizeAiFollowupText(text){
+  return String(text || '')
+    .toLowerCase()
+    .replace(/\s+/g,'')
+    .replace(/[?!.,~"'“”‘’()[\]{}:;·ㆍ\-_/\\]/g,'');
+}
+
 function aiFollowupIntent(text){
   const s = String(text || '');
-  if (/조심|주의|피해야|위험|단점|약점|실수|문제/.test(s)) return 'caution';
-  if (/좋은 점|강점|장점|잘하는|유리/.test(s)) return 'strength';
-  if (/어떻게|관리|활용|바꾸|방법|전략|하면 돼|모으려면/.test(s)) return 'action';
-  if (/직업|직장|사업|이직|진로|역할|업무/.test(s)) return 'career';
-  if (/연애|궁합|배우자|결혼|관계|상대/.test(s)) return 'love';
-  if (/돈|재물|수입|금전|매출/.test(s)) return 'money';
-  if (/색|숫자|방향|환경|오행|행운/.test(s)) return 'traits';
-  if (/더 자세|더 깊|다른 특징|핵심/.test(s)) return 'deeper';
+  // 같은 의미의 표현까지 한 묶음으로 잡아, 이미 물어본 종류는 다시 추천하지 않습니다.
+  if (/조심|주의|피해야|피하면|위험|단점|약점|실수|문제|경계/.test(s)) return 'caution';
+  if (/좋은 점|강점|장점|잘하는|잘 맞는 점|유리/.test(s)) return 'strength';
+  if (/어떻게|관리|활용|바꾸|방법|전략|하면 돼|모으려면|유지하려면/.test(s)) return 'action';
+  if (/환경|공간|분위기|생활 리듬|생활리듬/.test(s)) return 'environment';
+  if (/직업|직장|사업|이직|진로|역할|업무|창업/.test(s)) return 'career';
+  if (/연애|궁합|배우자|결혼|관계|상대|사랑/.test(s)) return 'love';
+  if (/돈|재물|수입|금전|매출|재정/.test(s)) return 'money';
+  if (/색|숫자|방향|오행|행운/.test(s)) return 'traits';
+  if (/핵심|기억할|우선순위|가장 중요/.test(s)) return 'core';
+  if (/더 자세|더 깊|다른 특징|이어|또 뭐|놓친/.test(s)) return 'deeper';
   return 'other';
 }
 
+function getAiFollowupTopic(text){
+  const s = String(text || '');
+  if (/돈|재물|수입|금전|매출|재정/.test(s)) return 'money';
+  if (/연애|궁합|배우자|결혼|썸|사랑|관계/.test(s)) return 'love';
+  if (/직업|직장|취업|이직|진로|회사|창업|사업/.test(s)) return 'career';
+  if (/색|숫자|방향|환경|오행|행운/.test(s)) return 'traits';
+  return 'general';
+}
+
+function getUsedAiFollowupState(){
+  const usedTexts = new Set();
+  const usedIntents = new Set();
+
+  (window.__aiChatHistory || [])
+    .filter(m => m && m.role === 'user')
+    .forEach(m => {
+      const raw = String(m.content || '');
+      usedTexts.add(normalizeAiFollowupText(raw));
+      usedIntents.add(aiFollowupIntent(raw));
+    });
+
+  return { usedTexts, usedIntents };
+}
+
 function aiFollowupSet(question, reply, used){
-  const t = `${question||''} ${reply||''}`;
-  const topic =
-    /돈|재물|수입|금전|사업|매출/.test(t) ? 'money' :
-    /연애|궁합|배우자|결혼|썸|사랑/.test(t) ? 'love' :
-    /직업|직장|취업|이직|진로|회사|창업/.test(t) ? 'career' :
-    /색|숫자|방향|환경|오행|행운/.test(t) ? 'traits' : 'general';
+  const topic = getAiFollowupTopic(question) !== 'general'
+    ? getAiFollowupTopic(question)
+    : getAiFollowupTopic(`${question||''} ${reply||''}`);
 
   const pool = {
     money: [
-      '돈이 새기 쉬운 부분은?',
       '내 재물운의 좋은 점은?',
+      '돈이 새기 쉬운 부분은?',
       '돈을 모으려면 뭘 바꿔야 해?',
       '나한테 맞는 돈 버는 방식은?',
       '내 강점을 돈으로 연결하려면?',
-      '현실적으로 어떻게 관리해야 해?',
-      '직업운과도 연결해서 봐줘',
+      '현실적으로 돈 관리를 어떻게 해야 해?',
+      '직업운과 재물운을 같이 봐줘',
       '사업과 직장 중 어떤 방식이 더 맞아?',
-      '내 사주의 다른 재물 특징도 봐줘'
+      '내 사주의 다른 재물 특징도 봐줘',
+      '재물에서 가장 중요한 핵심은?'
     ],
     love: [
       '내 연애의 좋은 점은?',
@@ -6492,106 +6524,187 @@ function aiFollowupSet(question, reply, used){
       '어떤 사람이 잘 맞아?',
       '내 연애 성향을 더 봐줘',
       '내가 바꾸면 좋은 점은?',
-      '잘 맞는 상대 특징은?',
-      '결혼 관계에서는 어때?',
-      '관계를 오래 유지하려면?',
-      '궁합에서 더 중요한 건 뭐야?'
+      '결혼 관계에서는 어떤 편이야?',
+      '관계를 오래 유지하려면 어떻게 해야 해?',
+      '궁합에서 가장 중요한 건 뭐야?',
+      '내 사주의 다른 관계 특징도 봐줘',
+      '연애에서 내가 기억할 핵심은?'
     ],
     career: [
       '내 직업적 강점은?',
       '일할 때 뭘 조심해야 해?',
-      '어떤 환경이 잘 맞아?',
+      '어떤 업무 환경이 잘 맞아?',
       '사업 성향도 있어?',
-      '강점을 살리려면?',
-      '이직할 때 뭘 봐야 해?',
+      '강점을 일에서 어떻게 살리면 돼?',
+      '이직할 때 뭘 중요하게 봐야 해?',
       '돈과 직업을 같이 봐줘',
       '직장과 사업 중 어떤 방식이 맞아?',
-      '나한테 맞는 역할은?'
+      '나한테 맞는 역할은?',
+      '직업에서 가장 중요한 핵심은?'
     ],
     traits: [
       '나한테 좋은 건 더 뭐야?',
       '뭘 조심해야 해?',
       '생활에서 어떻게 활용해?',
       '다른 특징도 알려줘',
-      '내 강점과 단점을 같이 봐줘',
+      '내 강점은 뭐야?',
       '나한테 맞는 환경은?',
       '관계에도 영향이 있어?',
-      '내 사주의 핵심 특징을 더 봐줘',
+      '내 사주의 핵심 특징은 뭐야?',
       '현실에서 가장 활용할 점은?'
     ],
     general: [
-      '좋은 점은?',
+      '내 강점은 뭐야?',
       '뭘 조심해야 해?',
-      '더 자세히 봐줘',
-      '현실적으로 어떻게 하면 돼?',
+      '현실적으로 어떻게 활용하면 돼?',
+      '다른 특징도 알려줘',
       '그중 가장 중요한 건?',
-      '내 강점은 어떻게 활용해?',
-      '다른 부분과도 연결해줘',
-      '내가 기억할 핵심은?',
-      '다른 특징도 이어서 봐줘'
+      '직업에서는 어떻게 나타나?',
+      '연애에서는 어떻게 나타나?',
+      '재물에서는 어떻게 나타나?',
+      '나한테 맞는 환경은?',
+      '내가 기억할 핵심은?'
     ]
   };
 
-  // 지금 방금 물어본 질문과 같은 의도의 꼬리질문은 다음 선택지에서 제외합니다.
-  // 예: "뭘 조심해야 해?" 뒤에는 또 조심/주의 계열이 나오지 않습니다.
+  const { usedTexts, usedIntents } = getUsedAiFollowupState();
   const currentIntent = aiFollowupIntent(question);
-
-  // 이미 사용자가 이 상담에서 물어본 질문의 의도도 기억해 중복 노출을 줄입니다.
-  const usedIntents = new Set(
-    (window.__aiChatHistory || [])
-      .filter(m => m && m.role === 'user')
-      .map(m => aiFollowupIntent(m.content))
-      .filter(Boolean)
-  );
-
-  const candidates = pool[topic].filter(label => {
-    const intent = aiFollowupIntent(label);
-    if (intent === currentIntent) return false;
-    if (usedIntents.has(intent) && intent !== 'deeper' && intent !== 'other') return false;
-    return true;
-  });
-
-  // 필터링을 많이 해도 항상 서로 다른 방향의 질문 4개는 보여주도록 보충합니다.
-  const fallback = [
-    '내 강점은 어떻게 활용해?',
-    '현실적으로 어떻게 하면 돼?',
-    '다른 부분과도 연결해줘',
-    '내가 기억할 핵심은?',
-    '다른 특징도 이어서 봐줘'
-  ];
+  const currentText = normalizeAiFollowupText(question);
 
   const result = [];
-  [...candidates, ...fallback].forEach(label => {
-    if (result.length >= 4) return;
-    if (result.includes(label)) return;
-    if (aiFollowupIntent(label) === currentIntent) return;
+  for (const label of pool[topic]) {
+    if (result.length >= 3) break; // 네 번째 자리는 '다른 사주도 물어볼래?'로 고정
+    const normalized = normalizeAiFollowupText(label);
+    const intent = aiFollowupIntent(label);
+
+    // 1) 방금 질문과 같은 문장/의미면 무조건 제외
+    if (normalized === currentText) continue;
+    if (intent === currentIntent) continue;
+
+    // 2) 이 상담에서 이미 물어본 문장/의미면 무조건 제외
+    if (usedTexts.has(normalized)) continue;
+    if (usedIntents.has(intent)) continue;
+
+    // 3) 현재 화면 안에서도 같은 의미끼리 중복 금지
+    if (result.some(x => aiFollowupIntent(x) === intent)) continue;
+
     result.push(label);
+  }
+
+  // 같은 주제 안에서 3개를 못 채우면, 아직 한 번도 안 물어본 '다른 의미'만 보충합니다.
+  const fallback = [
+    '내 강점은 뭐야?',
+    '현실적으로 어떻게 활용하면 돼?',
+    '나한테 맞는 환경은?',
+    '내가 기억할 핵심은?',
+    '다른 특징도 알려줘',
+    '직업에서는 어떻게 나타나?',
+    '연애에서는 어떻게 나타나?',
+    '재물에서는 어떻게 나타나?'
+  ];
+
+  for (const label of fallback) {
+    if (result.length >= 3) break;
+    const normalized = normalizeAiFollowupText(label);
+    const intent = aiFollowupIntent(label);
+    if (normalized === currentText) continue;
+    if (intent === currentIntent) continue;
+    if (usedTexts.has(normalized)) continue;
+    if (usedIntents.has(intent)) continue;
+    if (result.some(x => aiFollowupIntent(x) === intent)) continue;
+    result.push(label);
+  }
+
+  return result.slice(0,3);
+}
+
+function showAiOtherSajuTopics(locked){
+  if (locked){
+    openAiFollowupPurchase('다른 사주 주제도 이어서 물어보기');
+    return;
+  }
+
+  const win = document.getElementById('aiChatWindow');
+  if (!win) return;
+
+  clearAiFollowupSuggestions();
+
+  const currentTopic = getAiFollowupTopic(
+    [...(window.__aiChatHistory || [])].reverse().find(m => m && m.role === 'user')?.content || ''
+  );
+
+  const topicButtons = [
+    { key:'money', label:'💰 재물운', q:'내 재물운을 봐줘' },
+    { key:'love', label:'💕 연애·궁합', q:'내 연애운과 관계 성향을 봐줘' },
+    { key:'career', label:'💼 직업·사업', q:'내 직업운과 일하는 성향을 봐줘' },
+    { key:'traits', label:'✨ 성향·좋은 것', q:'내 사주의 성향과 나한테 잘 맞는 것을 봐줘' },
+    { key:'general', label:'🔎 전체적인 특징', q:'내 사주의 다른 특징도 이어서 봐줘' }
+  ].filter(x => x.key !== currentTopic);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'ai-chat-followups';
+
+  const note = document.createElement('div');
+  note.className = 'ai-chat-followup-note';
+  note.textContent = '다른 주제로도 이어서 볼까요?';
+  wrap.appendChild(note);
+
+  topicButtons.slice(0,4).forEach(item => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = item.label;
+    b.onclick = () => {
+      clearAiFollowupSuggestions();
+      quickAskAiChat(item.q);
+    };
+    wrap.appendChild(b);
   });
 
-  return result.slice(0, 4);
+  win.appendChild(wrap);
+  scrollAiChatToBottom(win);
 }
+
 function showAiFollowups(question, reply, used, limit, locked){
   const win=document.getElementById('aiChatWindow'); if(!win) return;
   clearAiFollowupSuggestions();
-  const wrap=document.createElement('div'); wrap.className='ai-chat-followups';
+
+  const wrap=document.createElement('div');
+  wrap.className='ai-chat-followups';
+
   const list=aiFollowupSet(question,reply,used);
+
   if(locked){
-    const note=document.createElement('div'); note.className='ai-chat-followup-note';
+    const note=document.createElement('div');
+    note.className='ai-chat-followup-note';
     note.textContent='🔒 다음으로 이런 것도 물어볼 수 있어요';
     wrap.appendChild(note);
   }
+
   list.forEach(label=>{
-    const b=document.createElement('button'); b.type='button';
+    const b=document.createElement('button');
+    b.type='button';
     b.className=locked?'locked':'';
     b.textContent=(locked?'🔒 ':'')+label;
     b.onclick=()=>{
       if(locked){ openAiFollowupPurchase(label); return; }
-      clearAiFollowupSuggestions(); quickAskAiChat(label);
+      clearAiFollowupSuggestions();
+      quickAskAiChat(label);
     };
     wrap.appendChild(b);
   });
-  win.appendChild(wrap); scrollAiChatToBottom(win);
+
+  // 항상 마지막에는 다른 사주 주제로 갈 수 있는 메뉴를 둡니다.
+  const other=document.createElement('button');
+  other.type='button';
+  other.className=locked?'locked':'';
+  other.textContent=(locked?'🔒 ':'')+'다른 사주도 물어볼래?';
+  other.onclick=()=>showAiOtherSajuTopics(locked);
+  wrap.appendChild(other);
+
+  win.appendChild(wrap);
+  scrollAiChatToBottom(win);
 }
+
 function openAiFollowupPurchase(question){
   window.__pendingPaidAiQuestion = question;
   // 기존 구매 UI를 그대로 사용합니다. 프리미엄/질문권 구매 함수나 모달 구조는 변경하지 않습니다.
