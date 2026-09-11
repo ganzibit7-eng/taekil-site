@@ -4900,6 +4900,19 @@ async function purchaseQuestionPack(packId) {
     return;
   }
 
+  // 결제창으로 이동하기 전에 현재 상담을 로컬/클라우드 기록에 확실히 저장합니다.
+  try { await saveCurrentAiConversation(); } catch (e) { console.warn('결제 전 상담 저장 실패', e); }
+
+  let creditsBeforePurchase = null;
+  try {
+    if (db) {
+      const userSnap = await db.collection('users').doc(paymentUser.uid).get({ source:'server' });
+      if (userSnap.exists) creditsBeforePurchase = Number((userSnap.data() || {}).aiQuestionCredits || 0);
+    }
+  } catch (e) {
+    console.warn('결제 전 질문권 잔액 확인 실패', e);
+  }
+
   const orderId = 'TAK-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
   const uidForOrder = paymentUser.uid;
   try {
@@ -4914,7 +4927,13 @@ async function purchaseQuestionPack(packId) {
       });
     }
     localStorage.setItem('taekilso_pending_order', JSON.stringify({
-      orderId, amount: pack.price, product: packId, createdAt: Date.now()
+      orderId,
+      amount: pack.price,
+      product: packId,
+      expectedCredits: pack.count,
+      creditsBeforePurchase,
+      activeConversationId: window.__aiConversationId || null,
+      createdAt: Date.now()
     }));
 
     const payParams = {
@@ -4952,6 +4971,55 @@ async function checkOrderPaidOnServer(orderId) {
   } catch (e) { console.error('주문 확인 중 오류', e); return false; }
 }
 
+async function getQuestionCreditsFromServer(uid){
+  if (!db || !uid) return null;
+  try {
+    const snap = await db.collection('users').doc(uid).get({ source:'server' });
+    if (!snap.exists) return null;
+    return Number((snap.data() || {}).aiQuestionCredits || 0);
+  } catch (e) {
+    console.error('질문권 잔액 확인 중 오류', e);
+    return null;
+  }
+}
+
+async function waitForVerifiedQuestionPack(pending, uid){
+  if (!pending || !pending.orderId) return { confirmed:false, credits:null };
+
+  // PayApp feedback callback은 결제 화면에서 돌아오는 것보다 몇 초 늦을 수 있습니다.
+  // 첫 구매가 늦게 보이는 문제를 막기 위해 최대 약 90초 동안 서버의 확정 상태를 기다립니다.
+  const deadline = Date.now() + 90000;
+  let attempt = 0;
+
+  while (Date.now() < deadline) {
+    const paid = await checkOrderPaidOnServer(pending.orderId);
+    if (paid) {
+      const credits = await getQuestionCreditsFromServer(uid);
+      return { confirmed:true, credits };
+    }
+
+    attempt += 1;
+    const waitMs = attempt <= 8 ? 1000 : 2000;
+    await new Promise(r => setTimeout(r, waitMs));
+  }
+
+  return { confirmed:false, credits: await getQuestionCreditsFromServer(uid) };
+}
+
+async function refreshQuestionCreditUI(uid){
+  const credits = await getQuestionCreditsFromServer(uid);
+  if (credits == null) return null;
+
+  const panel = document.getElementById('aiChatPanel');
+  if (panel && panel.style.display !== 'none') {
+    updateAiChatStatus(null, null, false, {
+      usingCredit: true,
+      questionCreditsLeft: credits
+    });
+  }
+  return credits;
+}
+
 async function payPremium() {
   trackAiFunnel('premium_purchase_start', { pendingQuestion: getPendingPaidAiQuestion() });
   // Spark 무료 운영: 결제창을 열기 위해 Firebase Auth를 강제하지 않습니다.
@@ -4980,6 +5048,8 @@ async function payPremium() {
     showToast('로그인 보안 연결을 확인하지 못했어요. 다시 로그인한 뒤 결제를 시도해주세요.');
     return;
   }
+
+  try { await saveCurrentAiConversation(); } catch (e) { console.warn('결제 전 상담 저장 실패', e); }
 
   const orderId = 'TAK-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
   const currentKakaoUser = getKakaoUser();
@@ -5052,12 +5122,17 @@ function tryActivatePendingPremium() {
   restoreKakaoUserState();
   updateAuthNav();
   const params = new URLSearchParams(window.location.search);
-  if (params.get('premium') === '1') {
-    const url = new URL(window.location.href);
-    url.searchParams.delete('premium');
-    window.history.replaceState({}, document.title, url.toString());
+  const hasPaymentReturnFlag = params.get('premium') === '1';
+  const pendingAtLoad = (() => { try { return JSON.parse(localStorage.getItem('taekilso_pending_order') || 'null'); } catch(e) { return null; } })();
 
-    const pending = (() => { try { return JSON.parse(localStorage.getItem('taekilso_pending_order') || 'null'); } catch(e) { return null; } })();
+  if (hasPaymentReturnFlag || (pendingAtLoad && pendingAtLoad.orderId)) {
+    if (hasPaymentReturnFlag) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('premium');
+      window.history.replaceState({}, document.title, url.toString());
+    }
+
+    const pending = pendingAtLoad;
     const PENDING_MAX_AGE_MS = 30 * 60 * 1000;
     const isValidPending = pending && pending.orderId && (Date.now() - pending.createdAt) <= PENDING_MAX_AGE_MS;
     if (!isValidPending) return; // 결제 버튼을 누른 기록 자체가 없으면 아무것도 하지 않습니다.
@@ -5076,28 +5151,75 @@ function tryActivatePendingPremium() {
       const uid = getCurrentUserKey();
       const isQuestionPack = pending.product && AI_QUESTION_PACKS[pending.product];
       let confirmed = false;
-      for (let i = 0; i < 10 && !confirmed; i++) {
-        await new Promise((r) => setTimeout(r, 1500));
-        confirmed = isQuestionPack
-          ? await checkOrderPaidOnServer(pending.orderId)
-          : await checkPremiumOnServer(uid);
+      let confirmedCredits = null;
+
+      if (isQuestionPack) {
+        const result = await waitForVerifiedQuestionPack(pending, uid);
+        confirmed = result.confirmed;
+        confirmedCredits = result.credits;
+      } else {
+        // 프리미엄도 PayApp feedback가 조금 늦을 수 있어 최대 약 90초까지 확인합니다.
+        const deadline = Date.now() + 90000;
+        while (Date.now() < deadline && !confirmed) {
+          confirmed = await checkPremiumOnServer(uid);
+          if (!confirmed) await new Promise(r => setTimeout(r, 1500));
+        }
       }
+
       hidePaymentPendingStatus();
+
       if (confirmed) {
         localStorage.removeItem('taekilso_pending_order');
         sessionStorage.removeItem('taekilso_pending_order');
+
+        // 결제 리턴으로 새로고침돼도 로비/사주입력으로 돌아가지 않고 이전 상담부터 복원합니다.
+        const restored = restoreActiveAiConversation({
+          silent: true,
+          resumePendingQuestion: false
+        });
+
         if (isQuestionPack) {
-          trackAiFunnel('question_pack_purchase_confirmed', { product: pending.product });
-          showToast(`질문권 ${AI_QUESTION_PACKS[pending.product].count}개가 충전됐어요! 선택하신 질문을 바로 이어갈게요.`);
-          window.dispatchEvent(new CustomEvent('taekilso:questionPackPurchased'));
-          setTimeout(() => resumePendingPaidAiQuestion(), 500);
+          if (confirmedCredits == null) confirmedCredits = await refreshQuestionCreditUI(uid);
+          else {
+            const panel = document.getElementById('aiChatPanel');
+            if (panel && panel.style.display !== 'none') {
+              updateAiChatStatus(null, null, false, {
+                usingCredit: true,
+                questionCreditsLeft: confirmedCredits
+              });
+            }
+          }
+
+          trackAiFunnel('question_pack_purchase_confirmed', {
+            product: pending.product,
+            credits: confirmedCredits
+          });
+
+          const creditText = confirmedCredits == null
+            ? `질문권 ${AI_QUESTION_PACKS[pending.product].count}개가 충전됐어요!`
+            : `질문권이 바로 반영됐어요. 현재 ${confirmedCredits}개 남아 있어요.`;
+
+          showToast(creditText + (getPendingPaidAiQuestion() ? ' 이전 질문을 이어갈게요.' : ''));
+
+          window.dispatchEvent(new CustomEvent('taekilso:questionPackPurchased', {
+            detail: { credits: confirmedCredits }
+          }));
+
+          setTimeout(() => {
+            if (!restored) restoreActiveAiConversation({ silent:true });
+            if (getPendingPaidAiQuestion()) resumePendingPaidAiQuestion();
+          }, 700);
         } else {
           trackAiFunnel('premium_purchase_confirmed', {});
-          showToast('프리미엄이 활성화됐어요! 선택하신 질문을 바로 이어갈게요.');
-          setTimeout(() => resumePendingPaidAiQuestion(), 500);
+          showToast('프리미엄이 활성화됐어요!' + (getPendingPaidAiQuestion() ? ' 이전 질문을 이어갈게요.' : ''));
+          setTimeout(() => {
+            if (!restored) restoreActiveAiConversation({ silent:true });
+            if (getPendingPaidAiQuestion()) resumePendingPaidAiQuestion();
+          }, 700);
         }
       } else {
-        showToast('결제 확인에 시간이 좀 더 걸리고 있어요. 잠시 후 프로필 화면을 다시 확인해주세요. 결제하셨는데 계속 안 뜨면 고객센터로 문의해주세요.');
+        // 주문 기록은 남겨둡니다. 사용자가 새로고침하면 다시 서버 확인을 이어갑니다.
+        showToast('결제는 완료됐지만 서버 반영을 기다리고 있어요. 새로고침해도 결제/상담 상태는 유지되며 자동으로 다시 확인합니다.');
       }
     }
   }
@@ -5752,7 +5874,39 @@ function goHomeSection(id){
 }
 /* ---------- AI 사주 상담 ---------- */
 const AI_CONVERSATION_KEY = 'taekilso_ai_conversations_v1';
+const AI_ACTIVE_SESSION_KEY = 'taekilso_ai_active_session_v1';
 window.__aiConversationId = null;
+
+function setActiveAiSession(id){
+  if (!id) {
+    localStorage.removeItem(AI_ACTIVE_SESSION_KEY);
+    return;
+  }
+  const ownerKey = typeof getCurrentUserKey === 'function' ? getCurrentUserKey() : null;
+  localStorage.setItem(AI_ACTIVE_SESSION_KEY, JSON.stringify({
+    id: String(id),
+    ownerKey: ownerKey || null,
+    updatedAt: Date.now()
+  }));
+}
+
+function getActiveAiSession(){
+  try {
+    const raw = localStorage.getItem(AI_ACTIVE_SESSION_KEY);
+    const rec = raw ? JSON.parse(raw) : null;
+    if (!rec || !rec.id) return null;
+    // 자동복원은 최근 7일 상담만. 오래된 상담은 기록 탭에서 수동으로 이어갈 수 있습니다.
+    if (Date.now() - Number(rec.updatedAt || 0) > 7 * 24 * 60 * 60 * 1000) {
+      localStorage.removeItem(AI_ACTIVE_SESSION_KEY);
+      return null;
+    }
+    const nowOwner = typeof getCurrentUserKey === 'function' ? getCurrentUserKey() : null;
+    if (rec.ownerKey && nowOwner && rec.ownerKey !== nowOwner) return null;
+    return rec;
+  } catch (e) {
+    return null;
+  }
+}
 
 function makeAiConversationId(){
   return 'ac_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
@@ -5821,6 +5975,7 @@ async function saveCurrentAiConversation(){
   const local = getAiConversationStore().filter(x => x.id !== record.id);
   local.unshift(record);
   setAiConversationStore(local);
+  setActiveAiSession(record.id);
 
   const authUser = firebaseReady && firebase.auth ? firebase.auth().currentUser : null;
   if (!db || !authUser || authUser.isAnonymous) return;
@@ -5905,6 +6060,7 @@ function resumeAiConversation(id){
   if (!rec) { showToast('상담 기록을 찾지 못했어요.'); return; }
 
   window.__aiConversationId = rec.id;
+  setActiveAiSession(rec.id);
   window.__aiChatSubjects = Array.isArray(rec.subjects) ? rec.subjects.slice(0,3) : [];
   window.__aiChatProfile = window.__aiChatSubjects[0]?.profile || null;
   window.__aiChatSaju = window.__aiChatSubjects[0]?.summary || '';
@@ -5931,8 +6087,73 @@ function resumeAiConversation(id){
   }, 80);
 }
 
+
+function restoreActiveAiConversation(options){
+  const opts = options || {};
+  const active = getActiveAiSession();
+  if (!active || !active.id) return false;
+
+  const rec = getAiConversationStore().find(x => x.id === active.id);
+  if (!rec || !Array.isArray(rec.messages) || !rec.messages.length) return false;
+
+  const nowOwner = typeof getCurrentUserKey === 'function' ? getCurrentUserKey() : null;
+  if (active.ownerKey && nowOwner && active.ownerKey !== nowOwner) return false;
+
+  window.__aiConversationId = rec.id;
+  window.__aiChatSubjects = Array.isArray(rec.subjects) ? rec.subjects.slice(0,3) : [];
+  window.__aiChatProfile = window.__aiChatSubjects[0]?.profile || null;
+  window.__aiChatSaju = window.__aiChatSubjects[0]?.summary || '';
+  window.__aiChatHistory = Array.isArray(rec.messages) ? rec.messages.slice(-20) : [];
+
+  goTo('home');
+
+  setTimeout(() => {
+    const intro = document.getElementById('homeIntroOverlay');
+    const setup = document.getElementById('aiChatSetup');
+    const panel = document.getElementById('aiChatPanel');
+    const win = document.getElementById('aiChatWindow');
+    if (intro) intro.style.display = 'none';
+    if (setup) setup.style.display = 'none';
+    if (panel) panel.style.display = 'flex';
+
+    if (win) {
+      win.innerHTML = '';
+      if (!opts.silent) {
+        appendAiChatMessage('system-note', opts.note || '이전 상담을 불러왔어요. 그대로 이어서 질문할 수 있어요.');
+      }
+      window.__aiChatHistory.forEach(m => appendAiChatMessage(m.role, m.content, {scroll:'none'}));
+      scrollAiChatToBottom(win);
+    }
+
+    const quick = document.getElementById('aiChatQuickActions');
+    if (quick) quick.style.display = 'none';
+
+    // 결제 직후라면 저장된 잠금 질문도 이어서 전송합니다.
+    if (opts.resumePendingQuestion && getPendingPaidAiQuestion()) {
+      setTimeout(() => resumePendingPaidAiQuestion(), 300);
+    }
+  }, 80);
+
+  setActiveAiSession(rec.id);
+  return true;
+}
+
+async function autoRestoreActiveAiConversation(){
+  // 로그인 복원이 끝나기 전에 다른 계정의 로컬 상담을 띄우지 않도록 잠깐 기다립니다.
+  if (typeof waitForAuthSettled === 'function') {
+    await waitForAuthSettled(5000);
+  }
+  return restoreActiveAiConversation({ silent:true });
+}
+
+window.addEventListener('load', () => {
+  setTimeout(() => { autoRestoreActiveAiConversation(); }, 180);
+});
+
 async function deleteAiConversation(id){
   if (!confirm('이 AI 상담 기록을 삭제할까요?')) return;
+  const active = getActiveAiSession();
+  if (active && active.id === id) setActiveAiSession(null);
   setAiConversationStore(getAiConversationStore().filter(x => x.id !== id));
   renderAiConversationHistory();
 
@@ -6365,6 +6586,7 @@ function startAiChat() {
   window.__aiChatSubjects = subjects;
   window.__aiChatHistory = [];
   window.__aiConversationId = makeAiConversationId();
+  setActiveAiSession(window.__aiConversationId);
 
   document.getElementById('aiChatSetup').style.display = 'none';
   document.getElementById('aiChatPanel').style.display = 'flex';
@@ -6856,6 +7078,7 @@ async function sendAiChatMessage() {
 
   appendAiChatMessage('user', message);
   window.__aiChatHistory.push({ role: 'user', content: message });
+  setActiveAiSession(window.__aiConversationId);
 
   const typingEl = appendAiChatMessage('assistant', '');
   typingEl.classList.add('ai-chat-typing');
