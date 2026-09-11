@@ -6485,6 +6485,33 @@ function calculateTodayFortune(){
     z-index:5!important;
   }
 }
+
+/* ===== 모바일 상단 배너 / 연우 영상 분리 최종 보정 =====
+   모바일에서는 택일소·로그인 배너가 영상 위에 떠서 겹치지 않도록
+   상단 배너를 일반 문서 흐름에 두고, 그 배너가 끝난 다음부터 영상이 시작됩니다. */
+@media(max-width:640px){
+  .topbar{
+    position:relative!important;
+    top:auto!important;
+    margin-top:10px!important;
+    margin-bottom:0!important;
+    z-index:50!important;
+  }
+  #view-home > .block:first-child{
+    padding-top:8px!important;
+    margin-top:0!important;
+  }
+  #view-home > .block:first-child .container{
+    padding-top:0!important;
+  }
+  .ai-chat-stage{
+    margin-top:0!important;
+  }
+  .ai-chat-topbar-overlay{
+    top:10px!important;
+  }
+}
+
 </style>
 
 <script id="takil-event-unique-scenes-script">
