@@ -1660,6 +1660,31 @@ footer{padding-bottom:90px}
   line-height:1.65;
 }
 </style>
+
+<style id="home-section-bidirectional-arrows">
+.home-arrow-section{position:relative;}
+.home-section-nav{position:absolute;inset:0;pointer-events:none;z-index:10;}
+.home-section-arrow{
+  position:absolute;left:50%;transform:translateX(-50%);
+  width:48px;height:40px;padding:0;border:0;background:transparent;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:auto;cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.home-section-arrow-up{top:18px;}
+.home-section-arrow-down{bottom:18px;}
+.home-section-arrow span{
+  display:block;width:16px;height:16px;
+  border-right:2px solid rgba(203,196,184,.78);
+  border-bottom:2px solid rgba(203,196,184,.78);
+}
+.home-section-arrow-down span{transform:rotate(45deg);}
+.home-section-arrow-up span{transform:rotate(225deg);}
+@media(max-width:640px){
+  .home-section-arrow-up{top:max(12px,env(safe-area-inset-top));}
+  .home-section-arrow-down{bottom:max(12px,env(safe-area-inset-bottom));}
+}
+</style>
+
 </head>
 <body>
 
@@ -1901,7 +1926,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <span class="home-more-chevrons" aria-hidden="true"><i></i><i></i></span>
     </button>
 </div>
-<section class="block" style="padding-top:100px;">
+<section id="home-date-section" class="block home-arrow-section" style="padding-top:100px;">
     <div class="container" style="max-width:480px;">
       <div class="section-head" style="margin-bottom:16px;">
         <div><div class="section-kicker">DATE</div><h2 class="section-title" style="font-size:22px;">상담 후엔<br>실제 날짜까지</h2></div>
@@ -1913,9 +1938,14 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <button onclick="goTo('tool','계약체결')"><img src="char-contract.jpg" alt="계약체결"><span>📜 계약</span></button>
       </div>
     </div>
+
+    <div class="home-section-nav" aria-label="섹션 이동">
+      <button type="button" class="home-section-arrow home-section-arrow-up" aria-label="AI 상담으로 이동" onclick="scrollHomeSection('home-ai')"><span></span></button>
+      <button type="button" class="home-section-arrow home-section-arrow-down" aria-label="다음 섹션으로 이동" onclick="scrollHomeSection('home-deeper-section')"><span></span></button>
+    </div>
 </section>
 
-  <section class="block" style="padding-top:100px;">
+  <section id="home-deeper-section" class="block home-arrow-section" style="padding-top:100px;">
     <div class="container" style="max-width:480px;">
       <div class="section-head" style="margin-bottom:16px;">
         <div><div class="section-kicker">GO DEEPER</div><h2 class="section-title" style="font-size:22px;">더 깊이<br>보고 싶다면</h2></div>
@@ -1927,9 +1957,14 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <button onclick="goTo('profile')"><b>프리미엄 전체 서비스</b><small>365일 택일 · 상세 리포트 등</small><i>→</i></button>
       </div>
     </div>
-  </section>
+  
+    <div class="home-section-nav" aria-label="섹션 이동">
+      <button type="button" class="home-section-arrow home-section-arrow-up" aria-label="이전 섹션으로 이동" onclick="scrollHomeSection('home-date-section')"><span></span></button>
+      <button type="button" class="home-section-arrow home-section-arrow-down" aria-label="다음 섹션으로 이동" onclick="scrollHomeSection('home-guide-section')"><span></span></button>
+    </div>
+</section>
 
-  <section class="block">
+  <section id="home-guide-section" class="block">
     <div class="container" style="max-width:760px;">
       <div class="section-head"><div><div class="section-kicker">GUIDE</div><h2 class="section-title">택일 가이드</h2></div></div>
       <div class="faq-list">
@@ -2686,6 +2721,7 @@ const AI_CHAT_URL = 'https://taekilso-backend-lemon.vercel.app/api/ai-chat';
 const PREMIUM_USAGE_URL = 'https://taekilso-backend-lemon.vercel.app/api/premium-usage';
 const PREMIUM_STATUS_URL = 'https://taekilso-backend-lemon.vercel.app/api/premium-status';
 const ADMIN_USER_ACTION_URL = 'https://taekilso-backend-lemon.vercel.app/api/admin-user-action';
+const ADMIN_MEMBER_SECURITY_URL = 'https://taekilso-backend-lemon.vercel.app/api/admin-member-security';
 const MEMBER_LAST_SEEN_URL = 'https://taekilso-backend-lemon.vercel.app/api/member-last-seen';
 const MEMBER_ACCESS_STATUS_URL = 'https://taekilso-backend-lemon.vercel.app/api/member-access-status';
 const MEMBER_SELF_DELETE_URL = 'https://taekilso-backend-lemon.vercel.app/api/member-self-delete';
@@ -4784,6 +4820,40 @@ function askAdminDeletePassword(label){
   });
 }
 
+
+function scrollHomeSection(target){
+  let el = null;
+  if (target === 'home-ai') {
+    el = document.querySelector('#view-home > .home-first-block');
+  } else {
+    el = document.getElementById(target);
+  }
+  if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+
+async function callAdminMemberSecurity(action, payload = {}) {
+  const current = firebase.auth().currentUser;
+  if (!current || current.isAnonymous) throw new Error('관리자 로그인이 필요합니다.');
+  const token = await current.getIdToken(true);
+  const res = await fetch(ADMIN_MEMBER_SECURITY_URL, {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer ' + token
+    },
+    body:JSON.stringify({ action, ...payload })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(data.message || data.error || `HTTP ${res.status}`);
+    err.code = data.error || '';
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
 async function forceDeleteMember(uid, label){
   if (!uid) return;
   const me = firebase.auth().currentUser;
@@ -4816,10 +4886,13 @@ async function forceDeleteMember(uid, label){
   }
 
   try {
-    showToast('회원 계정을 삭제하는 중이에요…');
-    await callAdminUserAction('delete_user', uid, { deletePassword });
+    showToast('영구 밴을 저장한 뒤 회원 계정을 삭제하는 중이에요…');
+    const result = await callAdminMemberSecurity('force_delete', { uid, deletePassword });
+    if (!result || !result.permanentlyBanned || !result.banId) {
+      throw new Error('영구 밴 저장 확인에 실패했습니다.');
+    }
     showToast('회원 강제탈퇴 및 영구 밴이 완료됐어요.');
-    loadAdminBanList().catch(() => {});
+    await loadAdminBanList();
   } catch (err) {
     console.error('관리자 강제탈퇴 실패', err);
     showToast('강제탈퇴 실패: ' + err.message);
@@ -5209,7 +5282,7 @@ async function loadAdminBanList() {
   wrap.innerHTML = '<div class="empty-note">밴 목록을 불러오는 중…</div>';
 
   try {
-    const data = await callAdminUserAction('list_bans', '');
+    const data = await callAdminMemberSecurity('list_bans');
     const bans = Array.isArray(data.bans) ? data.bans : [];
 
     if (!bans.length) {
@@ -5253,7 +5326,7 @@ async function unbanMember(banId, label) {
   if (!confirm(`${label || '선택한 계정'}의 영구 밴을 해제할까요?\n\n해제 후에는 다시 가입/로그인할 수 있습니다.`)) return;
 
   try {
-    await callAdminUserAction('unban_user', '', { banId });
+    await callAdminMemberSecurity('unban_user', { banId });
     showToast('영구 밴을 해제했어요.');
     await loadAdminBanList();
   } catch (err) {
