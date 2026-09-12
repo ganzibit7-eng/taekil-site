@@ -1647,6 +1647,19 @@ footer{padding-bottom:90px}
 }
 </style>
 
+
+<style id="self-delete-cooldown-style">
+.pf-danger-note{
+  margin-top:18px;
+  padding:11px 12px;
+  border:1px solid rgba(220,135,110,.18);
+  border-radius:12px;
+  background:rgba(220,135,110,.045);
+  color:#bdb4aa;
+  font-size:11px;
+  line-height:1.65;
+}
+</style>
 </head>
 <body>
 
@@ -2441,9 +2454,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         </div>
       </div>
 
+      <div class="pf-danger-note">회원탈퇴 시 동일 계정으로 30일간 재가입할 수 없습니다. 무료 3회 혜택도 재가입 제한 기간이 지난 뒤에만 다시 가입할 수 있어요.</div>
       <div class="pf-danger-row">
         <span class="text-action" onclick="logout()">로그아웃</span>
-        <span class="text-action" style="color:var(--warn);" onclick="confirmDeleteAccount()">계정 삭제</span>
+        <span class="text-action" style="color:var(--warn);" onclick="confirmDeleteAccount()">회원탈퇴</span>
       </div>
 
     </div>
@@ -2674,6 +2688,7 @@ const PREMIUM_STATUS_URL = 'https://taekilso-backend-lemon.vercel.app/api/premiu
 const ADMIN_USER_ACTION_URL = 'https://taekilso-backend-lemon.vercel.app/api/admin-user-action';
 const MEMBER_LAST_SEEN_URL = 'https://taekilso-backend-lemon.vercel.app/api/member-last-seen';
 const MEMBER_ACCESS_STATUS_URL = 'https://taekilso-backend-lemon.vercel.app/api/member-access-status';
+const MEMBER_SELF_DELETE_URL = 'https://taekilso-backend-lemon.vercel.app/api/member-self-delete';
 // 질문권(소모성 상품): 무료 3개를 다 쓴 뒤 이어서 물어볼 수 있게 해주는 상품입니다.
 // price가 실제 결제되는 금액(할인가)이고, originalPrice는 화면에 취소선으로 보여줄 정가입니다.
 const AI_QUESTION_PACKS = {
@@ -3903,14 +3918,18 @@ async function checkMemberAccess(user, options = {}) {
     });
     const data = await res.json().catch(() => ({}));
 
-    if (res.status === 403 && data.error === 'ACCOUNT_BANNED') {
+    if (res.status === 403 && (data.error === 'ACCOUNT_BANNED' || data.error === 'ACCOUNT_REJOIN_COOLDOWN')) {
       memberAccessCache.set(uid, { allowed:false, at:Date.now() });
       clearLocalKakaoSessionForBan();
       try { await firebase.auth().signOut(); } catch(e) {}
       firebaseAuthUser = null;
 
       if (!options.silent) {
-        showToast(data.message || '이 계정은 관리자에 의해 이용이 제한되었습니다.');
+        let message = data.message || '이 계정은 현재 이용할 수 없습니다.';
+        if (data.error === 'ACCOUNT_REJOIN_COOLDOWN' && data.rejoinAllowedAtMs) {
+          message += ' 재가입 가능일: ' + new Date(Number(data.rejoinAllowedAtMs)).toLocaleDateString('ko-KR');
+        }
+        showToast(message);
       }
       return false;
     }
@@ -5620,46 +5639,81 @@ async function requestRefund() {
   }, 100);
 }
 
-function confirmDeleteAccount() {
+async function confirmDeleteAccount() {
   const kakaoUser = getKakaoUser();
-  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser && !firebaseAuthUser.isAnonymous) ? firebaseAuthUser : null;
-  if (!kakaoUser && !fbUser) { showToast('로그인 후 이용해주세요.'); return; }
+  let fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser && !firebaseAuthUser.isAnonymous)
+    ? firebaseAuthUser
+    : (firebase.auth && firebase.auth().currentUser && !firebase.auth().currentUser.isAnonymous ? firebase.auth().currentUser : null);
 
-  const msg = kakaoUser
-    ? '이 브라우저에 저장된 택일소 로그인 정보를 삭제할게요. (카카오 계정 자체는 카카오톡 앱에서 별도로 연결 해제하셔야 완전히 끊겨요) 계속할까요?'
-    : '계정을 삭제하면 되돌릴 수 없어요. 정말 삭제할까요?';
-  if (!confirm(msg)) return;
-
-  if (kakaoUser) {
-    // 브릿지(카카오 로그인을 Firebase 세션으로 잇는 것)가 아직 안 끝났거나 실패했더라도
-    // 확실히 지워지도록, Firebase 인증 상태에 의존하지 않고 알고 있는 카카오 UID로 바로 지웁니다.
-    if (db) {
-      db.collection('users').doc('kakao_' + kakaoUser.id).delete().catch(() => {});
-    }
-    localStorage.removeItem(KAKAO_USER_KEY);
-    sessionStorage.removeItem(KAKAO_USER_KEY);
-    sessionStorage.removeItem('taekilso_kakao_access_token');
-    if (firebaseReady && firebase.auth) firebase.auth().signOut().catch(() => {});
-    firebaseAuthUser = null;
-    updateAuthNav();
-    showToast('택일소 로그인 정보를 삭제했어요.');
-    goTo('home');
+  if (!kakaoUser && !fbUser) {
+    showToast('로그인 후 이용해주세요.');
     return;
   }
 
-  const uid = fbUser.uid;
-  fbUser.delete().then(() => {
-    if (db) db.collection('users').doc(uid).delete().catch(() => {});
-    showToast('계정이 삭제됐어요.');
-    goTo('home');
-  }).catch((err) => {
-    if (err.code === 'auth/requires-recent-login') {
-      showToast('보안을 위해 다시 로그인한 뒤 삭제해주세요.');
-      logout();
-    } else {
-      showToast('삭제 실패: ' + err.message);
+  const first = confirm(
+    `회원탈퇴를 하면 계정과 사주 보관함·AI 상담 데이터가 삭제됩니다.
+
+중요: 탈퇴 후 동일 계정으로 30일 동안 재가입할 수 없습니다.
+무료 AI 3회 혜택을 반복해서 받기 위한 탈퇴·재가입도 30일간 제한됩니다.
+
+결제·문의 기록은 정산 및 분쟁 대응을 위해 보존될 수 있습니다.
+
+계속 탈퇴하시겠어요?`
+  );
+  if (!first) return;
+
+  const typed = prompt('확인을 위해 "회원탈퇴"를 입력해주세요.');
+  if (typed !== '회원탈퇴') {
+    showToast('회원탈퇴가 취소됐어요.');
+    return;
+  }
+
+  try {
+    if (!fbUser && kakaoUser) {
+      const kakaoToken = sessionStorage.getItem('taekilso_kakao_access_token') || '';
+      fbUser = await ensureKakaoFirebaseSession(kakaoToken || undefined);
     }
-  });
+
+    if (!fbUser || fbUser.isAnonymous) {
+      throw new Error('회원 인증을 확인할 수 없어요. 다시 로그인한 뒤 탈퇴해주세요.');
+    }
+
+    const token = await fbUser.getIdToken(true);
+    const res = await fetch(MEMBER_SELF_DELETE_URL, {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer ' + token
+      },
+      body:'{}'
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(data.message || data.error || `HTTP ${res.status}`);
+    }
+
+    clearLocalKakaoSessionForBan();
+    try { localStorage.removeItem(KAKAO_USER_KEY); } catch(e) {}
+    try { sessionStorage.removeItem(KAKAO_USER_KEY); } catch(e) {}
+    try { sessionStorage.removeItem('taekilso_kakao_access_token'); } catch(e) {}
+    try { await firebase.auth().signOut(); } catch(e) {}
+
+    firebaseAuthUser = null;
+    firebaseAuthReady = true;
+    updateAuthNav();
+
+    let msg = '회원탈퇴가 완료됐어요. 동일 계정은 30일 후부터 다시 가입할 수 있어요.';
+    if (data.rejoinAllowedAtMs) {
+      msg = '회원탈퇴가 완료됐어요. 재가입 가능일은 ' +
+        new Date(Number(data.rejoinAllowedAtMs)).toLocaleDateString('ko-KR') + ' 이후예요.';
+    }
+    showToast(msg);
+    goTo('home');
+  } catch (err) {
+    console.error('회원탈퇴 실패', err);
+    showToast('회원탈퇴 실패: ' + (err && err.message ? err.message : String(err)));
+  }
 }
 
 async function loginWithGoogle() {
@@ -5726,9 +5780,13 @@ async function ensureKakaoFirebaseSession(accessToken) {
       body: JSON.stringify({ accessToken: token })
     });
     const bridgeData = await bridgeRes.json().catch(() => ({}));
-    if (bridgeRes.status === 403 && bridgeData.error === 'ACCOUNT_BANNED') {
-      const bannedErr = new Error(bridgeData.message || '이 계정은 관리자에 의해 이용이 제한되었습니다.');
-      bannedErr.code = 'ACCOUNT_BANNED';
+    if (bridgeRes.status === 403 && (bridgeData.error === 'ACCOUNT_BANNED' || bridgeData.error === 'ACCOUNT_REJOIN_COOLDOWN')) {
+      let message = bridgeData.message || '이 계정은 현재 이용할 수 없습니다.';
+      if (bridgeData.error === 'ACCOUNT_REJOIN_COOLDOWN' && bridgeData.rejoinAllowedAtMs) {
+        message += ' 재가입 가능일: ' + new Date(Number(bridgeData.rejoinAllowedAtMs)).toLocaleDateString('ko-KR');
+      }
+      const bannedErr = new Error(message);
+      bannedErr.code = bridgeData.error;
       throw bannedErr;
     }
     if (!bridgeRes.ok || !bridgeData.customToken) {
@@ -5742,7 +5800,7 @@ async function ensureKakaoFirebaseSession(accessToken) {
     return firebaseAuthUser;
   } catch (err) {
     console.warn('카카오→Firebase 연결 중 오류', err);
-    if (err && err.code === 'ACCOUNT_BANNED') throw err;
+    if (err && (err.code === 'ACCOUNT_BANNED' || err.code === 'ACCOUNT_REJOIN_COOLDOWN')) throw err;
     return null;
   }
 }
@@ -5765,7 +5823,7 @@ async function ensureFirestorePaymentAuth() {
     try {
       current = await ensureKakaoFirebaseSession();
     } catch (err) {
-      if (err && err.code === 'ACCOUNT_BANNED') {
+      if (err && (err.code === 'ACCOUNT_BANNED' || err.code === 'ACCOUNT_REJOIN_COOLDOWN')) {
         clearLocalKakaoSessionForBan();
         showToast(err.message);
         return null;
