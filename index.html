@@ -1714,6 +1714,53 @@ footer{padding-bottom:90px}
 }
 </style>
 
+
+<script type="application/ld+json" id="taekilso-service-schema">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "name":"택일소",
+  "url":"https://taekilso.com/",
+  "description":"AI 사주 상담, 사주 궁합, 결혼·이사·개업·계약 택일을 제공하는 서비스",
+  "potentialAction":{
+    "@type":"SearchAction",
+    "target":"https://taekilso.com/?q={search_term_string}",
+    "query-input":"required name=search_term_string"
+  }
+}
+</script>
+<script type="application/ld+json" id="taekilso-service-offer-schema">
+{
+  "@context":"https://schema.org",
+  "@type":"Service",
+  "name":"택일소 AI 사주 상담 및 택일",
+  "provider":{"@type":"Organization","name":"택일소"},
+  "areaServed":"KR",
+  "serviceType":["AI 사주 상담","사주 궁합","결혼 택일","이사 택일","개업일 택일","계약일 택일"],
+  "url":"https://taekilso.com/"
+}
+</script>
+
+
+<style id="conversion-seo-expansion-style">
+.ai-next-actions{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.07);display:flex;flex-wrap:wrap;gap:7px;}
+.ai-next-actions-title{width:100%;font-size:9.5px;color:var(--muted-2);margin-bottom:2px;}
+.ai-next-actions button{border:1px solid rgba(215,180,106,.16);border-radius:999px;padding:7px 10px;background:rgba(215,180,106,.05);color:var(--gold-hi);font:inherit;font-size:9.8px;cursor:pointer;}
+.home-compat-teaser{margin-top:18px;padding:18px;border:1px solid rgba(215,180,106,.16);border-radius:18px;background:rgba(255,255,255,.025);}
+.home-compat-teaser h3{margin:0;font-family:var(--serif);font-size:20px;line-height:1.45;font-weight:400;}
+.home-compat-teaser p{margin:8px 0 13px;color:var(--muted);font-size:11px;line-height:1.65;}
+.home-compat-points{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:13px;}
+.home-compat-points span{padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.045);font-size:9.5px;color:var(--muted);}
+.home-compat-teaser>button{width:100%;border:1px solid rgba(215,180,106,.18);border-radius:12px;padding:11px 12px;background:rgba(215,180,106,.06);color:var(--gold-hi);font:inherit;font-size:11px;text-align:left;cursor:pointer;}
+.home-compat-teaser>button i{float:right;font-style:normal;}
+.seo-landing-block{padding:74px 0;border-top:1px solid rgba(255,255,255,.055);}
+.seo-landing-block p{margin:14px 0 16px;color:var(--muted);font-size:13px;line-height:1.9;}
+.seo-landing-block a{color:var(--gold-hi);font-size:12px;text-decoration:none;border-bottom:1px solid rgba(215,180,106,.28);padding-bottom:3px;}
+@media(max-width:640px){
+  .seo-landing-block{padding:54px 0;}
+}
+</style>
+
 </head>
 <body>
 
@@ -1985,7 +2032,17 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <div class="section-head" style="margin-bottom:16px;">
         <div><div class="section-kicker">GO DEEPER</div><h2 class="section-title" style="font-size:22px;">더 깊이<br>보고 싶다면</h2></div>
       </div>
-      <div class="home-free-report-card">
+      
+      <div class="home-compat-teaser">
+        <div class="home-feature-kicker">FREE · 궁합 미리보기</div>
+        <h3>두 사람의 관계 흐름을<br>먼저 가볍게 확인해보세요.</h3>
+        <p>저장된 사주 두 명을 기준으로 관계의 강점, 부딪히기 쉬운 지점, 서로에게 필요한 방식을 살펴볼 수 있어요.</p>
+        <div class="home-compat-points">
+          <span>관계 강점</span><span>주의 포인트</span><span>소통 방식</span>
+        </div>
+        <button type="button" onclick="openSajuInsight('love')">무료 궁합 미리보기 <i>→</i></button>
+      </div>
+<div class="home-free-report-card">
         <div class="home-feature-kicker">FREE REPORT</div>
         <h3>내 사주 기본 리포트</h3>
         <p>오행 구성부터 성향·재물·연애·직업 흐름까지 한 번에 보고, 궁금한 부분은 연우에게 바로 이어서 물어보세요.</p>
@@ -2733,6 +2790,52 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 </section>
 
 </main>
+
+
+  <section id="seo-ai-saju" class="seo-landing-block">
+    <div class="container" style="max-width:760px;">
+      <div class="section-kicker">AI SAJU</div>
+      <h2 class="section-title">무료 AI 사주 상담</h2>
+      <p>택일소의 AI 사주 상담은 생년월일과 저장된 사주 정보를 바탕으로 연애, 재물, 직업, 중요한 날짜에 대한 질문을 대화형으로 이어갈 수 있도록 구성되어 있습니다. 처음 가입하면 AI 사주 질문 3회를 무료로 이용할 수 있습니다.</p>
+      <a href="#view-home" onclick="document.querySelector('#view-home > .home-first-block')?.scrollIntoView({behavior:'smooth'});return false;">AI 사주 상담 시작하기 →</a>
+    </div>
+  </section>
+
+  <section id="seo-gunghap" class="seo-landing-block">
+    <div class="container" style="max-width:760px;">
+      <div class="section-kicker">GUNGHAP</div>
+      <h2 class="section-title">사주 궁합 · 연애 분석</h2>
+      <p>두 사람의 사주를 저장해두면 궁합과 관계 흐름을 비교할 수 있습니다. 관계의 강점과 부딪히기 쉬운 부분을 참고하고, 필요한 경우 AI 상담으로 이어서 구체적인 질문을 할 수 있습니다.</p>
+      <a href="#seo-gunghap" onclick="openSajuInsight('love');return false;">궁합 미리보기 →</a>
+    </div>
+  </section>
+
+  <section id="seo-wedding-date" class="seo-landing-block">
+    <div class="container" style="max-width:760px;">
+      <div class="section-kicker">WEDDING DATE</div>
+      <h2 class="section-title">결혼 택일</h2>
+      <p>결혼식 후보 날짜를 비교할 때 두 사람의 사주, 일진, 오행과 실제 일정 조건을 함께 참고할 수 있습니다. 택일소에서는 상담에서 결혼 이야기를 나눈 뒤 바로 후보 날짜 비교로 이어갈 수 있습니다.</p>
+      <a href="#seo-wedding-date" onclick="goTo('tool','결혼식');return false;">결혼 날짜 찾아보기 →</a>
+    </div>
+  </section>
+
+  <section id="seo-moving-date" class="seo-landing-block">
+    <div class="container" style="max-width:760px;">
+      <div class="section-kicker">MOVING DATE</div>
+      <h2 class="section-title">이사 택일</h2>
+      <p>이사 날짜는 손없는 날만 보지 않고 실제 입주 일정과 개인 사주를 함께 비교해 참고할 수 있습니다. 여러 후보 날짜를 한 번에 비교해 보다 현실적인 선택을 할 수 있도록 구성되어 있습니다.</p>
+      <a href="#seo-moving-date" onclick="goTo('tool','이사');return false;">이사 날짜 찾아보기 →</a>
+    </div>
+  </section>
+
+  <section id="seo-opening-date" class="seo-landing-block">
+    <div class="container" style="max-width:760px;">
+      <div class="section-kicker">OPENING DATE</div>
+      <h2 class="section-title">개업일 택일</h2>
+      <p>가게 오픈이나 사업 시작일을 정할 때 실제 준비 일정과 사주 기준을 함께 참고할 수 있습니다. 상담에서 사업 고민을 나눈 뒤 개업 후보 날짜로 바로 연결할 수 있습니다.</p>
+      <a href="#seo-opening-date" onclick="goTo('tool','개업');return false;">개업 날짜 찾아보기 →</a>
+    </div>
+  </section>
 
 <footer>
   <div class="container footer-inner">
@@ -8952,6 +9055,102 @@ function openHomeDailyConsult(){
   }, 500);
 }
 document.addEventListener('DOMContentLoaded', renderHomeDailyYeonwoo);
+
+</script>
+<script id="conversion-seo-expansion-js">
+
+function inferAiNextActions(text){
+  const t = String(text || '').toLowerCase();
+  const actions = [];
+  const push = (label, onclick) => {
+    if (!actions.some(a => a.label === label)) actions.push({label, onclick});
+  };
+
+  if (/결혼|웨딩|혼인|예식|신혼/.test(t)) {
+    push('💍 결혼 날짜 찾아보기', "goTo('tool','결혼식')");
+    push('❤️ 두 사람 궁합 보기', "openSajuInsight('love')");
+  }
+  if (/이사|집|입주|전입|부동산/.test(t)) {
+    push('🏠 이사 날짜 찾아보기', "goTo('tool','이사')");
+  }
+  if (/개업|창업|오픈|가게|사업 시작/.test(t)) {
+    push('🏮 개업 날짜 찾아보기', "goTo('tool','개업')");
+  }
+  if (/계약|서명|협상|계약서/.test(t)) {
+    push('📜 계약 날짜 찾아보기', "goTo('tool','계약체결')");
+  }
+  if (/연애|궁합|재회|썸|남자친구|여자친구|배우자|관계/.test(t)) {
+    push('❤️ 궁합·연애 분석 보기', "openSajuInsight('love')");
+  }
+  if (/돈|재물|재정|수입|사업|직업|취업|이직|회사|커리어/.test(t)) {
+    push('💰 재물·직업 심층분석', "openSajuInsight('money')");
+  }
+  if (/사주|성향|오행|대운|전체운|올해/.test(t)) {
+    push('🔮 내 사주 기본 리포트', "openSajuInsight('profile')");
+  }
+
+  if (!actions.length) {
+    push('🔮 내 사주 기본 리포트', "openSajuInsight('profile')");
+    push('📅 중요한 날짜 찾아보기', "goTo('tool')");
+  }
+
+  return actions.slice(0, 3);
+}
+
+function renderAiNextActions(container, sourceText){
+  if (!container) return;
+  const actions = inferAiNextActions(sourceText);
+  if (!actions.length) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'ai-next-actions';
+  wrap.innerHTML = '<div class="ai-next-actions-title">이어서 해볼 수 있어요</div>';
+
+  actions.forEach((a) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = a.label;
+    btn.setAttribute('onclick', a.onclick);
+    wrap.appendChild(btn);
+  });
+
+  container.appendChild(wrap);
+}
+
+
+function setupAiRecommendationObserver(){
+  const log = document.getElementById('aiChatMessages') || document.getElementById('aiChatLog') || document.querySelector('.ai-chat-messages');
+  if (!log || log.dataset.nextActionsObserver === '1') return;
+  log.dataset.nextActionsObserver = '1';
+
+  const observer = new MutationObserver(() => {
+    const candidates = Array.from(log.querySelectorAll('.ai-chat-message, .chat-message, .ai-message, .message, .ai-chat-bubble-npc'));
+    if (!candidates.length) return;
+
+    // 마지막 AI 답변처럼 보이는 항목을 찾습니다.
+    for (let i = candidates.length - 1; i >= 0; i--) {
+      const el = candidates[i];
+      const cls = String(el.className || '').toLowerCase();
+      const isUser = /user|mine|me/.test(cls);
+      if (isUser) continue;
+      if (el.querySelector && el.querySelector('.ai-next-actions')) return;
+
+      const text = (el.innerText || el.textContent || '').trim();
+      if (text.length < 20) continue;
+
+      let source = text;
+      const input = document.getElementById('aiChatInput');
+      const recentUser = Array.from(log.querySelectorAll('.ai-chat-message-user, .chat-message.user, .user-message')).pop();
+      if (recentUser) source += ' ' + (recentUser.innerText || recentUser.textContent || '');
+
+      renderAiNextActions(el, source);
+      break;
+    }
+  });
+
+  observer.observe(log, {childList:true, subtree:true});
+}
+document.addEventListener('DOMContentLoaded', () => setTimeout(setupAiRecommendationObserver, 700));
 
 </script>
 </body>
