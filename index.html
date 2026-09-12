@@ -4401,8 +4401,62 @@ async function callAdminUserAction(action, uid, extra){
     body:JSON.stringify({ action, uid, ...(extra || {}) })
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.message || data.error || `HTTP ${res.status}`);
+  if (!res.ok) {
+    const err = new Error(data.message || data.error || `HTTP ${res.status}`);
+    err.status = res.status;
+    err.code = data.error || '';
+    throw err;
+  }
   return data;
+}
+
+async function adminAdjustQuestionCreditsFallback(uid, mode, count){
+  if (!db || !uid) throw new Error('회원 데이터베이스에 연결되지 않았어요.');
+  if (!isAdmin()) throw new Error('관리자 권한이 필요합니다.');
+
+  const ref = db.collection('users').doc(uid);
+  let before = 0;
+  let after = 0;
+
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists) throw new Error('회원 정보를 찾지 못했습니다.');
+
+    const data = snap.data() || {};
+    before = Math.max(0, Number(data.aiQuestionCredits || 0));
+
+    if (mode === 'grant') {
+      const n = Number(count || 0);
+      if (![1,5,10].includes(n)) throw new Error('질문권 수량이 올바르지 않습니다.');
+      after = before + n;
+      tx.set(ref, {
+        aiQuestionCredits: after,
+        lastAdminCreditGrantAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastAdminCreditGrantCount: n
+      }, { merge:true });
+    } else {
+      if (count === 'all') {
+        after = 0;
+      } else {
+        const n = Number(count || 0);
+        if (![1,5,10].includes(n)) throw new Error('질문권 수량이 올바르지 않습니다.');
+        after = Math.max(0, before - n);
+      }
+
+      tx.set(ref, {
+        aiQuestionCredits: after,
+        lastAdminCreditRevokeAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastAdminCreditRevokeCount: Math.max(0, before - after)
+      }, { merge:true });
+    }
+  });
+
+  return {
+    ok:true,
+    fallback:true,
+    questionCredits:after,
+    before
+  };
 }
 
 async function forceDeleteMember(uid, label){
@@ -4559,7 +4613,26 @@ async function submitAdminPermissionAction(){
       extra.count = count;
     }
 
-    const result = await callAdminUserAction(action, uid, extra);
+    let result;
+    try {
+      result = await callAdminUserAction(action, uid, extra);
+    } catch (serverErr) {
+      const backendActionMissing =
+        serverErr &&
+        (
+          serverErr.code === 'UNKNOWN_ACTION' ||
+          serverErr.status === 404 ||
+          serverErr.status === 405
+        );
+
+      // 질문권 지급/회수 API가 아직 구버전으로 배포돼 있으면,
+      // 관리자 Firestore 권한으로 동일 작업을 안전하게 한 번 더 처리합니다.
+      if (type === 'credits' && backendActionMissing) {
+        result = await adminAdjustQuestionCreditsFallback(uid, mode, count);
+      } else {
+        throw serverErr;
+      }
+    }
 
     if (type === 'premium') {
       showToast(mode === 'grant' ? '프리미엄 30일 지급 완료' : '프리미엄 회수 완료');
