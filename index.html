@@ -1319,6 +1319,32 @@ footer{padding-bottom:90px}
 #view-home > .home-first-block{position:relative;}
 
 .admin-member-card{align-items:flex-start !important;gap:14px !important;}
+.admin-inquiry-badge{
+  display:inline-flex;
+  align-items:center;
+  max-width:220px;
+  padding:3px 7px;
+  border-radius:999px;
+  font-size:10px;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  border:1px solid rgba(255,255,255,.10);
+  color:#cfc8bb;
+  background:rgba(255,255,255,.035);
+}
+.admin-inquiry-badge.waiting{
+  color:#f1c58f;
+  border-color:rgba(224,167,103,.34);
+  background:rgba(224,167,103,.08);
+}
+.admin-inquiry-badge.answered{
+  color:#aeb8ad;
+  border-color:rgba(152,176,154,.22);
+  background:rgba(152,176,154,.05);
+}
+
 
 .admin-perm-backdrop{
   position:fixed; inset:0; z-index:1200; display:none;
@@ -2426,7 +2452,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         </div>
         <div class="price-note" style="margin-top:0; margin-bottom:14px;">⚠ 자가확인(대조 필요) — 서버 검증 없이 손님이 직접 "결제했다"고 눌러서 켜진 프리미엄이에요. 페이앱 결제현황에서 시간·금액이 실제로 맞는지 한 번 대조해보시는 걸 권해요. 표시가 없으면(서버 검증 또는 관리자 직접 지급) 대조하지 않으셔도 돼요.</div>
         <div id="adminUserList" class="usecase-list"></div>
-        <div class="price-note" style="margin-top:20px;">※ 최근 접속시간은 이 버전 배포 후 로그인/재접속한 회원부터 기록됩니다. 강제탈퇴는 Firebase Authentication 계정과 회원 프로필·사주보관함·AI상담 하위 데이터를 삭제하며, 결제·문의 기록은 정산/분쟁 대응을 위해 보존합니다.</div>
+        <div class="price-note" style="margin-top:20px;">※ 최근 접속시간은 이 버전 배포 후 로그인/재접속한 회원부터 기록됩니다. 문의 이력이 있으면 회원 이름 옆에 최근 문의 시점이 표시되고, 아직 답변하지 않은 문의는 "답변 대기 문의"로 강조됩니다. 강제탈퇴 시 결제·문의 기록은 정산/분쟁 대응을 위해 보존합니다.</div>
 
         <div class="section-head" style="margin-top:40px;">
           <div><div class="section-kicker">SUPPORT</div><h2 class="section-title" style="font-size:24px;">1:1 문의 관리</h2></div>
@@ -4282,6 +4308,39 @@ function adminRelativeTime(ms){
   return adminFormatDateTime(ms);
 }
 
+function adminInquiryOwnerUid(q){
+  if (!q) return '';
+  return String(q.ownerUid || q.firebaseUid || q.uid || '').trim();
+}
+
+function buildAdminRecentInquiryMap(qs){
+  const map = new Map();
+  if (!qs) return map;
+
+  qs.forEach((doc) => {
+    const q = doc.data() || {};
+    const uid = adminInquiryOwnerUid(q);
+    if (!uid) return;
+
+    const createdMs = adminTimestampMs(q.createdAt, Number(q.createdAtMs || 0));
+    const status = String(q.status || '').trim();
+    const waiting = status !== '답변완료';
+
+    const prev = map.get(uid);
+    if (!prev || createdMs > prev.createdMs) {
+      map.set(uid, {
+        id: doc.id,
+        createdMs,
+        status,
+        waiting,
+        title: String(q.title || '').trim()
+      });
+    }
+  });
+
+  return map;
+}
+
 async function callAdminUserAction(action, uid, extra){
   const current = firebase.auth().currentUser;
   if (!current) throw new Error('관리자 로그인 세션이 없습니다.');
@@ -4530,7 +4589,7 @@ function renderAdmin() {
   }, (err) => console.error('오늘 방문수 실시간 조회 실패', err));
 
   if (adminUsersUnsub) adminUsersUnsub();
-  adminUsersUnsub = db.collection('users').onSnapshot((qs) => {
+  adminUsersUnsub = db.collection('users').onSnapshot(async (qs) => {
     const list = document.getElementById('adminUserList');
     if (qs.empty) {
       list.innerHTML = '<div class="empty-note">아직 가입한 회원이 없어요.</div>';
@@ -4544,6 +4603,17 @@ function renderAdmin() {
       if (active7dEl) active7dEl.textContent = '0';
       return;
     }
+
+    // 회원 카드에 "최근 문의" 표시를 붙이기 위해 문의를 한 번에 조회합니다.
+    // 회원별 개별 쿼리를 하지 않아 N+1 읽기 문제를 피합니다.
+    let recentInquiryByUid = new Map();
+    try {
+      const inquiryQs = await db.collection('inquiries').limit(500).get();
+      recentInquiryByUid = buildAdminRecentInquiryMap(inquiryQs);
+    } catch (err) {
+      console.warn('회원 최근 문의 요약 조회 실패', err);
+    }
+
     list.innerHTML = '';
     // createdAt이 없는 회원(예: Firestore가 꺼져있던 시기에 만들어진 기록)도 빠짐없이 보여주기 위해
     // orderBy 대신 가져온 뒤 이 자리에서 정렬합니다. createdAt이 없으면 맨 뒤로 보냅니다.
@@ -4598,12 +4668,17 @@ function renderAdmin() {
       const credits = Math.max(0, Number(u.aiQuestionCredits || 0));
       const freeUsed = Math.max(0, Number(u.aiFreeUsed || 0));
       const provider = u.provider || '기타';
+      const recentInquiry = recentInquiryByUid.get(doc.id) || null;
+      const recentInquiryText = recentInquiry
+        ? (recentInquiry.waiting ? `답변 대기 문의 · ${adminRelativeTime(recentInquiry.createdMs)}` : `최근 문의 · ${adminRelativeTime(recentInquiry.createdMs)}`)
+        : '';
 
       const item = document.createElement('div');
       item.className = 'usecase-item admin-member-card';
       item.dataset.searchKey = (
         label + ' ' + (u.nickname || '') + ' ' + provider + ' ' + doc.id +
-        ' ' + adminFormatDateTime(lastSeenMs)
+        ' ' + adminFormatDateTime(lastSeenMs) + ' ' + recentInquiryText + ' ' +
+        (recentInquiry ? recentInquiry.title : '')
       ).toLowerCase();
 
       item.innerHTML = `
@@ -4613,6 +4688,7 @@ function renderAdmin() {
             <span style="font-size:10px;color:var(--muted-2);border:1px solid rgba(255,255,255,.08);padding:2px 6px;border-radius:999px;">${escapeHtml(provider)}</span>
             ${isActivePremium ? `<span style="color:var(--gold-hi);font-size:10px;">프리미엄 · ${untilStr}까지</span>` : ''}
             ${isActivePremium && u.lastVerificationMethod === 'self-confirm' ? `<span style="color:var(--warn); font-size:10px; border:1px solid rgba(201,131,106,.4); padding:2px 6px; border-radius:999px;">⚠ 자가확인</span>` : ''}
+            ${recentInquiry ? `<span class="admin-inquiry-badge ${recentInquiry.waiting ? 'waiting' : 'answered'}" title="${escapeHtml(recentInquiry.title || '최근 문의')}">${recentInquiry.waiting ? '● ' : ''}${escapeHtml(recentInquiryText)}</span>` : ''}
           </div>
 
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:5px 14px;margin-top:8px;font-size:10.5px;color:var(--muted-2);line-height:1.45;">
