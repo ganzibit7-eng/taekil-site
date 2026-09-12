@@ -1566,17 +1566,26 @@ footer{padding-bottom:90px}
 
 
 <style id="home-ai-arrow-only-style">
-.home-ai-arrow-only{
+#view-home > .home-first-block{
+  position:relative;
+}
+#view-home > .home-first-block .home-ai-arrow-only{
+  position:absolute;
+  left:50%;
+  bottom:18px;
+  transform:translateX(-50%);
+  z-index:12;
   display:flex;
   align-items:center;
   justify-content:center;
   width:52px;
   height:42px;
-  margin:18px auto 8px;
+  margin:0;
   padding:0;
   border:0;
   background:transparent;
   cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
 }
 .home-ai-arrow-only .home-more-chevrons{
   position:relative;
@@ -1596,6 +1605,13 @@ footer{padding-bottom:90px}
 }
 .home-ai-arrow-only .home-more-chevrons i:first-child{top:-3px;opacity:.48;}
 .home-ai-arrow-only .home-more-chevrons i:last-child{top:6px;opacity:.9;}
+
+@media(max-width:640px){
+  #view-home > .home-first-block .home-ai-arrow-only{
+    bottom:max(12px, env(safe-area-inset-bottom));
+  }
+}
+
 @media(prefers-reduced-motion:reduce){
   .home-ai-arrow-only .home-more-chevrons{animation:none;}
 }
@@ -1867,12 +1883,11 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         </div>
       </div>
     </div>
-  </div>
-
   
     <button class="home-ai-arrow-only" type="button" aria-label="아래 콘텐츠 더 보기" onclick="scrollHomePastAiIntro()">
       <span class="home-more-chevrons" aria-hidden="true"><i></i><i></i></span>
     </button>
+</div>
 <section class="block" style="padding-top:100px;">
     <div class="container" style="max-width:480px;">
       <div class="section-head" style="margin-bottom:16px;">
