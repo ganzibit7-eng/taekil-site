@@ -3976,28 +3976,39 @@ async function ensureMemberDocumentFromAuth(user) {
   });
 }
 
-const MEMBER_LAST_SEEN_TOUCH_KEY = 'taekilso_member_last_seen_touch_v1';
-async function touchMemberLastSeen(user){
-  if (!user || user.isAnonymous || !db) return;
+const MEMBER_LAST_SEEN_TOUCH_PREFIX = 'taekilso_member_last_seen_touch_v2_';
+async function touchMemberLastSeen(user, options = {}){
+  if (!user || user.isAnonymous || !db) return false;
   try {
     const now = Date.now();
+    const uid = String(user.uid || '').trim();
+    if (!uid) return false;
+
+    // 사용자별로 throttle 키를 분리합니다.
+    // 같은 탭에서 Google → Kakao로 계정을 바꿔도 이전 계정의 기록 때문에
+    // Kakao 최근 접속 기록이 건너뛰어지지 않습니다.
+    const touchKey = MEMBER_LAST_SEEN_TOUCH_PREFIX + uid;
     let lastLocal = 0;
-    try { lastLocal = Number(sessionStorage.getItem(MEMBER_LAST_SEEN_TOUCH_KEY) || 0); } catch(e) {}
+    try { lastLocal = Number(sessionStorage.getItem(touchKey) || 0); } catch(e) {}
 
-    // 한 탭에서 5분 이내 중복 쓰기를 막아 Firestore 쓰기 비용을 줄입니다.
-    if (now - lastLocal < 5 * 60 * 1000) return;
+    const force = !!(options && options.force);
+    if (!force && now - lastLocal < 5 * 60 * 1000) return false;
 
-    const ref = db.collection('users').doc(user.uid);
+    const provider = inferAuthProvider(user);
+    const ref = db.collection('users').doc(uid);
     await ref.set({
       lastSeenAt: firebase.firestore.FieldValue.serverTimestamp(),
       lastSeenAtMs: now,
-      lastSeenProvider: inferAuthProvider(user)
+      lastSeenProvider: provider,
+      lastSeenSource: provider === 'kakao' ? 'kakao-login' : 'firebase-auth'
     }, { merge:true });
 
-    try { sessionStorage.setItem(MEMBER_LAST_SEEN_TOUCH_KEY, String(now)); } catch(e) {}
+    try { sessionStorage.setItem(touchKey, String(now)); } catch(e) {}
+    return true;
   } catch (err) {
     // 최근 접속 기록 실패가 로그인 자체를 막으면 안 됩니다.
     console.warn('최근 접속시간 기록 실패', err);
+    return false;
   }
 }
 
@@ -5485,6 +5496,10 @@ async function exchangeKakaoCode(code) {
         provider: 'kakao'
       });
 
+      // 카카오 로그인 직후에는 onAuthStateChanged 타이밍에 기대지 않고
+      // 해당 kakao_UID의 최근 접속시간을 즉시 기록합니다.
+      await touchMemberLastSeen(bridgedUser, { force:true });
+
       reconcilePremiumWithAccount(firestoreUid);
       flushLocalOnlyInquiries();
     } else {
@@ -5509,6 +5524,7 @@ async function exchangeKakaoCode(code) {
 function logout() {
   localStorage.removeItem(KAKAO_USER_KEY);
   sessionStorage.removeItem(KAKAO_USER_KEY);
+  sessionStorage.removeItem('taekilso_kakao_access_token');
   if (firebaseReady && firebaseAuthReady && firebaseAuthUser) { firebase.auth().signOut().catch(() => {}); }
   firebaseAuthUser = null;
   clearLocalPremium();
