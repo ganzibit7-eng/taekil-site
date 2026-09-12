@@ -1793,6 +1793,27 @@ footer{padding-bottom:90px}
 .ai-share-close{width:100%;margin-top:8px;border:0;background:transparent;color:var(--muted-2);padding:8px;font:inherit;font-size:10px;cursor:pointer;}
 </style>
 
+
+<style id="ai-paywall-conversion-style">
+.ai-chat-conversion-chooser{display:flex!important;flex-direction:column!important;gap:8px!important;padding:13px!important;border:1px solid rgba(215,180,106,.16);border-radius:17px;background:rgba(10,10,9,.92);}
+.ai-paywall-head{padding:2px 2px 7px;}
+.ai-paywall-kicker{font-size:9px;letter-spacing:.16em;color:var(--gold);margin-bottom:5px;}
+.ai-paywall-head>b{display:block;font-family:var(--serif);font-size:16px;font-weight:400;color:var(--white);line-height:1.45;}
+.ai-paywall-head>span{display:block;margin-top:5px;color:var(--muted-2);font-size:9.8px;line-height:1.55;}
+.ai-chat-conversion-chooser .ai-chat-offer-card{position:relative;width:100%;display:flex!important;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:12px!important;border-radius:13px!important;}
+.ai-offer-copy{display:flex;flex-direction:column;min-width:0;}
+.ai-offer-copy small{font-size:8.8px;color:var(--muted-2);margin-bottom:3px;}
+.ai-offer-copy b{font-size:12px!important;color:var(--white);}
+.ai-offer-copy span{font-size:9px!important;color:var(--muted-2);margin-top:3px;}
+.ai-offer-price{display:flex;flex-direction:column;align-items:flex-end;flex:0 0 auto;}
+.ai-offer-price s{font-size:8.5px;color:var(--muted-2);}
+.ai-offer-price em{font-style:normal;font-size:13px!important;color:var(--gold-hi);margin-top:2px;}
+.ai-offer-best{border-color:rgba(215,180,106,.35)!important;background:rgba(215,180,106,.08)!important;padding-top:18px!important;}
+.ai-offer-badge{position:absolute;top:-7px;right:10px;padding:3px 7px;border-radius:999px;background:#cdb06e;color:#111;font-size:7.8px;font-weight:700;letter-spacing:.04em;}
+.ai-offer-premium{margin-top:2px;background:rgba(255,255,255,.035)!important;}
+.ai-paywall-note{text-align:center;color:var(--muted-2);font-size:8.5px;line-height:1.5;padding:2px 4px 0;}
+</style>
+
 </head>
 <body>
 
@@ -7751,18 +7772,51 @@ function appendAiChatServiceCta(userMessage) {
 /* 무료 질문을 다 쓰면 보여주는 화면: 질문권 2종(할인가 표시) + 프리미엄 구독. */
 function appendQuestionPackOffers() {
   const win = document.getElementById('aiChatWindow');
+  if (!win) return;
+
+  // 중복 결제 선택창 방지
+  win.querySelectorAll('.ai-chat-offer-grid').forEach(el => el.remove());
+
+  const pending = getPendingPaidAiQuestion();
   const wrap = document.createElement('div');
-  wrap.className = 'ai-chat-offer-grid';
-  wrap.innerHTML = Object.entries(AI_QUESTION_PACKS).map(([id, p]) => `
-    <button class="ai-chat-offer-card" onclick="purchaseQuestionPack('${id}')">
-      <b>${p.goodname}</b>
-      <span><s>${p.originalPrice.toLocaleString('ko-KR')}원</s> <em>${p.price.toLocaleString('ko-KR')}원</em></span>
+  wrap.className = 'ai-chat-offer-grid ai-chat-conversion-chooser';
+
+  wrap.innerHTML = `
+    <div class="ai-paywall-head">
+      <div class="ai-paywall-kicker">상담 계속하기</div>
+      <b>방금 하던 상담을 그대로 이어가세요.</b>
+      <span>${pending ? '결제가 확인되면 방금 선택한 질문부터 자동으로 이어집니다.' : '필요한 만큼 질문권을 추가하거나 프리미엄으로 넉넉하게 이용할 수 있어요.'}</span>
+    </div>
+
+    <button class="ai-chat-offer-card ai-offer-quick" onclick="purchaseQuestionPack('ai_question_pack_5')">
+      <div class="ai-offer-copy">
+        <small>가볍게 더 물어볼 때</small>
+        <b>AI 질문권 5개</b>
+        <span>질문 1개당 약 380원</span>
+      </div>
+      <div class="ai-offer-price"><s>2,900원</s><em>1,900원</em></div>
     </button>
-  `).join('') + `
-    <button class="ai-chat-offer-card ai-chat-offer-premium" onclick="goTo('profile')">
-      <b>프리미엄 구독</b>
-      <span>30일간 하루 20개까지 · 19,900원</span>
+
+    <button class="ai-chat-offer-card ai-offer-best" onclick="purchaseQuestionPack('ai_question_pack_10')">
+      <span class="ai-offer-badge">가성비 추천</span>
+      <div class="ai-offer-copy">
+        <small>여러 주제를 이어서 볼 때</small>
+        <b>AI 질문권 10개</b>
+        <span>질문 1개당 320원</span>
+      </div>
+      <div class="ai-offer-price"><s>4,900원</s><em>3,200원</em></div>
     </button>
+
+    <button class="ai-chat-offer-card ai-chat-offer-premium ai-offer-premium" onclick="goTo('profile')">
+      <div class="ai-offer-copy">
+        <small>매일 자주 상담하고 택일까지 볼 때</small>
+        <b>프리미엄 30일</b>
+        <span>AI 하루 20개 · 프리미엄 전체 서비스</span>
+      </div>
+      <div class="ai-offer-price"><em>19,900원</em></div>
+    </button>
+
+    <div class="ai-paywall-note">자동결제 없이 1회 결제 · 질문권은 프리미엄 없이도 구매할 수 있어요.</div>
   `;
   win.appendChild(wrap);
   scrollAiChatToBottom(win);
