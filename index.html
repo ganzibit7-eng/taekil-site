@@ -1316,6 +1316,62 @@ footer{padding-bottom:90px}
 /* AI 질문창 우측 아래/상하 크기조절 화살표 제거 */
 #aiChatInput { resize: none !important; }
 
+#view-home > .home-first-block{position:relative;}
+
+/* 홈 첫 AI 상담 아래: 아래 콘텐츠가 더 있음을 알려주는 더블 다운 화살표 */
+.home-more-cue{
+  position:absolute;
+  left:50%;
+  bottom:calc(78px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  z-index:8;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:3px;
+  border:0;
+  background:transparent;
+  padding:7px 18px 4px;
+  color:rgba(244,235,219,.72);
+  font:inherit;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.home-more-label{
+  font-size:11px;
+  letter-spacing:.03em;
+  white-space:nowrap;
+}
+.home-more-chevrons{
+  width:22px;
+  height:18px;
+  display:block;
+  position:relative;
+  animation:homeMoreFloat 1.7s ease-in-out infinite;
+}
+.home-more-chevrons i{
+  position:absolute;
+  left:50%;
+  width:11px;
+  height:11px;
+  border-right:1.7px solid currentColor;
+  border-bottom:1.7px solid currentColor;
+  transform:translateX(-50%) rotate(45deg);
+}
+.home-more-chevrons i:first-child{top:-2px;opacity:.52;}
+.home-more-chevrons i:last-child{top:5px;opacity:.95;}
+@keyframes homeMoreFloat{
+  0%,100%{transform:translateY(0);opacity:.72}
+  50%{transform:translateY(4px);opacity:1}
+}
+@media(min-width:641px){
+  .home-more-cue{bottom:28px;}
+}
+@media(prefers-reduced-motion:reduce){
+  .home-more-chevrons{animation:none;}
+}
+
+
 /* 모바일 키보드가 열렸을 때 AI 입력창을 키보드 바로 위의 visual viewport 안에 고정 */
 @media(max-width:640px){
   body.ai-keyboard-open{overflow:hidden;}
@@ -1531,8 +1587,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 <nav class="bottom-tabbar" id="bottomTabbar">
   <span class="bt-item active" data-route="home" onclick="goTo('home')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4 8.6 8.6 0 0 1-3.7-.9L3 20l1-4.7A8.4 8.4 0 1 1 21 11.5z"/></svg>
-    <span>AI사주</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10.8 12 3l9 7.8"/><path d="M5.5 9.7V21h13V9.7"/><path d="M9.2 21v-6.5h5.6V21"/></svg>
+    <span>홈</span>
   </span>
   <span class="bt-item" data-route="tool" onclick="goTo('tool')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -1676,7 +1732,14 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <button onclick="goTo('tool','계약체결')"><img src="char-contract.jpg" alt="계약체결"><span>📜 계약</span></button>
       </div>
     </div>
-  </section>
+  
+    <button class="home-more-cue" type="button" aria-label="아래 콘텐츠 더 보기" onclick="scrollHomePastAiIntro()">
+      <span class="home-more-label">아래에 더 있어요</span>
+      <span class="home-more-chevrons" aria-hidden="true">
+        <i></i><i></i>
+      </span>
+    </button>
+</section>
 
   <section class="block" style="padding-top:100px;">
     <div class="container" style="max-width:480px;">
@@ -7061,6 +7124,27 @@ function openAiFollowupPurchase(question){
   if (typeof appendAiChatUpsell === 'function') appendAiChatUpsell(question);
   scrollAiChatToBottom(document.getElementById('aiChatWindow'));
 }
+
+function scrollHomePastAiIntro(){
+  const first = document.querySelector('#view-home .home-first-block');
+  if (!first) {
+    window.scrollBy({ top: Math.max(420, window.innerHeight * 0.8), behavior:'smooth' });
+    return;
+  }
+
+  let target = first.nextElementSibling;
+  while (target && target.offsetParent === null) target = target.nextElementSibling;
+
+  if (target && typeof target.scrollIntoView === 'function') {
+    target.scrollIntoView({ behavior:'smooth', block:'start' });
+  } else {
+    window.scrollTo({
+      top: first.offsetTop + first.offsetHeight,
+      behavior:'smooth'
+    });
+  }
+}
+
 function quickAskAiChat(text) {
   const input = document.getElementById('aiChatInput');
   if (input) input.value = text;
