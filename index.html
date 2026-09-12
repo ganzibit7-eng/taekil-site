@@ -1319,6 +1319,51 @@ footer{padding-bottom:90px}
 #view-home > .home-first-block{position:relative;}
 
 .admin-member-card{align-items:flex-start !important;gap:14px !important;}
+
+.admin-perm-backdrop{
+  position:fixed; inset:0; z-index:1200; display:none;
+  align-items:center; justify-content:center; padding:20px;
+  background:rgba(0,0,0,.68); backdrop-filter:blur(5px);
+}
+.admin-perm-backdrop.show{display:flex;}
+.admin-perm-modal{
+  width:min(440px,100%); border:1px solid rgba(255,255,255,.10);
+  border-radius:18px; background:#11100e; box-shadow:0 24px 70px rgba(0,0,0,.5);
+  padding:20px;
+}
+.admin-perm-head{
+  display:flex; justify-content:space-between; align-items:flex-start; gap:14px; margin-bottom:16px;
+}
+.admin-perm-head h3{margin:0;font-family:var(--serif);font-weight:500;color:var(--gold-hi);font-size:22px;}
+.admin-perm-head small{display:block;color:var(--muted-2);margin-top:4px;overflow-wrap:anywhere;}
+.admin-perm-close{
+  border:0;background:transparent;color:var(--muted-2);font-size:24px;cursor:pointer;line-height:1;
+}
+.admin-perm-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.admin-perm-tab{
+  height:42px;border-radius:11px;border:1px solid rgba(255,255,255,.10);
+  background:#171613;color:#d6d0c6;cursor:pointer;font:inherit;font-size:13px;
+}
+.admin-perm-tab.active{border-color:rgba(215,179,106,.55);color:var(--gold-hi);background:rgba(215,179,106,.08);}
+.admin-perm-options{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px;}
+.admin-perm-option{
+  min-height:72px;text-align:left;border-radius:12px;border:1px solid rgba(255,255,255,.10);
+  background:#171613;color:#ddd6ca;padding:12px;cursor:pointer;font:inherit;
+}
+.admin-perm-option.active{border-color:var(--gold);box-shadow:0 0 0 1px rgba(215,179,106,.25) inset;}
+.admin-perm-option b{display:block;color:var(--white);font-size:13px;margin-bottom:4px;}
+.admin-perm-option small{display:block;color:var(--muted-2);font-size:10.5px;line-height:1.45;}
+.admin-perm-counts{display:none;gap:8px;flex-wrap:wrap;margin:10px 0 14px;}
+.admin-perm-counts.show{display:flex;}
+.admin-perm-count{
+  border:1px solid rgba(255,255,255,.10);background:#171613;color:#d8d1c5;
+  border-radius:999px;padding:8px 12px;cursor:pointer;font:inherit;font-size:12px;
+}
+.admin-perm-count.active{border-color:var(--gold);color:var(--gold-hi);background:rgba(215,179,106,.08);}
+.admin-perm-note{font-size:11px;color:var(--muted-2);line-height:1.55;margin:0 0 15px;}
+.admin-perm-actions{display:flex;justify-content:flex-end;gap:8px;}
+.admin-perm-actions .btn{min-width:96px;}
+
 @media(max-width:640px){
   .admin-member-card{flex-direction:column !important;}
   .admin-member-card > div:last-child{
@@ -2391,6 +2436,49 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     </div>
   </section>
 </section>
+
+
+<div class="admin-perm-backdrop" id="adminPermBackdrop" onclick="if(event.target===this) closeAdminPermissionModal()">
+  <div class="admin-perm-modal" role="dialog" aria-modal="true" aria-labelledby="adminPermTitle">
+    <div class="admin-perm-head">
+      <div>
+        <h3 id="adminPermTitle">회원 권한 관리</h3>
+        <small id="adminPermMember">-</small>
+      </div>
+      <button class="admin-perm-close" type="button" onclick="closeAdminPermissionModal()" aria-label="닫기">×</button>
+    </div>
+
+    <div class="admin-perm-tabs">
+      <button class="admin-perm-tab active" id="adminPermGrantTab" type="button" onclick="setAdminPermissionMode('grant')">지급</button>
+      <button class="admin-perm-tab" id="adminPermRevokeTab" type="button" onclick="setAdminPermissionMode('revoke')">회수</button>
+    </div>
+
+    <div class="admin-perm-options">
+      <button class="admin-perm-option active" id="adminPermPremiumOption" type="button" onclick="setAdminPermissionType('premium')">
+        <b>프리미엄</b>
+        <small id="adminPermPremiumDesc">30일 이용권을 지급합니다.</small>
+      </button>
+      <button class="admin-perm-option" id="adminPermCreditOption" type="button" onclick="setAdminPermissionType('credits')">
+        <b>AI 질문권</b>
+        <small id="adminPermCreditDesc">질문권을 선택한 개수만큼 지급합니다.</small>
+      </button>
+    </div>
+
+    <div class="admin-perm-counts" id="adminPermCounts">
+      <button class="admin-perm-count active" type="button" data-admin-count="1" onclick="setAdminPermissionCount(1)">1개</button>
+      <button class="admin-perm-count" type="button" data-admin-count="5" onclick="setAdminPermissionCount(5)">5개</button>
+      <button class="admin-perm-count" type="button" data-admin-count="10" onclick="setAdminPermissionCount(10)">10개</button>
+      <button class="admin-perm-count" type="button" data-admin-count="all" onclick="setAdminPermissionCount('all')">전부</button>
+    </div>
+
+    <p class="admin-perm-note" id="adminPermNote">선택한 회원에게 프리미엄 30일을 지급합니다.</p>
+
+    <div class="admin-perm-actions">
+      <button class="btn" type="button" onclick="closeAdminPermissionModal()">취소</button>
+      <button class="btn btn-primary" id="adminPermSubmit" type="button" onclick="submitAdminPermissionAction()">지급하기</button>
+    </div>
+  </div>
+</div>
 
 <!-- ============ LEGAL ============ -->
 <section id="view-legal" class="view">
@@ -4244,15 +4332,147 @@ async function forceDeleteMember(uid, label){
   }
 }
 
-async function grantQuestionCredits(uid, count){
-  count = Number(count || 0);
-  if (!uid || ![5,10].includes(count)) return;
+
+let adminPermState = {
+  uid: '',
+  label: '',
+  mode: 'grant',
+  type: 'premium',
+  count: 1
+};
+
+function openAdminPermissionModal(uid, label, mode){
+  adminPermState = {
+    uid: String(uid || ''),
+    label: String(label || uid || ''),
+    mode: mode === 'revoke' ? 'revoke' : 'grant',
+    type: 'premium',
+    count: 1
+  };
+  const backdrop = document.getElementById('adminPermBackdrop');
+  const member = document.getElementById('adminPermMember');
+  if (member) member.textContent = adminPermState.label + ' · ' + adminPermState.uid;
+  setAdminPermissionMode(adminPermState.mode);
+  setAdminPermissionType('premium');
+  if (backdrop) backdrop.classList.add('show');
+}
+
+function closeAdminPermissionModal(){
+  const backdrop = document.getElementById('adminPermBackdrop');
+  if (backdrop) backdrop.classList.remove('show');
+}
+
+function setAdminPermissionMode(mode){
+  adminPermState.mode = mode === 'revoke' ? 'revoke' : 'grant';
+
+  const grantTab = document.getElementById('adminPermGrantTab');
+  const revokeTab = document.getElementById('adminPermRevokeTab');
+  if (grantTab) grantTab.classList.toggle('active', adminPermState.mode === 'grant');
+  if (revokeTab) revokeTab.classList.toggle('active', adminPermState.mode === 'revoke');
+
+  const submit = document.getElementById('adminPermSubmit');
+  if (submit) submit.textContent = adminPermState.mode === 'grant' ? '지급하기' : '회수하기';
+
+  updateAdminPermissionModalText();
+}
+
+function setAdminPermissionType(type){
+  adminPermState.type = type === 'credits' ? 'credits' : 'premium';
+
+  const premiumOption = document.getElementById('adminPermPremiumOption');
+  const creditOption = document.getElementById('adminPermCreditOption');
+  const counts = document.getElementById('adminPermCounts');
+
+  if (premiumOption) premiumOption.classList.toggle('active', adminPermState.type === 'premium');
+  if (creditOption) creditOption.classList.toggle('active', adminPermState.type === 'credits');
+  if (counts) counts.classList.toggle('show', adminPermState.type === 'credits');
+
+  // 지급에서는 "전부"가 의미 없으므로 숨기고, 회수에서만 전부 회수 제공.
+  const allBtn = document.querySelector('[data-admin-count="all"]');
+  if (allBtn) allBtn.style.display = adminPermState.mode === 'revoke' ? '' : 'none';
+  if (adminPermState.mode === 'grant' && adminPermState.count === 'all') setAdminPermissionCount(1);
+
+  updateAdminPermissionModalText();
+}
+
+function setAdminPermissionCount(count){
+  adminPermState.count = count;
+  document.querySelectorAll('#adminPermCounts .admin-perm-count').forEach(btn => {
+    const raw = btn.dataset.adminCount;
+    const isAll = count === 'all' && raw === 'all';
+    const isNumber = count !== 'all' && Number(raw) === Number(count);
+    btn.classList.toggle('active', isAll || isNumber);
+  });
+  updateAdminPermissionModalText();
+}
+
+function updateAdminPermissionModalText(){
+  const grant = adminPermState.mode === 'grant';
+  const premium = adminPermState.type === 'premium';
+
+  const premiumDesc = document.getElementById('adminPermPremiumDesc');
+  const creditDesc = document.getElementById('adminPermCreditDesc');
+  const note = document.getElementById('adminPermNote');
+  const allBtn = document.querySelector('[data-admin-count="all"]');
+
+  if (premiumDesc) premiumDesc.textContent = grant ? '30일 이용권을 지급합니다.' : '현재 프리미엄 이용권을 회수합니다.';
+  if (creditDesc) creditDesc.textContent = grant ? '선택한 개수만큼 질문권을 지급합니다.' : '선택한 개수만큼 질문권을 회수합니다.';
+  if (allBtn) allBtn.style.display = adminPermState.mode === 'revoke' ? '' : 'none';
+
+  if (!note) return;
+  if (premium) {
+    note.textContent = grant
+      ? '선택한 회원에게 프리미엄 30일을 지급합니다.'
+      : '선택한 회원의 프리미엄 권한을 즉시 회수합니다.';
+  } else {
+    const countText = adminPermState.count === 'all' ? '남은 질문권 전부' : `질문권 ${adminPermState.count}개`;
+    note.textContent = grant
+      ? `선택한 회원에게 ${countText}를 지급합니다.`
+      : `선택한 회원에게서 ${countText}를 회수합니다. 보유 수량보다 많이 회수해도 0개 아래로 내려가지 않습니다.`;
+  }
+}
+
+async function submitAdminPermissionAction(){
+  const { uid, mode, type, count } = adminPermState;
+  if (!uid) return;
+
   try {
-    const result = await callAdminUserAction('grant_credits', uid, { count });
-    showToast(`질문권 ${count}개 지급 완료 · 현재 ${Number(result.questionCredits || 0)}개`);
+    const submit = document.getElementById('adminPermSubmit');
+    if (submit) {
+      submit.disabled = true;
+      submit.textContent = '처리 중…';
+    }
+
+    let action = '';
+    let extra = {};
+
+    if (type === 'premium') {
+      action = mode === 'grant' ? 'grant_premium' : 'revoke_premium';
+    } else {
+      action = mode === 'grant' ? 'grant_credits' : 'revoke_credits';
+      extra.count = count;
+    }
+
+    const result = await callAdminUserAction(action, uid, extra);
+
+    if (type === 'premium') {
+      showToast(mode === 'grant' ? '프리미엄 30일 지급 완료' : '프리미엄 회수 완료');
+    } else {
+      showToast(
+        `${mode === 'grant' ? '질문권 지급' : '질문권 회수'} 완료 · 현재 ${Number(result.questionCredits || 0)}개`
+      );
+    }
+
+    closeAdminPermissionModal();
   } catch (err) {
-    console.error('질문권 관리자 지급 실패', err);
-    showToast('질문권 지급 실패: ' + err.message);
+    console.error('회원 권한 관리 실패', err);
+    showToast('처리 실패: ' + err.message);
+  } finally {
+    const submit = document.getElementById('adminPermSubmit');
+    if (submit) {
+      submit.disabled = false;
+      submit.textContent = adminPermState.mode === 'grant' ? '지급하기' : '회수하기';
+    }
   }
 }
 
@@ -4406,10 +4626,8 @@ function renderAdmin() {
         </div>
 
         <div style="display:flex; gap:7px; align-items:center; justify-content:flex-end; flex-wrap:wrap; max-width:310px;">
-          <span class="text-action" data-credit5-uid="${doc.id}" style="font-size:10.5px;">질문권 +5</span>
-          <span class="text-action" data-credit10-uid="${doc.id}" style="font-size:10.5px;">+10</span>
-          <span class="text-action" data-grant-uid="${doc.id}" style="font-size:10.5px;">프리미엄 30일</span>
-          <span class="text-action" data-revoke-uid="${doc.id}" style="font-size:10.5px; color:var(--warn);">프리미엄 회수</span>
+          <span class="text-action" data-perm-grant-uid="${doc.id}" data-perm-label="${escapeHtml(label)}" style="font-size:10.5px;">지급</span>
+          <span class="text-action" data-perm-revoke-uid="${doc.id}" data-perm-label="${escapeHtml(label)}" style="font-size:10.5px;color:var(--warn);">회수</span>
           <span class="hist-delete" data-force-delete-uid="${doc.id}" data-force-delete-label="${escapeHtml(label)}" style="font-size:10.5px;color:#e39482;">강제탈퇴</span>
         </div>
       `;
@@ -4431,55 +4649,16 @@ function renderAdmin() {
         forceDeleteMember(e.currentTarget.dataset.forceDeleteUid, e.currentTarget.dataset.forceDeleteLabel || '');
       });
     });
-    list.querySelectorAll('[data-credit5-uid]').forEach(btn => {
+    list.querySelectorAll('[data-perm-grant-uid]').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const uid = e.currentTarget.dataset.credit5Uid;
-        if (confirm('이 회원에게 AI 질문권 5개를 지급할까요?')) grantQuestionCredits(uid, 5);
+        const el = e.currentTarget;
+        openAdminPermissionModal(el.dataset.permGrantUid, el.dataset.permLabel || '', 'grant');
       });
     });
-    list.querySelectorAll('[data-credit10-uid]').forEach(btn => {
+    list.querySelectorAll('[data-perm-revoke-uid]').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const uid = e.currentTarget.dataset.credit10Uid;
-        if (confirm('이 회원에게 AI 질문권 10개를 지급할까요?')) grantQuestionCredits(uid, 10);
-      });
-    });
-    list.querySelectorAll('[data-grant-uid]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const uid = e.target.dataset.grantUid;
-        if (!confirm('이 회원에게 프리미엄 30일 이용권을 지급할까요?')) return;
-        const until = Date.now() + PREMIUM_DURATION_MS;
-        const ref = db.collection('users').doc(uid);
-        ref.set({ premium: true, premiumUntil: until, grantedByAdmin: true, lastVerificationMethod: 'admin-grant', premiumUsageCount: 0 }, { merge: true })
-          .then(() => ref.get({ source: 'server' }))
-          .then((snap) => {
-            const data = snap.data() || {};
-            if (data.premium === true) {
-              showToast('프리미엄을 지급했어요. (확인됨)');
-            } else {
-              showToast('저장 요청은 됐는데, 다시 읽어보니 반영이 안 된 것 같아요. 새로고침 후 다시 시도해주세요.');
-            }
-            renderAdmin();
-          })
-          .catch(err => showToast('지급 실패: [' + (err.code || '') + '] ' + err.message));
-      });
-    });
-    list.querySelectorAll('[data-revoke-uid]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const uid = e.target.dataset.revokeUid;
-        if (!confirm('이 회원의 프리미엄 이용권을 회수할까요? (환불 처리 후 사용)')) return;
-        const ref = db.collection('users').doc(uid);
-        ref.set({ premium: false, premiumUntil: 0 }, { merge: true })
-          .then(() => ref.get({ source: 'server' }))
-          .then((snap) => {
-            const data = snap.data() || {};
-            if (data.premium === false) {
-              showToast('프리미엄을 회수했어요. (확인됨)');
-            } else {
-              showToast('저장 요청은 됐는데, 다시 읽어보니 반영이 안 된 것 같아요. Firestore 규칙이 최신인지 확인해주세요.');
-            }
-            renderAdmin();
-          })
-          .catch(err => showToast('회수 실패: [' + (err.code || '') + '] ' + err.message));
+        const el = e.currentTarget;
+        openAdminPermissionModal(el.dataset.permRevokeUid, el.dataset.permLabel || '', 'revoke');
       });
     });
   }, (err) => {
