@@ -5524,6 +5524,7 @@ async function purchaseQuestionPack(packId) {
       product: packId,
       expectedCredits: pack.count,
       creditsBeforePurchase,
+      paymentUid: paymentUser.uid,
       activeConversationId: window.__aiConversationId || null,
       createdAt: Date.now()
     }));
@@ -5578,24 +5579,56 @@ async function getQuestionCreditsFromServer(uid){
 async function waitForVerifiedQuestionPack(pending, uid){
   if (!pending || !pending.orderId) return { confirmed:false, credits:null };
 
-  // PayApp feedback callback은 결제 화면에서 돌아오는 것보다 몇 초 늦을 수 있습니다.
-  // 첫 구매가 늦게 보이는 문제를 막기 위해 최대 약 90초 동안 서버의 확정 상태를 기다립니다.
+  // 반드시 결제 당시의 Firebase UID를 우선 사용합니다.
+  // 카카오 로컬 세션/다른 로그인 흔적 때문에 getCurrentUserKey()가 다른 UID를 가리켜
+  // 실제로는 5개가 충전됐는데 0개로 읽는 문제를 방지합니다.
+  const verifiedUid = String(pending.paymentUid || uid || '').trim();
+  if (!verifiedUid) return { confirmed:false, credits:null };
+
+  const before = Number.isFinite(Number(pending.creditsBeforePurchase))
+    ? Math.max(0, Number(pending.creditsBeforePurchase))
+    : null;
+  const added = Math.max(0, Number(pending.expectedCredits || 0));
+  const expectedMinimum = before == null ? null : before + added;
+
+  // PayApp 주문이 paid가 된 직후에도 화면/세션에서 잘못된 UID나 지연된 값을 읽지 않도록
+  // 실제 질문권 잔액까지 함께 확인합니다.
   const deadline = Date.now() + 90000;
   let attempt = 0;
+  let lastCredits = null;
+  let paidSeen = false;
 
   while (Date.now() < deadline) {
     const paid = await checkOrderPaidOnServer(pending.orderId);
-    if (paid) {
-      const credits = await getQuestionCreditsFromServer(uid);
-      return { confirmed:true, credits };
+    if (paid) paidSeen = true;
+
+    if (paidSeen) {
+      lastCredits = await getQuestionCreditsFromServer(verifiedUid);
+
+      const balanceLooksApplied =
+        lastCredits != null &&
+        (
+          expectedMinimum == null
+            ? lastCredits > 0 || added === 0
+            : lastCredits >= expectedMinimum
+        );
+
+      if (balanceLooksApplied) {
+        return { confirmed:true, credits:lastCredits, uid:verifiedUid };
+      }
     }
 
     attempt += 1;
-    const waitMs = attempt <= 8 ? 1000 : 2000;
+    const waitMs = attempt <= 8 ? 700 : 1500;
     await new Promise(r => setTimeout(r, waitMs));
   }
 
-  return { confirmed:false, credits: await getQuestionCreditsFromServer(uid) };
+  return {
+    confirmed: paidSeen,
+    credits: lastCredits,
+    uid: verifiedUid,
+    balancePending: paidSeen
+  };
 }
 
 async function refreshQuestionCreditUI(uid){
@@ -5603,7 +5636,7 @@ async function refreshQuestionCreditUI(uid){
   if (credits == null) return null;
 
   const panel = document.getElementById('aiChatPanel');
-  if (panel && panel.style.display !== 'none') {
+  if (panel && panel.style.display !== 'none' && credits > 0) {
     updateAiChatStatus(null, null, false, {
       usingCredit: true,
       questionCreditsLeft: credits
@@ -5740,7 +5773,7 @@ function tryActivatePendingPremium() {
       // 계정에 프리미엄이 기록됩니다. 그 처리가 몇 초 정도 걸릴 수 있어서, 여기서는
       // 완료될 때까지 몇 번 다시 확인(폴링)합니다.
       showPaymentPendingStatus('결제 확인 중이에요…');
-      const uid = getCurrentUserKey();
+      const uid = String(pending.paymentUid || getCurrentUserKey() || '').trim();
       const isQuestionPack = pending.product && AI_QUESTION_PACKS[pending.product];
       let confirmed = false;
       let confirmedCredits = null;
@@ -5771,8 +5804,12 @@ function tryActivatePendingPremium() {
         });
 
         if (isQuestionPack) {
-          if (confirmedCredits == null) confirmedCredits = await refreshQuestionCreditUI(uid);
-          else {
+          if (confirmedCredits == null || confirmedCredits <= 0) {
+            const refreshedCredits = await refreshQuestionCreditUI(uid);
+            if (refreshedCredits != null && refreshedCredits > 0) {
+              confirmedCredits = refreshedCredits;
+            }
+          } else {
             const panel = document.getElementById('aiChatPanel');
             if (panel && panel.style.display !== 'none') {
               updateAiChatStatus(null, null, false, {
@@ -5787,9 +5824,18 @@ function tryActivatePendingPremium() {
             credits: confirmedCredits
           });
 
-          const creditText = confirmedCredits == null
-            ? `질문권 ${AI_QUESTION_PACKS[pending.product].count}개가 충전됐어요!`
-            : `질문권이 바로 반영됐어요. 현재 ${confirmedCredits}개 남아 있어요.`;
+          const purchasedCount = Number(
+            pending.expectedCredits ||
+            (AI_QUESTION_PACKS[pending.product] && AI_QUESTION_PACKS[pending.product].count) ||
+            0
+          );
+
+          // 결제 직후 잔액 조회가 0/null로 잘못 보이더라도 고객에게
+          // "0개 남음"이라고 안내하지 않습니다. 결제 완료 사실을 우선 정확히 안내하고,
+          // 실제 잔액이 확인된 경우에만 잔여 개수를 표시합니다.
+          const creditText = (confirmedCredits != null && confirmedCredits > 0)
+            ? `질문권이 충전됐어요. 현재 ${confirmedCredits}개 남아 있어요.`
+            : `질문권 ${purchasedCount}개 결제가 완료됐어요. 상담을 시작하면 바로 사용할 수 있어요.`;
 
           showToast(creditText + (getPendingPaidAiQuestion() ? ' 이전 질문을 이어갈게요.' : ''));
 
