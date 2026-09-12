@@ -1601,6 +1601,36 @@ footer{padding-bottom:90px}
 }
 </style>
 
+
+<style id="admin-ban-section-visible-style">
+.admin-ban-section{
+  margin-top:28px;
+  padding:18px;
+  border:1px solid rgba(215,180,106,.22);
+  border-radius:18px;
+  background:rgba(215,180,106,.035);
+}
+.admin-ban-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.admin-ban-refresh{
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:999px;
+  padding:8px 12px;
+  background:rgba(255,255,255,.04);
+  color:var(--muted);
+  font-size:11px;
+  cursor:pointer;
+}
+.admin-ban-refresh:hover{
+  border-color:rgba(215,180,106,.35);
+  color:var(--gold-hi);
+}
+</style>
+
 </head>
 <body>
 
@@ -2489,11 +2519,21 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <div id="adminUserList" class="usecase-list"></div>
         <div class="price-note" style="margin-top:20px;">※ 최근 접속시간은 이 버전 배포 후 로그인/재접속한 회원부터 기록됩니다. 문의 이력이 있으면 최근 문의가 표시됩니다. 프리미엄 회원 정보가 일부 누락되어도 서버의 결제 완료 기록(paymentOrders)을 기준으로 자동 복구하며, 관리자 회수 이력이 더 최신인 경우에는 복구하지 않습니다.</div>
 
-        <div class="section-head" style="margin-top:34px;">
-          <div><div class="section-kicker">BANNED</div><h2 class="section-title" style="font-size:22px;">영구 밴 목록</h2></div>
+        <div id="adminBanSection" class="admin-ban-section">
+          <div class="admin-ban-head">
+            <div>
+              <div class="section-kicker">BANNED</div>
+              <h2 class="section-title" style="font-size:22px;margin:3px 0 0;">영구 밴 목록</h2>
+            </div>
+            <button type="button" class="admin-ban-refresh" onclick="loadAdminBanList()">새로고침</button>
+          </div>
+          <div class="price-note" style="margin:10px 0 12px;">
+            강제탈퇴된 계정은 여기에 남고, 관리자가 직접 밴 해제하기 전까지 같은 Google/이메일 또는 같은 Kakao 계정으로 다시 가입할 수 없습니다.
+          </div>
+          <div id="adminBanList" class="usecase-list">
+            <div class="empty-note">밴 목록을 불러오는 중…</div>
+          </div>
         </div>
-        <div class="price-note" style="margin-top:0;margin-bottom:12px;">강제탈퇴된 계정은 여기에 남고, 관리자가 직접 밴 해제하기 전까지 같은 Google/이메일 또는 같은 Kakao 계정으로 다시 가입할 수 없습니다.</div>
-        <div id="adminBanList" class="usecase-list"><div class="empty-note">밴 목록을 불러오는 중…</div></div>
 
         <div class="section-head" style="margin-top:40px;">
           <div><div class="section-kicker">SUPPORT</div><h2 class="section-title" style="font-size:24px;">1:1 문의 관리</h2></div>
