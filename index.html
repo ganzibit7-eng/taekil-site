@@ -2452,7 +2452,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         </div>
         <div class="price-note" style="margin-top:0; margin-bottom:14px;">⚠ 자가확인(대조 필요) — 서버 검증 없이 손님이 직접 "결제했다"고 눌러서 켜진 프리미엄이에요. 페이앱 결제현황에서 시간·금액이 실제로 맞는지 한 번 대조해보시는 걸 권해요. 표시가 없으면(서버 검증 또는 관리자 직접 지급) 대조하지 않으셔도 돼요.</div>
         <div id="adminUserList" class="usecase-list"></div>
-        <div class="price-note" style="margin-top:20px;">※ 최근 접속시간은 이 버전 배포 후 로그인/재접속한 회원부터 기록됩니다. 문의 이력이 있으면 회원 이름 옆에 최근 문의 시점이 표시되고, 아직 답변하지 않은 문의는 "답변 대기 문의"로 강조됩니다. 강제탈퇴 시 결제·문의 기록은 정산/분쟁 대응을 위해 보존합니다.</div>
+        <div class="price-note" style="margin-top:20px;">※ 최근 접속시간은 이 버전 배포 후 로그인/재접속한 회원부터 기록됩니다. 문의 이력이 있으면 최근 문의가 표시됩니다. 프리미엄 회원 정보가 일부 누락되어도 서버의 결제 완료 기록(paymentOrders)을 기준으로 자동 복구하며, 관리자 회수 이력이 더 최신인 경우에는 복구하지 않습니다.</div>
 
         <div class="section-head" style="margin-top:40px;">
           <div><div class="section-kicker">SUPPORT</div><h2 class="section-title" style="font-size:24px;">1:1 문의 관리</h2></div>
@@ -2574,6 +2574,7 @@ const PREMIUM_DAYS = 30;
 const PAYAPP_FEEDBACK_URL = 'https://taekilso-backend-lemon.vercel.app/api/payapp-feedback';
 const AI_CHAT_URL = 'https://taekilso-backend-lemon.vercel.app/api/ai-chat';
 const PREMIUM_USAGE_URL = 'https://taekilso-backend-lemon.vercel.app/api/premium-usage';
+const PREMIUM_STATUS_URL = 'https://taekilso-backend-lemon.vercel.app/api/premium-status';
 const ADMIN_USER_ACTION_URL = 'https://taekilso-backend-lemon.vercel.app/api/admin-user-action';
 // 질문권(소모성 상품): 무료 3개를 다 쓴 뒤 이어서 물어볼 수 있게 해주는 상품입니다.
 // price가 실제 결제되는 금액(할인가)이고, originalPrice는 화면에 취소선으로 보여줄 정가입니다.
@@ -4069,11 +4070,44 @@ function backfillUserProfile(uid, existingData) {
   }
 }
 
-function reconcilePremiumWithAccount(uid) {
+
+async function recoverPremiumFromVerifiedServer(uid){
+  if (!uid) return null;
+
+  try {
+    const headers = await getAiRequestHeaders();
+    const res = await fetch(PREMIUM_STATUS_URL, {
+      method:'POST',
+      headers,
+      body:JSON.stringify({ uid })
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      console.warn('프리미엄 서버 복구 확인 실패', data.error || res.status);
+      return null;
+    }
+
+    if (data.active && Number(data.premiumUntil || 0) > Date.now()) {
+      setLocalPremium(Number(data.premiumUntil), uid);
+      updateAuthNav();
+      updatePremiumUI();
+      return data;
+    }
+
+    return data;
+  } catch (err) {
+    console.warn('프리미엄 서버 복구 요청 실패', err);
+    return null;
+  }
+}
+
+async function reconcilePremiumWithAccount(uid) {
   if (!db || !uid) return;
   syncSajuVaultFromCloud(uid);
 
-  db.collection('users').doc(uid).get({ source: 'server' }).then((snap) => {
+  try {
+    const snap = await db.collection('users').doc(uid).get({ source: 'server' });
     const data = snap.exists ? (snap.data() || {}) : {};
     backfillUserProfile(uid, data);
 
@@ -4086,8 +4120,6 @@ function reconcilePremiumWithAccount(uid) {
 
     const now = Date.now();
 
-    // 서버가 유일한 프리미엄 권한 원본입니다.
-    // localStorage 값으로 premium/premiumUntil을 서버에 다시 써 올리지 않습니다.
     if (data.premium === true && serverUntil > now) {
       setLocalPremium(serverUntil, uid);
       updateAuthNav();
@@ -4097,10 +4129,25 @@ function reconcilePremiumWithAccount(uid) {
       return;
     }
 
-    if (getPremiumOwnerKey() === uid) clearLocalPremium();
-    updateAuthNav();
-    updatePremiumUI();
-  }).catch((err) => console.error('프리미엄 상태 확인 실패', err));
+    // 예전 회원 문서가 일부 필드만 남았거나 실수로 재생성된 경우에도,
+    // 이미 결제 완료된 premium paymentOrders가 있으면 서버에서 권한을 복구합니다.
+    // 관리자 회수 이력이 더 최신이면 복구하지 않도록 서버가 판정합니다.
+    const recovered = await recoverPremiumFromVerifiedServer(uid);
+    if (recovered && recovered.active && Number(recovered.premiumUntil || 0) > now) {
+      return;
+    }
+
+    // 서버 복구 확인까지 끝난 뒤에만 로컬 프리미엄 표시를 해제합니다.
+    // 네트워크 오류(null)일 때는 기존 이용권을 함부로 지우지 않습니다.
+    if (recovered && recovered.active === false) {
+      if (getPremiumOwnerKey() === uid) clearLocalPremium();
+      updateAuthNav();
+      updatePremiumUI();
+    }
+  } catch (err) {
+    // 일시적인 Firestore 오류 때문에 정상 회원의 프리미엄 표시를 지우지 않습니다.
+    console.error('프리미엄 상태 확인 실패', err);
+  }
 }
 
 /*
@@ -5790,8 +5837,14 @@ async function checkPremiumOnServer(uid) {
       updatePremiumUI();
       return true;
     }
-  } catch (e) { console.error('결제 확인 중 오류', e); }
-  return false;
+
+    const recovered = await recoverPremiumFromVerifiedServer(uid);
+    return !!(recovered && recovered.active);
+  } catch (e) {
+    console.error('결제 확인 중 오류', e);
+    const recovered = await recoverPremiumFromVerifiedServer(uid);
+    return !!(recovered && recovered.active);
+  }
 }
 
 // Kept only as a compatibility hook. Never call this from a URL or payment return page.
@@ -5804,17 +5857,30 @@ async function refreshPremiumFromServer() {
   if (!firebaseReady || !db) return false;
   const user = firebaseAuthUser;
   if (!user) return false;
+
   try {
-    const snap = await db.collection('users').doc(user.uid).get();
+    const snap = await db.collection('users').doc(user.uid).get({ source:'server' });
     const data = snap.exists ? (snap.data() || {}) : {};
     let until = 0;
     if (data.premiumUntil && typeof data.premiumUntil.toMillis === 'function') until = data.premiumUntil.toMillis();
     else if (typeof data.premiumUntil === 'number') until = data.premiumUntil;
-    if (data.premium === true && until > Date.now()) setLocalPremium(until, user.uid);
-    else if (getPremiumOwnerKey() === user.uid) clearLocalPremium();
-    else verifiedPremium = false;
+
+    if (data.premium === true && until > Date.now()) {
+      setLocalPremium(until, user.uid);
+    } else {
+      const recovered = await recoverPremiumFromVerifiedServer(user.uid);
+
+      if (!(recovered && recovered.active)) {
+        // 복구 서버가 명확히 비활성이라고 확인했을 때만 해제.
+        if (recovered && recovered.active === false && getPremiumOwnerKey() === user.uid) {
+          clearLocalPremium();
+        }
+      }
+    }
+
     updateAuthNav();
     updatePremiumUI();
+
     if (verifiedPremium) {
       localStorage.removeItem('taekilso_pending_order');
       sessionStorage.removeItem('taekilso_pending_order');
@@ -5822,7 +5888,8 @@ async function refreshPremiumFromServer() {
     return verifiedPremium;
   } catch (e) {
     console.error('프리미엄 서버 상태 확인 실패', e);
-    return false;
+    // 일시 오류는 기존 프리미엄 표시를 지우지 않습니다.
+    return isPremium();
   }
 }
 
