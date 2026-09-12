@@ -1761,6 +1761,38 @@ footer{padding-bottom:90px}
 }
 </style>
 
+
+<style id="ai-answer-share-style">
+.ai-answer-sharebar{display:flex;justify-content:flex-end;margin-top:9px;}
+.ai-answer-sharebtn{
+  border:0;background:transparent;color:var(--muted-2);font:inherit;font-size:9.8px;
+  padding:5px 0;cursor:pointer;
+}
+.ai-answer-sharebtn:hover{color:var(--gold-hi);}
+.ai-share-modal{
+  position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.78);
+  display:none;align-items:center;justify-content:center;padding:18px;
+}
+.ai-share-modal.show{display:flex;}
+.ai-share-panel{width:min(420px,100%);background:#11110f;border:1px solid rgba(215,180,106,.2);border-radius:20px;padding:16px;}
+.ai-share-card{
+  position:relative;overflow:hidden;aspect-ratio:4/5;border-radius:18px;padding:28px 24px;
+  background:linear-gradient(155deg,#171510,#090908 65%,#16120c);border:1px solid rgba(215,180,106,.18);
+  display:flex;flex-direction:column;
+}
+.ai-share-brand{font-family:var(--serif);font-size:13px;color:var(--gold-hi);letter-spacing:.16em;}
+.ai-share-sub{font-size:9px;color:var(--muted-2);margin-top:5px;}
+.ai-share-answer{
+  margin:auto 0;font-family:var(--serif);font-size:18px;line-height:1.75;color:#eee8dc;
+  white-space:pre-wrap;display:-webkit-box;-webkit-line-clamp:12;-webkit-box-orient:vertical;overflow:hidden;
+}
+.ai-share-foot{font-size:9.5px;color:var(--muted-2);display:flex;justify-content:space-between;gap:10px;}
+.ai-share-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.ai-share-actions button{border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:11px 8px;background:rgba(255,255,255,.035);color:var(--white);font:inherit;font-size:10.5px;cursor:pointer;}
+.ai-share-actions button.primary{border-color:rgba(215,180,106,.22);background:rgba(215,180,106,.08);color:var(--gold-hi);}
+.ai-share-close{width:100%;margin-top:8px;border:0;background:transparent;color:var(--muted-2);padding:8px;font:inherit;font-size:10px;cursor:pointer;}
+</style>
+
 </head>
 <body>
 
@@ -9151,6 +9183,124 @@ function setupAiRecommendationObserver(){
   observer.observe(log, {childList:true, subtree:true});
 }
 document.addEventListener('DOMContentLoaded', () => setTimeout(setupAiRecommendationObserver, 700));
+
+</script>
+
+<div class="ai-share-modal" id="aiShareModal" onclick="if(event.target===this) closeAiShareModal()">
+  <div class="ai-share-panel" role="dialog" aria-modal="true" aria-label="연우 답변 공유">
+    <div class="ai-share-card" id="aiShareCard">
+      <div>
+        <div class="ai-share-brand">택일소 · 연우</div>
+        <div class="ai-share-sub">AI 사주 상담</div>
+      </div>
+      <div class="ai-share-answer" id="aiShareAnswer"></div>
+      <div class="ai-share-foot"><span>사주는 참고 기준으로 활용해주세요.</span><span>taekilso.com</span></div>
+    </div>
+    <div class="ai-share-actions">
+      <button type="button" class="primary" onclick="shareAiAnswerNative()">공유하기</button>
+      <button type="button" onclick="copyAiAnswerText()">텍스트 복사</button>
+    </div>
+    <button type="button" class="ai-share-close" onclick="closeAiShareModal()">닫기</button>
+  </div>
+</div>
+
+<script id="ai-answer-share-js">
+
+let aiShareCurrentText = '';
+
+function cleanAiShareText(text){
+  return String(text || '')
+    .replace(/이어서 해볼 수 있어요[\s\S]*$/,'')
+    .replace(/\s{3,}/g,'\n\n')
+    .trim()
+    .slice(0,900);
+}
+
+function openAiShareModal(text){
+  const cleaned = cleanAiShareText(text);
+  if (!cleaned) return;
+  aiShareCurrentText = cleaned;
+  const answer = document.getElementById('aiShareAnswer');
+  const modal = document.getElementById('aiShareModal');
+  if (answer) answer.textContent = cleaned;
+  if (modal) modal.classList.add('show');
+}
+
+function closeAiShareModal(){
+  document.getElementById('aiShareModal')?.classList.remove('show');
+}
+
+async function shareAiAnswerNative(){
+  const text = aiShareCurrentText;
+  if (!text) return;
+  const shareData = {
+    title:'택일소 · 연우 AI 사주 상담',
+    text:text + '\n\nAI 사주 상담 · 택일소',
+    url:'https://taekilso.com/'
+  };
+  try{
+    if (navigator.share) {
+      await navigator.share(shareData);
+      return;
+    }
+    await navigator.clipboard.writeText(shareData.text + '\n' + shareData.url);
+    showToast('공유할 내용을 복사했어요.');
+  }catch(err){
+    if (err && err.name === 'AbortError') return;
+    console.warn('공유 실패',err);
+    showToast('공유하지 못했어요.');
+  }
+}
+
+async function copyAiAnswerText(){
+  if (!aiShareCurrentText) return;
+  const text = aiShareCurrentText + '\n\nAI 사주 상담 · 택일소\nhttps://taekilso.com/';
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast('연우 답변을 복사했어요.');
+  }catch(err){
+    const ta=document.createElement('textarea');
+    ta.value=text; document.body.appendChild(ta); ta.select();
+    try{document.execCommand('copy');showToast('연우 답변을 복사했어요.');}catch(e){showToast('복사하지 못했어요.');}
+    ta.remove();
+  }
+}
+
+function attachAiShareButtons(){
+  const log = document.getElementById('aiChatMessages') || document.getElementById('aiChatLog') || document.querySelector('.ai-chat-messages');
+  if (!log) return;
+
+  const candidates = Array.from(log.querySelectorAll('.ai-chat-message, .chat-message, .ai-message, .message, .ai-chat-bubble-npc'));
+  candidates.forEach((el) => {
+    if (el.dataset.aiShareReady === '1') return;
+    const cls = String(el.className || '').toLowerCase();
+    if (/user|mine|me/.test(cls)) return;
+
+    const text = (el.innerText || el.textContent || '').trim();
+    if (text.length < 40) return;
+
+    el.dataset.aiShareReady='1';
+    const bar=document.createElement('div');
+    bar.className='ai-answer-sharebar';
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='ai-answer-sharebtn';
+    btn.textContent='↗ 답변 공유';
+    btn.addEventListener('click',()=>openAiShareModal(text));
+    bar.appendChild(btn);
+    el.appendChild(bar);
+  });
+}
+
+function setupAiShareObserver(){
+  const log = document.getElementById('aiChatMessages') || document.getElementById('aiChatLog') || document.querySelector('.ai-chat-messages');
+  if (!log || log.dataset.aiShareObserver === '1') return;
+  log.dataset.aiShareObserver='1';
+  const obs=new MutationObserver(()=>attachAiShareButtons());
+  obs.observe(log,{childList:true,subtree:true});
+  attachAiShareButtons();
+}
+document.addEventListener('DOMContentLoaded',()=>setTimeout(setupAiShareObserver,850));
 
 </script>
 </body>
