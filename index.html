@@ -1563,6 +1563,20 @@ footer{padding-bottom:90px}
 }
 </style>
 
+
+<style id="home-ai-chat-cue-position-fix">
+/* 홈 스크롤 안내: 문구 없이 화살표만 AI Chat 상단에 표시 */
+.home-more-cue{
+  bottom:auto !important;
+  top:50% !important;
+  transform:translate(-50%,-50%) !important;
+  min-height:34px !important;
+  padding:4px 12px !important;
+  gap:0 !important;
+}
+.home-more-label{display:none !important;}
+</style>
+
 </head>
 <body>
 
@@ -1815,7 +1829,6 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     </div>
   
     <button class="home-more-cue" type="button" aria-label="아래 콘텐츠 더 보기" onclick="scrollHomePastAiIntro()">
-      <span class="home-more-label">아래에 더 있어요</span>
       <span class="home-more-chevrons" aria-hidden="true">
         <i></i><i></i>
       </span>
