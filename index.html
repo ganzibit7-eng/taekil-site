@@ -1685,6 +1685,35 @@ footer{padding-bottom:90px}
 }
 </style>
 
+
+<style id="home-growth-features">
+.home-daily-yeonwoo,.home-free-report-card,.home-consult-to-date{
+  margin-top:18px;padding:18px;border:1px solid rgba(215,180,106,.16);
+  border-radius:18px;background:rgba(255,255,255,.025);
+}
+.home-feature-kicker{font-size:9px;letter-spacing:.18em;color:var(--gold);margin-bottom:9px;}
+.home-daily-yeonwoo strong,.home-consult-to-date strong{
+  display:block;font-family:var(--serif);font-size:17px;font-weight:400;line-height:1.45;color:var(--white);
+}
+.home-daily-yeonwoo p,.home-free-report-card p,.home-consult-to-date p{
+  margin:8px 0 13px;color:var(--muted);font-size:11px;line-height:1.65;
+}
+.home-daily-yeonwoo>button,.home-free-report-card>button{
+  width:100%;border:1px solid rgba(215,180,106,.18);border-radius:12px;
+  padding:11px 12px;background:rgba(215,180,106,.06);color:var(--gold-hi);
+  font:inherit;font-size:11px;text-align:left;cursor:pointer;
+}
+.home-daily-yeonwoo>button i,.home-free-report-card>button i{float:right;font-style:normal;}
+.home-free-report-card h3{margin:0;font-family:var(--serif);font-size:20px;font-weight:400;}
+.home-report-tags{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 13px;}
+.home-report-tags span{padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.045);font-size:9.5px;color:var(--muted);}
+.home-date-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.home-date-actions button{
+  border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:10px 8px;
+  background:rgba(255,255,255,.025);color:var(--muted);font:inherit;font-size:10.5px;cursor:pointer;
+}
+</style>
+
 </head>
 <body>
 
@@ -1937,6 +1966,12 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <button onclick="goTo('tool','개업')"><img src="char-opening.jpg" alt="개업"><span>🏮 개업</span></button>
         <button onclick="goTo('tool','계약체결')"><img src="char-contract.jpg" alt="계약체결"><span>📜 계약</span></button>
       </div>
+      <div class="home-daily-yeonwoo" id="homeDailyYeonwoo">
+        <div class="home-feature-kicker">TODAY · 연우의 한마디</div>
+        <strong id="homeDailyYeonwooTitle">오늘의 흐름을 가볍게 확인해보세요.</strong>
+        <p id="homeDailyYeonwooText">저장한 사주가 있으면 오늘의 흐름을 상담으로 이어서 확인할 수 있어요.</p>
+        <button type="button" onclick="openHomeDailyConsult()">오늘 운세 연우에게 물어보기 <i>→</i></button>
+      </div>
     </div>
 
     <div class="home-section-nav" aria-label="섹션 이동">
@@ -1950,11 +1985,29 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <div class="section-head" style="margin-bottom:16px;">
         <div><div class="section-kicker">GO DEEPER</div><h2 class="section-title" style="font-size:22px;">더 깊이<br>보고 싶다면</h2></div>
       </div>
+      <div class="home-free-report-card">
+        <div class="home-feature-kicker">FREE REPORT</div>
+        <h3>내 사주 기본 리포트</h3>
+        <p>오행 구성부터 성향·재물·연애·직업 흐름까지 한 번에 보고, 궁금한 부분은 연우에게 바로 이어서 물어보세요.</p>
+        <div class="home-report-tags"><span>오행</span><span>성향</span><span>재물</span><span>연애</span><span>직업</span></div>
+        <button type="button" onclick="openSajuInsight('profile')">무료 기본 리포트 보기 <i>→</i></button>
+      </div>
       <div class="home-deeper-list">
         <button onclick="openSajuInsight('profile')"><b>AI 정밀사주</b><small>내 사주 심층 분석 · 대운 흐름</small><i>→</i></button>
         <button onclick="openSajuInsight('love')"><b>궁합·연애 분석</b><small>두 사람의 오행 궁합</small><i>→</i></button>
         <button onclick="openSajuInsight('money')"><b>재물·직업 분석</b><small>강점과 흐름을 자세히</small><i>→</i></button>
         <button onclick="goTo('profile')"><b>프리미엄 전체 서비스</b><small>365일 택일 · 상세 리포트 등</small><i>→</i></button>
+      </div>
+      <div class="home-consult-to-date">
+        <div class="home-feature-kicker">AI → DATE</div>
+        <strong>상담에서 끝내지 말고<br>실제 날짜까지 이어보세요.</strong>
+        <p>결혼·이사·개업·계약 고민이라면 상담 후 내 사주에 맞는 후보 날짜를 바로 비교할 수 있어요.</p>
+        <div class="home-date-actions">
+          <button onclick="goTo('tool','결혼식')">💍 결혼</button>
+          <button onclick="goTo('tool','이사')">🏠 이사</button>
+          <button onclick="goTo('tool','개업')">🏮 개업</button>
+          <button onclick="goTo('tool','계약체결')">📜 계약</button>
+        </div>
       </div>
     </div>
   
@@ -8861,6 +8914,46 @@ function calculateTodayFortune(){
 })();
 </script>
 
+<script id="home-growth-features-js">
+
+function getHomeDailyMessage(){
+  const messages = [
+    ['서두르기보다 순서를 정리하기 좋은 날이에요.','중요한 결정은 한 번 더 조건을 비교해보세요.'],
+    ['사람과의 대화에서 힌트를 얻기 좋은 날이에요.','혼자 결론내리기보다 상대의 관점도 들어보세요.'],
+    ['작은 실행이 흐름을 바꾸기 좋은 날이에요.','미뤄둔 일 하나를 구체적인 행동으로 옮겨보세요.'],
+    ['선택지를 줄이면 판단이 선명해지는 날이에요.','가장 중요한 기준 한두 가지부터 정해보세요.'],
+    ['속도보다 균형을 챙기기 좋은 날이에요.','일정과 지출, 관계에서 무리한 선택은 피하는 편이 좋아요.'],
+    ['정리와 점검에 힘을 쓰기 좋은 날이에요.','새로운 시작 전 기존 계획을 한 번 다듬어보세요.'],
+    ['내가 원하는 방향을 다시 확인하기 좋은 날이에요.','주변의 기대보다 내 우선순위를 먼저 적어보세요.']
+  ];
+  const kst = new Date(Date.now() + 9*60*60*1000);
+  const key = Number(kst.toISOString().slice(0,10).replace(/-/g,''));
+  return messages[key % messages.length];
+}
+function renderHomeDailyYeonwoo(){
+  const msg = getHomeDailyMessage();
+  const title = document.getElementById('homeDailyYeonwooTitle');
+  const text = document.getElementById('homeDailyYeonwooText');
+  if (title) title.textContent = msg[0];
+  if (text) text.textContent = msg[1] + ' 전통 사주 해석은 참고 기준으로 활용해주세요.';
+}
+function openHomeDailyConsult(){
+  const question = '오늘 제 사주 흐름에서 특히 신경 쓰면 좋은 점과 활용법을 알려주세요.';
+  try { sessionStorage.setItem('taekilso_pending_home_ai_question', question); } catch(e) {}
+  const first = document.querySelector('#view-home > .home-first-block');
+  if (first) first.scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(() => {
+    const input = document.getElementById('aiChatInput');
+    if (input) {
+      input.value = question;
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      input.focus();
+    }
+  }, 500);
+}
+document.addEventListener('DOMContentLoaded', renderHomeDailyYeonwoo);
+
+</script>
 </body>
 </html>
 
