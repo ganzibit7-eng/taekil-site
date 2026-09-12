@@ -3899,6 +3899,7 @@ function clearLocalKakaoSessionForBan() {
 }
 
 async function checkMemberAccess(user, options = {}) {
+  const strict = !!options.strict;
   if (!user || user.isAnonymous || !MEMBER_ACCESS_STATUS_URL) return true;
   if (String(user.email || '').trim().toLowerCase() === String(ADMIN_EMAIL || '').trim().toLowerCase()) return true;
 
@@ -3935,8 +3936,13 @@ async function checkMemberAccess(user, options = {}) {
     }
 
     if (!res.ok) {
-      // 접속 확인 API 일시 장애 때문에 정상 회원의 로그인을 막지는 않습니다.
       console.warn('회원 이용상태 확인 실패', res.status, data);
+      if (strict) {
+        showToast('회원 이용상태를 확인하지 못했어요. 잠시 후 다시 시도해주세요.');
+        try { await firebase.auth().signOut(); } catch(e) {}
+        firebaseAuthUser = null;
+        return false;
+      }
       return true;
     }
 
@@ -3944,6 +3950,12 @@ async function checkMemberAccess(user, options = {}) {
     return true;
   } catch (err) {
     console.warn('회원 이용상태 확인 오류', err);
+    if (strict) {
+      showToast('회원 이용상태를 확인하지 못했어요. 잠시 후 다시 시도해주세요.');
+      try { await firebase.auth().signOut(); } catch(e) {}
+      firebaseAuthUser = null;
+      return false;
+    }
     return true;
   }
 }
@@ -4011,7 +4023,7 @@ try {
       try {
         const result = await firebase.auth().getRedirectResult();
         if (result && result.user) {
-          const allowed = await checkMemberAccess(result.user);
+          const allowed = await checkMemberAccess(result.user, { strict:true });
           if (!allowed) return;
           if (result.additionalUserInfo && result.additionalUserInfo.isNewUser) {
             recordSignup(result.user.uid, { email: result.user.email, provider: 'google' });
@@ -5734,7 +5746,7 @@ async function loginWithGoogle() {
     provider.setCustomParameters({ prompt: 'select_account' });
     try {
       const result = await firebase.auth().signInWithPopup(provider);
-      const allowed = await checkMemberAccess(result.user);
+      const allowed = await checkMemberAccess(result.user, { strict:true });
       if (!allowed) return;
       closeAuthModal();
       showToast('구글 계정으로 로그인했어요');
@@ -5812,7 +5824,7 @@ async function ensureFirestorePaymentAuth() {
 
   let current = firebase.auth().currentUser;
   if (current && !current.isAnonymous) {
-    const allowed = await checkMemberAccess(current);
+    const allowed = await checkMemberAccess(current, { strict:true });
     if (!allowed) return null;
     firebaseAuthUser = current;
     firebaseAuthReady = true;
@@ -5831,7 +5843,7 @@ async function ensureFirestorePaymentAuth() {
       throw err;
     }
     if (current && !current.isAnonymous) {
-      const allowed = await checkMemberAccess(current);
+      const allowed = await checkMemberAccess(current, { strict:true });
       if (!allowed) return null;
       return current;
     }
@@ -5849,7 +5861,7 @@ async function getAiRequestHeaders() {
       : null;
 
     if (current && !current.isAnonymous) {
-      const allowed = await checkMemberAccess(current);
+      const allowed = await checkMemberAccess(current, { strict:true });
       if (!allowed) return headers;
       headers.Authorization = 'Bearer ' + await current.getIdToken();
       return headers;
@@ -5923,7 +5935,7 @@ async function exchangeKakaoCode(code) {
       throw new Error('카카오 로그인 보안 연결을 완료하지 못했어요.');
     }
 
-    const allowed = await checkMemberAccess(bridgedUser);
+    const allowed = await checkMemberAccess(bridgedUser, { strict:true });
     if (!allowed) return;
 
     localStorage.setItem(KAKAO_USER_KEY, JSON.stringify(profile));
@@ -6551,7 +6563,7 @@ function submitAuth() {
     ? firebase.auth().createUserWithEmailAndPassword(email, password)
     : firebase.auth().signInWithEmailAndPassword(email, password);
   action.then(async (result) => {
-    const allowed = await checkMemberAccess(result.user);
+    const allowed = await checkMemberAccess(result.user, { strict:true });
     if (!allowed) {
       errEl.textContent = '이 계정은 관리자에 의해 이용이 제한되었습니다.';
       errEl.style.display = 'block';
