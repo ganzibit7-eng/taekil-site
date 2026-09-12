@@ -1318,6 +1318,16 @@ footer{padding-bottom:90px}
 
 #view-home > .home-first-block{position:relative;}
 
+.admin-member-card{align-items:flex-start !important;gap:14px !important;}
+@media(max-width:640px){
+  .admin-member-card{flex-direction:column !important;}
+  .admin-member-card > div:last-child{
+    max-width:none !important;
+    justify-content:flex-start !important;
+  }
+}
+
+
 /* 홈 첫 AI 상담 아래: 아래 콘텐츠가 더 있음을 알려주는 더블 다운 화살표 */
 .home-more-cue{
   position:absolute;
@@ -2354,6 +2364,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <div class="admin-stat"><small>오늘 방문수</small><b id="statTodayVisits">–</b></div>
           <div class="admin-stat"><small>총 가입자수</small><b id="statSignups">–</b></div>
           <div class="admin-stat"><small>카카오 가입자</small><b id="statKakaoMembers">–</b></div>
+          <div class="admin-stat"><small>오늘 접속 회원</small><b id="statActiveToday">–</b></div>
+          <div class="admin-stat"><small>최근 7일 접속</small><b id="statActive7d">–</b></div>
           <div class="admin-stat"><small>총 구매수</small><b id="statPurchases">–</b></div>
           <div class="admin-stat"><small>누적 매출</small><b id="statRevenue" style="font-size:20px;">–</b></div>
           <div class="admin-stat"><small>현재 프리미엄 회원</small><b id="statActivePremium">–</b></div>
@@ -2365,11 +2377,11 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <div><div class="section-kicker">MEMBERS</div><h2 class="section-title" style="font-size:24px;">회원 목록</h2></div>
         </div>
         <div class="field full" style="margin-bottom:14px;">
-          <input type="text" id="adminUserSearch" placeholder="이메일/닉네임으로 검색" oninput="filterAdminUserList(this.value)" style="width:100%; padding:12px 14px; background:#090908; border:1px solid rgba(255,255,255,.10); border-radius:12px; color:var(--white); font-family:inherit; font-size:13.5px;">
+          <input type="text" id="adminUserSearch" placeholder="이메일/닉네임/UID/가입방식으로 검색" oninput="filterAdminUserList(this.value)" style="width:100%; padding:12px 14px; background:#090908; border:1px solid rgba(255,255,255,.10); border-radius:12px; color:var(--white); font-family:inherit; font-size:13.5px;">
         </div>
         <div class="price-note" style="margin-top:0; margin-bottom:14px;">⚠ 자가확인(대조 필요) — 서버 검증 없이 손님이 직접 "결제했다"고 눌러서 켜진 프리미엄이에요. 페이앱 결제현황에서 시간·금액이 실제로 맞는지 한 번 대조해보시는 걸 권해요. 표시가 없으면(서버 검증 또는 관리자 직접 지급) 대조하지 않으셔도 돼요.</div>
         <div id="adminUserList" class="usecase-list"></div>
-        <div class="price-note" style="margin-top:20px;">※ 회원 목록은 Firestore users 실제 문서를 기준으로 표시합니다. "제거"는 서비스 회원 문서를 삭제하는 관리 기능이며 Firebase Authentication 계정 자체 삭제와는 별개입니다.</div>
+        <div class="price-note" style="margin-top:20px;">※ 최근 접속시간은 이 버전 배포 후 로그인/재접속한 회원부터 기록됩니다. 강제탈퇴는 Firebase Authentication 계정과 회원 프로필·사주보관함·AI상담 하위 데이터를 삭제하며, 결제·문의 기록은 정산/분쟁 대응을 위해 보존합니다.</div>
 
         <div class="section-head" style="margin-top:40px;">
           <div><div class="section-kicker">SUPPORT</div><h2 class="section-title" style="font-size:24px;">1:1 문의 관리</h2></div>
@@ -2448,6 +2460,7 @@ const PREMIUM_DAYS = 30;
 const PAYAPP_FEEDBACK_URL = 'https://taekilso-backend-lemon.vercel.app/api/payapp-feedback';
 const AI_CHAT_URL = 'https://taekilso-backend-lemon.vercel.app/api/ai-chat';
 const PREMIUM_USAGE_URL = 'https://taekilso-backend-lemon.vercel.app/api/premium-usage';
+const ADMIN_USER_ACTION_URL = 'https://taekilso-backend-lemon.vercel.app/api/admin-user-action';
 // 질문권(소모성 상품): 무료 3개를 다 쓴 뒤 이어서 물어볼 수 있게 해주는 상품입니다.
 // price가 실제 결제되는 금액(할인가)이고, originalPrice는 화면에 취소선으로 보여줄 정가입니다.
 const AI_QUESTION_PACKS = {
@@ -3683,7 +3696,10 @@ try {
             // Firebase Authentication에는 계정이 있지만 Firestore users/{uid} 문서가
             // 과거 오류로 빠져 있는 회원도 로그인 시 자동 복구합니다.
             // recordSignup은 이미 존재하는 문서를 다시 가입자로 세지 않습니다.
-            if (!user.isAnonymous) ensureMemberDocumentFromAuth(user);
+            if (!user.isAnonymous) {
+              ensureMemberDocumentFromAuth(user);
+              touchMemberLastSeen(user);
+            }
 
             reconcilePremiumWithAccount(user.uid);
             flushLocalOnlyInquiries();
@@ -3843,6 +3859,31 @@ async function ensureMemberDocumentFromAuth(user) {
     nickname: user.displayName || (kakaoProfile && kakaoProfile.nickname) || null,
     provider
   });
+}
+
+const MEMBER_LAST_SEEN_TOUCH_KEY = 'taekilso_member_last_seen_touch_v1';
+async function touchMemberLastSeen(user){
+  if (!user || user.isAnonymous || !db) return;
+  try {
+    const now = Date.now();
+    let lastLocal = 0;
+    try { lastLocal = Number(sessionStorage.getItem(MEMBER_LAST_SEEN_TOUCH_KEY) || 0); } catch(e) {}
+
+    // 한 탭에서 5분 이내 중복 쓰기를 막아 Firestore 쓰기 비용을 줄입니다.
+    if (now - lastLocal < 5 * 60 * 1000) return;
+
+    const ref = db.collection('users').doc(user.uid);
+    await ref.set({
+      lastSeenAt: firebase.firestore.FieldValue.serverTimestamp(),
+      lastSeenAtMs: now,
+      lastSeenProvider: inferAuthProvider(user)
+    }, { merge:true });
+
+    try { sessionStorage.setItem(MEMBER_LAST_SEEN_TOUCH_KEY, String(now)); } catch(e) {}
+  } catch (err) {
+    // 최근 접속 기록 실패가 로그인 자체를 막으면 안 됩니다.
+    console.warn('최근 접속시간 기록 실패', err);
+  }
 }
 
 
@@ -4115,6 +4156,106 @@ document.addEventListener('visibilitychange', () => {
 });
 
 /* ---------- ADMIN DASHBOARD ---------- */
+
+function adminTimestampMs(value, fallback = 0){
+  if (value && typeof value.toMillis === 'function') return value.toMillis();
+  if (value && typeof value.toDate === 'function') return value.toDate().getTime();
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') {
+    const n = Date.parse(value);
+    return Number.isFinite(n) ? n : fallback;
+  }
+  return fallback;
+}
+
+function adminFormatDateTime(ms){
+  if (!ms) return '기록 없음';
+  try {
+    return new Date(ms).toLocaleString('ko-KR', {
+      year:'numeric', month:'2-digit', day:'2-digit',
+      hour:'2-digit', minute:'2-digit'
+    });
+  } catch(e) {
+    return new Date(ms).toLocaleString('ko-KR');
+  }
+}
+
+function adminRelativeTime(ms){
+  if (!ms) return '기록 없음';
+  const diff = Date.now() - ms;
+  if (diff < 0) return '방금';
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return '방금';
+  if (min < 60) return `${min}분 전`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}시간 전`;
+  const day = Math.floor(hr / 24);
+  if (day < 30) return `${day}일 전`;
+  return adminFormatDateTime(ms);
+}
+
+async function callAdminUserAction(action, uid, extra){
+  const current = firebase.auth().currentUser;
+  if (!current) throw new Error('관리자 로그인 세션이 없습니다.');
+  const token = await current.getIdToken(true);
+  const res = await fetch(ADMIN_USER_ACTION_URL, {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer ' + token
+    },
+    body:JSON.stringify({ action, uid, ...(extra || {}) })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+async function forceDeleteMember(uid, label){
+  if (!uid) return;
+  const me = firebase.auth().currentUser;
+  if (me && me.uid === uid) {
+    showToast('현재 로그인한 관리자 본인 계정은 강제탈퇴할 수 없어요.');
+    return;
+  }
+
+  const first = confirm(
+    `${label || uid} 회원을 강제탈퇴할까요?\n\n` +
+    `• Firebase 로그인 계정 삭제\n` +
+    `• 회원 프로필/사주 보관함/AI 상담 삭제\n` +
+    `• 결제·문의 기록은 보존\n\n` +
+    `이 작업은 되돌릴 수 없습니다.`
+  );
+  if (!first) return;
+
+  const typed = prompt('실수 방지를 위해 "강제탈퇴"를 입력해주세요.');
+  if (typed !== '강제탈퇴') {
+    showToast('강제탈퇴가 취소됐어요.');
+    return;
+  }
+
+  try {
+    showToast('회원 계정을 삭제하는 중이에요…');
+    await callAdminUserAction('delete_user', uid);
+    showToast('회원 강제탈퇴가 완료됐어요.');
+  } catch (err) {
+    console.error('관리자 강제탈퇴 실패', err);
+    showToast('강제탈퇴 실패: ' + err.message);
+  }
+}
+
+async function grantQuestionCredits(uid, count){
+  count = Number(count || 0);
+  if (!uid || ![5,10].includes(count)) return;
+  try {
+    const result = await callAdminUserAction('grant_credits', uid, { count });
+    showToast(`질문권 ${count}개 지급 완료 · 현재 ${Number(result.questionCredits || 0)}개`);
+  } catch (err) {
+    console.error('질문권 관리자 지급 실패', err);
+    showToast('질문권 지급 실패: ' + err.message);
+  }
+}
+
 function filterAdminUserList(query) {
   const q = query.trim().toLowerCase();
   document.querySelectorAll('#adminUserList .usecase-item').forEach(item => {
@@ -4177,6 +4318,10 @@ function renderAdmin() {
       const kakaoEl = document.getElementById('statKakaoMembers');
       if (signupEl) signupEl.textContent = '0';
       if (kakaoEl) kakaoEl.textContent = '0';
+      const activeTodayEl = document.getElementById('statActiveToday');
+      const active7dEl = document.getElementById('statActive7d');
+      if (activeTodayEl) activeTodayEl.textContent = '0';
+      if (active7dEl) active7dEl.textContent = '0';
       return;
     }
     list.innerHTML = '';
@@ -4204,25 +4349,68 @@ function renderAdmin() {
     if (signupEl) signupEl.textContent = actualMemberCount;
     if (kakaoEl) kakaoEl.textContent = kakaoMemberCount;
 
+    const nowMs = Date.now();
+    const todayStart = new Date();
+    todayStart.setHours(0,0,0,0);
+    const activeTodayCount = docs.filter((doc) => {
+      const u = doc.data() || {};
+      return adminTimestampMs(u.lastSeenAt, Number(u.lastSeenAtMs || 0)) >= todayStart.getTime();
+    }).length;
+    const active7dCount = docs.filter((doc) => {
+      const u = doc.data() || {};
+      return adminTimestampMs(u.lastSeenAt, Number(u.lastSeenAtMs || 0)) >= nowMs - 7 * 24 * 60 * 60 * 1000;
+    }).length;
+    const activeTodayEl = document.getElementById('statActiveToday');
+    const active7dEl = document.getElementById('statActive7d');
+    if (activeTodayEl) activeTodayEl.textContent = activeTodayCount;
+    if (active7dEl) active7dEl.textContent = active7dCount;
+
     docs.forEach((doc) => {
-      const u = doc.data();
+      const u = doc.data() || {};
       const label = u.email || u.nickname || ('회원 (' + doc.id.slice(0, 8) + '…)');
-      let untilMs = 0;
-      if (u.premiumUntil && typeof u.premiumUntil.toMillis === 'function') untilMs = u.premiumUntil.toMillis();
-      else if (typeof u.premiumUntil === 'number') untilMs = u.premiumUntil;
+
+      const untilMs = adminTimestampMs(u.premiumUntil);
       const isActivePremium = u.premium === true && untilMs > Date.now();
       const untilStr = untilMs ? new Date(untilMs).toLocaleDateString('ko-KR') : '';
+
+      const createdMs = adminTimestampMs(u.createdAt, Number(u.createdAtMs || 0));
+      const lastSeenMs = adminTimestampMs(u.lastSeenAt, Number(u.lastSeenAtMs || 0));
+      const credits = Math.max(0, Number(u.aiQuestionCredits || 0));
+      const freeUsed = Math.max(0, Number(u.aiFreeUsed || 0));
+      const provider = u.provider || '기타';
+
       const item = document.createElement('div');
-      item.className = 'usecase-item';
-      item.dataset.searchKey = (label + ' ' + (u.nickname || '') + ' ' + (u.provider || '') + ' ' + doc.id).toLowerCase();
+      item.className = 'usecase-item admin-member-card';
+      item.dataset.searchKey = (
+        label + ' ' + (u.nickname || '') + ' ' + provider + ' ' + doc.id +
+        ' ' + adminFormatDateTime(lastSeenMs)
+      ).toLowerCase();
+
       item.innerHTML = `
-        <div>
-          <strong style="color:var(--gold-hi); font-family:var(--serif); font-weight:400;">${escapeHtml(label)}</strong> · ${escapeHtml(u.provider || '기타')}${isActivePremium ? ` · <span style="color:var(--gold-hi)">프리미엄 (${untilStr}까지)</span>` : ''}${isActivePremium && u.lastVerificationMethod === 'self-confirm' ? ` · <span style="color:var(--warn); font-size:10px; border:1px solid rgba(201,131,106,.4); padding:2px 6px; border-radius:999px;">⚠ 자가확인(대조 필요)</span>` : ''}<div style="font-size:10px;color:var(--muted-2);margin-top:4px;">UID ${escapeHtml(doc.id)}</div>
+        <div style="min-width:0; flex:1;">
+          <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap;">
+            <strong style="color:var(--gold-hi); font-family:var(--serif); font-weight:400;">${escapeHtml(label)}</strong>
+            <span style="font-size:10px;color:var(--muted-2);border:1px solid rgba(255,255,255,.08);padding:2px 6px;border-radius:999px;">${escapeHtml(provider)}</span>
+            ${isActivePremium ? `<span style="color:var(--gold-hi);font-size:10px;">프리미엄 · ${untilStr}까지</span>` : ''}
+            ${isActivePremium && u.lastVerificationMethod === 'self-confirm' ? `<span style="color:var(--warn); font-size:10px; border:1px solid rgba(201,131,106,.4); padding:2px 6px; border-radius:999px;">⚠ 자가확인</span>` : ''}
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:5px 14px;margin-top:8px;font-size:10.5px;color:var(--muted-2);line-height:1.45;">
+            <span>최근 접속 <b style="color:#d9d2c5;font-weight:500;">${escapeHtml(adminRelativeTime(lastSeenMs))}</b></span>
+            <span title="${escapeHtml(adminFormatDateTime(lastSeenMs))}">접속시각 ${escapeHtml(adminFormatDateTime(lastSeenMs))}</span>
+            <span>가입일 ${escapeHtml(adminFormatDateTime(createdMs))}</span>
+            <span>질문권 <b style="color:#d9d2c5;font-weight:500;">${credits}개</b></span>
+            <span>무료 AI ${Math.min(freeUsed, 3)}/3 사용</span>
+          </div>
+          <div style="font-size:9.5px;color:var(--muted-2);margin-top:6px;overflow-wrap:anywhere;">UID ${escapeHtml(doc.id)}</div>
         </div>
-        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-          <span class="text-action" data-grant-uid="${doc.id}" style="font-size:11px;">프리미엄 30일 지급</span>
-          <span class="text-action" data-revoke-uid="${doc.id}" style="font-size:11px; color:var(--warn);">회수</span>
-          <span class="hist-delete" data-uid="${doc.id}">제거</span>
+
+        <div style="display:flex; gap:7px; align-items:center; justify-content:flex-end; flex-wrap:wrap; max-width:310px;">
+          <span class="text-action" data-credit5-uid="${doc.id}" style="font-size:10.5px;">질문권 +5</span>
+          <span class="text-action" data-credit10-uid="${doc.id}" style="font-size:10.5px;">+10</span>
+          <span class="text-action" data-grant-uid="${doc.id}" style="font-size:10.5px;">프리미엄 30일</span>
+          <span class="text-action" data-revoke-uid="${doc.id}" style="font-size:10.5px; color:var(--warn);">프리미엄 회수</span>
+          <span class="hist-delete" data-force-delete-uid="${doc.id}" data-force-delete-label="${escapeHtml(label)}" style="font-size:10.5px;color:#e39482;">강제탈퇴</span>
         </div>
       `;
       list.appendChild(item);
@@ -4238,11 +4426,21 @@ function renderAdmin() {
     if (activeEl) activeEl.textContent = activeCount;
     const searchBox = document.getElementById('adminUserSearch');
     if (searchBox && searchBox.value) filterAdminUserList(searchBox.value);
-    list.querySelectorAll('.hist-delete').forEach(btn => {
+    list.querySelectorAll('[data-force-delete-uid]').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const uid = e.target.dataset.uid;
-        if (!confirm('목록에서 제거할까요? (실제 로그인 계정은 지워지지 않아요)')) return;
-        db.collection('users').doc(uid).delete().then(() => renderAdmin()).catch(err => showToast('제거 실패: ' + err.message));
+        forceDeleteMember(e.currentTarget.dataset.forceDeleteUid, e.currentTarget.dataset.forceDeleteLabel || '');
+      });
+    });
+    list.querySelectorAll('[data-credit5-uid]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const uid = e.currentTarget.dataset.credit5Uid;
+        if (confirm('이 회원에게 AI 질문권 5개를 지급할까요?')) grantQuestionCredits(uid, 5);
+      });
+    });
+    list.querySelectorAll('[data-credit10-uid]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const uid = e.currentTarget.dataset.credit10Uid;
+        if (confirm('이 회원에게 AI 질문권 10개를 지급할까요?')) grantQuestionCredits(uid, 10);
       });
     });
     list.querySelectorAll('[data-grant-uid]').forEach(btn => {
