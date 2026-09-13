@@ -811,6 +811,26 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
   padding:11px 8px; border-radius:12px; font-size:11.5px; font-weight:600; backdrop-filter:blur(5px); cursor:pointer;
 }
 .ai-chat-intro-categories button:hover{background:rgba(215,180,106,.22); border-color:rgba(215,180,106,.5)}
+/* 실제 채팅 안에서 택일 후보를 바로 보여주는 카드 */
+.ai-chat-quick-actions .ai-quick-taekil{border-color:rgba(240,215,158,.28);background:rgba(215,180,106,.11);color:var(--gold-hi)}
+.ai-inline-taekil{margin:10px 0 6px 42px;max-width:calc(100% - 48px);border:1px solid rgba(240,215,158,.22);border-radius:18px;background:linear-gradient(145deg,rgba(25,23,20,.94),rgba(12,12,11,.92));box-shadow:0 16px 34px rgba(0,0,0,.24);overflow:hidden}
+.ai-inline-taekil-head{padding:13px 14px 10px;border-bottom:1px solid rgba(255,255,255,.07)}
+.ai-inline-taekil-head small{display:block;color:var(--gold);font-size:9px;font-weight:800;letter-spacing:.12em;margin-bottom:4px}
+.ai-inline-taekil-head b{display:block;color:#fff;font-family:var(--serif);font-size:15px;font-weight:500}
+.ai-inline-taekil-head span{display:block;color:var(--muted);font-size:10px;line-height:1.55;margin-top:4px}
+.ai-inline-date-list{display:grid;gap:7px;padding:10px}
+.ai-inline-date-card{padding:11px;border-radius:13px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035)}
+.ai-inline-date-card.best{border-color:rgba(240,215,158,.34);background:rgba(215,180,106,.085)}
+.ai-inline-date-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ai-inline-date-top b{font-size:12px;color:#fff}
+.ai-inline-date-top em{font-style:normal;font-size:8.5px;font-weight:800;color:#3a2611;background:linear-gradient(135deg,#f6dda6,#d7b46a);padding:4px 7px;border-radius:999px;white-space:nowrap}
+.ai-inline-date-meta{margin-top:5px;color:var(--gold-hi);font-size:9.5px}
+.ai-inline-date-card p{margin:5px 0 0;color:#c8c3ba;font-size:9.8px;line-height:1.55}
+.ai-inline-taekil-actions{display:flex;gap:7px;padding:0 10px 11px;flex-wrap:wrap}
+.ai-inline-taekil-actions button{flex:1 1 140px;min-height:34px;border-radius:999px;border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.045);color:#e9e3d8;font-size:9.5px;font-weight:700;padding:7px 10px}
+.ai-inline-taekil-actions button.primary{border-color:rgba(215,180,106,.35);background:rgba(215,180,106,.13);color:var(--gold-hi)}
+@media(max-width:520px){.ai-inline-taekil{margin-left:28px;max-width:calc(100% - 32px)}.ai-inline-taekil-actions button{flex-basis:100%}}
+
 .ai-chat-guest-hint{
   text-align:center; font-size:11.5px; color:var(--gold-hi); margin:0 0 10px;
   padding:8px 10px; border-radius:999px; background:rgba(215,180,106,.1); border:1px solid rgba(215,180,106,.25);
@@ -2131,7 +2151,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
             <button onclick="quickAskAiChat('연애·궁합이 궁금해요')">❤️ 연애·궁합</button>
             <button onclick="quickAskAiChat('돈, 재물운이 궁금해요')">💰 돈·재물</button>
             <button onclick="quickAskAiChat('직업, 사업운이 궁금해요')">💼 직업·사업</button>
-            <button onclick="quickAskAiChat('결혼, 이사, 개업, 계약 날짜를 잡고 싶어요')">📅 결혼·이사·개업·계약</button>
+            <button class="ai-quick-taekil" onclick="openAiInlineTaekil('결혼식')">💍 결혼 택일</button>
+            <button class="ai-quick-taekil" onclick="openAiInlineTaekil('이사')">🏠 이사 택일</button>
+            <button class="ai-quick-taekil" onclick="openAiInlineTaekil('개업')">🏮 개업 택일</button>
+            <button class="ai-quick-taekil" onclick="openAiInlineTaekil('계약체결')">📜 계약 택일</button>
             <button onclick="quickAskAiChat('올해 전체운이 궁금해요')">🔮 올해 전체운</button>
             <button onclick="focusAiChatInput()">💬 직접 질문하기</button>
           </div>
@@ -8045,6 +8068,103 @@ function buildAiChatSajuSummary({y,m,d,calType,hourValue,gender,birth}){
   return { text: lines.join('\n'), data };
 }
 
+/* 채팅 안 택일: 기존 택일 계산식을 그대로 사용해 후보 날짜를 즉시 보여줍니다. */
+function getAiChatPrimaryOhaeng(){
+  const p=window.__aiChatProfile;
+  if(!p) return null;
+  try{
+    const birth=p.birth ? new Date(p.birth) : resolveBirthDate(`${p.y}-${String(p.m).padStart(2,'0')}-${String(p.d).padStart(2,'0')}`,p.calType||'solar',!!p.isLeap);
+    return birth ? ohaengOf(dayGanjiIndex(birth)) : null;
+  }catch(e){return null;}
+}
+function getAiChatPartnerOhaeng(){
+  const s=(window.__aiChatSubjects||[])[1];
+  const p=s&&s.profile;
+  if(!p) return null;
+  try{
+    const birth=p.birth ? new Date(p.birth) : resolveBirthDate(`${p.y}-${String(p.m).padStart(2,'0')}-${String(p.d).padStart(2,'0')}`,p.calType||'solar',!!p.isLeap);
+    return birth ? ohaengOf(dayGanjiIndex(birth)) : null;
+  }catch(e){return null;}
+}
+function buildAiInlineCandidate(date,eventType){
+  const userOhaeng=getAiChatPrimaryOhaeng();
+  if(!userOhaeng) return null;
+  const idx=dayGanjiIndex(date), oh=ohaengOf(idx);
+  const ur=scoreDate(userOhaeng,oh,eventType);
+  let score=ur.score, reasons=ur.reasons.slice();
+  const partnerOhaeng=getAiChatPartnerOhaeng();
+  if(partnerOhaeng){
+    const pr=scoreDate(partnerOhaeng,oh,eventType);
+    score=(score+pr.score)/2;
+    reasons=reasons.concat(pr.reasons.map(r=>'상대방: '+r));
+  }
+  const lunarInfo=getLunarInfo(date);
+  if(lunarInfo&&lunarInfo.isSonEomneun){score+=(eventType==='이사'?2:.8);reasons.push('손없는 날');}
+  const tiebreak=((idx*7+date.getDay()*3)%11)/11*.3-.15;
+  score+=tiebreak;
+  return {date:new Date(date),ganjiIdx:idx,ganji:ganjiName(idx),ganjiHanja:ganjiHanja(idx),ohaeng:oh,score,reasons,lunarInfo};
+}
+function getAiInlineTaekilTop(eventType,startDate,endDate,limit=3){
+  const arr=[]; let cur=new Date(startDate); cur.setHours(0,0,0,0);
+  const end=new Date(endDate); end.setHours(0,0,0,0);
+  while(cur<=end){const c=buildAiInlineCandidate(cur,eventType); if(c)arr.push(c); cur.setDate(cur.getDate()+1);}
+  arr.sort((a,b)=>b.score-a.score);
+  return arr.slice(0,limit);
+}
+function aiInlineDateText(t){return `${t.date.getFullYear()}년 ${t.date.getMonth()+1}월 ${t.date.getDate()}일 (${dowNames[t.date.getDay()]})`;}
+function renderAiInlineTaekil(eventType,candidates,sourceLabel){
+  const win=document.getElementById('aiChatWindow'); if(!win||!candidates||!candidates.length)return false;
+  const old=win.querySelector('.ai-inline-taekil[data-live="1"]'); if(old)old.remove();
+  const wrap=document.createElement('div'); wrap.className='ai-inline-taekil'; wrap.dataset.live='1';
+  const rangeLabel=sourceLabel||'앞으로 30일 중 계산 결과가 높은 날짜';
+  wrap.innerHTML=`<div class="ai-inline-taekil-head"><small>연우 · 실제 택일 계산</small><b>${escapeHtml(eventType)} 추천 날짜</b><span>${escapeHtml(rangeLabel)}를 사주 기준으로 비교했어요.</span></div><div class="ai-inline-date-list"></div><div class="ai-inline-taekil-actions"><button class="primary" type="button">이 날짜들 연우에게 비교해줘</button><button type="button">기간 직접 정해서 더 찾아보기</button></div>`;
+  const list=wrap.querySelector('.ai-inline-date-list');
+  candidates.forEach((t,i)=>{
+    const card=document.createElement('div'); card.className='ai-inline-date-card'+(i===0?' best':'');
+    const reason=(t.reasons||[]).slice(0,2).join(' · ')||'무난한 흐름';
+    card.innerHTML=`<div class="ai-inline-date-top"><b>${i===0?'👑 ':''}${escapeHtml(aiInlineDateText(t))}</b>${i===0?'<em>가장 추천</em>':''}</div><div class="ai-inline-date-meta">${to100(t.score)}점 · ${escapeHtml(t.ganji)}(${escapeHtml(t.ganjiHanja)}) · ${escapeHtml(t.ohaeng)} 기운</div><p>${escapeHtml(reason)}</p>`;
+    list.appendChild(card);
+  });
+  const btns=wrap.querySelectorAll('.ai-inline-taekil-actions button');
+  btns[0].onclick=()=>{
+    const details=candidates.map((t,i)=>`${i+1}) ${aiInlineDateText(t)} / ${to100(t.score)}점 / 일진 ${t.ganji}(${t.ganjiHanja}) / 오행 ${t.ohaeng} / 이유 ${(t.reasons||[]).slice(0,4).join(', ')||'특이 사유 없음'}`).join('\n');
+    quickAskAiChat(`방금 택일소에서 실제 계산한 ${eventType} 후보를 비교해주세요. 아래 계산값을 기준으로 가장 추천하는 날짜 1개와 각 날짜의 특징·주의점을 설명해주세요.\n\n${details}`);
+  };
+  btns[1].onclick=()=>goTo('tool',eventType);
+  win.appendChild(wrap); scrollAiChatToBottom(win); return true;
+}
+function openAiInlineTaekil(eventType){
+  if(!window.__aiChatProfile){showToast('먼저 상담할 사주를 선택해주세요.');return;}
+  const start=new Date(); start.setDate(start.getDate()+1);
+  const end=new Date(start); end.setDate(end.getDate()+29);
+  const top=getAiInlineTaekilTop(eventType,start,end,3);
+  if(!top.length){showToast('날짜 후보를 계산하지 못했어요.');return;}
+  trackAiFunnel('inline_taekil_open',{eventType});
+  appendAiChatMessage('assistant',`${eventType}이라면 먼저 가까운 30일 안에서 사주 흐름이 잘 맞는 날짜를 골라볼게요. 아래는 택일소 계산식으로 추린 후보예요.`);
+  renderAiInlineTaekil(eventType,top,'가까운 30일');
+}
+function parseAiSpecificDates(message){
+  const s=String(message||'');
+  const eventType=/결혼|예식/.test(s)?'결혼식':/이사/.test(s)?'이사':/개업|창업/.test(s)?'개업':/계약|서명/.test(s)?'계약체결':'';
+  if(!eventType)return null;
+  const ym=s.match(/(20\d{2})\s*년\s*(1[0-2]|0?[1-9])\s*월/);
+  if(!ym)return null;
+  const y=+ym[1],m=+ym[2];
+  const tail=s.slice(ym.index+ym[0].length);
+  const days=[...tail.matchAll(/(?:^|[\s,·\/]|그리고|와|과)(3[01]|[12]?\d)\s*일/g)].map(x=>+x[1]).filter((d,i,a)=>d>=1&&d<=31&&a.indexOf(d)===i);
+  if(days.length<2)return null;
+  const dates=days.map(d=>new Date(y,m-1,d)).filter(d=>d.getFullYear()===y&&d.getMonth()===m-1);
+  if(dates.length<2)return null;
+  return {eventType,dates};
+}
+function appendAiInlineSpecificDateComparison(userMessage){
+  const parsed=parseAiSpecificDates(userMessage); if(!parsed||!window.__aiChatProfile)return false;
+  const candidates=parsed.dates.map(d=>buildAiInlineCandidate(d,parsed.eventType)).filter(Boolean).sort((a,b)=>b.score-a.score);
+  if(candidates.length<2)return false;
+  trackAiFunnel('inline_specific_dates_compare',{eventType:parsed.eventType,count:candidates.length});
+  return renderAiInlineTaekil(parsed.eventType,candidates,`${parsed.dates[0].getFullYear()}년 ${parsed.dates[0].getMonth()+1}월 지정 후보 ${candidates.length}개`);
+}
+
 /* 사용자 질문에 날짜 선택이 포함되면 실제 택일 기능으로 연결합니다. */
 function appendAiChatServiceCta(userMessage) {
   const map = [
@@ -9226,7 +9346,10 @@ async function sendAiChatMessage() {
     }
 
     saveCurrentAiConversation();
-    appendAiChatServiceCta(message);
+    // 사용자가 채팅에 2개 이상의 실제 후보 날짜를 적었다면, AI 문장 답변 아래에
+    // 같은 택일 계산식을 사용한 비교 카드를 바로 붙입니다. 일반적인 날짜 질문은 기존 택일 CTA를 유지합니다.
+    const renderedInlineDateCompare = appendAiInlineSpecificDateComparison(message);
+    if (!renderedInlineDateCompare) appendAiChatServiceCta(message);
 
     // 사용권 판정은 반드시 '질문권 사용 여부'를 무료 사용량보다 먼저 봅니다.
     // 질문권 사용자의 응답에도 freeUsed=3이 함께 오기 때문에,
