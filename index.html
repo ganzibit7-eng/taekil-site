@@ -2160,10 +2160,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <div class="price-card featured premium-plan-card">
           <div class="popular">MOST POPULAR · PREMIUM</div>
           <h3>프리미엄 이용권</h3>
-          <div class="plan-price"><strong>19,900원</strong><span>/ 30일</span></div>
+          <div class="plan-price"><strong>8,900원</strong><span>/ 30일</span></div>
           <p class="plan-lead">결제일로부터 <b>30일간</b> AI 상담과 정밀 택일 기능을 넉넉하게 이용할 수 있어요. 만료 후 다시 필요한 기간만 구매하세요.</p>
           <ul>
-            <li>✨ <b>AI 상담 하루 20개</b> 질문 (무료는 평생 3개)</li>
+            <li>✨ <b>AI 상담 하루 15개</b> 질문 (무료는 평생 3개)</li>
             <li><b>최대 365일</b> 후보 중 <b>TOP 20</b> 정밀 비교</li>
             <li><b>두 사람 궁합 택일</b> 상세 분석</li>
             <li><b>월별 베스트 날짜</b> + 전체 캘린더 열람</li>
@@ -2194,7 +2194,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <details class="faq-item"><summary>내 정보는 어디에 저장되나요?</summary><p>기본 택일 계산과 일부 검색 기록은 브라우저에서 처리·저장됩니다. AI 상담을 이용할 때는 답변 생성을 위해 선택한 사주 정보와 질문·최근 대화 일부가 택일소 서버를 거쳐 AI 제공업체로 전송될 수 있습니다. 로그인·결제 상태와 사용자가 저장한 사주·AI 상담 기록은 계정 기능 제공과 기기 간 동기화를 위해 Firebase에 저장될 수 있습니다.</p></details>
         <details class="faq-item"><summary>사주 계산에는 어떤 정보를 쓰나요?</summary><p>택일 기능은 서비스가 계산한 일주 정보를 핵심 기준으로 사용하고, AI 사주 상담은 계산 라이브러리가 제공하는 년주·월주·일주와 출생시간이 있는 경우 시주, 오행·십신·지장간 정보를 함께 참고합니다. 대운·세운·용신처럼 현재 계산 데이터에 없는 요소는 AI가 임의로 만들어내지 않도록 제한하고 있어요.</p></details>
         <details class="faq-item"><summary>AI가 사주를 대신 봐주나요?</summary><p>택일소의 날짜 추천은 정해진 오행·일진 기준으로 계산됩니다. 생성형 AI가 임의로 운세를 만들어내는 방식과 달리, 계산 기준을 먼저 고정하고 결과를 설명하는 방향을 우선합니다.</p></details>
-        <details class="faq-item"><summary>유료 결제하면 무엇이 달라지나요?</summary><p>무료에서는 AI 상담 평생 3개와 최대 30일·TOP 5 중심으로 확인하고, 프리미엄에서는 <b>AI 상담 하루 20개</b>와 최대 365일 후보·TOP 20·월별 베스트·두 사람 궁합 택일·상세 리포트와 전체 캘린더, 정밀사주·궁합·재물 심층 분석을 <b>30일간</b> 이용할 수 있습니다.</p></details>
+        <details class="faq-item"><summary>유료 결제하면 무엇이 달라지나요?</summary><p>무료에서는 AI 상담 평생 3개와 최대 30일·TOP 5 중심으로 확인하고, 프리미엄에서는 <b>AI 상담 하루 15개</b>와 최대 365일 후보·TOP 20·월별 베스트·두 사람 궁합 택일·상세 리포트와 전체 캘린더, 정밀사주·궁합·재물 심층 분석을 <b>30일간</b> 이용할 수 있습니다.</p></details>
         <details class="faq-item"><summary>결과를 저장하거나 출력할 수 있나요?</summary><p>추천 결과는 브라우저 인쇄 기능으로 PDF 저장이 가능해요. 로그인 상태에서는 사주 보관함을 계정과 동기화해 다른 기기에서도 다시 불러올 수 있도록 구성했습니다.</p></details>
       </div>
     </div>
@@ -2941,7 +2941,7 @@ const AI_QUESTION_PACKS = {
   ai_question_pack_10: { price: 3200, originalPrice: 4900, goodname: 'AI 질문권 10개', memo: 'AI 상담 질문 10개 추가', count: 10 }
 };
 const PAYAPP_RETURN_URL = window.location.origin + window.location.pathname + '?premium=1';
-const PREMIUM_PRICE = 19900;
+const PREMIUM_PRICE = 8900;
 const PREMIUM_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30일
 
 let verifiedPremium = (localStorage.getItem(PREMIUM_KEY) === 'true' && !!localStorage.getItem(PREMIUM_OWNER_KEY));
@@ -3764,7 +3764,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
         <div class="pr-tag">🔒 여기서부터 정밀 분석</div>
         <p><b>무료 결과는 핵심 후보만 보여드렸어요.</b><br>프리미엄에서는 두 분의 기운을 더 깊이 비교하고, 전체 후보·점수·월별 BEST·상세 이유까지 한 번에 확인할 수 있어요.</p>
         <div class="pp-list" style="margin-top:12px"><div><strong>무료</strong><br>TOP 5 · 기본 점수 · 손없는 날</div><div><strong>30일 프리미엄</strong><br>365일 · TOP 20 · 상세 리포트 · 궁합 택일</div></div>
-        <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="payPremium()">19,900원으로 30일 전체 결과 보기 →</button>
+        <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="payPremium()">8,900원으로 30일 전체 결과 보기 →</button>
         <div style="font-size:10px;color:var(--muted-2);margin-top:9px;text-align:center">자동결제 없음 · 30일 후 자동 만료</div>
       `;
     }
@@ -3776,7 +3776,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
         <div class="pr-tag">✦ 무료 결과 확인 완료</div>
         <p><b>지금 고른 기간 안에서 더 좋은 날짜가 있는지 확인해보세요.</b><br>무료는 TOP 5를 보여드리고, 프리미엄에서는 최대 365일 전체 후보를 다시 비교해 TOP 20과 월별 BEST까지 확인할 수 있어요.</p>
         <div class="pp-list" style="margin-top:12px"><div><strong>무료로 확인한 것</strong><br>추천 TOP 5 · 일진 · 오행 · 손없는 날</div><div><strong>프리미엄에서 추가</strong><br>365일 · TOP 20 · 상세 이유 · 월별 BEST</div></div>
-        <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="payPremium()">19,900원으로 30일 전체 분석 열기 →</button>
+        <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="payPremium()">8,900원으로 30일 전체 분석 열기 →</button>
         <div style="font-size:10px;color:var(--muted-2);margin-top:9px;text-align:center">자동결제 없음 · 결제일로부터 30일</div>
       `;
     } else {
@@ -5916,13 +5916,13 @@ async function requestRefund() {
     ? '\n\n✓ 결제 이후 프리미엄 기능을 한 번도 이용하지 않으신 것으로 확인돼요. 이 경우 환불이 가능해요.'
     : `\n\n참고로, 결제 이후 프리미엄 기능(365일 검색 · TOP20 · 상세 리포트 등)을 이미 ${usedCount}회 이용하신 기록이 있어요. 서비스를 정상적으로 이용하신 이후의 환불 요청은 제한될 수 있는 점 양해 부탁드려요.`;
 
-  if (!confirm('프리미엄 결제(19,900원)에 대한 환불을 요청할까요?' + usageNotice + '\n\n확인을 누르면 문의가 등록되고, 순차적으로 확인 후 안내드릴게요.')) return;
+  if (!confirm('프리미엄 결제(8,900원)에 대한 환불을 요청할까요?' + usageNotice + '\n\n확인을 누르면 문의가 등록되고, 순차적으로 확인 후 안내드릴게요.')) return;
 
   goTo('support');
   setTimeout(() => {
     document.getElementById('supportTitle').value = '프리미엄 결제 환불 요청';
     document.getElementById('supportMessage').value =
-      '프리미엄(19,900원) 결제에 대한 환불을 요청합니다.\n\n' +
+      '프리미엄(8,900원) 결제에 대한 환불을 요청합니다.\n\n' +
       '환불 사유: \n(자세한 사유를 여기에 적어주세요)\n\n' +
       '── 자동 기록 (서버 확인값, 조작 불가) ──\n' +
       `주문번호: ${orderId}\n` +
@@ -6548,7 +6548,7 @@ async function payPremium() {
       checkretry: 'y',
       returnurl: PAYAPP_RETURN_URL,
       var1: orderId,
-      memo: '30일 이용권 · AI 상담 하루 20개 · 365일 택일 · 정밀사주·궁합·재물 분석',
+      memo: '30일 이용권 · AI 상담 하루 15개 · 365일 택일 · 정밀사주·궁합·재물 분석',
       redirectpay: '1'
     };
     // 서버 검증 함수가 연결되어 있으면 feedbackurl도 처음부터 같이 보냅니다. setParam을
@@ -6794,7 +6794,7 @@ function buildPremiumProgramPanel() {
   if (!panel) return;
   if (!isPremium()) {
     panel.style.display='block';
-    panel.innerHTML = `<div class="premium-lock-card"><b>🔒 여기부터 프리미엄 분석입니다</b><p>30일 동안 AI 상담 하루 20개, 365일 전체 후보 · TOP 20 · 월별 베스트 · 두 사람 궁합 · 상세 리포트를 이용할 수 있어요.</p><button class="btn btn-primary" onclick="payPremium()">19,900원으로 30일 이용하기</button></div>`;
+    panel.innerHTML = `<div class="premium-lock-card"><b>🔒 여기부터 프리미엄 분석입니다</b><p>30일 동안 AI 상담 하루 15개, 365일 전체 후보 · TOP 20 · 월별 베스트 · 두 사람 궁합 · 상세 리포트를 이용할 수 있어요.</p><button class="btn btn-primary" onclick="payPremium()">8,900원으로 30일 이용하기</button></div>`;
     return;
   }
   const list = window.__chronological || [];
@@ -7811,9 +7811,9 @@ function appendQuestionPackOffers() {
       <div class="ai-offer-copy">
         <small>매일 자주 상담하고 택일까지 볼 때</small>
         <b>프리미엄 30일</b>
-        <span>AI 하루 20개 · 프리미엄 전체 서비스</span>
+        <span>AI 하루 15개 · 프리미엄 전체 서비스</span>
       </div>
-      <div class="ai-offer-price"><em>19,900원</em></div>
+      <div class="ai-offer-price"><em>8,900원</em></div>
     </button>
 
     <div class="ai-paywall-note">자동결제 없이 1회 결제 · 질문권은 프리미엄 없이도 구매할 수 있어요.</div>
@@ -7904,7 +7904,7 @@ function updateAiChatStatus(freeUsed, freeLimit, isPremiumNow, extra) {
     el.textContent = used == null ? `✦ 관리자 AI (하루 ${limit}개까지)` : `✦ 관리자 AI 오늘 ${used}/${limit}개 사용`;
   } else if (isPremiumNow) {
     const used = extra && Number.isFinite(Number(extra.premiumDailyUsed)) ? Number(extra.premiumDailyUsed) : null;
-    const limit = extra && Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 20;
+    const limit = extra && Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 15;
     el.textContent = used == null ? `✦ 프리미엄 이용 중 (하루 ${limit}개까지)` : `✦ 프리미엄 오늘 ${used}/${limit}개 사용`;
   } else if (extra && extra.usingCredit) {
     el.textContent = `질문권 ${extra.questionCreditsLeft}개 남음`;
