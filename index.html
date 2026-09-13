@@ -825,6 +825,29 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .home-answer-preview b{color:#fff;font-weight:700;}
 .home-start-chat-btn{min-height:48px;font-size:13px;box-shadow:0 10px 28px rgba(215,180,106,.16);}
 .home-conversion-trust{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:8px;color:rgba(255,255,255,.55);font-size:8.8px;}
+
+/* 홈 첫 화면 전용: 연우 전신이 더 잘 보이도록 반투명도를 낮춤 */
+.home-conversion-intro .home-conversion-bubble{
+  background:rgba(18,16,13,.58);
+  border-color:rgba(255,255,255,.14);
+  backdrop-filter:blur(7px);
+  -webkit-backdrop-filter:blur(7px);
+}
+.home-conversion-intro .ai-chat-intro-categories button{
+  background:rgba(16,14,11,.47);
+  border-color:rgba(255,255,255,.14);
+  backdrop-filter:blur(7px);
+  -webkit-backdrop-filter:blur(7px);
+}
+.home-conversion-intro .ai-chat-intro-categories button:hover{
+  background:rgba(215,180,106,.20);
+  border-color:rgba(215,180,106,.48);
+}
+/* 메인 CTA는 전환을 위해 기존 금색 강조 유지 */
+.home-conversion-intro .home-start-chat-btn{
+  opacity:1;
+}
+
 .home-conversion-trust i{font-style:normal;color:rgba(215,180,106,.65)}
 @media(max-width:390px){
   .home-conversion-intro{padding:12px 13px 13px}
