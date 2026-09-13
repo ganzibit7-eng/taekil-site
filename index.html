@@ -2646,7 +2646,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         </div>
       </div>
 
-      <button class="pf-upgrade" id="profileUpgradeBtn" onclick="payPremium()">프리미엄으로 업그레이드</button>
+      <button class="pf-upgrade" id="profileUpgradeBtn" onclick="payPremium()">프리미엄 30일 · 8,900원 구매</button>
+      <div id="profilePremiumPriceNote" style="text-align:center;color:var(--muted-2);font-size:10.5px;line-height:1.6;margin:-4px 0 16px;">8,900원 / 30일 · 자동결제 없음 · AI 상담 하루 15개</div>
 <div class="pf-menu">
         <div class="pf-menu-item" onclick="goTo('history')">
           <span class="pf-menu-icon">🕘</span>
@@ -4167,17 +4168,35 @@ async function checkMemberAccess(user, options = {}) {
   const cached = memberAccessCache.get(uid);
   if (cached && Date.now() - cached.at < 2 * 60 * 1000) return cached.allowed;
 
-  try {
-    const token = await user.getIdToken();
+  async function requestAccessStatus(forceRefreshToken = false) {
+    const token = await user.getIdToken(!!forceRefreshToken);
     const res = await fetch(MEMBER_ACCESS_STATUS_URL, {
       method:'POST',
       headers:{
         'Content-Type':'application/json',
         'Authorization':'Bearer ' + token
       },
-      body:'{}'
+      body:'{}',
+      cache:'no-store'
     });
     const data = await res.json().catch(() => ({}));
+    return { res, data };
+  }
+
+  try {
+    let result = await requestAccessStatus(false);
+
+    if (result.res.status === 401) {
+      result = await requestAccessStatus(true);
+    }
+
+    if (result.res.status === 404 || result.res.status === 405 || result.res.status >= 500) {
+      await new Promise(resolve => setTimeout(resolve, 350));
+      result = await requestAccessStatus(true);
+    }
+
+    const res = result.res;
+    const data = result.data;
 
     if (res.status === 403 && (data.error === 'ACCOUNT_BANNED' || data.error === 'ACCOUNT_REJOIN_COOLDOWN')) {
       memberAccessCache.set(uid, { allowed:false, at:Date.now() });
@@ -4195,10 +4214,15 @@ async function checkMemberAccess(user, options = {}) {
       return false;
     }
 
-    if (!res.ok) {
-      console.warn('회원 이용상태 확인 실패', res.status, data);
+    if (res.ok) {
+      memberAccessCache.set(uid, { allowed:true, at:Date.now() });
+      return true;
+    }
+
+    if (res.status === 401) {
+      console.warn('회원 이용상태 인증 실패', res.status, data);
       if (strict) {
-        showToast('회원 이용상태를 확인하지 못했어요. 잠시 후 다시 시도해주세요.');
+        showToast('로그인 인증을 확인하지 못했어요. 다시 로그인해주세요.');
         try { await firebase.auth().signOut(); } catch(e) {}
         firebaseAuthUser = null;
         return false;
@@ -4206,20 +4230,16 @@ async function checkMemberAccess(user, options = {}) {
       return true;
     }
 
-    memberAccessCache.set(uid, { allowed:true, at:Date.now() });
+    console.warn('회원 이용상태 서버 일시 오류 - 로그인 계속 진행', res.status, data);
+    memberAccessCache.set(uid, { allowed:true, at:Date.now() - 90000 });
     return true;
+
   } catch (err) {
-    console.warn('회원 이용상태 확인 오류', err);
-    if (strict) {
-      showToast('회원 이용상태를 확인하지 못했어요. 잠시 후 다시 시도해주세요.');
-      try { await firebase.auth().signOut(); } catch(e) {}
-      firebaseAuthUser = null;
-      return false;
-    }
+    console.warn('회원 이용상태 확인 네트워크 오류 - 로그인 계속 진행', err);
+    memberAccessCache.set(uid, { allowed:true, at:Date.now() - 90000 });
     return true;
   }
 }
-
 
 // 첫 로그인 상태 확인(비동기)이 끝나는 시점에 resolve되는 신호입니다.
 // 결제 리턴처럼 "지금 로그인된 사람이 누구인지 반드시 알아야 하는" 로직은
@@ -5419,7 +5439,39 @@ function renderAdmin() {
       const lastSeenMs = adminTimestampMs(u.lastSeenAt, Number(u.lastSeenAtMs || 0));
       const credits = Math.max(0, Number(u.aiQuestionCredits || 0));
       const freeUsed = Math.max(0, Number(u.aiFreeUsed || 0));
-      const provider = u.provider || '기타';
+
+      // 예전 회원 중 provider 필드가 비어 있는 경우에도 가능한 범위에서
+      // 로그인 경로를 복원해서 관리자 화면에 표시합니다.
+      // 확실한 근거가 없으면 Google로 단정하지 않고 '이전 회원'으로 표시합니다.
+      const rawProvider = String(u.provider || '').trim().toLowerCase();
+      const lastSeenProvider = String(u.lastSeenProvider || '').trim().toLowerCase();
+      const memberUid = String(doc.id || '');
+
+      let provider = '이전 회원';
+      if (
+        rawProvider === 'kakao' ||
+        lastSeenProvider === 'kakao' ||
+        memberUid.startsWith('kakao_')
+      ) {
+        provider = 'Kakao';
+      } else if (
+        rawProvider === 'google' ||
+        rawProvider === 'google.com' ||
+        lastSeenProvider === 'google' ||
+        lastSeenProvider === 'google.com'
+      ) {
+        provider = 'Google';
+      } else if (
+        rawProvider === 'email' ||
+        rawProvider === 'password' ||
+        lastSeenProvider === 'email' ||
+        lastSeenProvider === 'password'
+      ) {
+        provider = '이메일(이전)';
+      } else if (rawProvider && rawProvider !== 'firebase') {
+        provider = rawProvider;
+      }
+
       const recentInquiry = recentInquiryByUid.get(doc.id) || null;
       const recentInquiryText = recentInquiry
         ? (recentInquiry.waiting ? `답변 대기 문의 · ${adminRelativeTime(recentInquiry.createdMs)}` : `최근 문의 · ${adminRelativeTime(recentInquiry.createdMs)}`)
@@ -6335,7 +6387,14 @@ async function purchaseQuestionPack(packId) {
   }
   if (typeof PayApp === 'undefined') { showToast('결제 모듈을 불러오지 못했어요. 잠시 후 다시 시도해주세요.'); return; }
 
-  const paymentUser = await ensureFirestorePaymentAuth();
+  let paymentUser = null;
+  try {
+    paymentUser = await ensureFirestorePaymentAuth();
+  } catch (authErr) {
+    console.error('질문권 결제 인증 준비 실패', authErr);
+    showToast('결제 인증을 준비하지 못했어요. 잠시 후 다시 시도해주세요.');
+    return;
+  }
   if (!paymentUser || paymentUser.isAnonymous) {
     showToast('로그인 보안 연결을 확인하지 못했어요. 다시 로그인한 뒤 결제를 시도해주세요.');
     return;
@@ -6517,7 +6576,14 @@ async function payPremium() {
     return;
   }
 
-  const paymentUser = await ensureFirestorePaymentAuth();
+  let paymentUser = null;
+  try {
+    paymentUser = await ensureFirestorePaymentAuth();
+  } catch (authErr) {
+    console.error('프리미엄 결제 인증 준비 실패', authErr);
+    showToast('결제 인증을 준비하지 못했어요. 잠시 후 다시 시도해주세요.');
+    return;
+  }
   if (!paymentUser || paymentUser.isAnonymous) {
     showToast('로그인 보안 연결을 확인하지 못했어요. 다시 로그인한 뒤 결제를 시도해주세요.');
     return;
@@ -6800,8 +6866,13 @@ function updatePremiumUI() {
     expiry.textContent = premium ? ('이용기간 · ' + formatPremiumUntil()) : '';
   }
   if (upgrade) {
-    upgrade.textContent = premium ? ('프리미엄 이용 중 · ' + formatPremiumUntil()) : '프리미엄 30일 이용권 구매';
+    upgrade.textContent = premium ? ('프리미엄 이용 중 · ' + formatPremiumUntil()) : '프리미엄 30일 · 8,900원 구매';
     upgrade.disabled = false;
+  }
+  const priceNote = document.getElementById('profilePremiumPriceNote');
+  if (priceNote) {
+    priceNote.style.display = premium ? 'none' : 'block';
+    priceNote.textContent = '8,900원 / 30일 · 자동결제 없음 · AI 상담 하루 15개';
   }
 }
 
@@ -7790,7 +7861,6 @@ function appendQuestionPackOffers() {
   const win = document.getElementById('aiChatWindow');
   if (!win) return;
 
-  // 중복 결제 선택창 방지
   win.querySelectorAll('.ai-chat-offer-grid').forEach(el => el.remove());
 
   const pending = getPendingPaidAiQuestion();
@@ -7804,7 +7874,7 @@ function appendQuestionPackOffers() {
       <span>${pending ? '결제가 확인되면 방금 선택한 질문부터 자동으로 이어집니다.' : '필요한 만큼 질문권을 추가하거나 프리미엄으로 넉넉하게 이용할 수 있어요.'}</span>
     </div>
 
-    <button class="ai-chat-offer-card ai-offer-quick" onclick="purchaseQuestionPack('ai_question_pack_5')">
+    <button type="button" class="ai-chat-offer-card ai-offer-quick" data-ai-buy-pack="ai_question_pack_5">
       <div class="ai-offer-copy">
         <small>가볍게 더 물어볼 때</small>
         <b>AI 질문권 5개</b>
@@ -7813,17 +7883,17 @@ function appendQuestionPackOffers() {
       <div class="ai-offer-price"><s>2,900원</s><em>1,900원</em></div>
     </button>
 
-    <button class="ai-chat-offer-card ai-offer-best" onclick="purchaseQuestionPack('ai_question_pack_10')">
-      <span class="ai-offer-badge">가성비 추천</span>
+    <button type="button" class="ai-chat-offer-card" data-ai-buy-pack="ai_question_pack_10">
       <div class="ai-offer-copy">
-        <small>여러 주제를 이어서 볼 때</small>
+        <small>질문권만 넉넉하게 추가할 때</small>
         <b>AI 질문권 10개</b>
         <span>질문 1개당 320원</span>
       </div>
       <div class="ai-offer-price"><s>4,900원</s><em>3,200원</em></div>
     </button>
 
-    <button class="ai-chat-offer-card ai-chat-offer-premium ai-offer-premium" onclick="goTo('profile')">
+    <button type="button" class="ai-chat-offer-card ai-chat-offer-premium ai-offer-premium ai-offer-best" data-ai-buy-premium="1">
+      <span class="ai-offer-badge">가성비 추천 · PREMIUM</span>
       <div class="ai-offer-copy">
         <small>매일 자주 상담하고 택일까지 볼 때</small>
         <b>프리미엄 30일</b>
@@ -7834,6 +7904,44 @@ function appendQuestionPackOffers() {
 
     <div class="ai-paywall-note">자동결제 없이 1회 결제 · 질문권은 프리미엄 없이도 구매할 수 있어요.</div>
   `;
+
+  wrap.querySelectorAll('[data-ai-buy-pack]').forEach((btn) => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (btn.disabled) return;
+      btn.disabled = true;
+      showToast('결제창을 준비하고 있어요…');
+      try {
+        await purchaseQuestionPack(btn.dataset.aiBuyPack);
+      } catch (err) {
+        console.error('질문권 결제 시작 실패', err);
+        showToast('결제창을 열지 못했어요. 잠시 후 다시 시도해주세요.');
+      } finally {
+        setTimeout(() => { btn.disabled = false; }, 1200);
+      }
+    });
+  });
+
+  const premiumBtn = wrap.querySelector('[data-ai-buy-premium]');
+  if (premiumBtn) {
+    premiumBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (premiumBtn.disabled) return;
+      premiumBtn.disabled = true;
+      showToast('프리미엄 결제창을 준비하고 있어요…');
+      try {
+        await payPremium();
+      } catch (err) {
+        console.error('프리미엄 결제 시작 실패', err);
+        showToast('결제창을 열지 못했어요. 잠시 후 다시 시도해주세요.');
+      } finally {
+        setTimeout(() => { premiumBtn.disabled = false; }, 1200);
+      }
+    });
+  }
+
   win.appendChild(wrap);
   scrollAiChatToBottom(win);
 }
