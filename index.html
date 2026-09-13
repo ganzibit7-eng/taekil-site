@@ -1498,6 +1498,33 @@ footer{padding-bottom:90px}
     padding-bottom:12px !important;
   }
 }
+
+.admin-member-tools{
+  display:flex;
+  gap:10px;
+  align-items:stretch;
+}
+.admin-member-sort{
+  width:150px;
+  min-height:42px;
+  padding:0 10px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:12px;
+  background:#090908;
+  color:var(--white);
+  font-family:inherit;
+  font-size:13px;
+  font-weight:600;
+  outline:none;
+}
+.admin-member-sort:focus{
+  border-color:rgba(212,176,106,.55);
+  box-shadow:0 0 0 3px rgba(212,176,106,.08);
+}
+@media(max-width:640px){
+  .admin-member-tools{flex-direction:column;}
+  .admin-member-sort{width:100%;}
+}
 </style>
 
 <style id="taekilso-v3-upgrade">
@@ -2771,8 +2798,18 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <div class="section-head" style="margin-top:40px;">
           <div><div class="section-kicker">MEMBERS</div><h2 class="section-title" style="font-size:24px;">회원 목록</h2></div>
         </div>
-        <div class="field full" style="margin-bottom:14px;">
-          <input type="text" id="adminUserSearch" placeholder="이메일/닉네임/UID/가입방식으로 검색" oninput="filterAdminUserList(this.value)" style="width:100%; padding:12px 14px; background:#090908; border:1px solid rgba(255,255,255,.10); border-radius:12px; color:var(--white); font-family:inherit; font-size:13.5px;">
+        <div class="admin-member-tools" style="margin-bottom:14px;">
+          <div class="field full" style="margin:0;flex:1;min-width:0;">
+            <input type="text" id="adminUserSearch" placeholder="이메일/닉네임/UID/가입방식으로 검색" oninput="filterAdminUserList(this.value)" style="width:100%; padding:12px 14px; background:#090908; border:1px solid rgba(255,255,255,.10); border-radius:12px; color:var(--white); font-family:inherit; font-size:13.5px;">
+          </div>
+          <select id="adminMemberSort" class="admin-member-sort" onchange="setAdminMemberSort(this.value)" aria-label="회원 정렬">
+            <option value="recent_signup">최근 가입순</option>
+            <option value="recent_access">최근 접속순</option>
+            <option value="premium_first">프리미엄 우선</option>
+            <option value="credits_desc">질문권 많은순</option>
+            <option value="old_signup">오래된 가입순</option>
+            <option value="name">이름순</option>
+          </select>
         </div>
         <div class="price-note" style="margin-top:0; margin-bottom:14px;">⚠ 자가확인(대조 필요) — 서버 검증 없이 손님이 직접 "결제했다"고 눌러서 켜진 프리미엄이에요. 페이앱 결제현황에서 시간·금액이 실제로 맞는지 한 번 대조해보시는 걸 권해요. 표시가 없으면(서버 검증 또는 관리자 직접 지급) 대조하지 않으셔도 돼요.</div>
         <div id="adminUserList" class="usecase-list"></div>
@@ -5331,6 +5368,87 @@ function filterAdminUserList(query) {
 let adminStatsUnsub = null;
 let adminDailyVisitsUnsub = null;
 let adminUsersUnsub = null;
+let adminMemberSortMode = 'recent_signup';
+
+try {
+  const savedAdminMemberSort = sessionStorage.getItem('taekilso_admin_member_sort');
+  if (savedAdminMemberSort) adminMemberSortMode = savedAdminMemberSort;
+} catch(e) {}
+
+function setAdminMemberSort(mode) {
+  const allowed = new Set([
+    'recent_signup',
+    'recent_access',
+    'premium_first',
+    'credits_desc',
+    'old_signup',
+    'name'
+  ]);
+
+  adminMemberSortMode = allowed.has(mode) ? mode : 'recent_signup';
+
+  try {
+    sessionStorage.setItem('taekilso_admin_member_sort', adminMemberSortMode);
+  } catch(e) {}
+
+  const select = document.getElementById('adminMemberSort');
+  if (select && select.value !== adminMemberSortMode) {
+    select.value = adminMemberSortMode;
+  }
+
+  sortAdminUserListDom();
+}
+
+function sortAdminUserListDom() {
+  const list = document.getElementById('adminUserList');
+  if (!list) return;
+
+  const cards = Array.from(list.querySelectorAll('.admin-member-card'));
+  if (!cards.length) return;
+
+  cards.sort((a, b) => {
+    const aSignup = Number(a.dataset.signupMs || 0);
+    const bSignup = Number(b.dataset.signupMs || 0);
+    const aSeen = Number(a.dataset.lastSeenMs || 0);
+    const bSeen = Number(b.dataset.lastSeenMs || 0);
+    const aCredits = Number(a.dataset.credits || 0);
+    const bCredits = Number(b.dataset.credits || 0);
+    const aPremium = Number(a.dataset.premium || 0);
+    const bPremium = Number(b.dataset.premium || 0);
+    const aName = String(a.dataset.sortName || '');
+    const bName = String(b.dataset.sortName || '');
+
+    if (adminMemberSortMode === 'recent_access') {
+      return bSeen - aSeen || bSignup - aSignup;
+    }
+
+    if (adminMemberSortMode === 'premium_first') {
+      return bPremium - aPremium || bSeen - aSeen || bSignup - aSignup;
+    }
+
+    if (adminMemberSortMode === 'credits_desc') {
+      return bCredits - aCredits || bSeen - aSeen || bSignup - aSignup;
+    }
+
+    if (adminMemberSortMode === 'old_signup') {
+      const ax = aSignup || Number.MAX_SAFE_INTEGER;
+      const bx = bSignup || Number.MAX_SAFE_INTEGER;
+      return ax - bx || bSeen - aSeen;
+    }
+
+    if (adminMemberSortMode === 'name') {
+      return aName.localeCompare(bName, 'ko');
+    }
+
+    // 최근 가입순. 가입일이 없는 레거시 회원은 뒤로 보냅니다.
+    if (!aSignup && bSignup) return 1;
+    if (aSignup && !bSignup) return -1;
+    return bSignup - aSignup || bSeen - aSeen;
+  });
+
+  cards.forEach(card => list.appendChild(card));
+}
+
 function renderAdmin() {
   const denied = document.getElementById('adminDenied');
   const content = document.getElementById('adminContent');
@@ -5341,6 +5459,9 @@ function renderAdmin() {
   }
   denied.style.display = 'none';
   content.style.display = 'block';
+
+  const sortSelect = document.getElementById('adminMemberSort');
+  if (sortSelect) sortSelect.value = adminMemberSortMode;
 
   if (!db) return;
 
@@ -5405,13 +5526,49 @@ function renderAdmin() {
     const docs = [];
     qs.forEach((doc) => docs.push(doc));
     docs.sort((a, b) => {
-      const getMs = (d) => {
-        const v = d.data().createdAt;
-        if (v && typeof v.toMillis === 'function') return v.toMillis();
-        if (typeof v === 'number') return v;
-        return 0;
-      };
-      return getMs(b) - getMs(a);
+      const au = a.data() || {};
+      const bu = b.data() || {};
+
+      const aSignup = adminTimestampMs(au.createdAt, Number(au.createdAtMs || 0));
+      const bSignup = adminTimestampMs(bu.createdAt, Number(bu.createdAtMs || 0));
+      const aSeen = adminTimestampMs(au.lastSeenAt, Number(au.lastSeenAtMs || 0));
+      const bSeen = adminTimestampMs(bu.lastSeenAt, Number(bu.lastSeenAtMs || 0));
+      const aCredits = Math.max(0, Number(au.aiQuestionCredits || 0));
+      const bCredits = Math.max(0, Number(bu.aiQuestionCredits || 0));
+
+      const aPremiumUntil = adminTimestampMs(au.premiumUntil);
+      const bPremiumUntil = adminTimestampMs(bu.premiumUntil);
+      const aPremium = au.premium === true && aPremiumUntil > Date.now() ? 1 : 0;
+      const bPremium = bu.premium === true && bPremiumUntil > Date.now() ? 1 : 0;
+
+      const aName = String(au.nickname || au.displayName || au.email || a.id || '');
+      const bName = String(bu.nickname || bu.displayName || bu.email || b.id || '');
+
+      if (adminMemberSortMode === 'recent_access') {
+        return bSeen - aSeen || bSignup - aSignup;
+      }
+
+      if (adminMemberSortMode === 'premium_first') {
+        return bPremium - aPremium || bSeen - aSeen || bSignup - aSignup;
+      }
+
+      if (adminMemberSortMode === 'credits_desc') {
+        return bCredits - aCredits || bSeen - aSeen || bSignup - aSignup;
+      }
+
+      if (adminMemberSortMode === 'old_signup') {
+        const ax = aSignup || Number.MAX_SAFE_INTEGER;
+        const bx = bSignup || Number.MAX_SAFE_INTEGER;
+        return ax - bx || bSeen - aSeen;
+      }
+
+      if (adminMemberSortMode === 'name') {
+        return aName.localeCompare(bName, 'ko');
+      }
+
+      if (!aSignup && bSignup) return 1;
+      if (aSignup && !bSignup) return -1;
+      return bSignup - aSignup || bSeen - aSeen;
     });
     const actualMemberCount = docs.length;
     const kakaoMemberCount = docs.filter((doc) => {
@@ -5492,6 +5649,11 @@ function renderAdmin() {
 
       const item = document.createElement('div');
       item.className = 'usecase-item admin-member-card';
+      item.dataset.signupMs = String(createdMs || 0);
+      item.dataset.lastSeenMs = String(lastSeenMs || 0);
+      item.dataset.credits = String(credits || 0);
+      item.dataset.premium = isActivePremium ? '1' : '0';
+      item.dataset.sortName = String(u.nickname || u.displayName || u.email || label || doc.id || '').toLowerCase();
       item.dataset.searchKey = (
         label + ' ' + (u.nickname || '') + ' ' + provider + ' ' + doc.id +
         ' ' + adminFormatDateTime(lastSeenMs) + ' ' + recentInquiryText + ' ' +
@@ -5535,8 +5697,11 @@ function renderAdmin() {
     }).length;
     const activeEl = document.getElementById('statActivePremium');
     if (activeEl) activeEl.textContent = activeCount;
+    sortAdminUserListDom();
+
     const searchBox = document.getElementById('adminUserSearch');
     if (searchBox && searchBox.value) filterAdminUserList(searchBox.value);
+
     list.querySelectorAll('[data-force-delete-uid]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         forceDeleteMember(e.currentTarget.dataset.forceDeleteUid, e.currentTarget.dataset.forceDeleteLabel || '');
@@ -5557,7 +5722,9 @@ function renderAdmin() {
   }, (err) => {
     console.error('회원 목록 실시간 조회 실패', err);
     const list = document.getElementById('adminUserList');
-    if (list) list.innerHTML = '<div class="empty-note">회원 목록을 불러오지 못했어요.</div>';
+    if (list) {
+      list.innerHTML = '<div class="empty-note">회원 목록을 불러오지 못했어요.<br><span class="text-action" onclick="renderAdmin()" style="display:inline-block;margin-top:8px;">다시 불러오기</span></div>';
+    }
   });
 
   loadAdminBanList();
