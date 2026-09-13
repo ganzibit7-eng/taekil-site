@@ -1814,6 +1814,18 @@ footer{padding-bottom:90px}
 .ai-paywall-note{text-align:center;color:var(--muted-2);font-size:8.5px;line-height:1.5;padding:2px 4px 0;}
 </style>
 
+
+<style id="signup-conversion-ab-style">
+.auth-free-benefit{margin:-2px 0 16px;padding:13px 14px;border:1px solid rgba(201,162,39,.28);border-radius:14px;background:rgba(201,162,39,.07);text-align:center}
+.auth-free-benefit b{display:block;font-size:14px;line-height:1.45}
+.auth-free-benefit span{display:block;margin-top:4px;font-size:11px;color:var(--muted)}
+.home-free-value{text-align:center;margin:16px 0 9px}
+.home-free-value b{display:block;font-size:16px;line-height:1.45}
+.home-free-value span{display:block;margin-top:5px;font-size:12px;color:var(--muted)}
+#homeGuestHint b{font-size:13px}
+#homeGuestHint span{font-size:11px}
+@media(max-width:640px){.home-free-value b{font-size:15px}.auth-free-benefit{margin-bottom:13px}}
+</style>
 </head>
 <body>
 
@@ -1861,6 +1873,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <div id="authOverlay">
   <div class="modal-box">
     <div class="modal-title" id="authTitle">로그인</div>
+    <div class="auth-free-benefit"><b>가입하면 연우 AI 사주상담 3회 무료</b><span>카드등록 없음 · 결제 없음</span></div>
     <div id="authSetupNotice" class="setup-notice" style="display:none;">
       아직 계정 저장소가 연결되지 않았어요. Firebase 설정을 먼저 연결해야 실제로 저장됩니다.
     </div>
@@ -1981,8 +1994,9 @@ const ADMIN_EMAIL = "green092432@gmail.com";
             <p><b>“올해 재물운이 궁금해요.”</b><br>단순히 돈이 들어오는 시기만 보기보다, 내 사주에서 재물을 다루는 방식과 주의할 흐름을 함께 설명해드려요.</p>
           </div>
 
-          <p id="homeGuestHint" class="ai-chat-guest-hint">가입 후 AI 사주 질문 3회 무료 · 결제 없이 시작</p>
-          <button id="homeStartChatBtn" class="btn btn-primary home-start-chat-btn" style="width:100%;" onclick="handleHomeChatStart(this)">✨ 연우에게 무료로 3번 물어보기</button>
+          <div class="home-free-value"><b>내 사주를 넣고 연우에게 직접 물어보세요</b><span>연애 · 재물 · 직업 · 올해 흐름 · 궁합까지</span></div>
+          <p id="homeGuestHint" class="ai-chat-guest-hint"><b>가입하면 AI 사주 상담 3회 무료</b><br><span>카드등록 없음 · 결제 없음</span></p>
+          <button id="homeStartChatBtn" class="btn btn-primary home-start-chat-btn" style="width:100%;" onclick="handleHomeChatStart(this)">✨ 무료 3회 받고 연우에게 물어보기 →</button>
           <div class="home-conversion-trust"><span>사주 저장</span><i>·</i><span>여러 사람 비교</span><i>·</i><span>중요한 날짜 비교</span></div>
         </div>
 
@@ -2190,7 +2204,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <div class="faq-list">
         <details class="faq-item"><summary>결과는 얼마나 정확한가요?</summary><p>전통 명리학의 오행 상생상극 원리를 단순화해 참고용으로 제공하는 도구예요. 실제 중요한 결정은 여러 정보를 함께 고려하시길 권합니다.</p></details>
         <details class="faq-item"><summary>태어난 시간을 몰라도 되나요?</summary><p>네, 이용할 수 있어요. 출생시간을 모르면 년·월·일주 등 확인 가능한 범위로 분석하고, 출생시간을 입력하면 시주까지 포함해 AI 상담의 해석 범위가 더 넓어집니다. 출생시간이 필요한 일부 해석은 제공 범위가 달라질 수 있어요.</p></details>
-        <details class="faq-item"><summary>회원가입을 꼭 해야 하나요?</summary><p>아니요. 기본 택일 기능은 회원가입 없이도 이용할 수 있어요. AI 사주 상담, 결제·프리미엄 상태, 사주 보관함 동기화, 문의 내역처럼 계정에 연결되는 기능은 로그인 후 이용합니다.</p></details>
+        <details class="faq-item"><summary>AI 상담도 회원가입 없이 가능한가요?</summary><p>AI 사주 상담은 로그인 후 이용할 수 있으며, 처음 가입하면 3회 무료입니다. 카드등록이나 결제 없이 시작할 수 있어요. 기본 택일 기능은 회원가입 없이도 이용할 수 있습니다.</p></details>
         <details class="faq-item"><summary>내 정보는 어디에 저장되나요?</summary><p>기본 택일 계산과 일부 검색 기록은 브라우저에서 처리·저장됩니다. AI 상담을 이용할 때는 답변 생성을 위해 선택한 사주 정보와 질문·최근 대화 일부가 택일소 서버를 거쳐 AI 제공업체로 전송될 수 있습니다. 로그인·결제 상태와 사용자가 저장한 사주·AI 상담 기록은 계정 기능 제공과 기기 간 동기화를 위해 Firebase에 저장될 수 있습니다.</p></details>
         <details class="faq-item"><summary>사주 계산에는 어떤 정보를 쓰나요?</summary><p>택일 기능은 서비스가 계산한 일주 정보를 핵심 기준으로 사용하고, AI 사주 상담은 계산 라이브러리가 제공하는 년주·월주·일주와 출생시간이 있는 경우 시주, 오행·십신·지장간 정보를 함께 참고합니다. 대운·세운·용신처럼 현재 계산 데이터에 없는 요소는 AI가 임의로 만들어내지 않도록 제한하고 있어요.</p></details>
         <details class="faq-item"><summary>AI가 사주를 대신 봐주나요?</summary><p>택일소의 날짜 추천은 정해진 오행·일진 기준으로 계산됩니다. 생성형 AI가 임의로 운세를 만들어내는 방식과 달리, 계산 기준을 먼저 고정하고 결과를 설명하는 방향을 우선합니다.</p></details>
