@@ -2529,7 +2529,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <div class="hero-inner">
       <div class="eyebrow">내 기록</div>
       <h1 style="font-size:clamp(28px,4.6vw,46px);">찾아본 날짜와<br>저장한 사주를 한곳에</h1>
-      <p class="hero-copy">택일 검색 기록을 다시 보고, 가족·연인·사업 파트너의 사주도 보관해 AI 상담에서 바로 불러올 수 있어요.</p>
+      <p class="hero-copy">연우와 나눈 AI 상담을 먼저 이어보고, 택일 검색 기록과 저장한 사주도 한곳에서 관리할 수 있어요.</p>
     </div>
   </header>
 
@@ -2537,7 +2537,13 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <div class="container" style="max-width:760px;">
 
       <div class="history-summary-grid">
-        <button class="history-summary-card active" id="historySummarySearch" onclick="switchHistoryTab('search')">
+        <button class="history-summary-card active" id="historySummaryAi" onclick="switchHistoryTab('ai')">
+          <span>AI 상담</span>
+          <strong id="historyAiCount">0</strong>
+          <small>연우와 나눈 상담 이어보기</small>
+        </button>
+
+        <button class="history-summary-card" id="historySummarySearch" onclick="switchHistoryTab('search')">
           <span>검색 기록</span>
           <strong id="historySearchCount">0</strong>
           <small>지난 택일 결과 다시 보기</small>
@@ -2548,21 +2554,15 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <strong id="historyVaultCount">0</strong>
           <small>나와 소중한 사람들의 사주</small>
         </button>
-
-        <button class="history-summary-card" id="historySummaryAi" onclick="switchHistoryTab('ai')">
-          <span>AI 상담</span>
-          <strong id="historyAiCount">0</strong>
-          <small>연우와 나눈 상담 이어보기</small>
-        </button>
       </div>
 
       <div class="history-tabbar" role="tablist" aria-label="기록 종류">
-        <button id="historyTabSearch" class="history-tab active" role="tab" aria-selected="true" onclick="switchHistoryTab('search')">검색 기록</button>
+        <button id="historyTabAi" class="history-tab active" role="tab" aria-selected="true" onclick="switchHistoryTab('ai')">AI 상담</button>
+        <button id="historyTabSearch" class="history-tab" role="tab" aria-selected="false" onclick="switchHistoryTab('search')">검색 기록</button>
         <button id="historyTabVault" class="history-tab" role="tab" aria-selected="false" onclick="switchHistoryTab('vault')">사주 보관함</button>
-        <button id="historyTabAi" class="history-tab" role="tab" aria-selected="false" onclick="switchHistoryTab('ai')">AI 상담</button>
       </div>
 
-      <div id="historySearchPanel" class="history-panel active">
+      <div id="historySearchPanel" class="history-panel">
         <div class="history-panel-head">
           <div>
             <b>택일 검색 기록</b>
@@ -2605,7 +2605,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         </div>
       </div>
 
-      <div id="historyAiPanel" class="history-panel">
+      <div id="historyAiPanel" class="history-panel active">
         <div class="history-panel-head">
           <div>
             <b>AI 상담 기록</b>
@@ -3544,7 +3544,7 @@ function saveSearchToHistory(entry) {
   } catch (err) { console.error('기록 저장 실패', err); }
 }
 
-let currentHistoryTab = 'search';
+let currentHistoryTab = 'ai';
 
 function updateHistoryCounts() {
   const searchCount = readHistoryStore().length;
@@ -3563,7 +3563,7 @@ function updateHistoryCounts() {
 }
 
 function switchHistoryTab(tab) {
-  currentHistoryTab = ['search','vault','ai'].includes(tab) ? tab : 'search';
+  currentHistoryTab = ['ai','search','vault'].includes(tab) ? tab : 'ai';
 
   const searchPanel = document.getElementById('historySearchPanel');
   const vaultPanel = document.getElementById('historyVaultPanel');
