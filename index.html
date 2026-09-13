@@ -1478,8 +1478,24 @@ footer{padding-bottom:90px}
     margin-bottom:5px !important;
   }
   body.ai-keyboard-open .ai-chat-inputrow{
-    flex-shrink:0;
-    background:rgba(10,9,8,.96);
+    position:sticky !important;
+    bottom:0 !important;
+    z-index:40 !important;
+    flex-shrink:0 !important;
+    background:rgba(10,9,8,.985) !important;
+    box-shadow:0 -12px 32px rgba(0,0,0,.34) !important;
+    margin-top:6px !important;
+    padding-bottom:max(6px,env(safe-area-inset-bottom)) !important;
+  }
+  body.ai-keyboard-open #aiChatInput{
+    font-size:16px !important;
+    line-height:1.45 !important;
+    min-height:40px !important;
+    max-height:88px !important;
+  }
+  body.ai-keyboard-open #aiChatWindow{
+    scroll-padding-bottom:88px !important;
+    padding-bottom:12px !important;
   }
 }
 </style>
@@ -2771,7 +2787,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
             <button type="button" class="admin-ban-refresh" onclick="loadAdminBanList()">새로고침</button>
           </div>
           <div class="price-note" style="margin:10px 0 12px;">
-            강제탈퇴된 계정은 여기에 남고, 관리자가 직접 밴 해제하기 전까지 같은 Google/이메일 또는 같은 Kakao 계정으로 다시 가입할 수 없습니다.
+            강제탈퇴된 계정은 여기에 남고, 관리자가 직접 밴 해제하기 전까지 같은 같은 Google 또는 Kakao 계정으로 다시 가입할 수 없습니다.
           </div>
           <div id="adminBanList" class="usecase-list">
             <div class="empty-note">밴 목록을 불러오는 중…</div>
@@ -4138,7 +4154,7 @@ function applyDowFilter(mode) {
 /* ---------- AUTH (Firebase Spark 무료 플랜) ---------- */
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
-// 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
+// 3) Authentication > Sign-in method 에서 Google 사용 설정
 console.log('[택일소 빌드] v' + '2026-09-09-security-fix-vault-feature' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
@@ -4190,15 +4206,22 @@ async function checkMemberAccess(user, options = {}) {
       result = await requestAccessStatus(true);
     }
 
-    if (result.res.status === 404 || result.res.status === 405 || result.res.status >= 500) {
-      await new Promise(resolve => setTimeout(resolve, 350));
+    if (
+      result.res.status === 404 ||
+      result.res.status === 405 ||
+      result.res.status >= 500
+    ) {
+      await new Promise(resolve => setTimeout(resolve, 450));
       result = await requestAccessStatus(true);
     }
 
     const res = result.res;
     const data = result.data;
 
-    if (res.status === 403 && (data.error === 'ACCOUNT_BANNED' || data.error === 'ACCOUNT_REJOIN_COOLDOWN')) {
+    if (
+      res.status === 403 &&
+      (data.error === 'ACCOUNT_BANNED' || data.error === 'ACCOUNT_REJOIN_COOLDOWN')
+    ) {
       memberAccessCache.set(uid, { allowed:false, at:Date.now() });
       clearLocalKakaoSessionForBan();
       try { await firebase.auth().signOut(); } catch(e) {}
@@ -4207,7 +4230,8 @@ async function checkMemberAccess(user, options = {}) {
       if (!options.silent) {
         let message = data.message || '이 계정은 현재 이용할 수 없습니다.';
         if (data.error === 'ACCOUNT_REJOIN_COOLDOWN' && data.rejoinAllowedAtMs) {
-          message += ' 재가입 가능일: ' + new Date(Number(data.rejoinAllowedAtMs)).toLocaleDateString('ko-KR');
+          message += ' 재가입 가능일: ' +
+            new Date(Number(data.rejoinAllowedAtMs)).toLocaleDateString('ko-KR');
         }
         showToast(message);
       }
@@ -4219,24 +4243,30 @@ async function checkMemberAccess(user, options = {}) {
       return true;
     }
 
-    if (res.status === 401) {
-      console.warn('회원 이용상태 인증 실패', res.status, data);
-      if (strict) {
-        showToast('로그인 인증을 확인하지 못했어요. 다시 로그인해주세요.');
-        try { await firebase.auth().signOut(); } catch(e) {}
-        firebaseAuthUser = null;
-        return false;
-      }
-      return true;
+    console.warn('회원 이용상태 확인 실패', res.status, data);
+
+    if (strict) {
+      const msg = res.status === 401
+        ? '로그인 인증을 확인하지 못했어요. 다시 로그인해주세요.'
+        : '회원 이용상태 서버를 확인하지 못했어요. 잠시 후 다시 시도해주세요.';
+      showToast(msg);
+      try { await firebase.auth().signOut(); } catch(e) {}
+      firebaseAuthUser = null;
+      return false;
     }
 
-    console.warn('회원 이용상태 서버 일시 오류 - 로그인 계속 진행', res.status, data);
-    memberAccessCache.set(uid, { allowed:true, at:Date.now() - 90000 });
     return true;
 
   } catch (err) {
-    console.warn('회원 이용상태 확인 네트워크 오류 - 로그인 계속 진행', err);
-    memberAccessCache.set(uid, { allowed:true, at:Date.now() - 90000 });
+    console.warn('회원 이용상태 확인 오류', err);
+
+    if (strict) {
+      showToast('회원 이용상태 서버에 연결하지 못했어요. 잠시 후 다시 시도해주세요.');
+      try { await firebase.auth().signOut(); } catch(e) {}
+      firebaseAuthUser = null;
+      return false;
+    }
+
     return true;
   }
 }
@@ -4298,25 +4328,8 @@ try {
         });
       });
 
-    firebaseAuthInitPromise.then(async () => {
-      // signInWithRedirect()로 돌아온 경우 결과를 반드시 소비합니다.
-      try {
-        const result = await firebase.auth().getRedirectResult();
-        if (result && result.user) {
-          const allowed = await checkMemberAccess(result.user, { strict:true });
-          if (!allowed) return;
-          if (result.additionalUserInfo && result.additionalUserInfo.isNewUser) {
-            recordSignup(result.user.uid, { email: result.user.email, provider: 'google' });
-          }
-          closeAuthModal();
-          showToast('구글 계정으로 로그인했어요');
-          continueHomeChatAfterLogin();
-        }
-      } catch (err) {
-        console.error('Google redirect 로그인 결과 처리 실패', err);
-        showAuthError(formatAuthError(err));
-      }
-    });
+    // Google 로그인은 storage-partitioned 브라우저에서 redirect state가
+    // 유실되는 문제를 피하기 위해 popup 방식만 사용합니다.
     // 방문자 수는 로그인 여부가 확정된 뒤에 기록합니다. 이렇게 해야 지금 접속한 사람이
     // 관리자 계정인지 미리 확인하고, 관리자의 방문은 통계에서 빼놓을 수 있습니다.
     firebaseAuthSettled.then(recordVisit);
@@ -4327,10 +4340,10 @@ function formatAuthError(err) {
   const code = err && err.code ? err.code : '';
   const raw = err && err.message ? err.message : '알 수 없는 오류가 발생했어요.';
   if (code === 'auth/unauthorized-domain') return '현재 사이트 주소가 Firebase Authentication의 승인된 도메인에 등록되지 않았어요. Firebase Console → Authentication → Settings → 승인된 도메인에서 현재 도메인을 추가해주세요.';
-  if (code === 'auth/popup-blocked') return '브라우저가 Google 로그인 창을 막았어요. 전체 화면 로그인으로 다시 연결합니다.';
+  if (code === 'auth/popup-blocked') return '브라우저가 Google 로그인 팝업을 막았어요. 팝업을 허용한 뒤 다시 시도해주세요.';
   if (code === 'auth/popup-closed-by-user') return 'Google 로그인 창이 닫혔어요. 다시 시도해주세요.';
   if (code === 'auth/cancelled-popup-request') return 'Google 로그인 요청이 취소됐어요. 다시 시도해주세요.';
-  if (code === 'auth/operation-not-supported-in-this-environment') return '현재 브라우저 환경에서는 팝업 로그인을 사용할 수 없어 전체 화면 로그인으로 연결합니다.';
+  if (code === 'auth/operation-not-supported-in-this-environment') return '현재 브라우저 환경에서는 Google 팝업 로그인을 사용할 수 없어요. Chrome 또는 Safari 일반 탭에서 다시 시도해주세요.';
   if (code === 'auth/network-request-failed') return '네트워크 연결이 불안정해요. Wi-Fi/모바일 데이터를 확인한 뒤 다시 시도해주세요.';
   return raw;
 }
@@ -4435,7 +4448,7 @@ function inferAuthProvider(user) {
     : [];
 
   if (providers.includes('google.com')) return 'google';
-  if (providers.includes('password')) return 'email';
+  if (providers.includes('password')) return 'legacy-email';
   return providers[0] || 'firebase';
 }
 
@@ -4792,7 +4805,7 @@ function renderProfile() {
 
   if (fbUser) {
     name = fbUser.displayName || (fbUser.email ? fbUser.email.split('@')[0] : '회원');
-    const provider = (fbUser.providerData[0] && fbUser.providerData[0].providerId === 'google.com') ? '구글 로그인' : '이메일 로그인';
+    const provider = (fbUser.providerData[0] && fbUser.providerData[0].providerId === 'google.com') ? 'Google 로그인' : '이전 회원';
     meta = provider + (fbUser.email ? ' · ' + fbUser.email : '');
     initial = name.charAt(0).toUpperCase();
   } else if (kakaoUser) {
@@ -5467,7 +5480,7 @@ function renderAdmin() {
         lastSeenProvider === 'email' ||
         lastSeenProvider === 'password'
       ) {
-        provider = '이메일(이전)';
+        provider = '이전 회원';
       } else if (rawProvider && rawProvider !== 'firebase') {
         provider = rawProvider;
       }
@@ -6086,38 +6099,64 @@ async function loginWithGoogle() {
   }
 
   const btn = document.querySelector('#authOverlay button[onclick="loginWithGoogle()"]');
-  if (btn) { btn.disabled = true; btn.dataset.originalText = btn.textContent; btn.textContent = 'Google 연결 중…'; }
+  if (btn) {
+    btn.disabled = true;
+    btn.dataset.originalText = btn.textContent;
+    btn.textContent = 'Google 연결 중…';
+  }
+
   try {
     if (firebaseAuthInitPromise) await firebaseAuthInitPromise;
-    // Prevent two local identity systems from being active at once.
-    localStorage.removeItem(KAKAO_USER_KEY);
-    sessionStorage.removeItem(KAKAO_USER_KEY);
+
+    try { localStorage.removeItem(KAKAO_USER_KEY); } catch(e) {}
+    try { sessionStorage.removeItem(KAKAO_USER_KEY); } catch(e) {}
+    try { sessionStorage.removeItem('taekilso_kakao_access_token'); } catch(e) {}
+
     const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    try {
-      const result = await firebase.auth().signInWithPopup(provider);
-      const allowed = await checkMemberAccess(result.user, { strict:true });
-      if (!allowed) return;
-      closeAuthModal();
-      showToast('구글 계정으로 로그인했어요');
-      continueHomeChatAfterLogin();
-      if (result.additionalUserInfo && result.additionalUserInfo.isNewUser) {
-        recordSignup(result.user.uid, { email: result.user.email, provider: 'google' });
-      }
-    } catch (err) {
-      console.warn('Google popup 로그인 실패', err);
-      const cancelledCodes = ['auth/popup-closed-by-user', 'auth/cancelled-popup-request'];
-      if (!cancelledCodes.includes(err.code)) {
-        showToast('팝업 방식이 안 돼서 전체 화면 Google 로그인으로 다시 시도할게요.');
-        await firebase.auth().signInWithRedirect(provider);
-        return;
-      }
+    provider.setCustomParameters({ prompt:'select_account' });
+
+    const result = await firebase.auth().signInWithPopup(provider);
+
+    if (!result || !result.user) {
+      throw new Error('Google 로그인 결과를 확인하지 못했어요.');
     }
+
+    const allowed = await checkMemberAccess(result.user, { strict:true });
+    if (!allowed) return;
+
+    if (result.additionalUserInfo && result.additionalUserInfo.isNewUser) {
+      await recordSignup(result.user.uid, {
+        email: result.user.email,
+        provider:'google'
+      });
+    } else {
+      ensureMemberDocumentFromAuth(result.user);
+    }
+
+    closeAuthModal();
+    showToast('Google 계정으로 로그인했어요.');
+    continueHomeChatAfterLogin();
+
   } catch (err) {
-    console.error('Google 로그인 처리 실패', err);
-    showAuthError('구글 로그인 실패: ' + formatAuthError(err));
+    console.warn('Google popup 로그인 실패', err);
+
+    const code = String(err && err.code || '');
+
+    if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+      showAuthError('Google 로그인 창이 닫혔어요. 다시 눌러 로그인해주세요.');
+    } else if (code === 'auth/popup-blocked') {
+      showAuthError('브라우저가 Google 로그인 팝업을 막았어요. 주소창의 팝업 차단을 허용한 뒤 다시 눌러주세요.');
+    } else if (code === 'auth/operation-not-supported-in-this-environment') {
+      showAuthError('현재 브라우저에서는 Google 팝업 로그인을 사용할 수 없어요. Chrome 또는 Safari 일반 탭에서 다시 시도해주세요.');
+    } else {
+      showAuthError('Google 로그인 실패: ' + formatAuthError(err));
+    }
+
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = btn.dataset.originalText || 'Google로 시작하기'; }
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = btn.dataset.originalText || 'Google로 시작하기';
+    }
   }
 }
 
@@ -6131,7 +6170,7 @@ async function ensureKakaoFirebaseSession(accessToken) {
   const token = accessToken || sessionStorage.getItem('taekilso_kakao_access_token');
   if (!token) return null;
 
-  // 카카오 로그인을 시작한 경우 기존 Google/이메일 Firebase 세션을 재사용하지 않습니다.
+  // 카카오 로그인을 시작한 경우 기존 Google Firebase 세션을 재사용하지 않습니다.
   // 서버가 검증한 카카오 계정의 customToken으로 반드시 세션을 교체해야
   // 카카오 프로필과 다른 Firebase UID가 섞이지 않습니다.
 
@@ -6346,7 +6385,6 @@ function logout() {
   goTo('home');
 }
 
-let authMode = 'login';
 
 /* 상단 메뉴 "택일" 드롭다운 열고 닫기 */
 function toggleNavDropdown(e) {
@@ -6677,7 +6715,7 @@ function tryActivatePendingPremium() {
     const isValidPending = pending && pending.orderId && (Date.now() - pending.createdAt) <= PENDING_MAX_AGE_MS;
     if (!isValidPending) return; // 결제 버튼을 누른 기록 자체가 없으면 아무것도 하지 않습니다.
 
-    // 카카오 로그인은 즉시 확인 가능하지만, 구글/이메일 로그인은 결제 후 페이지가
+    // 카카오 로그인은 즉시 확인 가능하지만, Google 로그인은 결제 후 페이지가
     // 완전히 새로고침될 때 로그인 상태를 다시 불러오는 데 짧은 시간이 걸립니다.
     if (!getKakaoUser()) {
       await waitForAuthSettled(6000);
@@ -6760,14 +6798,24 @@ function tryActivatePendingPremium() {
 
           setTimeout(() => {
             if (!restored) restoreActiveAiConversation({ silent:true });
-            if (getPendingPaidAiQuestion()) resumePendingPaidAiQuestion();
+
+            if (getPendingPaidAiQuestion()) {
+              resumePendingPaidAiQuestion();
+            } else {
+              setTimeout(() => restoreAlgorithmicFollowupsAfterPurchase(), 180);
+            }
           }, 700);
         } else {
           trackAiFunnel('premium_purchase_confirmed', {});
           showToast('프리미엄이 활성화됐어요!' + (getPendingPaidAiQuestion() ? ' 이전 질문을 이어갈게요.' : ''));
           setTimeout(() => {
             if (!restored) restoreActiveAiConversation({ silent:true });
-            if (getPendingPaidAiQuestion()) resumePendingPaidAiQuestion();
+
+            if (getPendingPaidAiQuestion()) {
+              resumePendingPaidAiQuestion();
+            } else {
+              setTimeout(() => restoreAlgorithmicFollowupsAfterPurchase(), 180);
+            }
           }, 700);
         }
       } else {
@@ -6905,44 +6953,7 @@ function openAuthModal() {
   document.getElementById('authError').style.display = 'none';
 }
 function closeAuthModal() { document.getElementById('authOverlay').style.display = 'none'; }
-function toggleAuthMode() {
-  authMode = authMode === 'login' ? 'signup' : 'login';
-  document.getElementById('authTitle').textContent = authMode === 'login' ? '로그인' : '회원가입';
-  document.getElementById('authSubmitBtn').textContent = authMode === 'login' ? '로그인' : '회원가입';
-  document.getElementById('authSwitchLabel').textContent = authMode === 'login' ? '계정이 없으신가요?' : '이미 계정이 있으신가요?';
-  document.getElementById('authSwitchAction').textContent = authMode === 'login' ? '회원가입' : '로그인';
-}
-function submitAuth() {
-  const errEl = document.getElementById('authError');
-  errEl.style.display = 'none';
-  if (!firebaseReady) {
-    errEl.textContent = '아직 계정 저장소 설정 전이라 실제 가입은 안 돼요. 코드 안의 firebaseConfig를 채워주세요.';
-    errEl.style.display = 'block';
-    return;
-  }
-  const email = document.getElementById('authEmail').value.trim();
-  const password = document.getElementById('authPassword').value;
-  if (!email || password.length < 6) {
-    errEl.textContent = '이메일과 6자 이상의 비밀번호를 입력해주세요.';
-    errEl.style.display = 'block';
-    return;
-  }
-  const isSignup = authMode === 'signup';
-  const action = isSignup
-    ? firebase.auth().createUserWithEmailAndPassword(email, password)
-    : firebase.auth().signInWithEmailAndPassword(email, password);
-  action.then(async (result) => {
-    const allowed = await checkMemberAccess(result.user, { strict:true });
-    if (!allowed) {
-      errEl.textContent = '이 계정은 관리자에 의해 이용이 제한되었습니다.';
-      errEl.style.display = 'block';
-      return;
-    }
-    closeAuthModal();
-    if (isSignup) recordSignup(result.user.uid, { email: result.user.email, provider: 'email' });
-    continueHomeChatAfterLogin();
-  }).catch((err) => { errEl.textContent = err.message; errEl.style.display = 'block'; });
-}
+
 </script>
 
 <style id="takil-v2-motion">
@@ -7946,9 +7957,14 @@ function appendQuestionPackOffers() {
   scrollAiChatToBottom(win);
 }
 window.addEventListener('taekilso:questionPackPurchased', () => {
-  // 질문권 충전이 확인되면, 방금 막혔던 안내/구매 카드를 지우고 바로 이어서 물어볼 수 있게 합니다.
-  const offers = document.querySelectorAll('.ai-chat-offer-grid');
-  offers.forEach(el => el.remove());
+  document.querySelectorAll('.ai-chat-offer-grid').forEach(el => el.remove());
+  document.querySelectorAll('.ai-chat-upsell').forEach(el => el.remove());
+
+  setTimeout(() => {
+    if (!getPendingPaidAiQuestion()) {
+      restoreAlgorithmicFollowupsAfterPurchase();
+    }
+  }, 180);
 });
 
 function appendAiChatUpsell(userMessage='') {
@@ -8325,7 +8341,7 @@ function showAiChatSetupStep() {
   if (setup) setup.style.display = 'block';
 }
 
-/* 로그인 성공 직후(구글/이메일/카카오 전부)마다 호출됩니다.
+/* 로그인 성공 직후(Google/Kakao 모두)마다 호출됩니다.
    "시작하기"를 누르고 로그인하러 간 상태였다면, 소개 화면을 넘기고
    생년월일 입력 단계를 바로 보여줍니다. 카카오는 전체 페이지가 새로
    불러와지므로, 그 경우에도 이어지도록 localStorage로 표시해둡니다. */
@@ -8665,6 +8681,56 @@ function trackAiFunnel(eventName, extra){
   }catch(e){}
 }
 
+function restoreAlgorithmicFollowupsAfterPurchase() {
+  const panel = document.getElementById('aiChatPanel');
+  const win = document.getElementById('aiChatWindow');
+
+  if (!panel || panel.style.display === 'none' || !win) return false;
+
+  const history = Array.isArray(window.__aiChatHistory)
+    ? window.__aiChatHistory
+    : [];
+
+  let assistantIndex = -1;
+
+  for (let i = history.length - 1; i >= 0; i--) {
+    if (
+      history[i] &&
+      history[i].role === 'assistant' &&
+      String(history[i].content || '').trim()
+    ) {
+      assistantIndex = i;
+      break;
+    }
+  }
+
+  if (assistantIndex < 0) return false;
+
+  let lastQuestion = '';
+
+  for (let i = assistantIndex - 1; i >= 0; i--) {
+    if (
+      history[i] &&
+      history[i].role === 'user' &&
+      String(history[i].content || '').trim()
+    ) {
+      lastQuestion = String(history[i].content || '').trim();
+      break;
+    }
+  }
+
+  const lastReply = String(history[assistantIndex].content || '').trim();
+
+  if (!lastQuestion || !lastReply) return false;
+
+  clearAiFollowupSuggestions();
+  showAiFollowups(lastQuestion, lastReply, 1, 3, false);
+  trackAiFunnel('paid_followups_restored', { question:lastQuestion });
+
+  setTimeout(() => scrollAiChatToBottom(win), 80);
+  return true;
+}
+
 function resumePendingPaidAiQuestion(){
   const q=getPendingPaidAiQuestion();
   if(!q) return false;
@@ -8720,26 +8786,69 @@ function quickAskAiChat(text) {
 (function setupAiMobileKeyboardViewport(){
   const vv = window.visualViewport;
   let keyboardTimer = null;
+  let focusBaselineHeight = 0;
 
   function getParts(){
     return {
       input: document.getElementById('aiChatInput'),
+      row: document.querySelector('#aiChatPanel .ai-chat-inputrow'),
       panel: document.getElementById('aiChatPanel'),
       win: document.getElementById('aiChatWindow')
     };
   }
 
+  function currentLayoutHeight(){
+    return Math.max(
+      window.innerHeight || 0,
+      document.documentElement.clientHeight || 0
+    );
+  }
+
   function clearKeyboardMode(){
-    const { panel } = getParts();
+    const { panel, win } = getParts();
     document.body.classList.remove('ai-keyboard-open');
+
     if (panel) {
       panel.style.removeProperty('top');
       panel.style.removeProperty('height');
+      panel.style.removeProperty('max-height');
+    }
+
+    if (win) {
+      win.style.removeProperty('scroll-behavior');
     }
   }
 
+  function ensureComposerVisible(){
+    const { input, row, win } = getParts();
+    if (!input || !row) return;
+
+    requestAnimationFrame(() => {
+      const r = row.getBoundingClientRect();
+      const visibleTop = vv ? Number(vv.offsetTop || 0) : 0;
+      const visibleBottom = vv
+        ? visibleTop + Number(vv.height || window.innerHeight)
+        : window.innerHeight;
+
+      if (r.bottom > visibleBottom - 8 || r.top < visibleTop + 8) {
+        try {
+          row.scrollIntoView({
+            block:'end',
+            inline:'nearest',
+            behavior:'auto'
+          });
+        } catch(e) {}
+      }
+
+      if (win) {
+        win.style.scrollBehavior = 'auto';
+        win.scrollTop = win.scrollHeight;
+      }
+    });
+  }
+
   function syncKeyboardViewport(forceFocus){
-    const { input, panel, win } = getParts();
+    const { input, panel } = getParts();
     if (!input || !panel) return;
 
     const mobile = window.matchMedia('(max-width: 640px)').matches;
@@ -8750,56 +8859,65 @@ function quickAskAiChat(text) {
       return;
     }
 
+    if (!focusBaselineHeight) {
+      focusBaselineHeight = currentLayoutHeight();
+    }
+
     if (vv) {
       const viewportHeight = Math.round(vv.height);
-      const layoutHeight = Math.max(
-        window.innerHeight || 0,
-        document.documentElement.clientHeight || 0
-      );
-
-      // 일반 주소창 축소/확대가 아니라 실제 키보드가 열린 정도의 큰 높이 감소만 처리.
-      const keyboardOpen = viewportHeight < layoutHeight - 120;
+      const baseline = Math.max(focusBaselineHeight, currentLayoutHeight());
+      const keyboardOpen = viewportHeight < baseline - 110;
 
       if (keyboardOpen) {
         document.body.classList.add('ai-keyboard-open');
         panel.style.top = Math.round(vv.offsetTop || 0) + 'px';
         panel.style.height = viewportHeight + 'px';
+        panel.style.maxHeight = viewportHeight + 'px';
 
-        // 포커스 직후 브라우저가 자동 스크롤을 한 번 더 하는 경우가 있어
-        // 입력창을 다시 visual viewport 안으로 정렬합니다.
-        requestAnimationFrame(() => {
-          try { input.scrollIntoView({ block:'nearest', inline:'nearest' }); } catch(e) {}
-          if (win) win.style.scrollBehavior = 'auto';
-        });
+        ensureComposerVisible();
+        setTimeout(ensureComposerVisible, 70);
+        setTimeout(ensureComposerVisible, 180);
+        setTimeout(ensureComposerVisible, 320);
         return;
       }
     }
 
-    // visualViewport 미지원 브라우저 fallback:
-    // 키보드가 뜬 직후 입력창을 화면의 보이는 영역으로 끌어올립니다.
-    clearKeyboardMode();
-    setTimeout(() => {
-      try { input.scrollIntoView({ block:'center', behavior:'smooth' }); } catch(e) {}
-    }, 180);
+    ensureComposerVisible();
   }
 
   function queueSync(){
     clearTimeout(keyboardTimer);
-    keyboardTimer = setTimeout(() => syncKeyboardViewport(false), 30);
+    keyboardTimer = setTimeout(() => syncKeyboardViewport(false), 24);
   }
 
   document.addEventListener('focusin', (e) => {
     if (e.target && e.target.id === 'aiChatInput') {
-      setTimeout(() => syncKeyboardViewport(true), 80);
-      setTimeout(() => syncKeyboardViewport(true), 280);
+      focusBaselineHeight = currentLayoutHeight();
+      setTimeout(() => syncKeyboardViewport(true), 30);
+      setTimeout(() => syncKeyboardViewport(true), 120);
+      setTimeout(() => syncKeyboardViewport(true), 260);
+      setTimeout(ensureComposerVisible, 430);
     }
   });
 
   document.addEventListener('focusout', (e) => {
     if (e.target && e.target.id === 'aiChatInput') {
       setTimeout(() => {
-        if (document.activeElement?.id !== 'aiChatInput') clearKeyboardMode();
-      }, 120);
+        if (document.activeElement?.id !== 'aiChatInput') {
+          focusBaselineHeight = 0;
+          clearKeyboardMode();
+        }
+      }, 140);
+    }
+  });
+
+  document.addEventListener('input', (e) => {
+    if (
+      e.target &&
+      e.target.id === 'aiChatInput' &&
+      document.body.classList.contains('ai-keyboard-open')
+    ) {
+      ensureComposerVisible();
     }
   });
 
@@ -8807,11 +8925,15 @@ function quickAskAiChat(text) {
     vv.addEventListener('resize', queueSync);
     vv.addEventListener('scroll', queueSync);
   }
+
+  window.addEventListener('resize', queueSync);
+
   window.addEventListener('orientationchange', () => {
+    focusBaselineHeight = 0;
     clearKeyboardMode();
-    setTimeout(queueSync, 300);
+    setTimeout(queueSync, 320);
   });
-})();
+})()
 
 /* "직접 질문하기" - 입력창에 포커스만 주고 전송하지 않습니다. */
 function focusAiChatInput() {
