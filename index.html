@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>택일소 | AI 사주·운세 상담 · 택일 · 궁합</title>
-<meta name="description" content="사주, 연애운, 재물운, 궁합부터 결혼·이사·개업 택일까지. AI 사주 상담가 연우에게 무료로 물어보세요.">
+<title>택일소 · 사주 기반 택일 · 오늘의 운세 · 궁합</title>
+<meta name="description" content="택일소는 사주 오행을 바탕으로 결혼식·이사·개업·계약 날짜를 비교하고, 오늘의 운세·궁합·사주 리포트까지 한곳에서 확인할 수 있는 사주 기반 택일 서비스입니다. 무료로 시작하세요.">
 <meta name="keywords" content="사주, 사주풀이, 무료사주, 사주궁합, 오늘의운세, 신년운세, 택일, 결혼택일, 이사택일, 개업택일, 손없는날, 만세력">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="https://taekilso.com/">
@@ -19,9 +19,6 @@
 <meta property="og:locale" content="ko_KR">
 <meta property="og:site_name" content="택일소">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="택일소 | AI 사주·운세 상담 · 택일 · 궁합">
-<meta name="twitter:description" content="AI 사주 상담가 연우에게 사주·운세·궁합·택일을 직접 물어보세요. 무료로 시작할 수 있습니다.">
-<meta name="twitter:image" content="https://taekilso.com/og-image-v2.jpg">
 <meta name="theme-color" content="#050505">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon.png">
@@ -29,26 +26,12 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "WebSite",
-      "@id": "https://taekilso.com/#website",
-      "url": "https://taekilso.com/",
-      "name": "택일소",
-      "inLanguage": "ko-KR"
-    },
-    {
-      "@type": "WebApplication",
-      "@id": "https://taekilso.com/#app",
-      "name": "택일소",
-      "url": "https://taekilso.com/",
-      "description": "사주, 운세, 궁합과 결혼·이사·개업·계약 택일을 제공하는 AI 기반 서비스",
-      "applicationCategory": "LifestyleApplication",
-      "operatingSystem": "Web",
-      "inLanguage": "ko-KR",
-      "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}
-    }
-  ]
+  "@type": "WebApplication",
+  "name": "택일소",
+  "url": "https://taekilso.com/",
+  "description": "결혼식, 이사, 개업, 계약체결처럼 중요한 날을 사주 오행으로 대조해 무난한 날짜를 찾아드립니다.",
+  "applicationCategory": "LifestyleApplication",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
 }
 </script>
 
@@ -129,6 +112,17 @@ html.snap-active.home-free-scroll{
   scroll-snap-type:none;
 }
 
+/* 첫 홈 화면은 상단 헤더 바로 아래에서 시작합니다.
+   기존의 세로 중앙 정렬 때문에 연우 프로필이 헤더 뒤로 들어가는 현상을 방지합니다. */
+#view-home > .home-first-block{
+  justify-content:flex-start;
+  /* 고정된 택일소 헤더와 연우 프로필/영상이 겹치지 않도록 첫 섹션만 충분히 아래에서 시작 */
+  padding-top:92px;
+}
+#view-home > .home-first-block .ai-chat-stage{
+  flex-shrink:0;
+}
+
 @media(max-width:820px){
   #view-home > .block{min-height:calc(100vh - 64px);}
 }
@@ -196,6 +190,7 @@ html.snap-active.home-free-scroll{
   background:rgba(215,180,106,.07)!important;
 }
 .nav-cta:hover{background:rgba(215,180,106,.15)!important}
+.nav-cta.logged-in{border:none!important;box-shadow:none!important}
 
 /* hero */
 .hero{
@@ -762,6 +757,8 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
    글자 아래 남는 빈 공간을 줄입니다. */
 @media(max-width:640px){
   .ai-chat-stage{aspect-ratio:auto; height:min(72vh, 640px); max-height:none;}
+  #view-home > .home-first-block{padding-top:86px;}
+  #view-home > .home-first-block .ai-chat-stage{margin-top:0;}
 }
 @media(min-width:640px){.ai-chat-stage{border-radius:28px; margin-top:14px; box-shadow:0 30px 80px rgba(0,0,0,.5);}}
 .ai-chat-bgvideo{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; transition:filter .4s; pointer-events:none;}
@@ -801,6 +798,72 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
   text-align:center; font-size:11.5px; color:var(--gold-hi); margin:0 0 10px;
   padding:8px 10px; border-radius:999px; background:rgba(215,180,106,.1); border:1px solid rgba(215,180,106,.25);
 }
+
+/* 첫 진입 이탈을 줄이기 위한 홈 상담 인트로. 기존 상담/로그인 로직은 그대로 사용합니다. */
+.home-conversion-intro{padding:14px 16px 16px;}
+.home-conversion-kicker{
+  display:inline-flex;align-items:center;gap:6px;width:max-content;max-width:100%;
+  margin:0 0 8px;padding:5px 9px;border-radius:999px;
+  border:1px solid rgba(240,215,158,.28);background:rgba(16,14,11,.52);
+  color:var(--gold-hi);font-size:9px;font-weight:800;letter-spacing:.06em;backdrop-filter:blur(6px)
+}
+.home-conversion-bubble{margin-bottom:9px;max-width:94%;padding:12px 14px;}
+.home-conversion-bubble strong{display:block;font-family:var(--serif);font-size:19px;font-weight:400;line-height:1.25;color:#fff;margin-bottom:5px;}
+.home-conversion-bubble span{display:block;color:rgba(255,255,255,.78);font-size:11.5px;line-height:1.55;}
+.home-conversion-question{font-size:10.5px;font-weight:700;color:rgba(255,255,255,.82);margin:0 2px 7px;}
+.home-conversion-categories{margin-bottom:9px;gap:7px;}
+.home-conversion-categories button{padding:9px 7px;font-size:10.8px;line-height:1.2;min-height:38px;}
+.home-conversion-categories button span{margin-right:2px;}
+.home-answer-preview{
+  margin:0 0 8px;padding:9px 11px;border-radius:12px;
+  border:1px solid rgba(255,255,255,.11);background:rgba(7,7,6,.58);backdrop-filter:blur(7px)
+}
+.home-answer-preview-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px;}
+.home-answer-preview-head span{color:var(--gold-hi);font-size:9.5px;font-weight:800;}
+.home-answer-preview-head small{color:rgba(255,255,255,.48);font-size:8.5px;}
+.home-answer-preview p{margin:0;color:rgba(255,255,255,.70);font-size:9.8px;line-height:1.45;}
+.home-answer-preview b{color:#fff;font-weight:700;}
+.home-start-chat-btn{min-height:48px;font-size:13px;box-shadow:0 10px 28px rgba(215,180,106,.16);}
+.home-conversion-trust{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:8px;color:rgba(255,255,255,.55);font-size:8.8px;}
+
+/* 홈 첫 화면 전용: 연우 전신이 더 잘 보이도록 반투명도를 낮춤 */
+.home-conversion-intro .home-conversion-bubble{
+  background:rgba(18,16,13,.58);
+  border-color:rgba(255,255,255,.14);
+  backdrop-filter:blur(7px);
+  -webkit-backdrop-filter:blur(7px);
+}
+.home-conversion-intro .ai-chat-intro-categories button{
+  background:rgba(16,14,11,.47);
+  border-color:rgba(255,255,255,.14);
+  backdrop-filter:blur(7px);
+  -webkit-backdrop-filter:blur(7px);
+}
+.home-conversion-intro .ai-chat-intro-categories button:hover{
+  background:rgba(215,180,106,.20);
+  border-color:rgba(215,180,106,.48);
+}
+/* 메인 CTA는 전환을 위해 기존 금색 강조 유지 */
+.home-conversion-intro .home-start-chat-btn{
+  opacity:1;
+}
+
+.home-conversion-trust i{font-style:normal;color:rgba(215,180,106,.65)}
+@media(max-width:390px){
+  .home-conversion-intro{padding:12px 13px 13px}
+  .home-conversion-bubble strong{font-size:17px}
+  .home-conversion-bubble span{font-size:10.8px}
+  .home-answer-preview p{font-size:9.2px}
+  .home-conversion-categories button{font-size:10.2px;padding:8px 5px}
+  .ai-chat-guest-hint{font-size:10.5px;padding:7px 8px}
+}
+@media(max-height:700px) and (max-width:640px){
+  .home-answer-preview{display:none}
+  .home-conversion-bubble{padding:10px 12px}
+  .home-conversion-bubble strong{font-size:17px}
+  .home-conversion-categories button{min-height:34px;padding:7px 5px}
+  .home-conversion-trust{display:none}
+}
 .ai-chat-setup-row{display:grid; grid-template-columns:.72fr 1fr .78fr .78fr; gap:6px; margin-bottom:10px;}
 .ai-chat-setup-row.ai-chat-detail-row{grid-template-columns:1fr 1fr 1fr 1fr;}
 .ai-chat-setup-label{display:block; color:rgba(255,255,255,.62); font-size:9.5px; margin:0 0 5px 2px;}
@@ -834,6 +897,13 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
   font-size:11px; padding:8px 12px; border-radius:12px; cursor:pointer;
 }
 .ai-chat-upsell:hover{background:rgba(215,180,106,.24)}
+
+.ai-chat-followups{align-self:flex-start;display:flex;flex-wrap:wrap;gap:6px;max-width:96%;margin-top:2px;margin-bottom:3px}
+.ai-chat-followups button{border:1px solid rgba(215,180,106,.38);background:rgba(16,14,11,.78);color:#f6e8c3;padding:7px 11px;border-radius:999px;font-family:inherit;font-size:10.8px;cursor:pointer}
+.ai-chat-followups button:hover{background:rgba(215,180,106,.20)}
+.ai-chat-followups .locked{opacity:.92}
+.ai-chat-followup-note{width:100%;font-size:10.5px;color:#c7b991;margin:2px 0 1px}
+
 .ai-chat-cta-row{display:flex; flex-wrap:wrap; gap:6px; align-self:flex-start; max-width:100%;}
 .ai-chat-offer-grid{display:flex; flex-direction:column; gap:8px; align-self:stretch; margin-top:4px;}
 .ai-chat-offer-card{
@@ -1266,6 +1336,218 @@ footer{padding-bottom:90px}
   .result-count{display:inline-block;margin-top:9px}
 }
 
+
+/* AI 질문창 우측 아래/상하 크기조절 화살표 제거 */
+#aiChatInput { resize: none !important; }
+
+#view-home > .home-first-block{position:relative;}
+
+.admin-member-card{align-items:flex-start !important;gap:14px !important;}
+.admin-inquiry-badge{
+  display:inline-flex;
+  align-items:center;
+  max-width:220px;
+  padding:3px 7px;
+  border-radius:999px;
+  font-size:10px;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  border:1px solid rgba(255,255,255,.10);
+  color:#cfc8bb;
+  background:rgba(255,255,255,.035);
+}
+.admin-inquiry-badge.waiting{
+  color:#f1c58f;
+  border-color:rgba(224,167,103,.34);
+  background:rgba(224,167,103,.08);
+}
+.admin-inquiry-badge.answered{
+  color:#aeb8ad;
+  border-color:rgba(152,176,154,.22);
+  background:rgba(152,176,154,.05);
+}
+
+
+.admin-perm-backdrop{
+  position:fixed; inset:0; z-index:1200; display:none;
+  align-items:center; justify-content:center; padding:20px;
+  background:rgba(0,0,0,.68); backdrop-filter:blur(5px);
+}
+.admin-perm-backdrop.show{display:flex;}
+.admin-perm-modal{
+  width:min(440px,100%); border:1px solid rgba(255,255,255,.10);
+  border-radius:18px; background:#11100e; box-shadow:0 24px 70px rgba(0,0,0,.5);
+  padding:20px;
+}
+.admin-perm-head{
+  display:flex; justify-content:space-between; align-items:flex-start; gap:14px; margin-bottom:16px;
+}
+.admin-perm-head h3{margin:0;font-family:var(--serif);font-weight:500;color:var(--gold-hi);font-size:22px;}
+.admin-perm-head small{display:block;color:var(--muted-2);margin-top:4px;overflow-wrap:anywhere;}
+.admin-perm-close{
+  border:0;background:transparent;color:var(--muted-2);font-size:24px;cursor:pointer;line-height:1;
+}
+.admin-perm-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.admin-perm-tab{
+  height:42px;border-radius:11px;border:1px solid rgba(255,255,255,.10);
+  background:#171613;color:#d6d0c6;cursor:pointer;font:inherit;font-size:13px;
+}
+.admin-perm-tab.active{border-color:rgba(215,179,106,.55);color:var(--gold-hi);background:rgba(215,179,106,.08);}
+.admin-perm-options{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px;}
+.admin-perm-option{
+  min-height:72px;text-align:left;border-radius:12px;border:1px solid rgba(255,255,255,.10);
+  background:#171613;color:#ddd6ca;padding:12px;cursor:pointer;font:inherit;
+}
+.admin-perm-option.active{border-color:var(--gold);box-shadow:0 0 0 1px rgba(215,179,106,.25) inset;}
+.admin-perm-option b{display:block;color:var(--white);font-size:13px;margin-bottom:4px;}
+.admin-perm-option small{display:block;color:var(--muted-2);font-size:10.5px;line-height:1.45;}
+.admin-perm-counts{display:none;gap:8px;flex-wrap:wrap;margin:10px 0 14px;}
+.admin-perm-counts.show{display:flex;}
+.admin-perm-count{
+  border:1px solid rgba(255,255,255,.10);background:#171613;color:#d8d1c5;
+  border-radius:999px;padding:8px 12px;cursor:pointer;font:inherit;font-size:12px;
+}
+.admin-perm-count.active{border-color:var(--gold);color:var(--gold-hi);background:rgba(215,179,106,.08);}
+.admin-perm-note{font-size:11px;color:var(--muted-2);line-height:1.55;margin:0 0 15px;}
+.admin-perm-actions{display:flex;justify-content:flex-end;gap:8px;}
+.admin-perm-actions .btn{min-width:96px;}
+
+@media(max-width:640px){
+  .admin-member-card{flex-direction:column !important;}
+  .admin-member-card > div:last-child{
+    max-width:none !important;
+    justify-content:flex-start !important;
+  }
+}
+
+
+/* 홈 첫 AI 상담 아래: 아래 콘텐츠가 더 있음을 알려주는 더블 다운 화살표 */
+.home-more-cue{
+  position:absolute;
+  left:50%;
+  bottom:calc(78px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  z-index:8;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:3px;
+  border:0;
+  background:transparent;
+  padding:7px 18px 4px;
+  color:rgba(244,235,219,.72);
+  font:inherit;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.home-more-label{
+  font-size:11px;
+  letter-spacing:.03em;
+  white-space:nowrap;
+}
+.home-more-chevrons{
+  width:22px;
+  height:18px;
+  display:block;
+  position:relative;
+  animation:homeMoreFloat 1.7s ease-in-out infinite;
+}
+.home-more-chevrons i{
+  position:absolute;
+  left:50%;
+  width:11px;
+  height:11px;
+  border-right:1.7px solid currentColor;
+  border-bottom:1.7px solid currentColor;
+  transform:translateX(-50%) rotate(45deg);
+}
+.home-more-chevrons i:first-child{top:-2px;opacity:.52;}
+.home-more-chevrons i:last-child{top:5px;opacity:.95;}
+@keyframes homeMoreFloat{
+  0%,100%{transform:translateY(0);opacity:.72}
+  50%{transform:translateY(4px);opacity:1}
+}
+@media(min-width:641px){
+  .home-more-cue{bottom:28px;}
+}
+@media(prefers-reduced-motion:reduce){
+  .home-more-chevrons{animation:none;}
+}
+
+
+/* 모바일 키보드가 열렸을 때 AI 입력창을 키보드 바로 위의 visual viewport 안에 고정 */
+@media(max-width:640px){
+  body.ai-keyboard-open{overflow:hidden;}
+  body.ai-keyboard-open #aiChatPanel{
+    position:fixed !important;
+    z-index:500 !important;
+    inset:auto !important;
+    left:0 !important;
+    right:0 !important;
+    width:100vw !important;
+    max-width:100vw !important;
+    box-sizing:border-box !important;
+    background:
+      linear-gradient(to bottom, rgba(10,9,8,.96), rgba(10,9,8,.985)) !important;
+    padding:8px 10px max(8px, env(safe-area-inset-bottom)) !important;
+    border-radius:0 !important;
+  }
+  body.ai-keyboard-open #aiChatWindow{
+    padding-top:10px !important;
+  }
+  body.ai-keyboard-open .ai-chat-status{
+    margin-bottom:5px !important;
+  }
+  body.ai-keyboard-open .ai-chat-inputrow{
+    position:sticky !important;
+    bottom:0 !important;
+    z-index:40 !important;
+    flex-shrink:0 !important;
+    background:rgba(10,9,8,.985) !important;
+    box-shadow:0 -12px 32px rgba(0,0,0,.34) !important;
+    margin-top:6px !important;
+    padding-bottom:max(6px,env(safe-area-inset-bottom)) !important;
+  }
+  body.ai-keyboard-open #aiChatInput{
+    font-size:16px !important;
+    line-height:1.45 !important;
+    min-height:40px !important;
+    max-height:88px !important;
+  }
+  body.ai-keyboard-open #aiChatWindow{
+    scroll-padding-bottom:88px !important;
+    padding-bottom:12px !important;
+  }
+}
+
+.admin-member-tools{
+  display:flex;
+  gap:10px;
+  align-items:stretch;
+}
+.admin-member-sort{
+  width:150px;
+  min-height:42px;
+  padding:0 10px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:12px;
+  background:#090908;
+  color:var(--white);
+  font-family:inherit;
+  font-size:13px;
+  font-weight:600;
+  outline:none;
+}
+.admin-member-sort:focus{
+  border-color:rgba(212,176,106,.55);
+  box-shadow:0 0 0 3px rgba(212,176,106,.08);
+}
+@media(max-width:640px){
+  .admin-member-tools{flex-direction:column;}
+  .admin-member-sort{width:100%;}
+}
 </style>
 
 <style id="taekilso-v3-upgrade">
@@ -1348,6 +1630,269 @@ footer{padding-bottom:90px}
 }
 </style>
 
+
+
+<style id="home-ai-arrow-only-style">
+#view-home > .home-first-block{
+  position:relative;
+}
+#view-home > .home-first-block .home-ai-arrow-only{
+  position:absolute;
+  left:50%;
+  bottom:18px;
+  transform:translateX(-50%);
+  z-index:12;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:52px;
+  height:42px;
+  margin:0;
+  padding:0;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.home-ai-arrow-only .home-more-chevrons{
+  position:relative;
+  display:block;
+  width:28px;
+  height:25px;
+  animation:homeMoreFloat 1.7s ease-in-out infinite;
+}
+.home-ai-arrow-only .home-more-chevrons i{
+  position:absolute;
+  left:50%;
+  width:17px;
+  height:17px;
+  border-right:2px solid rgba(203,196,184,.68);
+  border-bottom:2px solid rgba(203,196,184,.68);
+  transform:translateX(-50%) rotate(45deg);
+}
+.home-ai-arrow-only .home-more-chevrons i:first-child{top:-3px;opacity:.48;}
+.home-ai-arrow-only .home-more-chevrons i:last-child{top:6px;opacity:.9;}
+
+@media(max-width:640px){
+  #view-home > .home-first-block .home-ai-arrow-only{
+    bottom:max(12px, env(safe-area-inset-bottom));
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .home-ai-arrow-only .home-more-chevrons{animation:none;}
+}
+</style>
+
+
+<style id="admin-ban-section-visible-style">
+.admin-ban-section{
+  margin-top:28px;
+  padding:18px;
+  border:1px solid rgba(215,180,106,.22);
+  border-radius:18px;
+  background:rgba(215,180,106,.035);
+}
+.admin-ban-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.admin-ban-refresh{
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:999px;
+  padding:8px 12px;
+  background:rgba(255,255,255,.04);
+  color:var(--muted);
+  font-size:11px;
+  cursor:pointer;
+}
+.admin-ban-refresh:hover{
+  border-color:rgba(215,180,106,.35);
+  color:var(--gold-hi);
+}
+</style>
+
+
+<style id="self-delete-cooldown-style">
+.pf-danger-note{
+  margin-top:18px;
+  padding:11px 12px;
+  border:1px solid rgba(220,135,110,.18);
+  border-radius:12px;
+  background:rgba(220,135,110,.045);
+  color:#bdb4aa;
+  font-size:11px;
+  line-height:1.65;
+}
+</style>
+
+<style id="home-section-bidirectional-arrows">
+.home-arrow-section{position:relative;}
+.home-section-nav{position:absolute;inset:0;pointer-events:none;z-index:10;}
+.home-section-arrow{
+  position:absolute;left:50%;transform:translateX(-50%);
+  width:48px;height:40px;padding:0;border:0;background:transparent;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:auto;cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.home-section-arrow-up{top:18px;}
+.home-section-arrow-down{bottom:18px;}
+.home-section-arrow span{
+  display:block;width:16px;height:16px;
+  border-right:2px solid rgba(203,196,184,.78);
+  border-bottom:2px solid rgba(203,196,184,.78);
+}
+.home-section-arrow-down span{transform:rotate(45deg);}
+.home-section-arrow-up span{transform:rotate(225deg);}
+@media(max-width:640px){
+  .home-section-arrow-up{top:max(12px,env(safe-area-inset-top));}
+  .home-section-arrow-down{bottom:max(12px,env(safe-area-inset-bottom));}
+}
+</style>
+
+
+<style id="home-growth-features">
+.home-daily-yeonwoo,.home-free-report-card,.home-consult-to-date{
+  margin-top:18px;padding:18px;border:1px solid rgba(215,180,106,.16);
+  border-radius:18px;background:rgba(255,255,255,.025);
+}
+.home-feature-kicker{font-size:9px;letter-spacing:.18em;color:var(--gold);margin-bottom:9px;}
+.home-daily-yeonwoo strong,.home-consult-to-date strong{
+  display:block;font-family:var(--serif);font-size:17px;font-weight:400;line-height:1.45;color:var(--white);
+}
+.home-daily-yeonwoo p,.home-free-report-card p,.home-consult-to-date p{
+  margin:8px 0 13px;color:var(--muted);font-size:11px;line-height:1.65;
+}
+.home-daily-yeonwoo>button,.home-free-report-card>button{
+  width:100%;border:1px solid rgba(215,180,106,.18);border-radius:12px;
+  padding:11px 12px;background:rgba(215,180,106,.06);color:var(--gold-hi);
+  font:inherit;font-size:11px;text-align:left;cursor:pointer;
+}
+.home-daily-yeonwoo>button i,.home-free-report-card>button i{float:right;font-style:normal;}
+.home-free-report-card h3{margin:0;font-family:var(--serif);font-size:20px;font-weight:400;}
+.home-report-tags{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 13px;}
+.home-report-tags span{padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.045);font-size:9.5px;color:var(--muted);}
+.home-date-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.home-date-actions button{
+  border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:10px 8px;
+  background:rgba(255,255,255,.025);color:var(--muted);font:inherit;font-size:10.5px;cursor:pointer;
+}
+</style>
+
+
+<script type="application/ld+json" id="taekilso-service-schema">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "name":"택일소",
+  "url":"https://taekilso.com/",
+  "description":"AI 사주 상담, 사주 궁합, 결혼·이사·개업·계약 택일을 제공하는 서비스",
+  "potentialAction":{
+    "@type":"SearchAction",
+    "target":"https://taekilso.com/?q={search_term_string}",
+    "query-input":"required name=search_term_string"
+  }
+}
+</script>
+<script type="application/ld+json" id="taekilso-service-offer-schema">
+{
+  "@context":"https://schema.org",
+  "@type":"Service",
+  "name":"택일소 AI 사주 상담 및 택일",
+  "provider":{"@type":"Organization","name":"택일소"},
+  "areaServed":"KR",
+  "serviceType":["AI 사주 상담","사주 궁합","결혼 택일","이사 택일","개업일 택일","계약일 택일"],
+  "url":"https://taekilso.com/"
+}
+</script>
+
+
+<style id="conversion-seo-expansion-style">
+.ai-next-actions{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.07);display:flex;flex-wrap:wrap;gap:7px;}
+.ai-next-actions-title{width:100%;font-size:9.5px;color:var(--muted-2);margin-bottom:2px;}
+.ai-next-actions button{border:1px solid rgba(215,180,106,.16);border-radius:999px;padding:7px 10px;background:rgba(215,180,106,.05);color:var(--gold-hi);font:inherit;font-size:9.8px;cursor:pointer;}
+.home-compat-teaser{margin-top:18px;padding:18px;border:1px solid rgba(215,180,106,.16);border-radius:18px;background:rgba(255,255,255,.025);}
+.home-compat-teaser h3{margin:0;font-family:var(--serif);font-size:20px;line-height:1.45;font-weight:400;}
+.home-compat-teaser p{margin:8px 0 13px;color:var(--muted);font-size:11px;line-height:1.65;}
+.home-compat-points{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:13px;}
+.home-compat-points span{padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.045);font-size:9.5px;color:var(--muted);}
+.home-compat-teaser>button{width:100%;border:1px solid rgba(215,180,106,.18);border-radius:12px;padding:11px 12px;background:rgba(215,180,106,.06);color:var(--gold-hi);font:inherit;font-size:11px;text-align:left;cursor:pointer;}
+.home-compat-teaser>button i{float:right;font-style:normal;}
+.seo-landing-block{padding:74px 0;border-top:1px solid rgba(255,255,255,.055);}
+.seo-landing-block p{margin:14px 0 16px;color:var(--muted);font-size:13px;line-height:1.9;}
+.seo-landing-block a{color:var(--gold-hi);font-size:12px;text-decoration:none;border-bottom:1px solid rgba(215,180,106,.28);padding-bottom:3px;}
+@media(max-width:640px){
+  .seo-landing-block{padding:54px 0;}
+}
+</style>
+
+
+<style id="ai-answer-share-style">
+.ai-answer-sharebar{display:flex;justify-content:flex-end;margin-top:9px;}
+.ai-answer-sharebtn{
+  border:0;background:transparent;color:var(--muted-2);font:inherit;font-size:9.8px;
+  padding:5px 0;cursor:pointer;
+}
+.ai-answer-sharebtn:hover{color:var(--gold-hi);}
+.ai-share-modal{
+  position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.78);
+  display:none;align-items:center;justify-content:center;padding:18px;
+}
+.ai-share-modal.show{display:flex;}
+.ai-share-panel{width:min(420px,100%);background:#11110f;border:1px solid rgba(215,180,106,.2);border-radius:20px;padding:16px;}
+.ai-share-card{
+  position:relative;overflow:hidden;aspect-ratio:4/5;border-radius:18px;padding:28px 24px;
+  background:linear-gradient(155deg,#171510,#090908 65%,#16120c);border:1px solid rgba(215,180,106,.18);
+  display:flex;flex-direction:column;
+}
+.ai-share-brand{font-family:var(--serif);font-size:13px;color:var(--gold-hi);letter-spacing:.16em;}
+.ai-share-sub{font-size:9px;color:var(--muted-2);margin-top:5px;}
+.ai-share-answer{
+  margin:auto 0;font-family:var(--serif);font-size:18px;line-height:1.75;color:#eee8dc;
+  white-space:pre-wrap;display:-webkit-box;-webkit-line-clamp:12;-webkit-box-orient:vertical;overflow:hidden;
+}
+.ai-share-foot{font-size:9.5px;color:var(--muted-2);display:flex;justify-content:space-between;gap:10px;}
+.ai-share-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.ai-share-actions button{border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:11px 8px;background:rgba(255,255,255,.035);color:var(--white);font:inherit;font-size:10.5px;cursor:pointer;}
+.ai-share-actions button.primary{border-color:rgba(215,180,106,.22);background:rgba(215,180,106,.08);color:var(--gold-hi);}
+.ai-share-close{width:100%;margin-top:8px;border:0;background:transparent;color:var(--muted-2);padding:8px;font:inherit;font-size:10px;cursor:pointer;}
+</style>
+
+
+<style id="ai-paywall-conversion-style">
+.ai-chat-conversion-chooser{display:flex!important;flex-direction:column!important;gap:8px!important;padding:13px!important;border:1px solid rgba(215,180,106,.16);border-radius:17px;background:rgba(10,10,9,.92);}
+.ai-paywall-head{padding:2px 2px 7px;}
+.ai-paywall-kicker{font-size:9px;letter-spacing:.16em;color:var(--gold);margin-bottom:5px;}
+.ai-paywall-head>b{display:block;font-family:var(--serif);font-size:16px;font-weight:400;color:var(--white);line-height:1.45;}
+.ai-paywall-head>span{display:block;margin-top:5px;color:var(--muted-2);font-size:9.8px;line-height:1.55;}
+.ai-chat-conversion-chooser .ai-chat-offer-card{position:relative;width:100%;display:flex!important;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:12px!important;border-radius:13px!important;}
+.ai-offer-copy{display:flex;flex-direction:column;min-width:0;}
+.ai-offer-copy small{font-size:8.8px;color:var(--muted-2);margin-bottom:3px;}
+.ai-offer-copy b{font-size:12px!important;color:var(--white);}
+.ai-offer-copy span{font-size:9px!important;color:var(--muted-2);margin-top:3px;}
+.ai-offer-price{display:flex;flex-direction:column;align-items:flex-end;flex:0 0 auto;}
+.ai-offer-price s{font-size:8.5px;color:var(--muted-2);}
+.ai-offer-price em{font-style:normal;font-size:13px!important;color:var(--gold-hi);margin-top:2px;}
+.ai-offer-best{border-color:rgba(215,180,106,.35)!important;background:rgba(215,180,106,.08)!important;padding-top:18px!important;}
+.ai-offer-badge{position:absolute;top:-7px;right:10px;padding:3px 7px;border-radius:999px;background:#cdb06e;color:#111;font-size:7.8px;font-weight:700;letter-spacing:.04em;}
+.ai-offer-premium{margin-top:2px;background:rgba(255,255,255,.035)!important;}
+.ai-paywall-note{text-align:center;color:var(--muted-2);font-size:8.5px;line-height:1.5;padding:2px 4px 0;}
+</style>
+
+
+<style id="signup-conversion-ab-style">
+.auth-free-benefit{margin:-2px 0 16px;padding:13px 14px;border:1px solid rgba(201,162,39,.28);border-radius:14px;background:rgba(201,162,39,.07);text-align:center}
+.auth-free-benefit b{display:block;font-size:14px;line-height:1.45}
+.auth-free-benefit span{display:block;margin-top:4px;font-size:11px;color:var(--muted)}
+.home-free-value{text-align:center;margin:16px 0 9px}
+.home-free-value b{display:block;font-size:16px;line-height:1.45}
+.home-free-value span{display:block;margin-top:5px;font-size:12px;color:var(--muted)}
+#homeGuestHint b{font-size:13px}
+#homeGuestHint span{font-size:11px}
+@media(max-width:640px){.home-free-value b{font-size:15px}.auth-free-benefit{margin-bottom:13px}}
+</style>
 </head>
 <body>
 
@@ -1394,7 +1939,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <!-- ============ AUTH MODAL ============ -->
 <div id="authOverlay">
   <div class="modal-box">
-    <div class="modal-title" id="authTitle">로그인</div>
+    <div class="modal-title" id="authTitle">10초면 시작해요</div>
+    <div class="auth-free-benefit"><b>가입하고 연우에게 3번 무료로 물어보세요</b><span>결제수단 등록 없음 · 자동결제 없음</span></div>
     <div id="authSetupNotice" class="setup-notice" style="display:none;">
       아직 계정 저장소가 연결되지 않았어요. Firebase 설정을 먼저 연결해야 실제로 저장됩니다.
     </div>
@@ -1453,8 +1999,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 <nav class="bottom-tabbar" id="bottomTabbar">
   <span class="bt-item active" data-route="home" onclick="goTo('home')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4 8.6 8.6 0 0 1-3.7-.9L3 20l1-4.7A8.4 8.4 0 1 1 21 11.5z"/></svg>
-    <span>AI사주</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10.8 12 3l9 7.8"/><path d="M5.5 9.7V21h13V9.7"/><path d="M9.2 21v-6.5h5.6V21"/></svg>
+    <span>홈</span>
   </span>
   <span class="bt-item" data-route="tool" onclick="goTo('tool')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -1474,7 +2020,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 <!-- ============ HOME ============ -->
 <section id="view-home" class="view">
-  <div class="block" style="padding-top:100px; padding-bottom:8px;">
+  <div class="block home-first-block" style="padding-bottom:8px;">
     <div class="container" style="max-width:480px;">
       <div class="ai-chat-stage">
         <video class="ai-chat-bgvideo" autoplay muted loop playsinline poster="ai-consultant-poster.jpg">
@@ -1495,20 +2041,25 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         </div>
 
         <!-- STEP 0: 소개 + 시작하기 (모두에게 동일하게 보임, 로그인 불필요) -->
-        <div id="homeIntroOverlay" class="ai-chat-setup-overlay">
-          <div class="ai-chat-bubble-npc">
-            안녕하세요, 저는 연우예요.<br>
-            당신의 사주를 바탕으로 함께 이야기해드릴게요.<br><br>
-            오늘 어떤 고민이 있으세요?
+        <div id="homeIntroOverlay" class="ai-chat-setup-overlay home-conversion-intro">
+          <div class="home-conversion-kicker">AI 사주 상담 · 연우</div>
+          <div class="ai-chat-bubble-npc home-conversion-bubble">
+            <strong>고민을 말하면 사주를 읽고, 중요한 날까지 함께 골라드려요.</strong>
+            <span>연애·돈·직업 고민부터 결혼·이사·개업 날짜까지 연우에게 물어보세요.</span>
           </div>
-          <div class="ai-chat-intro-categories">
-            <button onclick="handleHomeCategoryClick(this, '연애·궁합이 궁금해요')">❤️ 연애·궁합</button>
-            <button onclick="handleHomeCategoryClick(this, '돈, 재물운이 궁금해요')">💰 돈·재물</button>
-            <button onclick="handleHomeCategoryClick(this, '직업, 사업운이 궁금해요')">💼 직업·사업</button>
-            <button onclick="handleHomeCategoryClick(this, '결혼, 이사, 개업, 계약 날짜를 잡고 싶어요')">📅 결혼·이사·개업·계약</button>
+
+          <div class="home-conversion-question">오늘 가장 궁금한 건 무엇인가요?</div>
+          <div class="ai-chat-intro-categories home-conversion-categories">
+            <button onclick="handleHomeCategoryClick(this, '올해 연애운과 궁합이 궁금해요')"><span>❤️</span> 연애·궁합</button>
+            <button onclick="handleHomeCategoryClick(this, '올해 돈 흐름과 재물운이 궁금해요')"><span>💰</span> 돈·재물</button>
+            <button onclick="handleHomeCategoryClick(this, '지금 직업이나 사업 방향이 저와 잘 맞는지 궁금해요')"><span>💼</span> 직업·사업</button>
+            <button onclick="handleHomeCategoryClick(this, '결혼, 이사, 개업, 계약 중 중요한 날짜를 잡고 싶어요')"><span>📅</span> 중요한 날짜</button>
           </div>
-          <p id="homeGuestHint" class="ai-chat-guest-hint">지금 회원가입하고 무료로 체험해보세요 (무료 질문 3개)</p>
-          <button class="btn btn-primary" style="width:100%;" onclick="handleHomeChatStart(this)">✨ 내 사주로 상담 시작하기</button>
+
+          <div class="home-free-value"><b>연우에게 내 사주 물어보기</b></div>
+          <p id="homeGuestHint" class="ai-chat-guest-hint"><b>가입하면 AI 사주 상담 3회 무료</b></p>
+          <button id="homeStartChatBtn" class="btn btn-primary home-start-chat-btn" style="width:100%;" onclick="handleHomeChatStart(this)">✨ 연우에게 무료로 물어보기</button>
+          <div class="home-conversion-trust"><span>계산된 사주 데이터 기준</span><i>·</i><span>없는 정보 임의 생성 최소화</span><i>·</i><span>자동결제 없음</span></div>
         </div>
 
         <!-- STEP 1: 생년월일 입력 (시작하기 클릭 + 로그인 후에만 보임) -->
@@ -1574,11 +2125,13 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           </div>
         </div>
       </div>
-      <p class="ai-chat-disclaimer">AI 사주 상담은 참고용 정보이며, 중요한 결정은 본인의 판단으로 내려주세요. 결혼식·이사·개업·계약체결 날짜만 정확히 계산하고 싶으시면 <a onclick="goTo('tool')" style="color:var(--gold-hi); text-decoration:underline; cursor:pointer;">사주 메뉴</a>에서도 확인할 수 있어요.</p>
     </div>
-  </div>
-
-  <section class="block" style="padding-top:100px;">
+  
+    <button class="home-ai-arrow-only" type="button" aria-label="아래 콘텐츠 더 보기" onclick="scrollHomePastAiIntro()">
+      <span class="home-more-chevrons" aria-hidden="true"><i></i><i></i></span>
+    </button>
+</div>
+<section id="home-date-section" class="block home-arrow-section" style="padding-top:100px;">
     <div class="container" style="max-width:480px;">
       <div class="section-head" style="margin-bottom:16px;">
         <div><div class="section-kicker">DATE</div><h2 class="section-title" style="font-size:22px;">상담 후엔<br>실제 날짜까지</h2></div>
@@ -1589,13 +2142,41 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <button onclick="goTo('tool','개업')"><img src="char-opening.jpg" alt="개업"><span>🏮 개업</span></button>
         <button onclick="goTo('tool','계약체결')"><img src="char-contract.jpg" alt="계약체결"><span>📜 계약</span></button>
       </div>
+      <div class="home-daily-yeonwoo" id="homeDailyYeonwoo">
+        <div class="home-feature-kicker">TODAY · 연우의 한마디</div>
+        <strong id="homeDailyYeonwooTitle">오늘의 흐름을 가볍게 확인해보세요.</strong>
+        <p id="homeDailyYeonwooText">저장한 사주가 있으면 오늘의 흐름을 상담으로 이어서 확인할 수 있어요.</p>
+        <button type="button" onclick="openHomeDailyConsult()">오늘 운세 연우에게 물어보기 <i>→</i></button>
+      </div>
     </div>
-  </section>
 
-  <section class="block" style="padding-top:100px;">
+    <div class="home-section-nav" aria-label="섹션 이동">
+      <button type="button" class="home-section-arrow home-section-arrow-up" aria-label="AI 상담으로 이동" onclick="scrollHomeSection('home-ai')"><span></span></button>
+      <button type="button" class="home-section-arrow home-section-arrow-down" aria-label="다음 섹션으로 이동" onclick="scrollHomeSection('home-deeper-section')"><span></span></button>
+    </div>
+</section>
+
+  <section id="home-deeper-section" class="block home-arrow-section" style="padding-top:100px;">
     <div class="container" style="max-width:480px;">
       <div class="section-head" style="margin-bottom:16px;">
         <div><div class="section-kicker">GO DEEPER</div><h2 class="section-title" style="font-size:22px;">더 깊이<br>보고 싶다면</h2></div>
+      </div>
+      
+      <div class="home-compat-teaser">
+        <div class="home-feature-kicker">FREE · 궁합 미리보기</div>
+        <h3>두 사람의 관계 흐름을<br>먼저 가볍게 확인해보세요.</h3>
+        <p>저장된 사주 두 명을 기준으로 관계의 강점, 부딪히기 쉬운 지점, 서로에게 필요한 방식을 살펴볼 수 있어요.</p>
+        <div class="home-compat-points">
+          <span>관계 강점</span><span>주의 포인트</span><span>소통 방식</span>
+        </div>
+        <button type="button" onclick="openSajuInsight('love')">무료 궁합 미리보기 <i>→</i></button>
+      </div>
+<div class="home-free-report-card">
+        <div class="home-feature-kicker">FREE REPORT</div>
+        <h3>내 사주 기본 리포트</h3>
+        <p>오행 구성부터 성향·재물·연애·직업 흐름까지 한 번에 보고, 궁금한 부분은 연우에게 바로 이어서 물어보세요.</p>
+        <div class="home-report-tags"><span>오행</span><span>성향</span><span>재물</span><span>연애</span><span>직업</span></div>
+        <button type="button" onclick="openSajuInsight('profile')">무료 기본 리포트 보기 <i>→</i></button>
       </div>
       <div class="home-deeper-list">
         <button onclick="openSajuInsight('profile')"><b>AI 정밀사주</b><small>내 사주 심층 분석 · 대운 흐름</small><i>→</i></button>
@@ -1603,10 +2184,26 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <button onclick="openSajuInsight('money')"><b>재물·직업 분석</b><small>강점과 흐름을 자세히</small><i>→</i></button>
         <button onclick="goTo('profile')"><b>프리미엄 전체 서비스</b><small>365일 택일 · 상세 리포트 등</small><i>→</i></button>
       </div>
+      <div class="home-consult-to-date">
+        <div class="home-feature-kicker">AI → DATE</div>
+        <strong>상담에서 끝내지 말고<br>실제 날짜까지 이어보세요.</strong>
+        <p>결혼·이사·개업·계약 고민이라면 상담 후 내 사주에 맞는 후보 날짜를 바로 비교할 수 있어요.</p>
+        <div class="home-date-actions">
+          <button onclick="goTo('tool','결혼식')">💍 결혼</button>
+          <button onclick="goTo('tool','이사')">🏠 이사</button>
+          <button onclick="goTo('tool','개업')">🏮 개업</button>
+          <button onclick="goTo('tool','계약체결')">📜 계약</button>
+        </div>
+      </div>
     </div>
-  </section>
+  
+    <div class="home-section-nav" aria-label="섹션 이동">
+      <button type="button" class="home-section-arrow home-section-arrow-up" aria-label="이전 섹션으로 이동" onclick="scrollHomeSection('home-date-section')"><span></span></button>
+      <button type="button" class="home-section-arrow home-section-arrow-down" aria-label="다음 섹션으로 이동" onclick="scrollHomeSection('home-guide-section')"><span></span></button>
+    </div>
+</section>
 
-  <section class="block">
+  <section id="home-guide-section" class="block">
     <div class="container" style="max-width:760px;">
       <div class="section-head"><div><div class="section-kicker">GUIDE</div><h2 class="section-title">택일 가이드</h2></div></div>
       <div class="faq-list">
@@ -1639,10 +2236,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <div class="price-card featured premium-plan-card">
           <div class="popular">MOST POPULAR · PREMIUM</div>
           <h3>프리미엄 이용권</h3>
-          <div class="plan-price"><strong>19,900원</strong><span>/ 30일</span></div>
+          <div class="plan-price"><strong>8,900원</strong><span>/ 30일</span></div>
           <p class="plan-lead">결제일로부터 <b>30일간</b> AI 상담과 정밀 택일 기능을 넉넉하게 이용할 수 있어요. 만료 후 다시 필요한 기간만 구매하세요.</p>
           <ul>
-            <li>✨ <b>AI 상담 하루 20개</b> 질문 (무료는 평생 3개)</li>
+            <li>✨ <b>AI 상담 하루 15개</b> 질문 (무료는 평생 3개)</li>
             <li><b>최대 365일</b> 후보 중 <b>TOP 20</b> 정밀 비교</li>
             <li><b>두 사람 궁합 택일</b> 상세 분석</li>
             <li><b>월별 베스트 날짜</b> + 전체 캘린더 열람</li>
@@ -1669,11 +2266,11 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <div class="faq-list">
         <details class="faq-item"><summary>결과는 얼마나 정확한가요?</summary><p>전통 명리학의 오행 상생상극 원리를 단순화해 참고용으로 제공하는 도구예요. 실제 중요한 결정은 여러 정보를 함께 고려하시길 권합니다.</p></details>
         <details class="faq-item"><summary>태어난 시간을 몰라도 되나요?</summary><p>네, 이용할 수 있어요. 출생시간을 모르면 년·월·일주 등 확인 가능한 범위로 분석하고, 출생시간을 입력하면 시주까지 포함해 AI 상담의 해석 범위가 더 넓어집니다. 출생시간이 필요한 일부 해석은 제공 범위가 달라질 수 있어요.</p></details>
-        <details class="faq-item"><summary>회원가입을 꼭 해야 하나요?</summary><p>아니요. 기본 택일 기능은 회원가입 없이도 이용할 수 있어요. AI 사주 상담, 결제·프리미엄 상태, 사주 보관함 동기화, 문의 내역처럼 계정에 연결되는 기능은 로그인 후 이용합니다.</p></details>
+        <details class="faq-item"><summary>AI 상담도 회원가입 없이 가능한가요?</summary><p>AI 사주 상담은 로그인 후 이용할 수 있으며, 처음 가입하면 3회 무료입니다. 카드등록이나 결제 없이 시작할 수 있어요. 기본 택일 기능은 회원가입 없이도 이용할 수 있습니다.</p></details>
         <details class="faq-item"><summary>내 정보는 어디에 저장되나요?</summary><p>기본 택일 계산과 일부 검색 기록은 브라우저에서 처리·저장됩니다. AI 상담을 이용할 때는 답변 생성을 위해 선택한 사주 정보와 질문·최근 대화 일부가 택일소 서버를 거쳐 AI 제공업체로 전송될 수 있습니다. 로그인·결제 상태와 사용자가 저장한 사주·AI 상담 기록은 계정 기능 제공과 기기 간 동기화를 위해 Firebase에 저장될 수 있습니다.</p></details>
         <details class="faq-item"><summary>사주 계산에는 어떤 정보를 쓰나요?</summary><p>택일 기능은 서비스가 계산한 일주 정보를 핵심 기준으로 사용하고, AI 사주 상담은 계산 라이브러리가 제공하는 년주·월주·일주와 출생시간이 있는 경우 시주, 오행·십신·지장간 정보를 함께 참고합니다. 대운·세운·용신처럼 현재 계산 데이터에 없는 요소는 AI가 임의로 만들어내지 않도록 제한하고 있어요.</p></details>
         <details class="faq-item"><summary>AI가 사주를 대신 봐주나요?</summary><p>택일소의 날짜 추천은 정해진 오행·일진 기준으로 계산됩니다. 생성형 AI가 임의로 운세를 만들어내는 방식과 달리, 계산 기준을 먼저 고정하고 결과를 설명하는 방향을 우선합니다.</p></details>
-        <details class="faq-item"><summary>유료 결제하면 무엇이 달라지나요?</summary><p>무료에서는 AI 상담 평생 3개와 최대 30일·TOP 5 중심으로 확인하고, 프리미엄에서는 <b>AI 상담 하루 20개</b>와 최대 365일 후보·TOP 20·월별 베스트·두 사람 궁합 택일·상세 리포트와 전체 캘린더, 정밀사주·궁합·재물 심층 분석을 <b>30일간</b> 이용할 수 있습니다.</p></details>
+        <details class="faq-item"><summary>유료 결제하면 무엇이 달라지나요?</summary><p>무료에서는 AI 상담 평생 3개와 최대 30일·TOP 5 중심으로 확인하고, 프리미엄에서는 <b>AI 상담 하루 15개</b>와 최대 365일 후보·TOP 20·월별 베스트·두 사람 궁합 택일·상세 리포트와 전체 캘린더, 정밀사주·궁합·재물 심층 분석을 <b>30일간</b> 이용할 수 있습니다.</p></details>
         <details class="faq-item"><summary>결과를 저장하거나 출력할 수 있나요?</summary><p>추천 결과는 브라우저 인쇄 기능으로 PDF 저장이 가능해요. 로그인 상태에서는 사주 보관함을 계정과 동기화해 다른 기기에서도 다시 불러올 수 있도록 구성했습니다.</p></details>
       </div>
     </div>
@@ -1993,7 +2590,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <div class="hero-inner">
       <div class="eyebrow">내 기록</div>
       <h1 style="font-size:clamp(28px,4.6vw,46px);">찾아본 날짜와<br>저장한 사주를 한곳에</h1>
-      <p class="hero-copy">택일 검색 기록을 다시 보고, 가족·연인·사업 파트너의 사주도 보관해 AI 상담에서 바로 불러올 수 있어요.</p>
+      <p class="hero-copy">연우와 나눈 AI 상담을 먼저 이어보고, 택일 검색 기록과 저장한 사주도 한곳에서 관리할 수 있어요.</p>
     </div>
   </header>
 
@@ -2001,7 +2598,13 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <div class="container" style="max-width:760px;">
 
       <div class="history-summary-grid">
-        <button class="history-summary-card active" id="historySummarySearch" onclick="switchHistoryTab('search')">
+        <button class="history-summary-card active" id="historySummaryAi" onclick="switchHistoryTab('ai')">
+          <span>AI 상담</span>
+          <strong id="historyAiCount">0</strong>
+          <small>연우와 나눈 상담 이어보기</small>
+        </button>
+
+        <button class="history-summary-card" id="historySummarySearch" onclick="switchHistoryTab('search')">
           <span>검색 기록</span>
           <strong id="historySearchCount">0</strong>
           <small>지난 택일 결과 다시 보기</small>
@@ -2012,21 +2615,15 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <strong id="historyVaultCount">0</strong>
           <small>나와 소중한 사람들의 사주</small>
         </button>
-
-        <button class="history-summary-card" id="historySummaryAi" onclick="switchHistoryTab('ai')">
-          <span>AI 상담</span>
-          <strong id="historyAiCount">0</strong>
-          <small>연우와 나눈 상담 이어보기</small>
-        </button>
       </div>
 
       <div class="history-tabbar" role="tablist" aria-label="기록 종류">
-        <button id="historyTabSearch" class="history-tab active" role="tab" aria-selected="true" onclick="switchHistoryTab('search')">검색 기록</button>
+        <button id="historyTabAi" class="history-tab active" role="tab" aria-selected="true" onclick="switchHistoryTab('ai')">AI 상담</button>
+        <button id="historyTabSearch" class="history-tab" role="tab" aria-selected="false" onclick="switchHistoryTab('search')">검색 기록</button>
         <button id="historyTabVault" class="history-tab" role="tab" aria-selected="false" onclick="switchHistoryTab('vault')">사주 보관함</button>
-        <button id="historyTabAi" class="history-tab" role="tab" aria-selected="false" onclick="switchHistoryTab('ai')">AI 상담</button>
       </div>
 
-      <div id="historySearchPanel" class="history-panel active">
+      <div id="historySearchPanel" class="history-panel">
         <div class="history-panel-head">
           <div>
             <b>택일 검색 기록</b>
@@ -2069,7 +2666,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         </div>
       </div>
 
-      <div id="historyAiPanel" class="history-panel">
+      <div id="historyAiPanel" class="history-panel active">
         <div class="history-panel-head">
           <div>
             <b>AI 상담 기록</b>
@@ -2110,7 +2707,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         </div>
       </div>
 
-      <button class="pf-upgrade" id="profileUpgradeBtn" onclick="payPremium()">프리미엄으로 업그레이드</button>
+      <button class="pf-upgrade" id="profileUpgradeBtn" onclick="payPremium()">프리미엄 30일 · 8,900원 구매</button>
+      <div id="profilePremiumPriceNote" style="text-align:center;color:var(--muted-2);font-size:10.5px;line-height:1.6;margin:-4px 0 16px;">8,900원 / 30일 · 자동결제 없음 · AI 상담 하루 15개</div>
 <div class="pf-menu">
         <div class="pf-menu-item" onclick="goTo('history')">
           <span class="pf-menu-icon">🕘</span>
@@ -2131,9 +2729,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         </div>
       </div>
 
+      <div class="pf-danger-note">회원탈퇴 시 동일 계정으로 30일간 재가입할 수 없습니다. 무료 3회 혜택도 재가입 제한 기간이 지난 뒤에만 다시 가입할 수 있어요.</div>
       <div class="pf-danger-row">
         <span class="text-action" onclick="logout()">로그아웃</span>
-        <span class="text-action" style="color:var(--warn);" onclick="confirmDeleteAccount()">계정 삭제</span>
+        <span class="text-action" style="color:var(--warn);" onclick="confirmDeleteAccount()">회원탈퇴</span>
       </div>
 
     </div>
@@ -2205,6 +2804,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <div class="admin-stat"><small>오늘 방문수</small><b id="statTodayVisits">–</b></div>
           <div class="admin-stat"><small>총 가입자수</small><b id="statSignups">–</b></div>
           <div class="admin-stat"><small>카카오 가입자</small><b id="statKakaoMembers">–</b></div>
+          <div class="admin-stat"><small>오늘 접속 회원</small><b id="statActiveToday">–</b></div>
+          <div class="admin-stat"><small>최근 7일 접속</small><b id="statActive7d">–</b></div>
           <div class="admin-stat"><small>총 구매수</small><b id="statPurchases">–</b></div>
           <div class="admin-stat"><small>누적 매출</small><b id="statRevenue" style="font-size:20px;">–</b></div>
           <div class="admin-stat"><small>현재 프리미엄 회원</small><b id="statActivePremium">–</b></div>
@@ -2215,12 +2816,38 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <div class="section-head" style="margin-top:40px;">
           <div><div class="section-kicker">MEMBERS</div><h2 class="section-title" style="font-size:24px;">회원 목록</h2></div>
         </div>
-        <div class="field full" style="margin-bottom:14px;">
-          <input type="text" id="adminUserSearch" placeholder="이메일/닉네임으로 검색" oninput="filterAdminUserList(this.value)" style="width:100%; padding:12px 14px; background:#090908; border:1px solid rgba(255,255,255,.10); border-radius:12px; color:var(--white); font-family:inherit; font-size:13.5px;">
+        <div class="admin-member-tools" style="margin-bottom:14px;">
+          <div class="field full" style="margin:0;flex:1;min-width:0;">
+            <input type="text" id="adminUserSearch" placeholder="이메일/닉네임/UID/가입방식으로 검색" oninput="filterAdminUserList(this.value)" style="width:100%; padding:12px 14px; background:#090908; border:1px solid rgba(255,255,255,.10); border-radius:12px; color:var(--white); font-family:inherit; font-size:13.5px;">
+          </div>
+          <select id="adminMemberSort" class="admin-member-sort" onchange="setAdminMemberSort(this.value)" aria-label="회원 정렬">
+            <option value="recent_signup">최근 가입순</option>
+            <option value="recent_access">최근 접속순</option>
+            <option value="premium_first">프리미엄 우선</option>
+            <option value="credits_desc">질문권 많은순</option>
+            <option value="old_signup">오래된 가입순</option>
+            <option value="name">이름순</option>
+          </select>
         </div>
         <div class="price-note" style="margin-top:0; margin-bottom:14px;">⚠ 자가확인(대조 필요) — 서버 검증 없이 손님이 직접 "결제했다"고 눌러서 켜진 프리미엄이에요. 페이앱 결제현황에서 시간·금액이 실제로 맞는지 한 번 대조해보시는 걸 권해요. 표시가 없으면(서버 검증 또는 관리자 직접 지급) 대조하지 않으셔도 돼요.</div>
         <div id="adminUserList" class="usecase-list"></div>
-        <div class="price-note" style="margin-top:20px;">※ 회원 목록은 Firestore users 실제 문서를 기준으로 표시합니다. "제거"는 서비스 회원 문서를 삭제하는 관리 기능이며 Firebase Authentication 계정 자체 삭제와는 별개입니다.</div>
+        <div class="price-note" style="margin-top:20px;">※ 최근 접속시간은 이 버전 배포 후 로그인/재접속한 회원부터 기록됩니다. 문의 이력이 있으면 최근 문의가 표시됩니다. 프리미엄 회원 정보가 일부 누락되어도 서버의 결제 완료 기록(paymentOrders)을 기준으로 자동 복구하며, 관리자 회수 이력이 더 최신인 경우에는 복구하지 않습니다.</div>
+
+        <div id="adminBanSection" class="admin-ban-section">
+          <div class="admin-ban-head">
+            <div>
+              <div class="section-kicker">BANNED</div>
+              <h2 class="section-title" style="font-size:22px;margin:3px 0 0;">영구 밴 목록</h2>
+            </div>
+            <button type="button" class="admin-ban-refresh" onclick="loadAdminBanList()">새로고침</button>
+          </div>
+          <div class="price-note" style="margin:10px 0 12px;">
+            강제탈퇴된 계정은 여기에 남고, 관리자가 직접 밴 해제하기 전까지 같은 같은 Google 또는 Kakao 계정으로 다시 가입할 수 없습니다.
+          </div>
+          <div id="adminBanList" class="usecase-list">
+            <div class="empty-note">밴 목록을 불러오는 중…</div>
+          </div>
+        </div>
 
         <div class="section-head" style="margin-top:40px;">
           <div><div class="section-kicker">SUPPORT</div><h2 class="section-title" style="font-size:24px;">1:1 문의 관리</h2></div>
@@ -2230,6 +2857,49 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     </div>
   </section>
 </section>
+
+
+<div class="admin-perm-backdrop" id="adminPermBackdrop" onclick="if(event.target===this) closeAdminPermissionModal()">
+  <div class="admin-perm-modal" role="dialog" aria-modal="true" aria-labelledby="adminPermTitle">
+    <div class="admin-perm-head">
+      <div>
+        <h3 id="adminPermTitle">회원 권한 관리</h3>
+        <small id="adminPermMember">-</small>
+      </div>
+      <button class="admin-perm-close" type="button" onclick="closeAdminPermissionModal()" aria-label="닫기">×</button>
+    </div>
+
+    <div class="admin-perm-tabs">
+      <button class="admin-perm-tab active" id="adminPermGrantTab" type="button" onclick="setAdminPermissionMode('grant')">지급</button>
+      <button class="admin-perm-tab" id="adminPermRevokeTab" type="button" onclick="setAdminPermissionMode('revoke')">회수</button>
+    </div>
+
+    <div class="admin-perm-options">
+      <button class="admin-perm-option active" id="adminPermPremiumOption" type="button" onclick="setAdminPermissionType('premium')">
+        <b>프리미엄</b>
+        <small id="adminPermPremiumDesc">30일 이용권을 지급합니다.</small>
+      </button>
+      <button class="admin-perm-option" id="adminPermCreditOption" type="button" onclick="setAdminPermissionType('credits')">
+        <b>AI 질문권</b>
+        <small id="adminPermCreditDesc">질문권을 선택한 개수만큼 지급합니다.</small>
+      </button>
+    </div>
+
+    <div class="admin-perm-counts" id="adminPermCounts">
+      <button class="admin-perm-count active" type="button" data-admin-count="1" onclick="setAdminPermissionCount(1)">1개</button>
+      <button class="admin-perm-count" type="button" data-admin-count="5" onclick="setAdminPermissionCount(5)">5개</button>
+      <button class="admin-perm-count" type="button" data-admin-count="10" onclick="setAdminPermissionCount(10)">10개</button>
+      <button class="admin-perm-count" type="button" data-admin-count="all" onclick="setAdminPermissionCount('all')">전부</button>
+    </div>
+
+    <p class="admin-perm-note" id="adminPermNote">선택한 회원에게 프리미엄 30일을 지급합니다.</p>
+
+    <div class="admin-perm-actions">
+      <button class="btn" type="button" onclick="closeAdminPermissionModal()">취소</button>
+      <button class="btn btn-primary" id="adminPermSubmit" type="button" onclick="submitAdminPermissionAction()">지급하기</button>
+    </div>
+  </div>
+</div>
 
 <!-- ============ LEGAL ============ -->
 <section id="view-legal" class="view">
@@ -2260,6 +2930,52 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 </section>
 
 </main>
+
+
+  <section id="seo-ai-saju" class="seo-landing-block">
+    <div class="container" style="max-width:760px;">
+      <div class="section-kicker">AI SAJU</div>
+      <h2 class="section-title">무료 AI 사주 상담</h2>
+      <p>택일소의 AI 사주 상담은 생년월일과 저장된 사주 정보를 바탕으로 연애, 재물, 직업, 중요한 날짜에 대한 질문을 대화형으로 이어갈 수 있도록 구성되어 있습니다. 처음 가입하면 AI 사주 질문 3회를 무료로 이용할 수 있습니다.</p>
+      <a href="#view-home" onclick="document.querySelector('#view-home > .home-first-block')?.scrollIntoView({behavior:'smooth'});return false;">AI 사주 상담 시작하기 →</a>
+    </div>
+  </section>
+
+  <section id="seo-gunghap" class="seo-landing-block">
+    <div class="container" style="max-width:760px;">
+      <div class="section-kicker">GUNGHAP</div>
+      <h2 class="section-title">사주 궁합 · 연애 분석</h2>
+      <p>두 사람의 사주를 저장해두면 궁합과 관계 흐름을 비교할 수 있습니다. 관계의 강점과 부딪히기 쉬운 부분을 참고하고, 필요한 경우 AI 상담으로 이어서 구체적인 질문을 할 수 있습니다.</p>
+      <a href="#seo-gunghap" onclick="openSajuInsight('love');return false;">궁합 미리보기 →</a>
+    </div>
+  </section>
+
+  <section id="seo-wedding-date" class="seo-landing-block">
+    <div class="container" style="max-width:760px;">
+      <div class="section-kicker">WEDDING DATE</div>
+      <h2 class="section-title">결혼 택일</h2>
+      <p>결혼식 후보 날짜를 비교할 때 두 사람의 사주, 일진, 오행과 실제 일정 조건을 함께 참고할 수 있습니다. 택일소에서는 상담에서 결혼 이야기를 나눈 뒤 바로 후보 날짜 비교로 이어갈 수 있습니다.</p>
+      <a href="#seo-wedding-date" onclick="goTo('tool','결혼식');return false;">결혼 날짜 찾아보기 →</a>
+    </div>
+  </section>
+
+  <section id="seo-moving-date" class="seo-landing-block">
+    <div class="container" style="max-width:760px;">
+      <div class="section-kicker">MOVING DATE</div>
+      <h2 class="section-title">이사 택일</h2>
+      <p>이사 날짜는 손없는 날만 보지 않고 실제 입주 일정과 개인 사주를 함께 비교해 참고할 수 있습니다. 여러 후보 날짜를 한 번에 비교해 보다 현실적인 선택을 할 수 있도록 구성되어 있습니다.</p>
+      <a href="#seo-moving-date" onclick="goTo('tool','이사');return false;">이사 날짜 찾아보기 →</a>
+    </div>
+  </section>
+
+  <section id="seo-opening-date" class="seo-landing-block">
+    <div class="container" style="max-width:760px;">
+      <div class="section-kicker">OPENING DATE</div>
+      <h2 class="section-title">개업일 택일</h2>
+      <p>가게 오픈이나 사업 시작일을 정할 때 실제 준비 일정과 사주 기준을 함께 참고할 수 있습니다. 상담에서 사업 고민을 나눈 뒤 개업 후보 날짜로 바로 연결할 수 있습니다.</p>
+      <a href="#seo-opening-date" onclick="goTo('tool','개업');return false;">개업 날짜 찾아보기 →</a>
+    </div>
+  </section>
 
 <footer>
   <div class="container footer-inner">
@@ -2299,6 +3015,12 @@ const PREMIUM_DAYS = 30;
 const PAYAPP_FEEDBACK_URL = 'https://taekilso-backend-lemon.vercel.app/api/payapp-feedback';
 const AI_CHAT_URL = 'https://taekilso-backend-lemon.vercel.app/api/ai-chat';
 const PREMIUM_USAGE_URL = 'https://taekilso-backend-lemon.vercel.app/api/premium-usage';
+const PREMIUM_STATUS_URL = 'https://taekilso-backend-lemon.vercel.app/api/premium-status';
+const ADMIN_USER_ACTION_URL = 'https://taekilso-backend-lemon.vercel.app/api/admin-user-action';
+const ADMIN_MEMBER_SECURITY_URL = 'https://taekilso-backend-lemon.vercel.app/api/admin-member-security';
+const MEMBER_LAST_SEEN_URL = 'https://taekilso-backend-lemon.vercel.app/api/member-last-seen';
+const MEMBER_ACCESS_STATUS_URL = 'https://taekilso-backend-lemon.vercel.app/api/member-access-status';
+const MEMBER_SELF_DELETE_URL = 'https://taekilso-backend-lemon.vercel.app/api/member-self-delete';
 // 질문권(소모성 상품): 무료 3개를 다 쓴 뒤 이어서 물어볼 수 있게 해주는 상품입니다.
 // price가 실제 결제되는 금액(할인가)이고, originalPrice는 화면에 취소선으로 보여줄 정가입니다.
 const AI_QUESTION_PACKS = {
@@ -2306,7 +3028,7 @@ const AI_QUESTION_PACKS = {
   ai_question_pack_10: { price: 3200, originalPrice: 4900, goodname: 'AI 질문권 10개', memo: 'AI 상담 질문 10개 추가', count: 10 }
 };
 const PAYAPP_RETURN_URL = window.location.origin + window.location.pathname + '?premium=1';
-const PREMIUM_PRICE = 19900;
+const PREMIUM_PRICE = 8900;
 const PREMIUM_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30일
 
 let verifiedPremium = (localStorage.getItem(PREMIUM_KEY) === 'true' && !!localStorage.getItem(PREMIUM_OWNER_KEY));
@@ -2893,7 +3615,7 @@ function saveSearchToHistory(entry) {
   } catch (err) { console.error('기록 저장 실패', err); }
 }
 
-let currentHistoryTab = 'search';
+let currentHistoryTab = 'ai';
 
 function updateHistoryCounts() {
   const searchCount = readHistoryStore().length;
@@ -2912,7 +3634,7 @@ function updateHistoryCounts() {
 }
 
 function switchHistoryTab(tab) {
-  currentHistoryTab = ['search','vault','ai'].includes(tab) ? tab : 'search';
+  currentHistoryTab = ['ai','search','vault'].includes(tab) ? tab : 'ai';
 
   const searchPanel = document.getElementById('historySearchPanel');
   const vaultPanel = document.getElementById('historyVaultPanel');
@@ -3129,7 +3851,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
         <div class="pr-tag">🔒 여기서부터 정밀 분석</div>
         <p><b>무료 결과는 핵심 후보만 보여드렸어요.</b><br>프리미엄에서는 두 분의 기운을 더 깊이 비교하고, 전체 후보·점수·월별 BEST·상세 이유까지 한 번에 확인할 수 있어요.</p>
         <div class="pp-list" style="margin-top:12px"><div><strong>무료</strong><br>TOP 5 · 기본 점수 · 손없는 날</div><div><strong>30일 프리미엄</strong><br>365일 · TOP 20 · 상세 리포트 · 궁합 택일</div></div>
-        <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="payPremium()">19,900원으로 30일 전체 결과 보기 →</button>
+        <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="payPremium()">8,900원으로 30일 전체 결과 보기 →</button>
         <div style="font-size:10px;color:var(--muted-2);margin-top:9px;text-align:center">자동결제 없음 · 30일 후 자동 만료</div>
       `;
     }
@@ -3141,7 +3863,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
         <div class="pr-tag">✦ 무료 결과 확인 완료</div>
         <p><b>지금 고른 기간 안에서 더 좋은 날짜가 있는지 확인해보세요.</b><br>무료는 TOP 5를 보여드리고, 프리미엄에서는 최대 365일 전체 후보를 다시 비교해 TOP 20과 월별 BEST까지 확인할 수 있어요.</p>
         <div class="pp-list" style="margin-top:12px"><div><strong>무료로 확인한 것</strong><br>추천 TOP 5 · 일진 · 오행 · 손없는 날</div><div><strong>프리미엄에서 추가</strong><br>365일 · TOP 20 · 상세 이유 · 월별 BEST</div></div>
-        <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="payPremium()">19,900원으로 30일 전체 분석 열기 →</button>
+        <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="payPremium()">8,900원으로 30일 전체 분석 열기 →</button>
         <div style="font-size:10px;color:var(--muted-2);margin-top:9px;text-align:center">자동결제 없음 · 결제일로부터 30일</div>
       `;
     } else {
@@ -3487,7 +4209,7 @@ function applyDowFilter(mode) {
 /* ---------- AUTH (Firebase Spark 무료 플랜) ---------- */
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
-// 3) Authentication > Sign-in method 에서 이메일/비밀번호 사용 설정
+// 3) Authentication > Sign-in method 에서 Google 사용 설정
 console.log('[택일소 빌드] v' + '2026-09-09-security-fix-vault-feature' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
@@ -3498,6 +4220,111 @@ const firebaseConfig = {
   appId: "1:305797835958:web:563579c0d08471ea704a17",
   measurementId: "G-LH595SGH6X"
 };
+
+
+const memberAccessCache = new Map();
+
+function clearLocalKakaoSessionForBan() {
+  try { localStorage.removeItem(KAKAO_USER_KEY); } catch(e) {}
+  try { sessionStorage.removeItem(KAKAO_USER_KEY); } catch(e) {}
+  try { sessionStorage.removeItem('taekilso_kakao_access_token'); } catch(e) {}
+}
+
+async function checkMemberAccess(user, options = {}) {
+  const strict = !!options.strict;
+  if (!user || user.isAnonymous || !MEMBER_ACCESS_STATUS_URL) return true;
+  if (String(user.email || '').trim().toLowerCase() === String(ADMIN_EMAIL || '').trim().toLowerCase()) return true;
+
+  const uid = String(user.uid || '');
+  const cached = memberAccessCache.get(uid);
+  if (cached && Date.now() - cached.at < 2 * 60 * 1000) return cached.allowed;
+
+  async function requestAccessStatus(forceRefreshToken = false) {
+    const token = await user.getIdToken(!!forceRefreshToken);
+    const res = await fetch(MEMBER_ACCESS_STATUS_URL, {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer ' + token
+      },
+      body:'{}',
+      cache:'no-store'
+    });
+    const data = await res.json().catch(() => ({}));
+    return { res, data };
+  }
+
+  try {
+    let result = await requestAccessStatus(false);
+
+    if (result.res.status === 401) {
+      result = await requestAccessStatus(true);
+    }
+
+    if (
+      result.res.status === 404 ||
+      result.res.status === 405 ||
+      result.res.status >= 500
+    ) {
+      await new Promise(resolve => setTimeout(resolve, 450));
+      result = await requestAccessStatus(true);
+    }
+
+    const res = result.res;
+    const data = result.data;
+
+    if (
+      res.status === 403 &&
+      (data.error === 'ACCOUNT_BANNED' || data.error === 'ACCOUNT_REJOIN_COOLDOWN')
+    ) {
+      memberAccessCache.set(uid, { allowed:false, at:Date.now() });
+      clearLocalKakaoSessionForBan();
+      try { await firebase.auth().signOut(); } catch(e) {}
+      firebaseAuthUser = null;
+
+      if (!options.silent) {
+        let message = data.message || '이 계정은 현재 이용할 수 없습니다.';
+        if (data.error === 'ACCOUNT_REJOIN_COOLDOWN' && data.rejoinAllowedAtMs) {
+          message += ' 재가입 가능일: ' +
+            new Date(Number(data.rejoinAllowedAtMs)).toLocaleDateString('ko-KR');
+        }
+        showToast(message);
+      }
+      return false;
+    }
+
+    if (res.ok) {
+      memberAccessCache.set(uid, { allowed:true, at:Date.now() });
+      return true;
+    }
+
+    console.warn('회원 이용상태 확인 실패', res.status, data);
+
+    if (strict) {
+      const msg = res.status === 401
+        ? '로그인 인증을 확인하지 못했어요. 다시 로그인해주세요.'
+        : '회원 이용상태 서버를 확인하지 못했어요. 잠시 후 다시 시도해주세요.';
+      showToast(msg);
+      try { await firebase.auth().signOut(); } catch(e) {}
+      firebaseAuthUser = null;
+      return false;
+    }
+
+    return true;
+
+  } catch (err) {
+    console.warn('회원 이용상태 확인 오류', err);
+
+    if (strict) {
+      showToast('회원 이용상태 서버에 연결하지 못했어요. 잠시 후 다시 시도해주세요.');
+      try { await firebase.auth().signOut(); } catch(e) {}
+      firebaseAuthUser = null;
+      return false;
+    }
+
+    return true;
+  }
+}
 
 // 첫 로그인 상태 확인(비동기)이 끝나는 시점에 resolve되는 신호입니다.
 // 결제 리턴처럼 "지금 로그인된 사람이 누구인지 반드시 알아야 하는" 로직은
@@ -3524,12 +4351,30 @@ try {
         return null;
       })
       .then(() => {
-        firebase.auth().onAuthStateChanged((user) => {
+        firebase.auth().onAuthStateChanged(async (user) => {
           firebaseAuthUser = user || null;
           firebaseAuthReady = true;
           resolveFirebaseAuthSettled();
           if (user) {
+            if (!user.isAnonymous) {
+              const allowed = await checkMemberAccess(user);
+              if (!allowed) {
+                updateAuthNav();
+                updatePremiumUI();
+                return;
+              }
+            }
+
             if (!user.isAnonymous && getPremiumOwnerKey() && getPremiumOwnerKey() !== user.uid) clearLocalPremium();
+
+            // Firebase Authentication에는 계정이 있지만 Firestore users/{uid} 문서가
+            // 과거 오류로 빠져 있는 회원도 로그인 시 자동 복구합니다.
+            // 밴 확인이 끝난 정상 회원에 대해서만 문서를 복구합니다.
+            if (!user.isAnonymous) {
+              ensureMemberDocumentFromAuth(user);
+              touchMemberLastSeen(user, { force:true });
+            }
+
             reconcilePremiumWithAccount(user.uid);
             flushLocalOnlyInquiries();
           }
@@ -3538,23 +4383,8 @@ try {
         });
       });
 
-    firebaseAuthInitPromise.then(async () => {
-      // signInWithRedirect()로 돌아온 경우 결과를 반드시 소비합니다.
-      try {
-        const result = await firebase.auth().getRedirectResult();
-        if (result && result.user) {
-          if (result.additionalUserInfo && result.additionalUserInfo.isNewUser) {
-            recordSignup(result.user.uid, { email: result.user.email, provider: 'google' });
-          }
-          closeAuthModal();
-          showToast('구글 계정으로 로그인했어요');
-          continueHomeChatAfterLogin();
-        }
-      } catch (err) {
-        console.error('Google redirect 로그인 결과 처리 실패', err);
-        showAuthError(formatAuthError(err));
-      }
-    });
+    // Google 로그인은 storage-partitioned 브라우저에서 redirect state가
+    // 유실되는 문제를 피하기 위해 popup 방식만 사용합니다.
     // 방문자 수는 로그인 여부가 확정된 뒤에 기록합니다. 이렇게 해야 지금 접속한 사람이
     // 관리자 계정인지 미리 확인하고, 관리자의 방문은 통계에서 빼놓을 수 있습니다.
     firebaseAuthSettled.then(recordVisit);
@@ -3565,10 +4395,10 @@ function formatAuthError(err) {
   const code = err && err.code ? err.code : '';
   const raw = err && err.message ? err.message : '알 수 없는 오류가 발생했어요.';
   if (code === 'auth/unauthorized-domain') return '현재 사이트 주소가 Firebase Authentication의 승인된 도메인에 등록되지 않았어요. Firebase Console → Authentication → Settings → 승인된 도메인에서 현재 도메인을 추가해주세요.';
-  if (code === 'auth/popup-blocked') return '브라우저가 Google 로그인 창을 막았어요. 전체 화면 로그인으로 다시 연결합니다.';
+  if (code === 'auth/popup-blocked') return '브라우저가 Google 로그인 팝업을 막았어요. 팝업을 허용한 뒤 다시 시도해주세요.';
   if (code === 'auth/popup-closed-by-user') return 'Google 로그인 창이 닫혔어요. 다시 시도해주세요.';
   if (code === 'auth/cancelled-popup-request') return 'Google 로그인 요청이 취소됐어요. 다시 시도해주세요.';
-  if (code === 'auth/operation-not-supported-in-this-environment') return '현재 브라우저 환경에서는 팝업 로그인을 사용할 수 없어 전체 화면 로그인으로 연결합니다.';
+  if (code === 'auth/operation-not-supported-in-this-environment') return '현재 브라우저 환경에서는 Google 팝업 로그인을 사용할 수 없어요. Chrome 또는 Safari 일반 탭에서 다시 시도해주세요.';
   if (code === 'auth/network-request-failed') return '네트워크 연결이 불안정해요. Wi-Fi/모바일 데이터를 확인한 뒤 다시 시도해주세요.';
   return raw;
 }
@@ -3664,6 +4494,113 @@ async function recordSignup(uid, data) {
   }
 }
 
+function inferAuthProvider(user) {
+  if (!user) return '';
+  if (String(user.uid || '').startsWith('kakao_')) return 'kakao';
+
+  const providers = Array.isArray(user.providerData)
+    ? user.providerData.map(p => p && p.providerId).filter(Boolean)
+    : [];
+
+  if (providers.includes('google.com')) return 'google';
+  if (providers.includes('password')) return 'legacy-email';
+  return providers[0] || 'firebase';
+}
+
+async function ensureMemberDocumentFromAuth(user) {
+  if (!user || user.isAnonymous || !db) return;
+
+  const provider = inferAuthProvider(user);
+  const kakaoProfile = provider === 'kakao' ? getKakaoUser() : null;
+
+  await recordSignup(user.uid, {
+    email: user.email || (kakaoProfile && kakaoProfile.email) || null,
+    nickname: user.displayName || (kakaoProfile && kakaoProfile.nickname) || null,
+    provider
+  });
+}
+
+const MEMBER_LAST_SEEN_TOUCH_PREFIX = 'taekilso_member_last_seen_touch_v3_';
+async function touchMemberLastSeen(user, options = {}){
+  if (!user || user.isAnonymous) return false;
+
+  try {
+    const now = Date.now();
+    const uid = String(user.uid || '').trim();
+    if (!uid) return false;
+
+    // 사용자별 throttle. force:true인 로그인 직후에는 반드시 서버에 기록합니다.
+    const touchKey = MEMBER_LAST_SEEN_TOUCH_PREFIX + uid;
+    let lastLocal = 0;
+    try { lastLocal = Number(sessionStorage.getItem(touchKey) || 0); } catch(e) {}
+
+    const force = !!(options && options.force);
+    if (!force && now - lastLocal < 5 * 60 * 1000) return false;
+
+    const provider = inferAuthProvider(user);
+
+    // Firestore 보안 규칙에 lastSeen 필드가 막혀 있어도 확실히 기록되도록
+    // Firebase ID token을 검증하는 서버 API를 우선 사용합니다.
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(MEMBER_LAST_SEEN_URL, {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':'Bearer ' + token
+        },
+        body:JSON.stringify({
+          provider,
+          source: provider === 'kakao' ? 'kakao-login' : 'firebase-auth'
+        })
+      });
+
+      if (res.ok) {
+        try { sessionStorage.setItem(touchKey, String(now)); } catch(e) {}
+        return true;
+      }
+
+      const data = await res.json().catch(() => ({}));
+      console.warn('최근 접속시간 서버 기록 실패', res.status, data);
+    } catch (serverErr) {
+      console.warn('최근 접속시간 서버 호출 실패', serverErr);
+    }
+
+    // 서버 API가 아직 배포되지 않은 순간에도 기존 방식으로 한 번 더 시도합니다.
+    if (db) {
+      const ref = db.collection('users').doc(uid);
+      await ref.set({
+        lastSeenAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastSeenAtMs: now,
+        lastSeenProvider: provider,
+        lastSeenSource: provider === 'kakao' ? 'kakao-login' : 'firebase-auth'
+      }, { merge:true });
+
+      try { sessionStorage.setItem(touchKey, String(now)); } catch(e) {}
+      return true;
+    }
+
+    return false;
+  } catch (err) {
+    // 최근 접속 기록 실패가 로그인 자체를 막으면 안 됩니다.
+    console.warn('최근 접속시간 기록 실패', err);
+    return false;
+  }
+}
+
+// 이미 로그인한 채로 탭을 다시 열거나 백그라운드에서 돌아온 경우도 접속시간을 갱신합니다.
+function refreshCurrentMemberLastSeen(){
+  try {
+    const user = firebase && firebase.auth ? firebase.auth().currentUser : null;
+    if (user && !user.isAnonymous) touchMemberLastSeen(user);
+  } catch(e) {}
+}
+window.addEventListener('focus', refreshCurrentMemberLastSeen);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') refreshCurrentMemberLastSeen();
+});
+
+
 function recordPurchase(orderId, verificationMethod) {
   // 과거 버전 호환용 함수명만 유지합니다.
   // 프리미엄 활성화는 PayApp feedbackurl의 서버 검증만 신뢰합니다.
@@ -3732,11 +4669,44 @@ function backfillUserProfile(uid, existingData) {
   }
 }
 
-function reconcilePremiumWithAccount(uid) {
+
+async function recoverPremiumFromVerifiedServer(uid){
+  if (!uid) return null;
+
+  try {
+    const headers = await getAiRequestHeaders();
+    const res = await fetch(PREMIUM_STATUS_URL, {
+      method:'POST',
+      headers,
+      body:JSON.stringify({ uid })
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      console.warn('프리미엄 서버 복구 확인 실패', data.error || res.status);
+      return null;
+    }
+
+    if (data.active && Number(data.premiumUntil || 0) > Date.now()) {
+      setLocalPremium(Number(data.premiumUntil), uid);
+      updateAuthNav();
+      updatePremiumUI();
+      return data;
+    }
+
+    return data;
+  } catch (err) {
+    console.warn('프리미엄 서버 복구 요청 실패', err);
+    return null;
+  }
+}
+
+async function reconcilePremiumWithAccount(uid) {
   if (!db || !uid) return;
   syncSajuVaultFromCloud(uid);
 
-  db.collection('users').doc(uid).get({ source: 'server' }).then((snap) => {
+  try {
+    const snap = await db.collection('users').doc(uid).get({ source: 'server' });
     const data = snap.exists ? (snap.data() || {}) : {};
     backfillUserProfile(uid, data);
 
@@ -3749,8 +4719,6 @@ function reconcilePremiumWithAccount(uid) {
 
     const now = Date.now();
 
-    // 서버가 유일한 프리미엄 권한 원본입니다.
-    // localStorage 값으로 premium/premiumUntil을 서버에 다시 써 올리지 않습니다.
     if (data.premium === true && serverUntil > now) {
       setLocalPremium(serverUntil, uid);
       updateAuthNav();
@@ -3760,10 +4728,25 @@ function reconcilePremiumWithAccount(uid) {
       return;
     }
 
-    if (getPremiumOwnerKey() === uid) clearLocalPremium();
-    updateAuthNav();
-    updatePremiumUI();
-  }).catch((err) => console.error('프리미엄 상태 확인 실패', err));
+    // 예전 회원 문서가 일부 필드만 남았거나 실수로 재생성된 경우에도,
+    // 이미 결제 완료된 premium paymentOrders가 있으면 서버에서 권한을 복구합니다.
+    // 관리자 회수 이력이 더 최신이면 복구하지 않도록 서버가 판정합니다.
+    const recovered = await recoverPremiumFromVerifiedServer(uid);
+    if (recovered && recovered.active && Number(recovered.premiumUntil || 0) > now) {
+      return;
+    }
+
+    // 서버 복구 확인까지 끝난 뒤에만 로컬 프리미엄 표시를 해제합니다.
+    // 네트워크 오류(null)일 때는 기존 이용권을 함부로 지우지 않습니다.
+    if (recovered && recovered.active === false) {
+      if (getPremiumOwnerKey() === uid) clearLocalPremium();
+      updateAuthNav();
+      updatePremiumUI();
+    }
+  } catch (err) {
+    // 일시적인 Firestore 오류 때문에 정상 회원의 프리미엄 표시를 지우지 않습니다.
+    console.error('프리미엄 상태 확인 실패', err);
+  }
 }
 
 /*
@@ -3866,6 +4849,7 @@ function updateAuthNav() {
     label = (kakaoUser.nickname || '카카오 사용자') + ' 님' + premiumTag;
   }
   btn.textContent = label;
+  btn.classList.toggle('logged-in', !!(kakaoUser || fbUser));
   if (bottomLabel) bottomLabel.textContent = (kakaoUser || fbUser) ? '프로필' : '로그인';
 }
 
@@ -3876,7 +4860,7 @@ function renderProfile() {
 
   if (fbUser) {
     name = fbUser.displayName || (fbUser.email ? fbUser.email.split('@')[0] : '회원');
-    const provider = (fbUser.providerData[0] && fbUser.providerData[0].providerId === 'google.com') ? '구글 로그인' : '이메일 로그인';
+    const provider = (fbUser.providerData[0] && fbUser.providerData[0].providerId === 'google.com') ? 'Google 로그인' : '이전 회원';
     meta = provider + (fbUser.email ? ' · ' + fbUser.email : '');
     initial = name.charAt(0).toUpperCase();
   } else if (kakaoUser) {
@@ -3933,6 +4917,464 @@ document.addEventListener('visibilitychange', () => {
 });
 
 /* ---------- ADMIN DASHBOARD ---------- */
+
+function adminTimestampMs(value, fallback = 0){
+  if (value && typeof value.toMillis === 'function') return value.toMillis();
+  if (value && typeof value.toDate === 'function') return value.toDate().getTime();
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') {
+    const n = Date.parse(value);
+    return Number.isFinite(n) ? n : fallback;
+  }
+  return fallback;
+}
+
+function adminFormatDateTime(ms){
+  if (!ms) return '기록 없음';
+  try {
+    return new Date(ms).toLocaleString('ko-KR', {
+      year:'numeric', month:'2-digit', day:'2-digit',
+      hour:'2-digit', minute:'2-digit'
+    });
+  } catch(e) {
+    return new Date(ms).toLocaleString('ko-KR');
+  }
+}
+
+function adminRelativeTime(ms){
+  if (!ms) return '기록 없음';
+  const diff = Date.now() - ms;
+  if (diff < 0) return '방금';
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return '방금';
+  if (min < 60) return `${min}분 전`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}시간 전`;
+  const day = Math.floor(hr / 24);
+  if (day < 30) return `${day}일 전`;
+  return adminFormatDateTime(ms);
+}
+
+function adminInquiryOwnerUid(q){
+  if (!q) return '';
+  return String(q.ownerUid || q.firebaseUid || q.uid || '').trim();
+}
+
+function buildAdminRecentInquiryMap(qs){
+  const map = new Map();
+  if (!qs) return map;
+
+  qs.forEach((doc) => {
+    const q = doc.data() || {};
+    const uid = adminInquiryOwnerUid(q);
+    if (!uid) return;
+
+    const createdMs = adminTimestampMs(q.createdAt, Number(q.createdAtMs || 0));
+    const status = String(q.status || '').trim();
+    const waiting = status !== '답변완료';
+
+    const prev = map.get(uid);
+    if (!prev || createdMs > prev.createdMs) {
+      map.set(uid, {
+        id: doc.id,
+        createdMs,
+        status,
+        waiting,
+        title: String(q.title || '').trim()
+      });
+    }
+  });
+
+  return map;
+}
+
+async function callAdminUserAction(action, uid, extra){
+  const current = firebase.auth().currentUser;
+  if (!current) throw new Error('관리자 로그인 세션이 없습니다.');
+  const token = await current.getIdToken(true);
+  const res = await fetch(ADMIN_USER_ACTION_URL, {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer ' + token
+    },
+    body:JSON.stringify({ action, uid, ...(extra || {}) })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(data.message || data.error || `HTTP ${res.status}`);
+    err.status = res.status;
+    err.code = data.error || '';
+    throw err;
+  }
+  return data;
+}
+
+async function adminAdjustQuestionCreditsFallback(uid, mode, count){
+  if (!db || !uid) throw new Error('회원 데이터베이스에 연결되지 않았어요.');
+  if (!isAdmin()) throw new Error('관리자 권한이 필요합니다.');
+
+  const ref = db.collection('users').doc(uid);
+  let before = 0;
+  let after = 0;
+
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists) throw new Error('회원 정보를 찾지 못했습니다.');
+
+    const data = snap.data() || {};
+    before = Math.max(0, Number(data.aiQuestionCredits || 0));
+
+    if (mode === 'grant') {
+      const n = Number(count || 0);
+      if (![1,5,10].includes(n)) throw new Error('질문권 수량이 올바르지 않습니다.');
+      after = before + n;
+      tx.set(ref, {
+        aiQuestionCredits: after,
+        lastAdminCreditGrantAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastAdminCreditGrantCount: n
+      }, { merge:true });
+    } else {
+      if (count === 'all') {
+        after = 0;
+      } else {
+        const n = Number(count || 0);
+        if (![1,5,10].includes(n)) throw new Error('질문권 수량이 올바르지 않습니다.');
+        after = Math.max(0, before - n);
+      }
+
+      tx.set(ref, {
+        aiQuestionCredits: after,
+        lastAdminCreditRevokeAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastAdminCreditRevokeCount: Math.max(0, before - after)
+      }, { merge:true });
+    }
+  });
+
+  return {
+    ok:true,
+    fallback:true,
+    questionCredits:after,
+    before
+  };
+}
+
+function askAdminDeletePassword(label){
+  return new Promise((resolve) => {
+    const old = document.getElementById('adminDeletePasswordBackdrop');
+    if (old) old.remove();
+
+    const backdrop = document.createElement('div');
+    backdrop.id = 'adminDeletePasswordBackdrop';
+    backdrop.style.cssText = [
+      'position:fixed','inset:0','z-index:99999',
+      'background:rgba(0,0,0,.72)','display:flex',
+      'align-items:center','justify-content:center','padding:20px'
+    ].join(';');
+
+    const box = document.createElement('div');
+    box.style.cssText = [
+      'width:min(420px,100%)','background:#171512',
+      'border:1px solid rgba(255,255,255,.12)','border-radius:18px',
+      'padding:22px','box-shadow:0 24px 80px rgba(0,0,0,.45)'
+    ].join(';');
+
+    box.innerHTML = `
+      <div style="font-size:18px;color:var(--gold-hi);margin-bottom:8px;">강제탈퇴 최종 확인</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px;">
+        ${escapeHtml(label || '선택한 회원')} 회원을 삭제하려면 관리자 비밀번호를 입력해주세요.
+      </div>
+      <input id="adminDeletePasswordInput" type="password" autocomplete="current-password"
+        placeholder="관리자 비밀번호"
+        style="width:100%;box-sizing:border-box;padding:13px 14px;border-radius:12px;
+        border:1px solid rgba(255,255,255,.14);background:#0f0e0c;color:#fff;outline:none;">
+      <div id="adminDeletePasswordError"
+        style="min-height:18px;margin-top:8px;font-size:12px;color:#e38b8b;"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;">
+        <button id="adminDeletePasswordCancel" class="btn" type="button">취소</button>
+        <button id="adminDeletePasswordOk" class="btn btn-primary" type="button">확인</button>
+      </div>
+    `;
+
+    backdrop.appendChild(box);
+    document.body.appendChild(backdrop);
+
+    const input = box.querySelector('#adminDeletePasswordInput');
+    const cancel = box.querySelector('#adminDeletePasswordCancel');
+    const ok = box.querySelector('#adminDeletePasswordOk');
+    const error = box.querySelector('#adminDeletePasswordError');
+
+    const finish = (value) => {
+      backdrop.remove();
+      resolve(value);
+    };
+
+    cancel.onclick = () => finish(null);
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) finish(null);
+    });
+
+    ok.onclick = () => {
+      const value = String(input.value || '');
+      if (!value) {
+        error.textContent = '비밀번호를 입력해주세요.';
+        input.focus();
+        return;
+      }
+      finish(value);
+    };
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') ok.click();
+      if (e.key === 'Escape') cancel.click();
+    });
+
+    setTimeout(() => input.focus(), 0);
+  });
+}
+
+
+function scrollHomeSection(target){
+  let el = null;
+  if (target === 'home-ai') {
+    el = document.querySelector('#view-home > .home-first-block');
+  } else {
+    el = document.getElementById(target);
+  }
+  if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+
+async function callAdminMemberSecurity(action, payload = {}) {
+  const current = firebase.auth().currentUser;
+  if (!current || current.isAnonymous) throw new Error('관리자 로그인이 필요합니다.');
+  const token = await current.getIdToken(true);
+  const res = await fetch(ADMIN_MEMBER_SECURITY_URL, {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer ' + token
+    },
+    body:JSON.stringify({ action, ...payload })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(data.message || data.error || `HTTP ${res.status}`);
+    err.code = data.error || '';
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
+async function forceDeleteMember(uid, label){
+  if (!uid) return;
+  const me = firebase.auth().currentUser;
+  if (me && me.uid === uid) {
+    showToast('현재 로그인한 관리자 본인 계정은 강제탈퇴할 수 없어요.');
+    return;
+  }
+
+  const first = confirm(
+    `${label || uid} 회원을 강제탈퇴할까요?\n\n` +
+    `• Firebase 로그인 계정 삭제\n` +
+    `• 회원 프로필/사주 보관함/AI 상담 삭제\n` +
+    `• 결제·문의 기록은 보존\n\n` +
+    `이 작업은 되돌릴 수 없습니다.`
+  );
+  if (!first) return;
+
+  const typed = prompt('실수 방지를 위해 "강제탈퇴"를 입력해주세요.');
+  if (typed !== '강제탈퇴') {
+    showToast('강제탈퇴가 취소됐어요.');
+    return;
+  }
+
+  // 최종 3차 확인. 비밀번호는 코드에 저장하지 않고
+  // Vercel의 ADMIN_DELETE_PASSWORD Secret과 서버에서만 비교합니다.
+  const deletePassword = await askAdminDeletePassword(label || uid);
+  if (!deletePassword) {
+    showToast('강제탈퇴가 취소됐어요.');
+    return;
+  }
+
+  try {
+    showToast('영구 밴을 저장한 뒤 회원 계정을 삭제하는 중이에요…');
+    const result = await callAdminMemberSecurity('force_delete', { uid, deletePassword });
+    if (!result || !result.permanentlyBanned || !result.banId) {
+      throw new Error('영구 밴 저장 확인에 실패했습니다.');
+    }
+    showToast('회원 강제탈퇴 및 영구 밴이 완료됐어요.');
+    await loadAdminBanList();
+  } catch (err) {
+    console.error('관리자 강제탈퇴 실패', err);
+    showToast('강제탈퇴 실패: ' + err.message);
+  }
+}
+
+
+let adminPermState = {
+  uid: '',
+  label: '',
+  mode: 'grant',
+  type: 'premium',
+  count: 1
+};
+
+function openAdminPermissionModal(uid, label, mode){
+  adminPermState = {
+    uid: String(uid || ''),
+    label: String(label || uid || ''),
+    mode: mode === 'revoke' ? 'revoke' : 'grant',
+    type: 'premium',
+    count: 1
+  };
+  const backdrop = document.getElementById('adminPermBackdrop');
+  const member = document.getElementById('adminPermMember');
+  if (member) member.textContent = adminPermState.label + ' · ' + adminPermState.uid;
+  setAdminPermissionMode(adminPermState.mode);
+  setAdminPermissionType('premium');
+  if (backdrop) backdrop.classList.add('show');
+}
+
+function closeAdminPermissionModal(){
+  const backdrop = document.getElementById('adminPermBackdrop');
+  if (backdrop) backdrop.classList.remove('show');
+}
+
+function setAdminPermissionMode(mode){
+  adminPermState.mode = mode === 'revoke' ? 'revoke' : 'grant';
+
+  const grantTab = document.getElementById('adminPermGrantTab');
+  const revokeTab = document.getElementById('adminPermRevokeTab');
+  if (grantTab) grantTab.classList.toggle('active', adminPermState.mode === 'grant');
+  if (revokeTab) revokeTab.classList.toggle('active', adminPermState.mode === 'revoke');
+
+  const submit = document.getElementById('adminPermSubmit');
+  if (submit) submit.textContent = adminPermState.mode === 'grant' ? '지급하기' : '회수하기';
+
+  updateAdminPermissionModalText();
+}
+
+function setAdminPermissionType(type){
+  adminPermState.type = type === 'credits' ? 'credits' : 'premium';
+
+  const premiumOption = document.getElementById('adminPermPremiumOption');
+  const creditOption = document.getElementById('adminPermCreditOption');
+  const counts = document.getElementById('adminPermCounts');
+
+  if (premiumOption) premiumOption.classList.toggle('active', adminPermState.type === 'premium');
+  if (creditOption) creditOption.classList.toggle('active', adminPermState.type === 'credits');
+  if (counts) counts.classList.toggle('show', adminPermState.type === 'credits');
+
+  // 지급에서는 "전부"가 의미 없으므로 숨기고, 회수에서만 전부 회수 제공.
+  const allBtn = document.querySelector('[data-admin-count="all"]');
+  if (allBtn) allBtn.style.display = adminPermState.mode === 'revoke' ? '' : 'none';
+  if (adminPermState.mode === 'grant' && adminPermState.count === 'all') setAdminPermissionCount(1);
+
+  updateAdminPermissionModalText();
+}
+
+function setAdminPermissionCount(count){
+  adminPermState.count = count;
+  document.querySelectorAll('#adminPermCounts .admin-perm-count').forEach(btn => {
+    const raw = btn.dataset.adminCount;
+    const isAll = count === 'all' && raw === 'all';
+    const isNumber = count !== 'all' && Number(raw) === Number(count);
+    btn.classList.toggle('active', isAll || isNumber);
+  });
+  updateAdminPermissionModalText();
+}
+
+function updateAdminPermissionModalText(){
+  const grant = adminPermState.mode === 'grant';
+  const premium = adminPermState.type === 'premium';
+
+  const premiumDesc = document.getElementById('adminPermPremiumDesc');
+  const creditDesc = document.getElementById('adminPermCreditDesc');
+  const note = document.getElementById('adminPermNote');
+  const allBtn = document.querySelector('[data-admin-count="all"]');
+
+  if (premiumDesc) premiumDesc.textContent = grant ? '30일 이용권을 지급합니다.' : '현재 프리미엄 이용권을 회수합니다.';
+  if (creditDesc) creditDesc.textContent = grant ? '선택한 개수만큼 질문권을 지급합니다.' : '선택한 개수만큼 질문권을 회수합니다.';
+  if (allBtn) allBtn.style.display = adminPermState.mode === 'revoke' ? '' : 'none';
+
+  if (!note) return;
+  if (premium) {
+    note.textContent = grant
+      ? '선택한 회원에게 프리미엄 30일을 지급합니다.'
+      : '선택한 회원의 프리미엄 권한을 즉시 회수합니다.';
+  } else {
+    const countText = adminPermState.count === 'all' ? '남은 질문권 전부' : `질문권 ${adminPermState.count}개`;
+    note.textContent = grant
+      ? `선택한 회원에게 ${countText}를 지급합니다.`
+      : `선택한 회원에게서 ${countText}를 회수합니다. 보유 수량보다 많이 회수해도 0개 아래로 내려가지 않습니다.`;
+  }
+}
+
+async function submitAdminPermissionAction(){
+  const { uid, mode, type, count } = adminPermState;
+  if (!uid) return;
+
+  try {
+    const submit = document.getElementById('adminPermSubmit');
+    if (submit) {
+      submit.disabled = true;
+      submit.textContent = '처리 중…';
+    }
+
+    let action = '';
+    let extra = {};
+
+    if (type === 'premium') {
+      action = mode === 'grant' ? 'grant_premium' : 'revoke_premium';
+    } else {
+      action = mode === 'grant' ? 'grant_credits' : 'revoke_credits';
+      extra.count = count;
+    }
+
+    let result;
+    try {
+      result = await callAdminUserAction(action, uid, extra);
+    } catch (serverErr) {
+      const backendActionMissing =
+        serverErr &&
+        (
+          serverErr.code === 'UNKNOWN_ACTION' ||
+          serverErr.status === 404 ||
+          serverErr.status === 405
+        );
+
+      // 질문권 지급/회수 API가 아직 구버전으로 배포돼 있으면,
+      // 관리자 Firestore 권한으로 동일 작업을 안전하게 한 번 더 처리합니다.
+      if (type === 'credits' && backendActionMissing) {
+        result = await adminAdjustQuestionCreditsFallback(uid, mode, count);
+      } else {
+        throw serverErr;
+      }
+    }
+
+    if (type === 'premium') {
+      showToast(mode === 'grant' ? '프리미엄 30일 지급 완료' : '프리미엄 회수 완료');
+    } else {
+      showToast(
+        `${mode === 'grant' ? '질문권 지급' : '질문권 회수'} 완료 · 현재 ${Number(result.questionCredits || 0)}개`
+      );
+    }
+
+    closeAdminPermissionModal();
+  } catch (err) {
+    console.error('회원 권한 관리 실패', err);
+    showToast('처리 실패: ' + err.message);
+  } finally {
+    const submit = document.getElementById('adminPermSubmit');
+    if (submit) {
+      submit.disabled = false;
+      submit.textContent = adminPermState.mode === 'grant' ? '지급하기' : '회수하기';
+    }
+  }
+}
+
 function filterAdminUserList(query) {
   const q = query.trim().toLowerCase();
   document.querySelectorAll('#adminUserList .usecase-item').forEach(item => {
@@ -3943,6 +5385,88 @@ function filterAdminUserList(query) {
 
 let adminStatsUnsub = null;
 let adminDailyVisitsUnsub = null;
+let adminUsersUnsub = null;
+let adminMemberSortMode = 'recent_signup';
+
+try {
+  const savedAdminMemberSort = sessionStorage.getItem('taekilso_admin_member_sort');
+  if (savedAdminMemberSort) adminMemberSortMode = savedAdminMemberSort;
+} catch(e) {}
+
+function setAdminMemberSort(mode) {
+  const allowed = new Set([
+    'recent_signup',
+    'recent_access',
+    'premium_first',
+    'credits_desc',
+    'old_signup',
+    'name'
+  ]);
+
+  adminMemberSortMode = allowed.has(mode) ? mode : 'recent_signup';
+
+  try {
+    sessionStorage.setItem('taekilso_admin_member_sort', adminMemberSortMode);
+  } catch(e) {}
+
+  const select = document.getElementById('adminMemberSort');
+  if (select && select.value !== adminMemberSortMode) {
+    select.value = adminMemberSortMode;
+  }
+
+  sortAdminUserListDom();
+}
+
+function sortAdminUserListDom() {
+  const list = document.getElementById('adminUserList');
+  if (!list) return;
+
+  const cards = Array.from(list.querySelectorAll('.admin-member-card'));
+  if (!cards.length) return;
+
+  cards.sort((a, b) => {
+    const aSignup = Number(a.dataset.signupMs || 0);
+    const bSignup = Number(b.dataset.signupMs || 0);
+    const aSeen = Number(a.dataset.lastSeenMs || 0);
+    const bSeen = Number(b.dataset.lastSeenMs || 0);
+    const aCredits = Number(a.dataset.credits || 0);
+    const bCredits = Number(b.dataset.credits || 0);
+    const aPremium = Number(a.dataset.premium || 0);
+    const bPremium = Number(b.dataset.premium || 0);
+    const aName = String(a.dataset.sortName || '');
+    const bName = String(b.dataset.sortName || '');
+
+    if (adminMemberSortMode === 'recent_access') {
+      return bSeen - aSeen || bSignup - aSignup;
+    }
+
+    if (adminMemberSortMode === 'premium_first') {
+      return bPremium - aPremium || bSeen - aSeen || bSignup - aSignup;
+    }
+
+    if (adminMemberSortMode === 'credits_desc') {
+      return bCredits - aCredits || bSeen - aSeen || bSignup - aSignup;
+    }
+
+    if (adminMemberSortMode === 'old_signup') {
+      const ax = aSignup || Number.MAX_SAFE_INTEGER;
+      const bx = bSignup || Number.MAX_SAFE_INTEGER;
+      return ax - bx || bSeen - aSeen;
+    }
+
+    if (adminMemberSortMode === 'name') {
+      return aName.localeCompare(bName, 'ko');
+    }
+
+    // 최근 가입순. 가입일이 없는 레거시 회원은 뒤로 보냅니다.
+    if (!aSignup && bSignup) return 1;
+    if (aSignup && !bSignup) return -1;
+    return bSignup - aSignup || bSeen - aSeen;
+  });
+
+  cards.forEach(card => list.appendChild(card));
+}
+
 function renderAdmin() {
   const denied = document.getElementById('adminDenied');
   const content = document.getElementById('adminContent');
@@ -3953,6 +5477,9 @@ function renderAdmin() {
   }
   denied.style.display = 'none';
   content.style.display = 'block';
+
+  const sortSelect = document.getElementById('adminMemberSort');
+  if (sortSelect) sortSelect.value = adminMemberSortMode;
 
   if (!db) return;
 
@@ -3985,7 +5512,8 @@ function renderAdmin() {
     document.getElementById('statTodayVisits').textContent = snap.exists ? (snap.data().count || 0) : 0;
   }, (err) => console.error('오늘 방문수 실시간 조회 실패', err));
 
-  db.collection('users').get().then((qs) => {
+  if (adminUsersUnsub) adminUsersUnsub();
+  adminUsersUnsub = db.collection('users').onSnapshot(async (qs) => {
     const list = document.getElementById('adminUserList');
     if (qs.empty) {
       list.innerHTML = '<div class="empty-note">아직 가입한 회원이 없어요.</div>';
@@ -3993,21 +5521,72 @@ function renderAdmin() {
       const kakaoEl = document.getElementById('statKakaoMembers');
       if (signupEl) signupEl.textContent = '0';
       if (kakaoEl) kakaoEl.textContent = '0';
+      const activeTodayEl = document.getElementById('statActiveToday');
+      const active7dEl = document.getElementById('statActive7d');
+      if (activeTodayEl) activeTodayEl.textContent = '0';
+      if (active7dEl) active7dEl.textContent = '0';
       return;
     }
+
+    // 회원 카드에 "최근 문의" 표시를 붙이기 위해 문의를 한 번에 조회합니다.
+    // 회원별 개별 쿼리를 하지 않아 N+1 읽기 문제를 피합니다.
+    let recentInquiryByUid = new Map();
+    try {
+      const inquiryQs = await db.collection('inquiries').limit(500).get();
+      recentInquiryByUid = buildAdminRecentInquiryMap(inquiryQs);
+    } catch (err) {
+      console.warn('회원 최근 문의 요약 조회 실패', err);
+    }
+
     list.innerHTML = '';
     // createdAt이 없는 회원(예: Firestore가 꺼져있던 시기에 만들어진 기록)도 빠짐없이 보여주기 위해
     // orderBy 대신 가져온 뒤 이 자리에서 정렬합니다. createdAt이 없으면 맨 뒤로 보냅니다.
     const docs = [];
     qs.forEach((doc) => docs.push(doc));
     docs.sort((a, b) => {
-      const getMs = (d) => {
-        const v = d.data().createdAt;
-        if (v && typeof v.toMillis === 'function') return v.toMillis();
-        if (typeof v === 'number') return v;
-        return 0;
-      };
-      return getMs(b) - getMs(a);
+      const au = a.data() || {};
+      const bu = b.data() || {};
+
+      const aSignup = adminTimestampMs(au.createdAt, Number(au.createdAtMs || 0));
+      const bSignup = adminTimestampMs(bu.createdAt, Number(bu.createdAtMs || 0));
+      const aSeen = adminTimestampMs(au.lastSeenAt, Number(au.lastSeenAtMs || 0));
+      const bSeen = adminTimestampMs(bu.lastSeenAt, Number(bu.lastSeenAtMs || 0));
+      const aCredits = Math.max(0, Number(au.aiQuestionCredits || 0));
+      const bCredits = Math.max(0, Number(bu.aiQuestionCredits || 0));
+
+      const aPremiumUntil = adminTimestampMs(au.premiumUntil);
+      const bPremiumUntil = adminTimestampMs(bu.premiumUntil);
+      const aPremium = au.premium === true && aPremiumUntil > Date.now() ? 1 : 0;
+      const bPremium = bu.premium === true && bPremiumUntil > Date.now() ? 1 : 0;
+
+      const aName = String(au.nickname || au.displayName || au.email || a.id || '');
+      const bName = String(bu.nickname || bu.displayName || bu.email || b.id || '');
+
+      if (adminMemberSortMode === 'recent_access') {
+        return bSeen - aSeen || bSignup - aSignup;
+      }
+
+      if (adminMemberSortMode === 'premium_first') {
+        return bPremium - aPremium || bSeen - aSeen || bSignup - aSignup;
+      }
+
+      if (adminMemberSortMode === 'credits_desc') {
+        return bCredits - aCredits || bSeen - aSeen || bSignup - aSignup;
+      }
+
+      if (adminMemberSortMode === 'old_signup') {
+        const ax = aSignup || Number.MAX_SAFE_INTEGER;
+        const bx = bSignup || Number.MAX_SAFE_INTEGER;
+        return ax - bx || bSeen - aSeen;
+      }
+
+      if (adminMemberSortMode === 'name') {
+        return aName.localeCompare(bName, 'ko');
+      }
+
+      if (!aSignup && bSignup) return 1;
+      if (aSignup && !bSignup) return -1;
+      return bSignup - aSignup || bSeen - aSeen;
     });
     const actualMemberCount = docs.length;
     const kakaoMemberCount = docs.filter((doc) => {
@@ -4020,25 +5599,109 @@ function renderAdmin() {
     if (signupEl) signupEl.textContent = actualMemberCount;
     if (kakaoEl) kakaoEl.textContent = kakaoMemberCount;
 
+    const nowMs = Date.now();
+    const todayStart = new Date();
+    todayStart.setHours(0,0,0,0);
+    const activeTodayCount = docs.filter((doc) => {
+      const u = doc.data() || {};
+      return adminTimestampMs(u.lastSeenAt, Number(u.lastSeenAtMs || 0)) >= todayStart.getTime();
+    }).length;
+    const active7dCount = docs.filter((doc) => {
+      const u = doc.data() || {};
+      return adminTimestampMs(u.lastSeenAt, Number(u.lastSeenAtMs || 0)) >= nowMs - 7 * 24 * 60 * 60 * 1000;
+    }).length;
+    const activeTodayEl = document.getElementById('statActiveToday');
+    const active7dEl = document.getElementById('statActive7d');
+    if (activeTodayEl) activeTodayEl.textContent = activeTodayCount;
+    if (active7dEl) active7dEl.textContent = active7dCount;
+
     docs.forEach((doc) => {
-      const u = doc.data();
+      const u = doc.data() || {};
       const label = u.email || u.nickname || ('회원 (' + doc.id.slice(0, 8) + '…)');
-      let untilMs = 0;
-      if (u.premiumUntil && typeof u.premiumUntil.toMillis === 'function') untilMs = u.premiumUntil.toMillis();
-      else if (typeof u.premiumUntil === 'number') untilMs = u.premiumUntil;
+
+      const untilMs = adminTimestampMs(u.premiumUntil);
       const isActivePremium = u.premium === true && untilMs > Date.now();
       const untilStr = untilMs ? new Date(untilMs).toLocaleDateString('ko-KR') : '';
+
+      const createdMs = adminTimestampMs(u.createdAt, Number(u.createdAtMs || 0));
+      const lastSeenMs = adminTimestampMs(u.lastSeenAt, Number(u.lastSeenAtMs || 0));
+      const credits = Math.max(0, Number(u.aiQuestionCredits || 0));
+      const freeUsed = Math.max(0, Number(u.aiFreeUsed || 0));
+
+      // 예전 회원 중 provider 필드가 비어 있는 경우에도 가능한 범위에서
+      // 로그인 경로를 복원해서 관리자 화면에 표시합니다.
+      // 확실한 근거가 없으면 Google로 단정하지 않고 '이전 회원'으로 표시합니다.
+      const rawProvider = String(u.provider || '').trim().toLowerCase();
+      const lastSeenProvider = String(u.lastSeenProvider || '').trim().toLowerCase();
+      const memberUid = String(doc.id || '');
+
+      let provider = '이전 회원';
+      if (
+        rawProvider === 'kakao' ||
+        lastSeenProvider === 'kakao' ||
+        memberUid.startsWith('kakao_')
+      ) {
+        provider = 'Kakao';
+      } else if (
+        rawProvider === 'google' ||
+        rawProvider === 'google.com' ||
+        lastSeenProvider === 'google' ||
+        lastSeenProvider === 'google.com'
+      ) {
+        provider = 'Google';
+      } else if (
+        rawProvider === 'email' ||
+        rawProvider === 'password' ||
+        lastSeenProvider === 'email' ||
+        lastSeenProvider === 'password'
+      ) {
+        provider = '이전 회원';
+      } else if (rawProvider && rawProvider !== 'firebase') {
+        provider = rawProvider;
+      }
+
+      const recentInquiry = recentInquiryByUid.get(doc.id) || null;
+      const recentInquiryText = recentInquiry
+        ? (recentInquiry.waiting ? `답변 대기 문의 · ${adminRelativeTime(recentInquiry.createdMs)}` : `최근 문의 · ${adminRelativeTime(recentInquiry.createdMs)}`)
+        : '';
+
       const item = document.createElement('div');
-      item.className = 'usecase-item';
-      item.dataset.searchKey = (label + ' ' + (u.nickname || '') + ' ' + (u.provider || '') + ' ' + doc.id).toLowerCase();
+      item.className = 'usecase-item admin-member-card';
+      item.dataset.signupMs = String(createdMs || 0);
+      item.dataset.lastSeenMs = String(lastSeenMs || 0);
+      item.dataset.credits = String(credits || 0);
+      item.dataset.premium = isActivePremium ? '1' : '0';
+      item.dataset.sortName = String(u.nickname || u.displayName || u.email || label || doc.id || '').toLowerCase();
+      item.dataset.searchKey = (
+        label + ' ' + (u.nickname || '') + ' ' + provider + ' ' + doc.id +
+        ' ' + adminFormatDateTime(lastSeenMs) + ' ' + recentInquiryText + ' ' +
+        (recentInquiry ? recentInquiry.title : '')
+      ).toLowerCase();
+
       item.innerHTML = `
-        <div>
-          <strong style="color:var(--gold-hi); font-family:var(--serif); font-weight:400;">${escapeHtml(label)}</strong> · ${escapeHtml(u.provider || '기타')}${isActivePremium ? ` · <span style="color:var(--gold-hi)">프리미엄 (${untilStr}까지)</span>` : ''}${isActivePremium && u.lastVerificationMethod === 'self-confirm' ? ` · <span style="color:var(--warn); font-size:10px; border:1px solid rgba(201,131,106,.4); padding:2px 6px; border-radius:999px;">⚠ 자가확인(대조 필요)</span>` : ''}<div style="font-size:10px;color:var(--muted-2);margin-top:4px;">UID ${escapeHtml(doc.id)}</div>
+        <div style="min-width:0; flex:1;">
+          <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap;">
+            <strong style="color:var(--gold-hi); font-family:var(--serif); font-weight:400;">${escapeHtml(label)}</strong>
+            <span style="font-size:10px;color:var(--muted-2);border:1px solid rgba(255,255,255,.08);padding:2px 6px;border-radius:999px;">${escapeHtml(provider)}</span>
+            ${isActivePremium ? `<span style="color:var(--gold-hi);font-size:10px;">프리미엄 · ${untilStr}까지</span>` : ''}
+            ${isActivePremium && u.lastVerificationMethod === 'self-confirm' ? `<span style="color:var(--warn); font-size:10px; border:1px solid rgba(201,131,106,.4); padding:2px 6px; border-radius:999px;">⚠ 자가확인</span>` : ''}
+            ${recentInquiry ? `<span class="admin-inquiry-badge ${recentInquiry.waiting ? 'waiting' : 'answered'}" title="${escapeHtml(recentInquiry.title || '최근 문의')}">${recentInquiry.waiting ? '● ' : ''}${escapeHtml(recentInquiryText)}</span>` : ''}
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:5px 14px;margin-top:8px;font-size:10.5px;color:var(--muted-2);line-height:1.45;">
+            <span>최근 접속 <b style="color:#d9d2c5;font-weight:500;">${escapeHtml(adminRelativeTime(lastSeenMs))}</b></span>
+            <span title="${escapeHtml(adminFormatDateTime(lastSeenMs))}">접속시각 ${escapeHtml(adminFormatDateTime(lastSeenMs))}</span>
+            <span>가입일 ${escapeHtml(adminFormatDateTime(createdMs))}</span>
+            <span>질문권 <b style="color:#d9d2c5;font-weight:500;">${credits}개</b></span>
+            <span>무료 AI ${Math.min(freeUsed, 3)}/3 사용</span>
+          </div>
+          <div style="font-size:9.5px;color:var(--muted-2);margin-top:6px;overflow-wrap:anywhere;">UID ${escapeHtml(doc.id)}</div>
         </div>
-        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-          <span class="text-action" data-grant-uid="${doc.id}" style="font-size:11px;">프리미엄 30일 지급</span>
-          <span class="text-action" data-revoke-uid="${doc.id}" style="font-size:11px; color:var(--warn);">회수</span>
-          <span class="hist-delete" data-uid="${doc.id}">제거</span>
+
+        <div style="display:flex; gap:7px; align-items:center; justify-content:flex-end; flex-wrap:wrap; max-width:310px;">
+          <span class="text-action" data-perm-grant-uid="${doc.id}" data-perm-label="${escapeHtml(label)}" style="font-size:10.5px;">지급</span>
+          <span class="text-action" data-perm-revoke-uid="${doc.id}" data-perm-label="${escapeHtml(label)}" style="font-size:10.5px;color:var(--warn);">회수</span>
+          <span class="hist-delete" data-force-delete-uid="${doc.id}" data-force-delete-label="${escapeHtml(label)}" style="font-size:10.5px;color:#e39482;">강제탈퇴</span>
         </div>
       `;
       list.appendChild(item);
@@ -4052,58 +5715,101 @@ function renderAdmin() {
     }).length;
     const activeEl = document.getElementById('statActivePremium');
     if (activeEl) activeEl.textContent = activeCount;
+    sortAdminUserListDom();
+
     const searchBox = document.getElementById('adminUserSearch');
     if (searchBox && searchBox.value) filterAdminUserList(searchBox.value);
-    list.querySelectorAll('.hist-delete').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const uid = e.target.dataset.uid;
-        if (!confirm('목록에서 제거할까요? (실제 로그인 계정은 지워지지 않아요)')) return;
-        db.collection('users').doc(uid).delete().then(() => renderAdmin()).catch(err => showToast('제거 실패: ' + err.message));
-      });
-    });
-    list.querySelectorAll('[data-grant-uid]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const uid = e.target.dataset.grantUid;
-        if (!confirm('이 회원에게 프리미엄 30일 이용권을 지급할까요?')) return;
-        const until = Date.now() + PREMIUM_DURATION_MS;
-        const ref = db.collection('users').doc(uid);
-        ref.set({ premium: true, premiumUntil: until, grantedByAdmin: true, lastVerificationMethod: 'admin-grant', premiumUsageCount: 0 }, { merge: true })
-          .then(() => ref.get({ source: 'server' }))
-          .then((snap) => {
-            const data = snap.data() || {};
-            if (data.premium === true) {
-              showToast('프리미엄을 지급했어요. (확인됨)');
-            } else {
-              showToast('저장 요청은 됐는데, 다시 읽어보니 반영이 안 된 것 같아요. 새로고침 후 다시 시도해주세요.');
-            }
-            renderAdmin();
-          })
-          .catch(err => showToast('지급 실패: [' + (err.code || '') + '] ' + err.message));
-      });
-    });
-    list.querySelectorAll('[data-revoke-uid]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const uid = e.target.dataset.revokeUid;
-        if (!confirm('이 회원의 프리미엄 이용권을 회수할까요? (환불 처리 후 사용)')) return;
-        const ref = db.collection('users').doc(uid);
-        ref.set({ premium: false, premiumUntil: 0 }, { merge: true })
-          .then(() => ref.get({ source: 'server' }))
-          .then((snap) => {
-            const data = snap.data() || {};
-            if (data.premium === false) {
-              showToast('프리미엄을 회수했어요. (확인됨)');
-            } else {
-              showToast('저장 요청은 됐는데, 다시 읽어보니 반영이 안 된 것 같아요. Firestore 규칙이 최신인지 확인해주세요.');
-            }
-            renderAdmin();
-          })
-          .catch(err => showToast('회수 실패: [' + (err.code || '') + '] ' + err.message));
-      });
-    });
-  }).catch(err => console.error('회원 목록 조회 실패', err));
 
+    list.querySelectorAll('[data-force-delete-uid]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        forceDeleteMember(e.currentTarget.dataset.forceDeleteUid, e.currentTarget.dataset.forceDeleteLabel || '');
+      });
+    });
+    list.querySelectorAll('[data-perm-grant-uid]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const el = e.currentTarget;
+        openAdminPermissionModal(el.dataset.permGrantUid, el.dataset.permLabel || '', 'grant');
+      });
+    });
+    list.querySelectorAll('[data-perm-revoke-uid]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const el = e.currentTarget;
+        openAdminPermissionModal(el.dataset.permRevokeUid, el.dataset.permLabel || '', 'revoke');
+      });
+    });
+  }, (err) => {
+    console.error('회원 목록 실시간 조회 실패', err);
+    const list = document.getElementById('adminUserList');
+    if (list) {
+      list.innerHTML = '<div class="empty-note">회원 목록을 불러오지 못했어요.<br><span class="text-action" onclick="renderAdmin()" style="display:inline-block;margin-top:8px;">다시 불러오기</span></div>';
+    }
+  });
+
+  loadAdminBanList();
   renderAdminInquiries();
 }
+
+
+async function loadAdminBanList() {
+  const wrap = document.getElementById('adminBanList');
+  if (!wrap || !isAdmin()) return;
+
+  wrap.innerHTML = '<div class="empty-note">밴 목록을 불러오는 중…</div>';
+
+  try {
+    const data = await callAdminMemberSecurity('list_bans');
+    const bans = Array.isArray(data.bans) ? data.bans : [];
+
+    if (!bans.length) {
+      wrap.innerHTML = '<div class="empty-note">현재 영구 밴된 계정이 없어요.</div>';
+      return;
+    }
+
+    wrap.innerHTML = '';
+    bans.forEach((ban) => {
+      const label = ban.email || ban.nickname || ban.uid || '밴 계정';
+      const when = ban.bannedAtMs ? adminFormatDateTime(ban.bannedAtMs) : '-';
+      const row = document.createElement('div');
+      row.className = 'usecase-item';
+      row.innerHTML = `
+        <div style="min-width:0;flex:1;">
+          <strong style="color:#e6c3b9;font-family:var(--serif);font-weight:400;">${escapeHtml(label)}</strong>
+          <div style="font-size:10.5px;color:var(--muted-2);margin-top:6px;line-height:1.55;">
+            ${escapeHtml(ban.provider || 'unknown')} · 밴 ${escapeHtml(when)}
+          </div>
+          <div style="font-size:9.5px;color:var(--muted-2);margin-top:4px;overflow-wrap:anywhere;">${escapeHtml(ban.uid || '')}</div>
+        </div>
+        <span class="text-action" data-unban-id="${escapeHtml(ban.banId || '')}" data-unban-label="${escapeHtml(label)}" style="color:#9fc8a4;font-size:11px;">밴 해제</span>
+      `;
+      wrap.appendChild(row);
+    });
+
+    wrap.querySelectorAll('[data-unban-id]').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        const el = e.currentTarget;
+        await unbanMember(el.dataset.unbanId, el.dataset.unbanLabel || '');
+      });
+    });
+  } catch (err) {
+    console.error('밴 목록 조회 실패', err);
+    wrap.innerHTML = '<div class="empty-note">밴 목록을 불러오지 못했어요.</div>';
+  }
+}
+
+async function unbanMember(banId, label) {
+  if (!banId) return;
+  if (!confirm(`${label || '선택한 계정'}의 영구 밴을 해제할까요?\n\n해제 후에는 다시 가입/로그인할 수 있습니다.`)) return;
+
+  try {
+    await callAdminMemberSecurity('unban_user', { banId });
+    showToast('영구 밴을 해제했어요.');
+    await loadAdminBanList();
+  } catch (err) {
+    console.error('밴 해제 실패', err);
+    showToast('밴 해제 실패: ' + (err.message || err));
+  }
+}
+
 
 function renderAdminInquiries() {
   const wrap = document.getElementById('adminInquiryList');
@@ -4476,13 +6182,13 @@ async function requestRefund() {
     ? '\n\n✓ 결제 이후 프리미엄 기능을 한 번도 이용하지 않으신 것으로 확인돼요. 이 경우 환불이 가능해요.'
     : `\n\n참고로, 결제 이후 프리미엄 기능(365일 검색 · TOP20 · 상세 리포트 등)을 이미 ${usedCount}회 이용하신 기록이 있어요. 서비스를 정상적으로 이용하신 이후의 환불 요청은 제한될 수 있는 점 양해 부탁드려요.`;
 
-  if (!confirm('프리미엄 결제(19,900원)에 대한 환불을 요청할까요?' + usageNotice + '\n\n확인을 누르면 문의가 등록되고, 순차적으로 확인 후 안내드릴게요.')) return;
+  if (!confirm('프리미엄 결제(8,900원)에 대한 환불을 요청할까요?' + usageNotice + '\n\n확인을 누르면 문의가 등록되고, 순차적으로 확인 후 안내드릴게요.')) return;
 
   goTo('support');
   setTimeout(() => {
     document.getElementById('supportTitle').value = '프리미엄 결제 환불 요청';
     document.getElementById('supportMessage').value =
-      '프리미엄(19,900원) 결제에 대한 환불을 요청합니다.\n\n' +
+      '프리미엄(8,900원) 결제에 대한 환불을 요청합니다.\n\n' +
       '환불 사유: \n(자세한 사유를 여기에 적어주세요)\n\n' +
       '── 자동 기록 (서버 확인값, 조작 불가) ──\n' +
       `주문번호: ${orderId}\n` +
@@ -4493,46 +6199,81 @@ async function requestRefund() {
   }, 100);
 }
 
-function confirmDeleteAccount() {
+async function confirmDeleteAccount() {
   const kakaoUser = getKakaoUser();
-  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser && !firebaseAuthUser.isAnonymous) ? firebaseAuthUser : null;
-  if (!kakaoUser && !fbUser) { showToast('로그인 후 이용해주세요.'); return; }
+  let fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser && !firebaseAuthUser.isAnonymous)
+    ? firebaseAuthUser
+    : (firebase.auth && firebase.auth().currentUser && !firebase.auth().currentUser.isAnonymous ? firebase.auth().currentUser : null);
 
-  const msg = kakaoUser
-    ? '이 브라우저에 저장된 택일소 로그인 정보를 삭제할게요. (카카오 계정 자체는 카카오톡 앱에서 별도로 연결 해제하셔야 완전히 끊겨요) 계속할까요?'
-    : '계정을 삭제하면 되돌릴 수 없어요. 정말 삭제할까요?';
-  if (!confirm(msg)) return;
-
-  if (kakaoUser) {
-    // 브릿지(카카오 로그인을 Firebase 세션으로 잇는 것)가 아직 안 끝났거나 실패했더라도
-    // 확실히 지워지도록, Firebase 인증 상태에 의존하지 않고 알고 있는 카카오 UID로 바로 지웁니다.
-    if (db) {
-      db.collection('users').doc('kakao_' + kakaoUser.id).delete().catch(() => {});
-    }
-    localStorage.removeItem(KAKAO_USER_KEY);
-    sessionStorage.removeItem(KAKAO_USER_KEY);
-    sessionStorage.removeItem('taekilso_kakao_access_token');
-    if (firebaseReady && firebase.auth) firebase.auth().signOut().catch(() => {});
-    firebaseAuthUser = null;
-    updateAuthNav();
-    showToast('택일소 로그인 정보를 삭제했어요.');
-    goTo('home');
+  if (!kakaoUser && !fbUser) {
+    showToast('로그인 후 이용해주세요.');
     return;
   }
 
-  const uid = fbUser.uid;
-  fbUser.delete().then(() => {
-    if (db) db.collection('users').doc(uid).delete().catch(() => {});
-    showToast('계정이 삭제됐어요.');
-    goTo('home');
-  }).catch((err) => {
-    if (err.code === 'auth/requires-recent-login') {
-      showToast('보안을 위해 다시 로그인한 뒤 삭제해주세요.');
-      logout();
-    } else {
-      showToast('삭제 실패: ' + err.message);
+  const first = confirm(
+    `회원탈퇴를 하면 계정과 사주 보관함·AI 상담 데이터가 삭제됩니다.
+
+중요: 탈퇴 후 동일 계정으로 30일 동안 재가입할 수 없습니다.
+무료 AI 3회 혜택을 반복해서 받기 위한 탈퇴·재가입도 30일간 제한됩니다.
+
+결제·문의 기록은 정산 및 분쟁 대응을 위해 보존될 수 있습니다.
+
+계속 탈퇴하시겠어요?`
+  );
+  if (!first) return;
+
+  const typed = prompt('확인을 위해 "회원탈퇴"를 입력해주세요.');
+  if (typed !== '회원탈퇴') {
+    showToast('회원탈퇴가 취소됐어요.');
+    return;
+  }
+
+  try {
+    if (!fbUser && kakaoUser) {
+      const kakaoToken = sessionStorage.getItem('taekilso_kakao_access_token') || '';
+      fbUser = await ensureKakaoFirebaseSession(kakaoToken || undefined);
     }
-  });
+
+    if (!fbUser || fbUser.isAnonymous) {
+      throw new Error('회원 인증을 확인할 수 없어요. 다시 로그인한 뒤 탈퇴해주세요.');
+    }
+
+    const token = await fbUser.getIdToken(true);
+    const res = await fetch(MEMBER_SELF_DELETE_URL, {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer ' + token
+      },
+      body:'{}'
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(data.message || data.error || `HTTP ${res.status}`);
+    }
+
+    clearLocalKakaoSessionForBan();
+    try { localStorage.removeItem(KAKAO_USER_KEY); } catch(e) {}
+    try { sessionStorage.removeItem(KAKAO_USER_KEY); } catch(e) {}
+    try { sessionStorage.removeItem('taekilso_kakao_access_token'); } catch(e) {}
+    try { await firebase.auth().signOut(); } catch(e) {}
+
+    firebaseAuthUser = null;
+    firebaseAuthReady = true;
+    updateAuthNav();
+
+    let msg = '회원탈퇴가 완료됐어요. 동일 계정은 30일 후부터 다시 가입할 수 있어요.';
+    if (data.rejoinAllowedAtMs) {
+      msg = '회원탈퇴가 완료됐어요. 재가입 가능일은 ' +
+        new Date(Number(data.rejoinAllowedAtMs)).toLocaleDateString('ko-KR') + ' 이후예요.';
+    }
+    showToast(msg);
+    goTo('home');
+  } catch (err) {
+    console.error('회원탈퇴 실패', err);
+    showToast('회원탈퇴 실패: ' + (err && err.message ? err.message : String(err)));
+  }
 }
 
 async function loginWithGoogle() {
@@ -4543,36 +6284,64 @@ async function loginWithGoogle() {
   }
 
   const btn = document.querySelector('#authOverlay button[onclick="loginWithGoogle()"]');
-  if (btn) { btn.disabled = true; btn.dataset.originalText = btn.textContent; btn.textContent = 'Google 연결 중…'; }
+  if (btn) {
+    btn.disabled = true;
+    btn.dataset.originalText = btn.textContent;
+    btn.textContent = 'Google 연결 중…';
+  }
+
   try {
     if (firebaseAuthInitPromise) await firebaseAuthInitPromise;
-    // Prevent two local identity systems from being active at once.
-    localStorage.removeItem(KAKAO_USER_KEY);
-    sessionStorage.removeItem(KAKAO_USER_KEY);
+
+    try { localStorage.removeItem(KAKAO_USER_KEY); } catch(e) {}
+    try { sessionStorage.removeItem(KAKAO_USER_KEY); } catch(e) {}
+    try { sessionStorage.removeItem('taekilso_kakao_access_token'); } catch(e) {}
+
     const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    try {
-      const result = await firebase.auth().signInWithPopup(provider);
-      closeAuthModal();
-      showToast('구글 계정으로 로그인했어요');
-      continueHomeChatAfterLogin();
-      if (result.additionalUserInfo && result.additionalUserInfo.isNewUser) {
-        recordSignup(result.user.uid, { email: result.user.email, provider: 'google' });
-      }
-    } catch (err) {
-      console.warn('Google popup 로그인 실패', err);
-      const cancelledCodes = ['auth/popup-closed-by-user', 'auth/cancelled-popup-request'];
-      if (!cancelledCodes.includes(err.code)) {
-        showToast('팝업 방식이 안 돼서 전체 화면 Google 로그인으로 다시 시도할게요.');
-        await firebase.auth().signInWithRedirect(provider);
-        return;
-      }
+    provider.setCustomParameters({ prompt:'select_account' });
+
+    const result = await firebase.auth().signInWithPopup(provider);
+
+    if (!result || !result.user) {
+      throw new Error('Google 로그인 결과를 확인하지 못했어요.');
     }
+
+    const allowed = await checkMemberAccess(result.user, { strict:true });
+    if (!allowed) return;
+
+    if (result.additionalUserInfo && result.additionalUserInfo.isNewUser) {
+      await recordSignup(result.user.uid, {
+        email: result.user.email,
+        provider:'google'
+      });
+    } else {
+      ensureMemberDocumentFromAuth(result.user);
+    }
+
+    closeAuthModal();
+    showToast('Google 계정으로 로그인했어요.');
+    continueHomeChatAfterLogin();
+
   } catch (err) {
-    console.error('Google 로그인 처리 실패', err);
-    showAuthError('구글 로그인 실패: ' + formatAuthError(err));
+    console.warn('Google popup 로그인 실패', err);
+
+    const code = String(err && err.code || '');
+
+    if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+      showAuthError('Google 로그인 창이 닫혔어요. 다시 눌러 로그인해주세요.');
+    } else if (code === 'auth/popup-blocked') {
+      showAuthError('브라우저가 Google 로그인 팝업을 막았어요. 주소창의 팝업 차단을 허용한 뒤 다시 눌러주세요.');
+    } else if (code === 'auth/operation-not-supported-in-this-environment') {
+      showAuthError('현재 브라우저에서는 Google 팝업 로그인을 사용할 수 없어요. Chrome 또는 Safari 일반 탭에서 다시 시도해주세요.');
+    } else {
+      showAuthError('Google 로그인 실패: ' + formatAuthError(err));
+    }
+
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = btn.dataset.originalText || 'Google로 시작하기'; }
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = btn.dataset.originalText || 'Google로 시작하기';
+    }
   }
 }
 
@@ -4586,7 +6355,7 @@ async function ensureKakaoFirebaseSession(accessToken) {
   const token = accessToken || sessionStorage.getItem('taekilso_kakao_access_token');
   if (!token) return null;
 
-  // 카카오 로그인을 시작한 경우 기존 Google/이메일 Firebase 세션을 재사용하지 않습니다.
+  // 카카오 로그인을 시작한 경우 기존 Google Firebase 세션을 재사용하지 않습니다.
   // 서버가 검증한 카카오 계정의 customToken으로 반드시 세션을 교체해야
   // 카카오 프로필과 다른 Firebase UID가 섞이지 않습니다.
 
@@ -4597,6 +6366,15 @@ async function ensureKakaoFirebaseSession(accessToken) {
       body: JSON.stringify({ accessToken: token })
     });
     const bridgeData = await bridgeRes.json().catch(() => ({}));
+    if (bridgeRes.status === 403 && (bridgeData.error === 'ACCOUNT_BANNED' || bridgeData.error === 'ACCOUNT_REJOIN_COOLDOWN')) {
+      let message = bridgeData.message || '이 계정은 현재 이용할 수 없습니다.';
+      if (bridgeData.error === 'ACCOUNT_REJOIN_COOLDOWN' && bridgeData.rejoinAllowedAtMs) {
+        message += ' 재가입 가능일: ' + new Date(Number(bridgeData.rejoinAllowedAtMs)).toLocaleDateString('ko-KR');
+      }
+      const bannedErr = new Error(message);
+      bannedErr.code = bridgeData.error;
+      throw bannedErr;
+    }
     if (!bridgeRes.ok || !bridgeData.customToken) {
       console.warn('카카오→Firebase 연결 실패', bridgeData);
       return null;
@@ -4608,6 +6386,7 @@ async function ensureKakaoFirebaseSession(accessToken) {
     return firebaseAuthUser;
   } catch (err) {
     console.warn('카카오→Firebase 연결 중 오류', err);
+    if (err && (err.code === 'ACCOUNT_BANNED' || err.code === 'ACCOUNT_REJOIN_COOLDOWN')) throw err;
     return null;
   }
 }
@@ -4619,14 +6398,29 @@ async function ensureFirestorePaymentAuth() {
 
   let current = firebase.auth().currentUser;
   if (current && !current.isAnonymous) {
+    const allowed = await checkMemberAccess(current, { strict:true });
+    if (!allowed) return null;
     firebaseAuthUser = current;
     firebaseAuthReady = true;
     return current;
   }
 
   if (getKakaoUser()) {
-    current = await ensureKakaoFirebaseSession();
-    if (current && !current.isAnonymous) return current;
+    try {
+      current = await ensureKakaoFirebaseSession();
+    } catch (err) {
+      if (err && (err.code === 'ACCOUNT_BANNED' || err.code === 'ACCOUNT_REJOIN_COOLDOWN')) {
+        clearLocalKakaoSessionForBan();
+        showToast(err.message);
+        return null;
+      }
+      throw err;
+    }
+    if (current && !current.isAnonymous) {
+      const allowed = await checkMemberAccess(current, { strict:true });
+      if (!allowed) return null;
+      return current;
+    }
   }
 
   return null;
@@ -4641,6 +6435,8 @@ async function getAiRequestHeaders() {
       : null;
 
     if (current && !current.isAnonymous) {
+      const allowed = await checkMemberAccess(current, { strict:true });
+      if (!allowed) return headers;
       headers.Authorization = 'Bearer ' + await current.getIdToken();
       return headers;
     }
@@ -4704,7 +6500,18 @@ async function exchangeKakaoCode(code) {
       email: account.email || null
     };
 
-    // 기존 사용자 경험은 그대로 유지합니다.
+    // 먼저 서버에서 Kakao 계정의 밴 여부를 확인하고 Firebase 보안 세션을 만듭니다.
+    // 밴 계정은 로컬 로그인 상태조차 저장하지 않습니다.
+    const bridgedUser = await ensureKakaoFirebaseSession(tokenData.access_token);
+    const firestoreUid = bridgedUser && !bridgedUser.isAnonymous ? bridgedUser.uid : null;
+
+    if (!firestoreUid) {
+      throw new Error('카카오 로그인 보안 연결을 완료하지 못했어요.');
+    }
+
+    const allowed = await checkMemberAccess(bridgedUser, { strict:true });
+    if (!allowed) return;
+
     localStorage.setItem(KAKAO_USER_KEY, JSON.stringify(profile));
     sessionStorage.setItem(KAKAO_USER_KEY, JSON.stringify(profile));
     sessionStorage.setItem('taekilso_kakao_access_token', tokenData.access_token);
@@ -4713,16 +6520,16 @@ async function exchangeKakaoCode(code) {
     showToast('카카오로 로그인했어요');
     continueHomeChatAfterLogin();
 
-    // Firestore 민감 데이터는 Firebase custom-token 인증이 된 뒤에만 접근합니다.
-    const bridgedUser = await ensureKakaoFirebaseSession(tokenData.access_token);
-    const firestoreUid = bridgedUser && !bridgedUser.isAnonymous ? bridgedUser.uid : null;
-
     if (db && firestoreUid) {
       await recordSignup(firestoreUid, {
         email: profile.email || null,
         nickname: profile.nickname,
         provider: 'kakao'
       });
+
+      // 카카오 로그인 직후에는 onAuthStateChanged 타이밍에 기대지 않고
+      // 해당 kakao_UID의 최근 접속시간을 즉시 기록합니다.
+      await touchMemberLastSeen(bridgedUser, { force:true });
 
       reconcilePremiumWithAccount(firestoreUid);
       flushLocalOnlyInquiries();
@@ -4731,7 +6538,12 @@ async function exchangeKakaoCode(code) {
     }
   } catch (err) {
     console.error('카카오 로그인 처리 실패', err);
-    showToast('카카오 로그인 실패: ' + (err && err.message ? err.message : String(err)));
+    if (err && err.code === 'ACCOUNT_BANNED') {
+      clearLocalKakaoSessionForBan();
+      showToast(err.message || '이 계정은 관리자에 의해 이용이 제한되었습니다.');
+    } else {
+      showToast('카카오 로그인 실패: ' + (err && err.message ? err.message : String(err)));
+    }
   } finally {
     const url = new URL(window.location.href);
     url.searchParams.delete('code');
@@ -4748,6 +6560,7 @@ async function exchangeKakaoCode(code) {
 function logout() {
   localStorage.removeItem(KAKAO_USER_KEY);
   sessionStorage.removeItem(KAKAO_USER_KEY);
+  sessionStorage.removeItem('taekilso_kakao_access_token');
   if (firebaseReady && firebaseAuthReady && firebaseAuthUser) { firebase.auth().signOut().catch(() => {}); }
   firebaseAuthUser = null;
   clearLocalPremium();
@@ -4757,7 +6570,6 @@ function logout() {
   goTo('home');
 }
 
-let authMode = 'login';
 
 /* 상단 메뉴 "택일" 드롭다운 열고 닫기 */
 function toggleNavDropdown(e) {
@@ -4790,6 +6602,7 @@ function handleAuthNavClick() {
 async function purchaseQuestionPack(packId) {
   const pack = AI_QUESTION_PACKS[packId];
   if (!pack) return;
+  trackAiFunnel('question_pack_purchase_start', { product: packId, pendingQuestion: getPendingPaidAiQuestion() });
   if (!getKakaoUser() && !(firebaseReady && firebaseAuthReady && firebaseAuthUser)) {
     showToast('먼저 로그인해주세요.');
     openAuthModal();
@@ -4797,10 +6610,30 @@ async function purchaseQuestionPack(packId) {
   }
   if (typeof PayApp === 'undefined') { showToast('결제 모듈을 불러오지 못했어요. 잠시 후 다시 시도해주세요.'); return; }
 
-  const paymentUser = await ensureFirestorePaymentAuth();
+  let paymentUser = null;
+  try {
+    paymentUser = await ensureFirestorePaymentAuth();
+  } catch (authErr) {
+    console.error('질문권 결제 인증 준비 실패', authErr);
+    showToast('결제 인증을 준비하지 못했어요. 잠시 후 다시 시도해주세요.');
+    return;
+  }
   if (!paymentUser || paymentUser.isAnonymous) {
     showToast('로그인 보안 연결을 확인하지 못했어요. 다시 로그인한 뒤 결제를 시도해주세요.');
     return;
+  }
+
+  // 결제창으로 이동하기 전에 현재 상담을 로컬/클라우드 기록에 확실히 저장합니다.
+  try { await saveCurrentAiConversation(); } catch (e) { console.warn('결제 전 상담 저장 실패', e); }
+
+  let creditsBeforePurchase = null;
+  try {
+    if (db) {
+      const userSnap = await db.collection('users').doc(paymentUser.uid).get({ source:'server' });
+      if (userSnap.exists) creditsBeforePurchase = Number((userSnap.data() || {}).aiQuestionCredits || 0);
+    }
+  } catch (e) {
+    console.warn('결제 전 질문권 잔액 확인 실패', e);
   }
 
   const orderId = 'TAK-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
@@ -4817,7 +6650,14 @@ async function purchaseQuestionPack(packId) {
       });
     }
     localStorage.setItem('taekilso_pending_order', JSON.stringify({
-      orderId, amount: pack.price, product: packId, createdAt: Date.now()
+      orderId,
+      amount: pack.price,
+      product: packId,
+      expectedCredits: pack.count,
+      creditsBeforePurchase,
+      paymentUid: paymentUser.uid,
+      activeConversationId: window.__aiConversationId || null,
+      createdAt: Date.now()
     }));
 
     const payParams = {
@@ -4855,7 +6695,89 @@ async function checkOrderPaidOnServer(orderId) {
   } catch (e) { console.error('주문 확인 중 오류', e); return false; }
 }
 
+async function getQuestionCreditsFromServer(uid){
+  if (!db || !uid) return null;
+  try {
+    const snap = await db.collection('users').doc(uid).get({ source:'server' });
+    if (!snap.exists) return null;
+    return Number((snap.data() || {}).aiQuestionCredits || 0);
+  } catch (e) {
+    console.error('질문권 잔액 확인 중 오류', e);
+    return null;
+  }
+}
+
+async function waitForVerifiedQuestionPack(pending, uid){
+  if (!pending || !pending.orderId) return { confirmed:false, credits:null };
+
+  // 반드시 결제 당시의 Firebase UID를 우선 사용합니다.
+  // 카카오 로컬 세션/다른 로그인 흔적 때문에 getCurrentUserKey()가 다른 UID를 가리켜
+  // 실제로는 5개가 충전됐는데 0개로 읽는 문제를 방지합니다.
+  const verifiedUid = String(pending.paymentUid || uid || '').trim();
+  if (!verifiedUid) return { confirmed:false, credits:null };
+
+  const before = Number.isFinite(Number(pending.creditsBeforePurchase))
+    ? Math.max(0, Number(pending.creditsBeforePurchase))
+    : null;
+  const added = Math.max(0, Number(pending.expectedCredits || 0));
+  const expectedMinimum = before == null ? null : before + added;
+
+  // PayApp 주문이 paid가 된 직후에도 화면/세션에서 잘못된 UID나 지연된 값을 읽지 않도록
+  // 실제 질문권 잔액까지 함께 확인합니다.
+  const deadline = Date.now() + 90000;
+  let attempt = 0;
+  let lastCredits = null;
+  let paidSeen = false;
+
+  while (Date.now() < deadline) {
+    const paid = await checkOrderPaidOnServer(pending.orderId);
+    if (paid) paidSeen = true;
+
+    if (paidSeen) {
+      lastCredits = await getQuestionCreditsFromServer(verifiedUid);
+
+      const balanceLooksApplied =
+        lastCredits != null &&
+        (
+          expectedMinimum == null
+            ? lastCredits > 0 || added === 0
+            : lastCredits >= expectedMinimum
+        );
+
+      if (balanceLooksApplied) {
+        return { confirmed:true, credits:lastCredits, uid:verifiedUid };
+      }
+    }
+
+    attempt += 1;
+    const waitMs = attempt <= 8 ? 700 : 1500;
+    await new Promise(r => setTimeout(r, waitMs));
+  }
+
+  return {
+    confirmed: paidSeen,
+    credits: lastCredits,
+    uid: verifiedUid,
+    balancePending: paidSeen
+  };
+}
+
+async function refreshQuestionCreditUI(uid){
+  const credits = await getQuestionCreditsFromServer(uid);
+  if (credits == null) return null;
+
+  const panel = document.getElementById('aiChatPanel');
+  if (panel && panel.style.display !== 'none' && credits > 0) {
+    updateAiChatStatus(null, null, false, {
+      usingCredit: true,
+      questionCreditsLeft: credits
+    });
+  }
+  return credits;
+}
+
 async function payPremium() {
+  trackAiFunnel('premium_purchase_start', { pendingQuestion: getPendingPaidAiQuestion() });
   // Spark 무료 운영: 결제창을 열기 위해 Firebase Auth를 강제하지 않습니다.
   // 카카오 로그인 정보는 localStorage로 유지되므로 결제 버튼을 눌렀다고 로그아웃되지 않습니다.
   if (!getKakaoUser() && !(firebaseReady && firebaseAuthReady && firebaseAuthUser)) {
@@ -4877,11 +6799,20 @@ async function payPremium() {
     return;
   }
 
-  const paymentUser = await ensureFirestorePaymentAuth();
+  let paymentUser = null;
+  try {
+    paymentUser = await ensureFirestorePaymentAuth();
+  } catch (authErr) {
+    console.error('프리미엄 결제 인증 준비 실패', authErr);
+    showToast('결제 인증을 준비하지 못했어요. 잠시 후 다시 시도해주세요.');
+    return;
+  }
   if (!paymentUser || paymentUser.isAnonymous) {
     showToast('로그인 보안 연결을 확인하지 못했어요. 다시 로그인한 뒤 결제를 시도해주세요.');
     return;
   }
+
+  try { await saveCurrentAiConversation(); } catch (e) { console.warn('결제 전 상담 저장 실패', e); }
 
   const orderId = 'TAK-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
   const currentKakaoUser = getKakaoUser();
@@ -4922,7 +6853,7 @@ async function payPremium() {
       checkretry: 'y',
       returnurl: PAYAPP_RETURN_URL,
       var1: orderId,
-      memo: '30일 이용권 · AI 상담 하루 20개 · 365일 택일 · 정밀사주·궁합·재물 분석',
+      memo: '30일 이용권 · AI 상담 하루 15개 · 365일 택일 · 정밀사주·궁합·재물 분석',
       redirectpay: '1'
     };
     // 서버 검증 함수가 연결되어 있으면 feedbackurl도 처음부터 같이 보냅니다. setParam을
@@ -4954,17 +6885,22 @@ function tryActivatePendingPremium() {
   restoreKakaoUserState();
   updateAuthNav();
   const params = new URLSearchParams(window.location.search);
-  if (params.get('premium') === '1') {
-    const url = new URL(window.location.href);
-    url.searchParams.delete('premium');
-    window.history.replaceState({}, document.title, url.toString());
+  const hasPaymentReturnFlag = params.get('premium') === '1';
+  const pendingAtLoad = (() => { try { return JSON.parse(localStorage.getItem('taekilso_pending_order') || 'null'); } catch(e) { return null; } })();
 
-    const pending = (() => { try { return JSON.parse(localStorage.getItem('taekilso_pending_order') || 'null'); } catch(e) { return null; } })();
+  if (hasPaymentReturnFlag || (pendingAtLoad && pendingAtLoad.orderId)) {
+    if (hasPaymentReturnFlag) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('premium');
+      window.history.replaceState({}, document.title, url.toString());
+    }
+
+    const pending = pendingAtLoad;
     const PENDING_MAX_AGE_MS = 30 * 60 * 1000;
     const isValidPending = pending && pending.orderId && (Date.now() - pending.createdAt) <= PENDING_MAX_AGE_MS;
     if (!isValidPending) return; // 결제 버튼을 누른 기록 자체가 없으면 아무것도 하지 않습니다.
 
-    // 카카오 로그인은 즉시 확인 가능하지만, 구글/이메일 로그인은 결제 후 페이지가
+    // 카카오 로그인은 즉시 확인 가능하지만, Google 로그인은 결제 후 페이지가
     // 완전히 새로고침될 때 로그인 상태를 다시 불러오는 데 짧은 시간이 걸립니다.
     if (!getKakaoUser()) {
       await waitForAuthSettled(6000);
@@ -4975,27 +6911,101 @@ function tryActivatePendingPremium() {
       // 계정에 프리미엄이 기록됩니다. 그 처리가 몇 초 정도 걸릴 수 있어서, 여기서는
       // 완료될 때까지 몇 번 다시 확인(폴링)합니다.
       showPaymentPendingStatus('결제 확인 중이에요…');
-      const uid = getCurrentUserKey();
+      const uid = String(pending.paymentUid || getCurrentUserKey() || '').trim();
       const isQuestionPack = pending.product && AI_QUESTION_PACKS[pending.product];
       let confirmed = false;
-      for (let i = 0; i < 10 && !confirmed; i++) {
-        await new Promise((r) => setTimeout(r, 1500));
-        confirmed = isQuestionPack
-          ? await checkOrderPaidOnServer(pending.orderId)
-          : await checkPremiumOnServer(uid);
+      let confirmedCredits = null;
+
+      if (isQuestionPack) {
+        const result = await waitForVerifiedQuestionPack(pending, uid);
+        confirmed = result.confirmed;
+        confirmedCredits = result.credits;
+      } else {
+        // 프리미엄도 PayApp feedback가 조금 늦을 수 있어 최대 약 90초까지 확인합니다.
+        const deadline = Date.now() + 90000;
+        while (Date.now() < deadline && !confirmed) {
+          confirmed = await checkPremiumOnServer(uid);
+          if (!confirmed) await new Promise(r => setTimeout(r, 1500));
+        }
       }
+
       hidePaymentPendingStatus();
+
       if (confirmed) {
         localStorage.removeItem('taekilso_pending_order');
         sessionStorage.removeItem('taekilso_pending_order');
+
+        // 결제 리턴으로 새로고침돼도 로비/사주입력으로 돌아가지 않고 이전 상담부터 복원합니다.
+        const restored = restoreActiveAiConversation({
+          silent: true,
+          resumePendingQuestion: false
+        });
+
         if (isQuestionPack) {
-          showToast(`질문권 ${AI_QUESTION_PACKS[pending.product].count}개가 충전됐어요! 바로 이어서 물어보실 수 있어요.`);
-          window.dispatchEvent(new CustomEvent('taekilso:questionPackPurchased'));
+          if (confirmedCredits == null || confirmedCredits <= 0) {
+            const refreshedCredits = await refreshQuestionCreditUI(uid);
+            if (refreshedCredits != null && refreshedCredits > 0) {
+              confirmedCredits = refreshedCredits;
+            }
+          } else {
+            const panel = document.getElementById('aiChatPanel');
+            if (panel && panel.style.display !== 'none') {
+              updateAiChatStatus(null, null, false, {
+                usingCredit: true,
+                questionCreditsLeft: confirmedCredits
+              });
+            }
+          }
+
+          trackAiFunnel('question_pack_purchase_confirmed', {
+            product: pending.product,
+            credits: confirmedCredits
+          });
+
+          const purchasedCount = Number(
+            pending.expectedCredits ||
+            (AI_QUESTION_PACKS[pending.product] && AI_QUESTION_PACKS[pending.product].count) ||
+            0
+          );
+
+          // 결제 직후 잔액 조회가 0/null로 잘못 보이더라도 고객에게
+          // "0개 남음"이라고 안내하지 않습니다. 결제 완료 사실을 우선 정확히 안내하고,
+          // 실제 잔액이 확인된 경우에만 잔여 개수를 표시합니다.
+          const creditText = (confirmedCredits != null && confirmedCredits > 0)
+            ? `질문권이 충전됐어요. 현재 ${confirmedCredits}개 남아 있어요.`
+            : `질문권 ${purchasedCount}개 결제가 완료됐어요. 상담을 시작하면 바로 사용할 수 있어요.`;
+
+          showToast(creditText + (getPendingPaidAiQuestion() ? ' 이전 질문을 이어갈게요.' : ''));
+
+          window.dispatchEvent(new CustomEvent('taekilso:questionPackPurchased', {
+            detail: { credits: confirmedCredits }
+          }));
+
+          setTimeout(() => {
+            if (!restored) restoreActiveAiConversation({ silent:true });
+
+            if (getPendingPaidAiQuestion()) {
+              resumePendingPaidAiQuestion();
+            } else {
+              setTimeout(() => restoreAlgorithmicFollowupsAfterPurchase(), 180);
+            }
+          }, 700);
         } else {
-          showToast('프리미엄이 활성화됐어요! 30일간 이용하실 수 있어요.');
+          trackAiFunnel('premium_purchase_confirmed', {});
+          showToast('프리미엄이 활성화됐어요!' + (getPendingPaidAiQuestion() ? ' 이전 질문을 이어갈게요.' : ''));
+          setTimeout(() => {
+            if (!restored) restoreActiveAiConversation({ silent:true });
+
+            if (getPendingPaidAiQuestion()) {
+              resumePendingPaidAiQuestion();
+            } else {
+              setTimeout(() => restoreAlgorithmicFollowupsAfterPurchase(), 180);
+            }
+          }, 700);
         }
       } else {
-        showToast('결제 확인에 시간이 좀 더 걸리고 있어요. 잠시 후 프로필 화면을 다시 확인해주세요. 결제하셨는데 계속 안 뜨면 고객센터로 문의해주세요.');
+        // 주문 기록은 남겨둡니다. 사용자가 새로고침하면 다시 서버 확인을 이어갑니다.
+        showToast('결제는 완료됐지만 서버 반영을 기다리고 있어요. 새로고침해도 결제/상담 상태는 유지되며 자동으로 다시 확인합니다.');
       }
     }
   }
@@ -5021,8 +7031,14 @@ async function checkPremiumOnServer(uid) {
       updatePremiumUI();
       return true;
     }
-  } catch (e) { console.error('결제 확인 중 오류', e); }
-  return false;
+
+    const recovered = await recoverPremiumFromVerifiedServer(uid);
+    return !!(recovered && recovered.active);
+  } catch (e) {
+    console.error('결제 확인 중 오류', e);
+    const recovered = await recoverPremiumFromVerifiedServer(uid);
+    return !!(recovered && recovered.active);
+  }
 }
 
 // Kept only as a compatibility hook. Never call this from a URL or payment return page.
@@ -5035,17 +7051,30 @@ async function refreshPremiumFromServer() {
   if (!firebaseReady || !db) return false;
   const user = firebaseAuthUser;
   if (!user) return false;
+
   try {
-    const snap = await db.collection('users').doc(user.uid).get();
+    const snap = await db.collection('users').doc(user.uid).get({ source:'server' });
     const data = snap.exists ? (snap.data() || {}) : {};
     let until = 0;
     if (data.premiumUntil && typeof data.premiumUntil.toMillis === 'function') until = data.premiumUntil.toMillis();
     else if (typeof data.premiumUntil === 'number') until = data.premiumUntil;
-    if (data.premium === true && until > Date.now()) setLocalPremium(until, user.uid);
-    else if (getPremiumOwnerKey() === user.uid) clearLocalPremium();
-    else verifiedPremium = false;
+
+    if (data.premium === true && until > Date.now()) {
+      setLocalPremium(until, user.uid);
+    } else {
+      const recovered = await recoverPremiumFromVerifiedServer(user.uid);
+
+      if (!(recovered && recovered.active)) {
+        // 복구 서버가 명확히 비활성이라고 확인했을 때만 해제.
+        if (recovered && recovered.active === false && getPremiumOwnerKey() === user.uid) {
+          clearLocalPremium();
+        }
+      }
+    }
+
     updateAuthNav();
     updatePremiumUI();
+
     if (verifiedPremium) {
       localStorage.removeItem('taekilso_pending_order');
       sessionStorage.removeItem('taekilso_pending_order');
@@ -5053,7 +7082,8 @@ async function refreshPremiumFromServer() {
     return verifiedPremium;
   } catch (e) {
     console.error('프리미엄 서버 상태 확인 실패', e);
-    return false;
+    // 일시 오류는 기존 프리미엄 표시를 지우지 않습니다.
+    return isPremium();
   }
 }
 
@@ -5069,8 +7099,13 @@ function updatePremiumUI() {
     expiry.textContent = premium ? ('이용기간 · ' + formatPremiumUntil()) : '';
   }
   if (upgrade) {
-    upgrade.textContent = premium ? ('프리미엄 이용 중 · ' + formatPremiumUntil()) : '프리미엄 30일 이용권 구매';
+    upgrade.textContent = premium ? ('프리미엄 이용 중 · ' + formatPremiumUntil()) : '프리미엄 30일 · 8,900원 구매';
     upgrade.disabled = false;
+  }
+  const priceNote = document.getElementById('profilePremiumPriceNote');
+  if (priceNote) {
+    priceNote.style.display = premium ? 'none' : 'block';
+    priceNote.textContent = '8,900원 / 30일 · 자동결제 없음 · AI 상담 하루 15개';
   }
 }
 
@@ -5079,7 +7114,7 @@ function buildPremiumProgramPanel() {
   if (!panel) return;
   if (!isPremium()) {
     panel.style.display='block';
-    panel.innerHTML = `<div class="premium-lock-card"><b>🔒 여기부터 프리미엄 분석입니다</b><p>30일 동안 AI 상담 하루 20개, 365일 전체 후보 · TOP 20 · 월별 베스트 · 두 사람 궁합 · 상세 리포트를 이용할 수 있어요.</p><button class="btn btn-primary" onclick="payPremium()">19,900원으로 30일 이용하기</button></div>`;
+    panel.innerHTML = `<div class="premium-lock-card"><b>🔒 여기부터 프리미엄 분석입니다</b><p>30일 동안 AI 상담 하루 15개, 365일 전체 후보 · TOP 20 · 월별 베스트 · 두 사람 궁합 · 상세 리포트를 이용할 수 있어요.</p><button class="btn btn-primary" onclick="payPremium()">8,900원으로 30일 이용하기</button></div>`;
     return;
   }
   const list = window.__chronological || [];
@@ -5103,38 +7138,7 @@ function openAuthModal() {
   document.getElementById('authError').style.display = 'none';
 }
 function closeAuthModal() { document.getElementById('authOverlay').style.display = 'none'; }
-function toggleAuthMode() {
-  authMode = authMode === 'login' ? 'signup' : 'login';
-  document.getElementById('authTitle').textContent = authMode === 'login' ? '로그인' : '회원가입';
-  document.getElementById('authSubmitBtn').textContent = authMode === 'login' ? '로그인' : '회원가입';
-  document.getElementById('authSwitchLabel').textContent = authMode === 'login' ? '계정이 없으신가요?' : '이미 계정이 있으신가요?';
-  document.getElementById('authSwitchAction').textContent = authMode === 'login' ? '회원가입' : '로그인';
-}
-function submitAuth() {
-  const errEl = document.getElementById('authError');
-  errEl.style.display = 'none';
-  if (!firebaseReady) {
-    errEl.textContent = '아직 계정 저장소 설정 전이라 실제 가입은 안 돼요. 코드 안의 firebaseConfig를 채워주세요.';
-    errEl.style.display = 'block';
-    return;
-  }
-  const email = document.getElementById('authEmail').value.trim();
-  const password = document.getElementById('authPassword').value;
-  if (!email || password.length < 6) {
-    errEl.textContent = '이메일과 6자 이상의 비밀번호를 입력해주세요.';
-    errEl.style.display = 'block';
-    return;
-  }
-  const isSignup = authMode === 'signup';
-  const action = isSignup
-    ? firebase.auth().createUserWithEmailAndPassword(email, password)
-    : firebase.auth().signInWithEmailAndPassword(email, password);
-  action.then((result) => {
-    closeAuthModal();
-    if (isSignup) recordSignup(result.user.uid, { email: result.user.email, provider: 'email' });
-    continueHomeChatAfterLogin();
-  }).catch((err) => { errEl.textContent = err.message; errEl.style.display = 'block'; });
-}
+
 </script>
 
 <style id="takil-v2-motion">
@@ -5650,7 +7654,39 @@ function goHomeSection(id){
 }
 /* ---------- AI 사주 상담 ---------- */
 const AI_CONVERSATION_KEY = 'taekilso_ai_conversations_v1';
+const AI_ACTIVE_SESSION_KEY = 'taekilso_ai_active_session_v1';
 window.__aiConversationId = null;
+
+function setActiveAiSession(id){
+  if (!id) {
+    localStorage.removeItem(AI_ACTIVE_SESSION_KEY);
+    return;
+  }
+  const ownerKey = typeof getCurrentUserKey === 'function' ? getCurrentUserKey() : null;
+  localStorage.setItem(AI_ACTIVE_SESSION_KEY, JSON.stringify({
+    id: String(id),
+    ownerKey: ownerKey || null,
+    updatedAt: Date.now()
+  }));
+}
+
+function getActiveAiSession(){
+  try {
+    const raw = localStorage.getItem(AI_ACTIVE_SESSION_KEY);
+    const rec = raw ? JSON.parse(raw) : null;
+    if (!rec || !rec.id) return null;
+    // 자동복원은 최근 7일 상담만. 오래된 상담은 기록 탭에서 수동으로 이어갈 수 있습니다.
+    if (Date.now() - Number(rec.updatedAt || 0) > 7 * 24 * 60 * 60 * 1000) {
+      localStorage.removeItem(AI_ACTIVE_SESSION_KEY);
+      return null;
+    }
+    const nowOwner = typeof getCurrentUserKey === 'function' ? getCurrentUserKey() : null;
+    if (rec.ownerKey && nowOwner && rec.ownerKey !== nowOwner) return null;
+    return rec;
+  } catch (e) {
+    return null;
+  }
+}
 
 function makeAiConversationId(){
   return 'ac_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
@@ -5719,6 +7755,7 @@ async function saveCurrentAiConversation(){
   const local = getAiConversationStore().filter(x => x.id !== record.id);
   local.unshift(record);
   setAiConversationStore(local);
+  setActiveAiSession(record.id);
 
   const authUser = firebaseReady && firebase.auth ? firebase.auth().currentUser : null;
   if (!db || !authUser || authUser.isAnonymous) return;
@@ -5803,6 +7840,7 @@ function resumeAiConversation(id){
   if (!rec) { showToast('상담 기록을 찾지 못했어요.'); return; }
 
   window.__aiConversationId = rec.id;
+  setActiveAiSession(rec.id);
   window.__aiChatSubjects = Array.isArray(rec.subjects) ? rec.subjects.slice(0,3) : [];
   window.__aiChatProfile = window.__aiChatSubjects[0]?.profile || null;
   window.__aiChatSaju = window.__aiChatSubjects[0]?.summary || '';
@@ -5829,8 +7867,65 @@ function resumeAiConversation(id){
   }, 80);
 }
 
+
+function restoreActiveAiConversation(options){
+  const opts = options || {};
+  const active = getActiveAiSession();
+  if (!active || !active.id) return false;
+
+  const rec = getAiConversationStore().find(x => x.id === active.id);
+  if (!rec || !Array.isArray(rec.messages) || !rec.messages.length) return false;
+
+  const nowOwner = typeof getCurrentUserKey === 'function' ? getCurrentUserKey() : null;
+  if (active.ownerKey && nowOwner && active.ownerKey !== nowOwner) return false;
+
+  window.__aiConversationId = rec.id;
+  window.__aiChatSubjects = Array.isArray(rec.subjects) ? rec.subjects.slice(0,3) : [];
+  window.__aiChatProfile = window.__aiChatSubjects[0]?.profile || null;
+  window.__aiChatSaju = window.__aiChatSubjects[0]?.summary || '';
+  window.__aiChatHistory = Array.isArray(rec.messages) ? rec.messages.slice(-20) : [];
+
+  goTo('home');
+
+  setTimeout(() => {
+    const intro = document.getElementById('homeIntroOverlay');
+    const setup = document.getElementById('aiChatSetup');
+    const panel = document.getElementById('aiChatPanel');
+    const win = document.getElementById('aiChatWindow');
+    if (intro) intro.style.display = 'none';
+    if (setup) setup.style.display = 'none';
+    if (panel) panel.style.display = 'flex';
+
+    if (win) {
+      win.innerHTML = '';
+      if (!opts.silent) {
+        appendAiChatMessage('system-note', opts.note || '이전 상담을 불러왔어요. 그대로 이어서 질문할 수 있어요.');
+      }
+      window.__aiChatHistory.forEach(m => appendAiChatMessage(m.role, m.content, {scroll:'none'}));
+      scrollAiChatToBottom(win);
+    }
+
+    const quick = document.getElementById('aiChatQuickActions');
+    if (quick) quick.style.display = 'none';
+
+    // 결제 직후라면 저장된 잠금 질문도 이어서 전송합니다.
+    if (opts.resumePendingQuestion && getPendingPaidAiQuestion()) {
+      setTimeout(() => resumePendingPaidAiQuestion(), 300);
+    }
+  }, 80);
+
+  setActiveAiSession(rec.id);
+  return true;
+}
+
+// 일반 접속/새로고침에서는 이전 AI 상담을 자동으로 열지 않습니다.
+// 결제 완료 후 돌아온 경우에는 아래 결제 확인 흐름에서만
+// restoreActiveAiConversation()을 호출해 결제 전 상담을 이어갑니다.
+
 async function deleteAiConversation(id){
   if (!confirm('이 AI 상담 기록을 삭제할까요?')) return;
+  const active = getActiveAiSession();
+  if (active && active.id === id) setActiveAiSession(null);
   setAiConversationStore(getAiConversationStore().filter(x => x.id !== id));
   renderAiConversationHistory();
 
@@ -5960,26 +8055,101 @@ function appendAiChatServiceCta(userMessage) {
 /* 무료 질문을 다 쓰면 보여주는 화면: 질문권 2종(할인가 표시) + 프리미엄 구독. */
 function appendQuestionPackOffers() {
   const win = document.getElementById('aiChatWindow');
+  if (!win) return;
+
+  win.querySelectorAll('.ai-chat-offer-grid').forEach(el => el.remove());
+
+  const pending = getPendingPaidAiQuestion();
   const wrap = document.createElement('div');
-  wrap.className = 'ai-chat-offer-grid';
-  wrap.innerHTML = Object.entries(AI_QUESTION_PACKS).map(([id, p]) => `
-    <button class="ai-chat-offer-card" onclick="purchaseQuestionPack('${id}')">
-      <b>${p.goodname}</b>
-      <span><s>${p.originalPrice.toLocaleString('ko-KR')}원</s> <em>${p.price.toLocaleString('ko-KR')}원</em></span>
+  wrap.className = 'ai-chat-offer-grid ai-chat-conversion-chooser';
+
+  wrap.innerHTML = `
+    <div class="ai-paywall-head">
+      <div class="ai-paywall-kicker">상담 계속하기</div>
+      <b>방금 하던 상담을 그대로 이어가세요.</b>
+      <span>${pending ? '결제가 확인되면 방금 선택한 질문부터 자동으로 이어집니다.' : '필요한 만큼 질문권을 추가하거나 프리미엄으로 넉넉하게 이용할 수 있어요.'}</span>
+    </div>
+
+    <button type="button" class="ai-chat-offer-card ai-offer-quick" data-ai-buy-pack="ai_question_pack_5">
+      <div class="ai-offer-copy">
+        <small>가볍게 더 물어볼 때</small>
+        <b>AI 질문권 5개</b>
+        <span>질문 1개당 약 380원</span>
+      </div>
+      <div class="ai-offer-price"><s>2,900원</s><em>1,900원</em></div>
     </button>
-  `).join('') + `
-    <button class="ai-chat-offer-card ai-chat-offer-premium" onclick="goTo('profile')">
-      <b>프리미엄 구독</b>
-      <span>30일간 하루 20개까지 · 19,900원</span>
+
+    <button type="button" class="ai-chat-offer-card" data-ai-buy-pack="ai_question_pack_10">
+      <div class="ai-offer-copy">
+        <small>질문권만 넉넉하게 추가할 때</small>
+        <b>AI 질문권 10개</b>
+        <span>질문 1개당 320원</span>
+      </div>
+      <div class="ai-offer-price"><s>4,900원</s><em>3,200원</em></div>
     </button>
+
+    <button type="button" class="ai-chat-offer-card ai-chat-offer-premium ai-offer-premium ai-offer-best" data-ai-buy-premium="1">
+      <span class="ai-offer-badge">가성비 추천 · PREMIUM</span>
+      <div class="ai-offer-copy">
+        <small>매일 자주 상담하고 택일까지 볼 때</small>
+        <b>프리미엄 30일</b>
+        <span>AI 하루 15개 · 프리미엄 전체 서비스</span>
+      </div>
+      <div class="ai-offer-price"><em>8,900원</em></div>
+    </button>
+
+    <div class="ai-paywall-note">자동결제 없이 1회 결제 · 질문권은 프리미엄 없이도 구매할 수 있어요.</div>
   `;
+
+  wrap.querySelectorAll('[data-ai-buy-pack]').forEach((btn) => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (btn.disabled) return;
+      btn.disabled = true;
+      showToast('결제창을 준비하고 있어요…');
+      try {
+        await purchaseQuestionPack(btn.dataset.aiBuyPack);
+      } catch (err) {
+        console.error('질문권 결제 시작 실패', err);
+        showToast('결제창을 열지 못했어요. 잠시 후 다시 시도해주세요.');
+      } finally {
+        setTimeout(() => { btn.disabled = false; }, 1200);
+      }
+    });
+  });
+
+  const premiumBtn = wrap.querySelector('[data-ai-buy-premium]');
+  if (premiumBtn) {
+    premiumBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (premiumBtn.disabled) return;
+      premiumBtn.disabled = true;
+      showToast('프리미엄 결제창을 준비하고 있어요…');
+      try {
+        await payPremium();
+      } catch (err) {
+        console.error('프리미엄 결제 시작 실패', err);
+        showToast('결제창을 열지 못했어요. 잠시 후 다시 시도해주세요.');
+      } finally {
+        setTimeout(() => { premiumBtn.disabled = false; }, 1200);
+      }
+    });
+  }
+
   win.appendChild(wrap);
   scrollAiChatToBottom(win);
 }
 window.addEventListener('taekilso:questionPackPurchased', () => {
-  // 질문권 충전이 확인되면, 방금 막혔던 안내/구매 카드를 지우고 바로 이어서 물어볼 수 있게 합니다.
-  const offers = document.querySelectorAll('.ai-chat-offer-grid');
-  offers.forEach(el => el.remove());
+  document.querySelectorAll('.ai-chat-offer-grid').forEach(el => el.remove());
+  document.querySelectorAll('.ai-chat-upsell').forEach(el => el.remove());
+
+  setTimeout(() => {
+    if (!getPendingPaidAiQuestion()) {
+      restoreAlgorithmicFollowupsAfterPurchase();
+    }
+  }, 180);
 });
 
 function appendAiChatUpsell(userMessage='') {
@@ -6052,9 +8222,14 @@ function appendAiChatMessage(role, text, opts) {
 function updateAiChatStatus(freeUsed, freeLimit, isPremiumNow, extra) {
   const el = document.getElementById('aiChatStatus');
   if (!el) return;
-  if (isPremiumNow) {
+
+  if (extra && extra.isAdmin) {
+    const used = Number.isFinite(Number(extra.premiumDailyUsed)) ? Number(extra.premiumDailyUsed) : null;
+    const limit = Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 100;
+    el.textContent = used == null ? `✦ 관리자 AI (하루 ${limit}개까지)` : `✦ 관리자 AI 오늘 ${used}/${limit}개 사용`;
+  } else if (isPremiumNow) {
     const used = extra && Number.isFinite(Number(extra.premiumDailyUsed)) ? Number(extra.premiumDailyUsed) : null;
-    const limit = extra && Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 20;
+    const limit = extra && Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 15;
     el.textContent = used == null ? `✦ 프리미엄 이용 중 (하루 ${limit}개까지)` : `✦ 프리미엄 오늘 ${used}/${limit}개 사용`;
   } else if (extra && extra.usingCredit) {
     el.textContent = `질문권 ${extra.questionCreditsLeft}개 남음`;
@@ -6258,12 +8433,17 @@ function startAiChat() {
   window.__aiChatSubjects = subjects;
   window.__aiChatHistory = [];
   window.__aiConversationId = makeAiConversationId();
+  setActiveAiSession(window.__aiConversationId);
 
   document.getElementById('aiChatSetup').style.display = 'none';
   document.getElementById('aiChatPanel').style.display = 'flex';
   document.getElementById('aiChatWindow').innerHTML = '';
+  clearAiFollowupSuggestions();
   appendAiChatMessage('system-note', subjects.length > 1 ? `${subjects.length}명의 사주를 함께 불러왔어요. 관계·궁합·공동 일정처럼 여러 사람을 함께 비교해 질문할 수 있어요.` : `${name}님의 사주를 저장했어요. 이번 상담에서 계속 기억하고 볼게요.`);
   updateAiChatStatus(null, 3, isPremium());
+
+  // 결제 후 돌아온 경우 상담 화면이 준비되는 즉시, 사용자가 눌렀던 잠금 질문을 자동으로 이어갑니다.
+  if (getPendingPaidAiQuestion()) setTimeout(() => resumePendingPaidAiQuestion(), 650);
 
   // 소개 화면에서 고민 카테고리를 먼저 눌렀던 경우, 여기서 그 질문을 자동으로 이어서 보냅니다.
   if (window.__pendingCategoryQuestion) {
@@ -6288,13 +8468,23 @@ function handleHomeCategoryClick(btn, questionText) {
    로그인 확인이 아직 안 끝난 아주 이른 시점이면, 확인이 끝난 뒤 다시 판단합니다. */
 async function updateHomeGuestHint() {
   const hint = document.getElementById('homeGuestHint');
-  if (!hint) return;
-  if (getKakaoUser()) { hint.style.display = 'none'; return; }
+  const startBtn = document.getElementById('homeStartChatBtn');
+
+  if (getKakaoUser()) {
+    if (hint) hint.style.display = 'none';
+    if (startBtn) startBtn.textContent = '✨ 연우와 상담 시작하기';
+    return;
+  }
+
   if (!firebaseAuthReady) {
     await Promise.race([firebaseAuthSettled, new Promise((r) => setTimeout(r, 3000))]);
   }
+
   const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
-  hint.style.display = loggedIn ? 'none' : 'block';
+  if (hint) hint.style.display = loggedIn ? 'none' : 'block';
+  if (startBtn) startBtn.textContent = loggedIn
+    ? '✨ 연우와 상담 시작하기'
+    : '✨ 연우에게 무료로 3번 물어보기';
 }
 
 async function handleHomeChatStart(btn) {
@@ -6336,7 +8526,7 @@ function showAiChatSetupStep() {
   if (setup) setup.style.display = 'block';
 }
 
-/* 로그인 성공 직후(구글/이메일/카카오 전부)마다 호출됩니다.
+/* 로그인 성공 직후(Google/Kakao 모두)마다 호출됩니다.
    "시작하기"를 누르고 로그인하러 간 상태였다면, 소개 화면을 넘기고
    생년월일 입력 단계를 바로 보여줍니다. 카카오는 전체 페이지가 새로
    불러와지므로, 그 경우에도 이어지도록 localStorage로 표시해둡니다. */
@@ -6346,11 +8536,589 @@ function continueHomeChatAfterLogin() {
   showAiChatSetupStep();
 }
 
+function clearAiFollowupSuggestions(){
+  document.querySelectorAll('.ai-chat-followups').forEach(el => el.remove());
+}
+function normalizeAiFollowupText(text){
+  return String(text || '')
+    .toLowerCase()
+    .replace(/\s+/g,'')
+    .replace(/[?!.,~"'“”‘’()[\]{}:;·ㆍ\-_/\\]/g,'');
+}
+
+function aiFollowupIntent(text){
+  const s = String(text || '');
+  // 같은 의미의 표현까지 한 묶음으로 잡아, 이미 물어본 종류는 다시 추천하지 않습니다.
+  if (/조심|주의|피해야|피하면|위험|단점|약점|실수|문제|경계/.test(s)) return 'caution';
+  if (/좋은 점|강점|장점|잘하는|잘 맞는 점|유리/.test(s)) return 'strength';
+  if (/어떻게|관리|활용|바꾸|방법|전략|하면 돼|모으려면|유지하려면/.test(s)) return 'action';
+  if (/색|컬러|행운색/.test(s)) return 'color';
+  if (/숫자|번호/.test(s)) return 'number';
+  if (/방향|동쪽|서쪽|남쪽|북쪽/.test(s)) return 'direction';
+  if (/환경|공간|분위기|생활 리듬|생활리듬/.test(s)) return 'environment';
+  if (/활동|취미|운동|루틴/.test(s)) return 'activity';
+  if (/직업|직장|사업|이직|진로|역할|업무|창업/.test(s)) return 'career';
+  if (/연애|궁합|배우자|결혼|관계|상대|사랑/.test(s)) return 'love';
+  if (/돈|재물|수입|금전|매출|재정/.test(s)) return 'money';
+  if (/오행|행운/.test(s)) return 'traits';
+  if (/핵심|기억할|우선순위|가장 중요/.test(s)) return 'core';
+  if (/더 자세|더 깊|다른 특징|이어|또 뭐|놓친/.test(s)) return 'deeper';
+  return 'other';
+}
+
+function getAiFollowupTopic(text){
+  const s = String(text || '');
+  if (/돈|재물|수입|금전|매출|재정/.test(s)) return 'money';
+  if (/연애|궁합|배우자|결혼|썸|사랑|관계/.test(s)) return 'love';
+  if (/직업|직장|취업|이직|진로|회사|창업|사업/.test(s)) return 'career';
+  if (/색|숫자|방향|환경|오행|행운/.test(s)) return 'traits';
+  return 'general';
+}
+
+function getUsedAiFollowupState(){
+  const usedTexts = new Set();
+  const usedIntents = new Set();
+
+  (window.__aiChatHistory || [])
+    .filter(m => m && m.role === 'user')
+    .forEach(m => {
+      const raw = String(m.content || '');
+      usedTexts.add(normalizeAiFollowupText(raw));
+      usedIntents.add(aiFollowupIntent(raw));
+    });
+
+  return { usedTexts, usedIntents };
+}
+
+function aiFollowupSet(question, reply, used){
+  const topic = getAiFollowupTopic(question) !== 'general'
+    ? getAiFollowupTopic(question)
+    : getAiFollowupTopic(`${question||''} ${reply||''}`);
+
+  const pool = {
+    money: [
+      '내 재물운의 좋은 점은?',
+      '돈이 새기 쉬운 부분은?',
+      '돈을 모으려면 뭘 바꿔야 해?',
+      '나한테 맞는 돈 버는 방식은?',
+      '내 강점을 돈으로 연결하려면?',
+      '현실적으로 돈 관리를 어떻게 해야 해?',
+      '직업운과 재물운을 같이 봐줘',
+      '사업과 직장 중 어떤 방식이 더 맞아?',
+      '내 사주의 다른 재물 특징도 봐줘',
+      '재물에서 가장 중요한 핵심은?',
+      '재물운에 참고할 색·환경은?',
+      '돈 관리할 때 잘 맞는 공간이나 분위기는?',
+      '재물운에서 숫자·방향은 어떻게 참고해?'
+    ],
+    love: [
+      '내 연애의 좋은 점은?',
+      '내가 조심할 관계 패턴은?',
+      '어떤 사람이 잘 맞아?',
+      '내 연애 성향을 더 봐줘',
+      '내가 바꾸면 좋은 점은?',
+      '결혼 관계에서는 어떤 편이야?',
+      '관계를 오래 유지하려면 어떻게 해야 해?',
+      '궁합에서 가장 중요한 건 뭐야?',
+      '내 사주의 다른 관계 특징도 봐줘',
+      '연애에서 내가 기억할 핵심은?',
+      '연애할 때 잘 맞는 색·분위기는?',
+      '관계운에 참고할 공간이나 환경은?',
+      '연애운에서 숫자·방향은 어떻게 참고해?'
+    ],
+    career: [
+      '내 직업적 강점은?',
+      '일할 때 뭘 조심해야 해?',
+      '어떤 업무 환경이 잘 맞아?',
+      '사업 성향도 있어?',
+      '강점을 일에서 어떻게 살리면 돼?',
+      '이직할 때 뭘 중요하게 봐야 해?',
+      '돈과 직업을 같이 봐줘',
+      '직장과 사업 중 어떤 방식이 맞아?',
+      '나한테 맞는 역할은?',
+      '직업에서 가장 중요한 핵심은?',
+      '일할 때 잘 맞는 색·환경은?',
+      '집중이 잘 되는 공간이나 분위기는?',
+      '직업운에서 숫자·방향은 어떻게 참고해?'
+    ],
+    traits: [
+      '나한테 좋은 건 더 뭐야?',
+      '뭘 조심해야 해?',
+      '생활에서 어떻게 활용해?',
+      '다른 특징도 알려줘',
+      '내 강점은 뭐야?',
+      '나한테 맞는 환경은?',
+      '관계에도 영향이 있어?',
+      '내 사주의 핵심 특징은 뭐야?',
+      '현실에서 가장 활용할 점은?',
+      '나한테 잘 맞는 색은?',
+      '나한테 잘 맞는 공간·분위기는?',
+      '숫자·방향은 어떻게 참고하면 돼?',
+      '잘 맞는 활동이나 취미는?'
+    ],
+    general: [
+      '내 강점은 뭐야?',
+      '뭘 조심해야 해?',
+      '현실적으로 어떻게 활용하면 돼?',
+      '다른 특징도 알려줘',
+      '그중 가장 중요한 건?',
+      '직업에서는 어떻게 나타나?',
+      '연애에서는 어떻게 나타나?',
+      '재물에서는 어떻게 나타나?',
+      '나한테 맞는 환경은?',
+      '내가 기억할 핵심은?',
+      '나한테 잘 맞는 색은?',
+      '나한테 잘 맞는 공간·분위기는?',
+      '숫자·방향은 어떻게 참고하면 돼?',
+      '잘 맞는 활동이나 취미는?'
+    ]
+  };
+
+  const { usedTexts, usedIntents } = getUsedAiFollowupState();
+  const currentIntent = aiFollowupIntent(question);
+  const currentText = normalizeAiFollowupText(question);
+
+  const result = [];
+  for (const label of pool[topic]) {
+    if (result.length >= 3) break; // 네 번째 자리는 '다른 주제도 볼래'로 고정
+    const normalized = normalizeAiFollowupText(label);
+    const intent = aiFollowupIntent(label);
+
+    // 1) 방금 질문과 같은 문장/의미면 무조건 제외
+    if (normalized === currentText) continue;
+    if (intent === currentIntent) continue;
+
+    // 2) 이 상담에서 이미 물어본 문장/의미면 무조건 제외
+    if (usedTexts.has(normalized)) continue;
+    if (usedIntents.has(intent)) continue;
+
+    // 3) 현재 화면 안에서도 같은 의미끼리 중복 금지
+    if (result.some(x => aiFollowupIntent(x) === intent)) continue;
+
+    result.push(label);
+  }
+
+  // 같은 주제 안에서 3개를 못 채우면, 아직 한 번도 안 물어본 '다른 의미'만 보충합니다.
+  const fallback = [
+    '내 강점은 뭐야?',
+    '현실적으로 어떻게 활용하면 돼?',
+    '나한테 맞는 환경은?',
+    '나한테 잘 맞는 색은?',
+    '숫자·방향은 어떻게 참고하면 돼?',
+    '잘 맞는 활동이나 취미는?',
+    '내가 기억할 핵심은?',
+    '다른 특징도 알려줘',
+    '직업에서는 어떻게 나타나?',
+    '연애에서는 어떻게 나타나?',
+    '재물에서는 어떻게 나타나?'
+  ];
+
+  for (const label of fallback) {
+    if (result.length >= 3) break;
+    const normalized = normalizeAiFollowupText(label);
+    const intent = aiFollowupIntent(label);
+    if (normalized === currentText) continue;
+    if (intent === currentIntent) continue;
+    if (usedTexts.has(normalized)) continue;
+    if (usedIntents.has(intent)) continue;
+    if (result.some(x => aiFollowupIntent(x) === intent)) continue;
+    result.push(label);
+  }
+
+  return result.slice(0,3);
+}
+
+function showAiOtherSajuTopics(locked){
+  if (locked){
+    openAiFollowupPurchase('다른 주제도 이어서 보기');
+    return;
+  }
+
+  const win = document.getElementById('aiChatWindow');
+  if (!win) return;
+
+  clearAiFollowupSuggestions();
+
+  const currentTopic = getAiFollowupTopic(
+    [...(window.__aiChatHistory || [])].reverse().find(m => m && m.role === 'user')?.content || ''
+  );
+
+  const topicButtons = [
+    { key:'money', label:'💰 재물운', q:'내 재물운을 봐줘' },
+    { key:'love', label:'💕 연애·궁합', q:'내 연애운과 관계 성향을 봐줘' },
+    { key:'career', label:'💼 직업·사업', q:'내 직업운과 일하는 성향을 봐줘' },
+    { key:'traits', label:'✨ 성향·좋은 것', q:'내 사주의 성향과 나한테 잘 맞는 것을 봐줘' },
+    { key:'general', label:'🔎 전체적인 특징', q:'내 사주의 다른 특징도 이어서 봐줘' }
+  ].filter(x => x.key !== currentTopic);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'ai-chat-followups';
+
+  const note = document.createElement('div');
+  note.className = 'ai-chat-followup-note';
+  note.textContent = '다른 주제로도 이어서 볼까요?';
+  wrap.appendChild(note);
+
+  topicButtons.slice(0,4).forEach(item => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = item.label;
+    b.onclick = () => {
+      trackAiFunnel('topic_switch_click',{topic:item.key,question:item.q});
+      clearAiFollowupSuggestions();
+      quickAskAiChat(item.q);
+    };
+    wrap.appendChild(b);
+  });
+
+  win.appendChild(wrap);
+  scrollAiChatToBottom(win);
+}
+
+function showAiFollowups(question, reply, used, limit, locked){
+  const win=document.getElementById('aiChatWindow'); if(!win) return;
+  clearAiFollowupSuggestions();
+
+  const wrap=document.createElement('div');
+  wrap.className='ai-chat-followups';
+
+  const list=aiFollowupSet(question,reply,used);
+
+  if(locked){
+    const note=document.createElement('div');
+    note.className='ai-chat-followup-note';
+    note.textContent='🔒 다음으로 이런 것도 물어볼 수 있어요';
+    wrap.appendChild(note);
+  }
+
+  list.forEach(label=>{
+    const b=document.createElement('button');
+    b.type='button';
+    b.className=locked?'locked':'';
+    b.textContent=(locked?'🔒 ':'')+label;
+    b.onclick=()=>{
+      if(locked){ openAiFollowupPurchase(label); return; }
+      trackAiFunnel('followup_click',{question:label});
+      clearAiFollowupSuggestions();
+      quickAskAiChat(label);
+    };
+    wrap.appendChild(b);
+  });
+
+  // 항상 마지막에는 다른 사주 주제로 갈 수 있는 메뉴를 둡니다.
+  const other=document.createElement('button');
+  other.type='button';
+  other.className=locked?'locked':'';
+  other.textContent=(locked?'🔒 ':'')+'다른 주제도 볼래';
+  other.onclick=()=>showAiOtherSajuTopics(locked);
+  wrap.appendChild(other);
+
+  win.appendChild(wrap);
+  scrollAiChatToBottom(win);
+}
+
+
+const AI_PENDING_PAID_QUESTION_KEY = 'taekilso_pending_paid_ai_question_v1';
+const AI_FUNNEL_KEY = 'taekilso_ai_funnel_v1';
+
+function savePendingPaidAiQuestion(question){
+  const q=String(question||'').trim();
+  if(!q) return;
+  window.__pendingPaidAiQuestion=q;
+  try{
+    localStorage.setItem(AI_PENDING_PAID_QUESTION_KEY, JSON.stringify({
+      question:q, uid:getCurrentUserKey()||'', createdAt:Date.now()
+    }));
+  }catch(e){}
+}
+
+function getPendingPaidAiQuestion(){
+  try{
+    const x=JSON.parse(localStorage.getItem(AI_PENDING_PAID_QUESTION_KEY)||'null');
+    if(!x||!x.question) return '';
+    if(Date.now()-Number(x.createdAt||0)>24*60*60*1000){
+      localStorage.removeItem(AI_PENDING_PAID_QUESTION_KEY); return '';
+    }
+    const uid=getCurrentUserKey()||'';
+    if(x.uid && uid && x.uid!==uid) return '';
+    return String(x.question||'').trim();
+  }catch(e){ return ''; }
+}
+
+function clearPendingPaidAiQuestion(){
+  window.__pendingPaidAiQuestion='';
+  try{localStorage.removeItem(AI_PENDING_PAID_QUESTION_KEY);}catch(e){}
+}
+
+function trackAiFunnel(eventName, extra){
+  const name=String(eventName||'').slice(0,60);
+  if(!name) return;
+  const item={event:name, at:Date.now(), ...(extra||{})};
+  try{
+    const list=JSON.parse(localStorage.getItem(AI_FUNNEL_KEY)||'[]');
+    const safe=Array.isArray(list)?list:[];
+    safe.push(item);
+    localStorage.setItem(AI_FUNNEL_KEY,JSON.stringify(safe.slice(-200)));
+  }catch(e){}
+  // 기존 Firestore 구조/Rules를 건드리지 않기 위해 우선 브라우저 퍼널 로그로 안전하게 수집합니다.
+  try{
+    window.dispatchEvent(new CustomEvent('taekilso:aiFunnel',{detail:item}));
+  }catch(e){}
+}
+
+function restoreAlgorithmicFollowupsAfterPurchase() {
+  const panel = document.getElementById('aiChatPanel');
+  const win = document.getElementById('aiChatWindow');
+
+  if (!panel || panel.style.display === 'none' || !win) return false;
+
+  const history = Array.isArray(window.__aiChatHistory)
+    ? window.__aiChatHistory
+    : [];
+
+  let assistantIndex = -1;
+
+  for (let i = history.length - 1; i >= 0; i--) {
+    if (
+      history[i] &&
+      history[i].role === 'assistant' &&
+      String(history[i].content || '').trim()
+    ) {
+      assistantIndex = i;
+      break;
+    }
+  }
+
+  if (assistantIndex < 0) return false;
+
+  let lastQuestion = '';
+
+  for (let i = assistantIndex - 1; i >= 0; i--) {
+    if (
+      history[i] &&
+      history[i].role === 'user' &&
+      String(history[i].content || '').trim()
+    ) {
+      lastQuestion = String(history[i].content || '').trim();
+      break;
+    }
+  }
+
+  const lastReply = String(history[assistantIndex].content || '').trim();
+
+  if (!lastQuestion || !lastReply) return false;
+
+  clearAiFollowupSuggestions();
+  showAiFollowups(lastQuestion, lastReply, 1, 3, false);
+  trackAiFunnel('paid_followups_restored', { question:lastQuestion });
+
+  setTimeout(() => scrollAiChatToBottom(win), 80);
+  return true;
+}
+
+function resumePendingPaidAiQuestion(){
+  const q=getPendingPaidAiQuestion();
+  if(!q) return false;
+  const panel=document.getElementById('aiChatPanel');
+  const input=document.getElementById('aiChatInput');
+  if(!panel || panel.style.display==='none' || !input) return false;
+  clearPendingPaidAiQuestion();
+  trackAiFunnel('paid_question_auto_resume',{question:q});
+  input.value=q;
+  setTimeout(()=>sendAiChatMessage(),250);
+  return true;
+}
+
+function openAiFollowupPurchase(question){
+  savePendingPaidAiQuestion(question);
+  trackAiFunnel('locked_followup_click',{question:String(question||'')});
+  appendAiChatMessage('system-note','무료 질문 3개를 모두 사용했어요. 이 질문이 궁금하다면 질문권 또는 프리미엄으로 상담을 이어갈 수 있어요.');
+  if (typeof appendQuestionPackOffers === 'function') appendQuestionPackOffers();
+  if (typeof appendAiChatUpsell === 'function') appendAiChatUpsell(question);
+  scrollAiChatToBottom(document.getElementById('aiChatWindow'));
+}
+
+function scrollHomePastAiIntro(){
+  const first = document.querySelector('#view-home .home-first-block');
+  if (!first) {
+    window.scrollBy({ top: Math.max(420, window.innerHeight * 0.8), behavior:'smooth' });
+    return;
+  }
+
+  let target = first.nextElementSibling;
+  while (target && target.offsetParent === null) target = target.nextElementSibling;
+
+  if (target && typeof target.scrollIntoView === 'function') {
+    target.scrollIntoView({ behavior:'smooth', block:'start' });
+  } else {
+    window.scrollTo({
+      top: first.offsetTop + first.offsetHeight,
+      behavior:'smooth'
+    });
+  }
+}
+
 function quickAskAiChat(text) {
   const input = document.getElementById('aiChatInput');
   if (input) input.value = text;
   sendAiChatMessage();
 }
+
+/* 모바일 가상 키보드 대응
+   - visualViewport 높이가 줄어들면 AI 패널 자체를 "보이는 화면" 높이에 맞춥니다.
+   - 따라서 입력창은 키보드 뒤에 가려지지 않고 항상 키보드 바로 위에 남습니다.
+   - 키보드가 닫히면 기존 카드 안의 absolute 레이아웃으로 정확히 복귀합니다. */
+(function setupAiMobileKeyboardViewport(){
+  const vv = window.visualViewport;
+  let keyboardTimer = null;
+  let focusBaselineHeight = 0;
+
+  function getParts(){
+    return {
+      input: document.getElementById('aiChatInput'),
+      row: document.querySelector('#aiChatPanel .ai-chat-inputrow'),
+      panel: document.getElementById('aiChatPanel'),
+      win: document.getElementById('aiChatWindow')
+    };
+  }
+
+  function currentLayoutHeight(){
+    return Math.max(
+      window.innerHeight || 0,
+      document.documentElement.clientHeight || 0
+    );
+  }
+
+  function clearKeyboardMode(){
+    const { panel, win } = getParts();
+    document.body.classList.remove('ai-keyboard-open');
+
+    if (panel) {
+      panel.style.removeProperty('top');
+      panel.style.removeProperty('height');
+      panel.style.removeProperty('max-height');
+    }
+
+    if (win) {
+      win.style.removeProperty('scroll-behavior');
+    }
+  }
+
+  function ensureComposerVisible(){
+    const { input, row, win } = getParts();
+    if (!input || !row) return;
+
+    requestAnimationFrame(() => {
+      const r = row.getBoundingClientRect();
+      const visibleTop = vv ? Number(vv.offsetTop || 0) : 0;
+      const visibleBottom = vv
+        ? visibleTop + Number(vv.height || window.innerHeight)
+        : window.innerHeight;
+
+      if (r.bottom > visibleBottom - 8 || r.top < visibleTop + 8) {
+        try {
+          row.scrollIntoView({
+            block:'end',
+            inline:'nearest',
+            behavior:'auto'
+          });
+        } catch(e) {}
+      }
+
+      if (win) {
+        win.style.scrollBehavior = 'auto';
+        win.scrollTop = win.scrollHeight;
+      }
+    });
+  }
+
+  function syncKeyboardViewport(forceFocus){
+    const { input, panel } = getParts();
+    if (!input || !panel) return;
+
+    const mobile = window.matchMedia('(max-width: 640px)').matches;
+    const focused = forceFocus || document.activeElement === input;
+
+    if (!mobile || !focused) {
+      clearKeyboardMode();
+      return;
+    }
+
+    if (!focusBaselineHeight) {
+      focusBaselineHeight = currentLayoutHeight();
+    }
+
+    if (vv) {
+      const viewportHeight = Math.round(vv.height);
+      const baseline = Math.max(focusBaselineHeight, currentLayoutHeight());
+      const keyboardOpen = viewportHeight < baseline - 110;
+
+      if (keyboardOpen) {
+        document.body.classList.add('ai-keyboard-open');
+        panel.style.top = Math.round(vv.offsetTop || 0) + 'px';
+        panel.style.height = viewportHeight + 'px';
+        panel.style.maxHeight = viewportHeight + 'px';
+
+        ensureComposerVisible();
+        setTimeout(ensureComposerVisible, 70);
+        setTimeout(ensureComposerVisible, 180);
+        setTimeout(ensureComposerVisible, 320);
+        return;
+      }
+    }
+
+    ensureComposerVisible();
+  }
+
+  function queueSync(){
+    clearTimeout(keyboardTimer);
+    keyboardTimer = setTimeout(() => syncKeyboardViewport(false), 24);
+  }
+
+  document.addEventListener('focusin', (e) => {
+    if (e.target && e.target.id === 'aiChatInput') {
+      focusBaselineHeight = currentLayoutHeight();
+      setTimeout(() => syncKeyboardViewport(true), 30);
+      setTimeout(() => syncKeyboardViewport(true), 120);
+      setTimeout(() => syncKeyboardViewport(true), 260);
+      setTimeout(ensureComposerVisible, 430);
+    }
+  });
+
+  document.addEventListener('focusout', (e) => {
+    if (e.target && e.target.id === 'aiChatInput') {
+      setTimeout(() => {
+        if (document.activeElement?.id !== 'aiChatInput') {
+          focusBaselineHeight = 0;
+          clearKeyboardMode();
+        }
+      }, 140);
+    }
+  });
+
+  document.addEventListener('input', (e) => {
+    if (
+      e.target &&
+      e.target.id === 'aiChatInput' &&
+      document.body.classList.contains('ai-keyboard-open')
+    ) {
+      ensureComposerVisible();
+    }
+  });
+
+  if (vv) {
+    vv.addEventListener('resize', queueSync);
+    vv.addEventListener('scroll', queueSync);
+  }
+
+  window.addEventListener('resize', queueSync);
+
+  window.addEventListener('orientationchange', () => {
+    focusBaselineHeight = 0;
+    clearKeyboardMode();
+    setTimeout(queueSync, 320);
+  });
+})()
 
 /* "직접 질문하기" - 입력창에 포커스만 주고 전송하지 않습니다. */
 function focusAiChatInput() {
@@ -6371,6 +9139,7 @@ async function sendAiChatMessage() {
   const sendBtn = document.getElementById('aiChatSendBtn');
   input.value = '';
   sendBtn.disabled = true;
+  clearAiFollowupSuggestions();
 
   // 대화가 시작되면 하단에 항상 떠 있던 추천 질문 6개 버튼을 숨겨서
   // 실제 채팅창(.ai-chat-window)이 쓸 수 있는 세로 공간을 되돌려줍니다.
@@ -6381,8 +9150,9 @@ async function sendAiChatMessage() {
     quickActionsEl.style.display = 'none';
   }
 
-  appendAiChatMessage('user', message);
+  const userQuestionEl = appendAiChatMessage('user', message);
   window.__aiChatHistory.push({ role: 'user', content: message });
+  setActiveAiSession(window.__aiConversationId);
 
   const typingEl = appendAiChatMessage('assistant', '');
   typingEl.classList.add('ai-chat-typing');
@@ -6425,21 +9195,57 @@ async function sendAiChatMessage() {
       return;
     }
 
-    appendAiChatMessage('assistant', data.reply, { scroll: 'start' });
+    const answerEl = appendAiChatMessage('assistant', data.reply, { scroll: 'start' });
     window.__aiChatHistory.push({ role: 'assistant', content: data.reply });
 
     if (data.restricted) {
       // 수명·질병·도박·구체 투자지시 등 제한 질문은 결제 유도나 서비스 CTA를 붙이지 않고,
       // 민감한 질문을 계정 상담 기록에도 자동 저장하지 않습니다. 사용량도 서버에서 차감하지 않습니다.
       showToast('이 질문은 사주로 단정하지 않는 범위에서 안내했어요.');
+      const restrictedWin = document.getElementById('aiChatWindow');
+      scrollAiChatToMessageStart(restrictedWin, userQuestionEl || answerEl);
+      setTimeout(() => scrollAiChatToMessageStart(restrictedWin, userQuestionEl || answerEl), 120);
       return;
     }
 
     saveCurrentAiConversation();
     appendAiChatServiceCta(message);
-    if (!isPremium()) appendAiChatUpsell(message);
-    if (data.freeUsed != null) updateAiChatStatus(data.freeUsed, data.freeLimit, false, data);
-    else updateAiChatStatus(null, null, true, data);
+
+    // 사용권 판정은 반드시 '질문권 사용 여부'를 무료 사용량보다 먼저 봅니다.
+    // 질문권 사용자의 응답에도 freeUsed=3이 함께 오기 때문에,
+    // freeUsed만 먼저 검사하면 질문권이 남아 있어도 무료 소진자로 잘못 판단해
+    // 결제 안내/잠금 꼬리질문을 다시 보여주는 문제가 생깁니다.
+    if (data.usingCredit) {
+      updateAiChatStatus(null, null, false, data);
+      // 질문권이 1개 차감된 뒤 서버가 보내준 실제 잔여 개수로 즉시 표시합니다.
+      showAiFollowups(message, data.reply, 1, 3, false);
+    } else if (data.isAdmin || data.freeUsed == null) {
+      // 관리자/프리미엄은 기존처럼 잠금 없이 계속 상담합니다.
+      updateAiChatStatus(null, null, true, data);
+      showAiFollowups(message, data.reply, 1, 3, false);
+    } else {
+      // 실제 무료 질문을 사용한 경우에만 무료 3회 제한 로직을 적용합니다.
+      updateAiChatStatus(data.freeUsed, data.freeLimit, false, data);
+      const freeDone = Number(data.freeUsed) >= Number(data.freeLimit || 3);
+      trackAiFunnel(`free_question_${Number(data.freeUsed)}`, { question: message });
+      if (freeDone) trackAiFunnel('free_limit_exhausted', { question: message });
+      showAiFollowups(message, data.reply, data.freeUsed, data.freeLimit || 3, freeDone);
+      if (freeDone) appendAiChatUpsell(message);
+    }
+
+    // CTA/꼬리질문을 답변 아래에 붙이는 과정에서 스크롤이 다시 맨 아래로 내려가므로,
+    // 모든 요소가 렌더링된 뒤 최종적으로 "고객이 방금 보낸 질문"부터 보이게 맞춥니다.
+    // 질문 아래로 바로 AI 답변이 이어지기 때문에 사용자는 질문 → 답변 순서로 자연스럽게 읽을 수 있습니다.
+    // 폰트/레이아웃 지연까지 고려해 여러 프레임과 짧은 지연 후 한 번 더 보정합니다.
+    const answerWin = document.getElementById('aiChatWindow');
+    const restoreQuestionStart = () => scrollAiChatToMessageStart(answerWin, userQuestionEl || answerEl);
+    restoreQuestionStart();
+    requestAnimationFrame(() => {
+      restoreQuestionStart();
+      requestAnimationFrame(restoreQuestionStart);
+    });
+    setTimeout(restoreQuestionStart, 120);
+    setTimeout(restoreQuestionStart, 320);
   } catch (err) {
     typingEl.remove();
     appendAiChatMessage('system-note', '연결에 문제가 있었어요. 잠시 후 다시 시도해주세요.');
@@ -6472,6 +9278,14 @@ function openFortuneModal(){
   applyLockedBirthTo('fortune');
 }
 function closeFortuneModal(){document.getElementById('fortuneModal').classList.remove('show')}
+
+function startAiFromTodayFortune(){
+  try { trackAiFunnel('today_fortune_to_ai_click', { source:'today_fortune_result' }); } catch(e) {}
+  closeFortuneModal();
+  try { goTo('home'); } catch(e) {}
+  setTimeout(() => handleHomeChatStart(), 80);
+}
+
 function calculateTodayFortune(){
   const y=+document.getElementById('fortuneYear').value;
   const m=+document.getElementById('fortuneMonth').value;
@@ -6504,7 +9318,14 @@ function calculateTodayFortune(){
       <div class="service-badge">내 일주 ${ganjiFull(userIdx)} · ${userOh} · ${reasons.length?reasons.join(' · '):'균형 확인'}</div>
       <p>${advice}</p>
     </div>
+    <div style="margin-top:12px;padding:13px 14px;border:1px solid rgba(215,181,109,.20);border-radius:15px;background:rgba(215,181,109,.055);">
+      <b style="display:block;color:#f3dfad;font-size:13px;margin-bottom:5px;">오늘 운세, 내 사주에서는 어떤 의미일까요?</b>
+      <span style="display:block;color:var(--muted);font-size:11px;line-height:1.55;margin-bottom:10px;">연애·돈·직장 중 궁금한 걸 연우에게 더 자세히 물어보세요.</span>
+      <button class="btn btn-primary" style="width:100%;" onclick="startAiFromTodayFortune()">✨ 연우에게 무료로 물어보기</button>
+      <small style="display:block;text-align:center;color:var(--muted-2);font-size:9.5px;margin-top:7px;">가입하면 AI 사주 상담 3회 무료 · 결제수단 등록 없음</small>
+    </div>
     <p style="color:var(--muted-2);font-size:10.5px;line-height:1.7;margin:12px 2px 0">※ 자동 계산된 참고용 운세입니다. 의료·법률·재정 등 전문적인 판단을 대신하지 않습니다.</p>`;
+  try { trackAiFunnel('today_fortune_result_view', { score, todayOh, userOh }); } catch(e) {}
 }
 </script>
 
@@ -6728,6 +9549,260 @@ function calculateTodayFortune(){
 })();
 </script>
 
+<script id="home-growth-features-js">
+
+function getHomeDailyMessage(){
+  const messages = [
+    ['서두르기보다 순서를 정리하기 좋은 날이에요.','중요한 결정은 한 번 더 조건을 비교해보세요.'],
+    ['사람과의 대화에서 힌트를 얻기 좋은 날이에요.','혼자 결론내리기보다 상대의 관점도 들어보세요.'],
+    ['작은 실행이 흐름을 바꾸기 좋은 날이에요.','미뤄둔 일 하나를 구체적인 행동으로 옮겨보세요.'],
+    ['선택지를 줄이면 판단이 선명해지는 날이에요.','가장 중요한 기준 한두 가지부터 정해보세요.'],
+    ['속도보다 균형을 챙기기 좋은 날이에요.','일정과 지출, 관계에서 무리한 선택은 피하는 편이 좋아요.'],
+    ['정리와 점검에 힘을 쓰기 좋은 날이에요.','새로운 시작 전 기존 계획을 한 번 다듬어보세요.'],
+    ['내가 원하는 방향을 다시 확인하기 좋은 날이에요.','주변의 기대보다 내 우선순위를 먼저 적어보세요.']
+  ];
+  const kst = new Date(Date.now() + 9*60*60*1000);
+  const key = Number(kst.toISOString().slice(0,10).replace(/-/g,''));
+  return messages[key % messages.length];
+}
+function renderHomeDailyYeonwoo(){
+  const msg = getHomeDailyMessage();
+  const title = document.getElementById('homeDailyYeonwooTitle');
+  const text = document.getElementById('homeDailyYeonwooText');
+  if (title) title.textContent = msg[0];
+  if (text) text.textContent = msg[1] + ' 전통 사주 해석은 참고 기준으로 활용해주세요.';
+}
+function openHomeDailyConsult(){
+  const question = '오늘 제 사주 흐름에서 특히 신경 쓰면 좋은 점과 활용법을 알려주세요.';
+  try { sessionStorage.setItem('taekilso_pending_home_ai_question', question); } catch(e) {}
+  const first = document.querySelector('#view-home > .home-first-block');
+  if (first) first.scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(() => {
+    const input = document.getElementById('aiChatInput');
+    if (input) {
+      input.value = question;
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      input.focus();
+    }
+  }, 500);
+}
+document.addEventListener('DOMContentLoaded', renderHomeDailyYeonwoo);
+
+</script>
+<script id="conversion-seo-expansion-js">
+
+function inferAiNextActions(text){
+  const t = String(text || '').toLowerCase();
+  const actions = [];
+  const push = (label, onclick) => {
+    if (!actions.some(a => a.label === label)) actions.push({label, onclick});
+  };
+
+  if (/결혼|웨딩|혼인|예식|신혼/.test(t)) {
+    push('💍 결혼 날짜 찾아보기', "goTo('tool','결혼식')");
+    push('❤️ 두 사람 궁합 보기', "openSajuInsight('love')");
+  }
+  if (/이사|집|입주|전입|부동산/.test(t)) {
+    push('🏠 이사 날짜 찾아보기', "goTo('tool','이사')");
+  }
+  if (/개업|창업|오픈|가게|사업 시작/.test(t)) {
+    push('🏮 개업 날짜 찾아보기', "goTo('tool','개업')");
+  }
+  if (/계약|서명|협상|계약서/.test(t)) {
+    push('📜 계약 날짜 찾아보기', "goTo('tool','계약체결')");
+  }
+  if (/연애|궁합|재회|썸|남자친구|여자친구|배우자|관계/.test(t)) {
+    push('❤️ 궁합·연애 분석 보기', "openSajuInsight('love')");
+  }
+  if (/돈|재물|재정|수입|사업|직업|취업|이직|회사|커리어/.test(t)) {
+    push('💰 재물·직업 심층분석', "openSajuInsight('money')");
+  }
+  if (/사주|성향|오행|대운|전체운|올해/.test(t)) {
+    push('🔮 내 사주 기본 리포트', "openSajuInsight('profile')");
+  }
+
+  if (!actions.length) {
+    push('🔮 내 사주 기본 리포트', "openSajuInsight('profile')");
+    push('📅 중요한 날짜 찾아보기', "goTo('tool')");
+  }
+
+  return actions.slice(0, 3);
+}
+
+function renderAiNextActions(container, sourceText){
+  if (!container) return;
+  const actions = inferAiNextActions(sourceText);
+  if (!actions.length) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'ai-next-actions';
+  wrap.innerHTML = '<div class="ai-next-actions-title">이어서 해볼 수 있어요</div>';
+
+  actions.forEach((a) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = a.label;
+    btn.setAttribute('onclick', a.onclick);
+    wrap.appendChild(btn);
+  });
+
+  container.appendChild(wrap);
+}
+
+
+function setupAiRecommendationObserver(){
+  const log = document.getElementById('aiChatMessages') || document.getElementById('aiChatLog') || document.querySelector('.ai-chat-messages');
+  if (!log || log.dataset.nextActionsObserver === '1') return;
+  log.dataset.nextActionsObserver = '1';
+
+  const observer = new MutationObserver(() => {
+    const candidates = Array.from(log.querySelectorAll('.ai-chat-message, .chat-message, .ai-message, .message, .ai-chat-bubble-npc'));
+    if (!candidates.length) return;
+
+    // 마지막 AI 답변처럼 보이는 항목을 찾습니다.
+    for (let i = candidates.length - 1; i >= 0; i--) {
+      const el = candidates[i];
+      const cls = String(el.className || '').toLowerCase();
+      const isUser = /user|mine|me/.test(cls);
+      if (isUser) continue;
+      if (el.querySelector && el.querySelector('.ai-next-actions')) return;
+
+      const text = (el.innerText || el.textContent || '').trim();
+      if (text.length < 20) continue;
+
+      let source = text;
+      const input = document.getElementById('aiChatInput');
+      const recentUser = Array.from(log.querySelectorAll('.ai-chat-message-user, .chat-message.user, .user-message')).pop();
+      if (recentUser) source += ' ' + (recentUser.innerText || recentUser.textContent || '');
+
+      renderAiNextActions(el, source);
+      break;
+    }
+  });
+
+  observer.observe(log, {childList:true, subtree:true});
+}
+document.addEventListener('DOMContentLoaded', () => setTimeout(setupAiRecommendationObserver, 700));
+
+</script>
+
+<div class="ai-share-modal" id="aiShareModal" onclick="if(event.target===this) closeAiShareModal()">
+  <div class="ai-share-panel" role="dialog" aria-modal="true" aria-label="연우 답변 공유">
+    <div class="ai-share-card" id="aiShareCard">
+      <div>
+        <div class="ai-share-brand">택일소 · 연우</div>
+        <div class="ai-share-sub">AI 사주 상담</div>
+      </div>
+      <div class="ai-share-answer" id="aiShareAnswer"></div>
+      <div class="ai-share-foot"><span>사주는 참고 기준으로 활용해주세요.</span><span>taekilso.com</span></div>
+    </div>
+    <div class="ai-share-actions">
+      <button type="button" class="primary" onclick="shareAiAnswerNative()">공유하기</button>
+      <button type="button" onclick="copyAiAnswerText()">텍스트 복사</button>
+    </div>
+    <button type="button" class="ai-share-close" onclick="closeAiShareModal()">닫기</button>
+  </div>
+</div>
+
+<script id="ai-answer-share-js">
+
+let aiShareCurrentText = '';
+
+function cleanAiShareText(text){
+  return String(text || '')
+    .replace(/이어서 해볼 수 있어요[\s\S]*$/,'')
+    .replace(/\s{3,}/g,'\n\n')
+    .trim()
+    .slice(0,900);
+}
+
+function openAiShareModal(text){
+  const cleaned = cleanAiShareText(text);
+  if (!cleaned) return;
+  aiShareCurrentText = cleaned;
+  const answer = document.getElementById('aiShareAnswer');
+  const modal = document.getElementById('aiShareModal');
+  if (answer) answer.textContent = cleaned;
+  if (modal) modal.classList.add('show');
+}
+
+function closeAiShareModal(){
+  document.getElementById('aiShareModal')?.classList.remove('show');
+}
+
+async function shareAiAnswerNative(){
+  const text = aiShareCurrentText;
+  if (!text) return;
+  const shareData = {
+    title:'택일소 · 연우 AI 사주 상담',
+    text:text + '\n\nAI 사주 상담 · 택일소',
+    url:'https://taekilso.com/'
+  };
+  try{
+    if (navigator.share) {
+      await navigator.share(shareData);
+      return;
+    }
+    await navigator.clipboard.writeText(shareData.text + '\n' + shareData.url);
+    showToast('공유할 내용을 복사했어요.');
+  }catch(err){
+    if (err && err.name === 'AbortError') return;
+    console.warn('공유 실패',err);
+    showToast('공유하지 못했어요.');
+  }
+}
+
+async function copyAiAnswerText(){
+  if (!aiShareCurrentText) return;
+  const text = aiShareCurrentText + '\n\nAI 사주 상담 · 택일소\nhttps://taekilso.com/';
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast('연우 답변을 복사했어요.');
+  }catch(err){
+    const ta=document.createElement('textarea');
+    ta.value=text; document.body.appendChild(ta); ta.select();
+    try{document.execCommand('copy');showToast('연우 답변을 복사했어요.');}catch(e){showToast('복사하지 못했어요.');}
+    ta.remove();
+  }
+}
+
+function attachAiShareButtons(){
+  const log = document.getElementById('aiChatMessages') || document.getElementById('aiChatLog') || document.querySelector('.ai-chat-messages');
+  if (!log) return;
+
+  const candidates = Array.from(log.querySelectorAll('.ai-chat-message, .chat-message, .ai-message, .message, .ai-chat-bubble-npc'));
+  candidates.forEach((el) => {
+    if (el.dataset.aiShareReady === '1') return;
+    const cls = String(el.className || '').toLowerCase();
+    if (/user|mine|me/.test(cls)) return;
+
+    const text = (el.innerText || el.textContent || '').trim();
+    if (text.length < 40) return;
+
+    el.dataset.aiShareReady='1';
+    const bar=document.createElement('div');
+    bar.className='ai-answer-sharebar';
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='ai-answer-sharebtn';
+    btn.textContent='↗ 답변 공유';
+    btn.addEventListener('click',()=>openAiShareModal(text));
+    bar.appendChild(btn);
+    el.appendChild(bar);
+  });
+}
+
+function setupAiShareObserver(){
+  const log = document.getElementById('aiChatMessages') || document.getElementById('aiChatLog') || document.querySelector('.ai-chat-messages');
+  if (!log || log.dataset.aiShareObserver === '1') return;
+  log.dataset.aiShareObserver='1';
+  const obs=new MutationObserver(()=>attachAiShareButtons());
+  obs.observe(log,{childList:true,subtree:true});
+  attachAiShareButtons();
+}
+document.addEventListener('DOMContentLoaded',()=>setTimeout(setupAiShareObserver,850));
+
+</script>
 </body>
 </html>
 
