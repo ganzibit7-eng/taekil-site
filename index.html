@@ -1916,8 +1916,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <!-- ============ AUTH MODAL ============ -->
 <div id="authOverlay">
   <div class="modal-box">
-    <div class="modal-title" id="authTitle">로그인</div>
-    <div class="auth-free-benefit"><b>가입하면 연우 AI 사주상담 3회 무료</b><span>카드등록 없음 · 결제 없음</span></div>
+    <div class="modal-title" id="authTitle">10초면 시작해요</div>
+    <div class="auth-free-benefit"><b>가입하고 연우에게 3번 무료로 물어보세요</b><span>결제수단 등록 없음 · 자동결제 없음</span></div>
     <div id="authSetupNotice" class="setup-notice" style="display:none;">
       아직 계정 저장소가 연결되지 않았어요. Firebase 설정을 먼저 연결해야 실제로 저장됩니다.
     </div>
@@ -9255,6 +9255,14 @@ function openFortuneModal(){
   applyLockedBirthTo('fortune');
 }
 function closeFortuneModal(){document.getElementById('fortuneModal').classList.remove('show')}
+
+function startAiFromTodayFortune(){
+  try { trackAiFunnel('today_fortune_to_ai_click', { source:'today_fortune_result' }); } catch(e) {}
+  closeFortuneModal();
+  try { goTo('home'); } catch(e) {}
+  setTimeout(() => handleHomeChatStart(), 80);
+}
+
 function calculateTodayFortune(){
   const y=+document.getElementById('fortuneYear').value;
   const m=+document.getElementById('fortuneMonth').value;
@@ -9287,7 +9295,14 @@ function calculateTodayFortune(){
       <div class="service-badge">내 일주 ${ganjiFull(userIdx)} · ${userOh} · ${reasons.length?reasons.join(' · '):'균형 확인'}</div>
       <p>${advice}</p>
     </div>
+    <div style="margin-top:12px;padding:13px 14px;border:1px solid rgba(215,181,109,.20);border-radius:15px;background:rgba(215,181,109,.055);">
+      <b style="display:block;color:#f3dfad;font-size:13px;margin-bottom:5px;">오늘 운세, 내 사주에서는 어떤 의미일까요?</b>
+      <span style="display:block;color:var(--muted);font-size:11px;line-height:1.55;margin-bottom:10px;">연애·돈·직장 중 궁금한 걸 연우에게 더 자세히 물어보세요.</span>
+      <button class="btn btn-primary" style="width:100%;" onclick="startAiFromTodayFortune()">✨ 연우에게 무료로 물어보기</button>
+      <small style="display:block;text-align:center;color:var(--muted-2);font-size:9.5px;margin-top:7px;">가입하면 AI 사주 상담 3회 무료 · 결제수단 등록 없음</small>
+    </div>
     <p style="color:var(--muted-2);font-size:10.5px;line-height:1.7;margin:12px 2px 0">※ 자동 계산된 참고용 운세입니다. 의료·법률·재정 등 전문적인 판단을 대신하지 않습니다.</p>`;
+  try { trackAiFunnel('today_fortune_result_view', { score, todayOh, userOh }); } catch(e) {}
 }
 </script>
 
