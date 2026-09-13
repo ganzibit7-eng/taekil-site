@@ -190,6 +190,7 @@ html.snap-active.home-free-scroll{
   background:rgba(215,180,106,.07)!important;
 }
 .nav-cta:hover{background:rgba(215,180,106,.15)!important}
+.nav-cta.logged-in{border:none!important;box-shadow:none!important}
 
 /* hero */
 .hero{
@@ -4760,6 +4761,7 @@ function updateAuthNav() {
     label = (kakaoUser.nickname || '카카오 사용자') + ' 님' + premiumTag;
   }
   btn.textContent = label;
+  btn.classList.toggle('logged-in', !!(kakaoUser || fbUser));
   if (bottomLabel) bottomLabel.textContent = (kakaoUser || fbUser) ? '프로필' : '로그인';
 }
 
