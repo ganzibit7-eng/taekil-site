@@ -2846,7 +2846,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <div id="adminContent" style="display:none;">
         <div class="admin-stats">
           <div class="admin-stat"><small>누적 방문수</small><b id="statVisits">–</b></div>
-          <div class="admin-stat"><small>오늘 방문수</small><b id="statTodayVisits">–</b></div>
+          <div class="admin-stat"><small>오늘 방문수 · 00시 초기화</small><b id="statTodayVisits">–</b></div>
           <div class="admin-stat"><small>총 가입자수</small><b id="statSignups">–</b></div>
           <div class="admin-stat"><small>카카오 가입자</small><b id="statKakaoMembers">–</b></div>
           <div class="admin-stat"><small>오늘 접속 회원</small><b id="statActiveToday">–</b></div>
@@ -3182,6 +3182,7 @@ function goTo(route, presetEvent) {
   if (route !== 'admin') {
     if (typeof adminStatsUnsub === 'function') { adminStatsUnsub(); adminStatsUnsub = null; }
     if (typeof adminDailyVisitsUnsub === 'function') { adminDailyVisitsUnsub(); adminDailyVisitsUnsub = null; }
+    if (adminDailyVisitsMidnightTimer) { clearTimeout(adminDailyVisitsMidnightTimer); adminDailyVisitsMidnightTimer = null; }
   }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('visible'));
   const target = document.getElementById('view-' + route);
@@ -4459,6 +4460,46 @@ function isAdmin() {
 }
 
 /* ---------- 방문/가입/구매 집계 (Firestore) ---------- */
+
+/* 일일 방문수는 한국시간(KST) 00:00를 기준으로 새 문서로 넘어갑니다.
+   서버/브라우저의 UTC 날짜를 쓰면 한국시간 오전 9시에 바뀌는 문제가 있어
+   모든 일일 방문 집계를 Asia/Seoul 기준으로 통일합니다. */
+function getKstDateKey(date = new Date()) {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).formatToParts(date);
+  const map = Object.fromEntries(parts.map(p => [p.type, p.value]));
+  return `${map.year}-${map.month}-${map.day}`;
+}
+
+function msUntilNextKstMidnight() {
+  const now = new Date();
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).formatToParts(now);
+  const m = Object.fromEntries(parts.map(p => [p.type, p.value]));
+  // KST는 UTC+9이므로 "다음 한국 날짜 00:00"의 UTC 시각을 계산합니다.
+  const kstAsUtc = Date.UTC(
+    Number(m.year), Number(m.month) - 1, Number(m.day),
+    Number(m.hour) === 24 ? 0 : Number(m.hour),
+    Number(m.minute), Number(m.second)
+  );
+  const nextKstMidnightAsUtc = Date.UTC(
+    Number(m.year), Number(m.month) - 1, Number(m.day) + 1, 0, 0, 0
+  );
+  return Math.max(1000, nextKstMidnightAsUtc - kstAsUtc);
+}
+
 function bumpStat(field) {
   if (!db) return;
   db.collection('stats').doc('counters').set(
@@ -4472,7 +4513,7 @@ function recordVisit() {
   if (isAdmin()) return;
   bumpStat('visits');
   if (!db) return;
-  const todayKey = new Date().toISOString().slice(0, 10); // 예: 2026-09-08
+  const todayKey = getKstDateKey();
   db.collection('dailyVisits').doc(todayKey).set(
     { count: firebase.firestore.FieldValue.increment(1), date: todayKey },
     { merge: true }
@@ -5473,6 +5514,7 @@ function filterAdminUserList(query) {
 
 let adminStatsUnsub = null;
 let adminDailyVisitsUnsub = null;
+let adminDailyVisitsMidnightTimer = null;
 let adminUsersUnsub = null;
 let adminMemberSortMode = 'recent_signup';
 
@@ -5594,11 +5636,30 @@ function renderAdmin() {
     if (qpEl) qpEl.textContent = qpCount;
   }, (err) => console.error('통계 실시간 조회 실패', err));
 
-  const todayKey = new Date().toISOString().slice(0, 10);
-  if (adminDailyVisitsUnsub) adminDailyVisitsUnsub();
-  adminDailyVisitsUnsub = db.collection('dailyVisits').doc(todayKey).onSnapshot((snap) => {
-    document.getElementById('statTodayVisits').textContent = snap.exists ? (snap.data().count || 0) : 0;
-  }, (err) => console.error('오늘 방문수 실시간 조회 실패', err));
+  function watchTodayVisitsKst() {
+    const todayKey = getKstDateKey();
+
+    if (adminDailyVisitsUnsub) {
+      adminDailyVisitsUnsub();
+      adminDailyVisitsUnsub = null;
+    }
+
+    const todayEl = document.getElementById('statTodayVisits');
+    // 새 날짜 문서가 아직 없더라도 자정 즉시 화면을 0으로 초기화합니다.
+    if (todayEl) todayEl.textContent = '0';
+
+    adminDailyVisitsUnsub = db.collection('dailyVisits').doc(todayKey).onSnapshot((snap) => {
+      if (todayEl) todayEl.textContent = snap.exists ? (snap.data().count || 0) : 0;
+    }, (err) => console.error('오늘 방문수 실시간 조회 실패', err));
+
+    if (adminDailyVisitsMidnightTimer) clearTimeout(adminDailyVisitsMidnightTimer);
+    adminDailyVisitsMidnightTimer = setTimeout(() => {
+      // 한국시간 00:00가 지나면 새 날짜 문서로 자동 전환합니다.
+      watchTodayVisitsKst();
+    }, msUntilNextKstMidnight() + 1200);
+  }
+
+  watchTodayVisitsKst();
 
   if (adminUsersUnsub) adminUsersUnsub();
   adminUsersUnsub = db.collection('users').onSnapshot(async (qs) => {
