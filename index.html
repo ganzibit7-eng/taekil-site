@@ -2740,6 +2740,11 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <div class="pf-id">
           <div class="pf-name" id="profileName">이름</div>
           <div class="pf-meta" id="profileMeta">로그인 방식</div>
+          <div id="profileUidRow" style="display:none;align-items:center;gap:7px;margin-top:7px;flex-wrap:wrap;">
+            <span style="color:var(--muted-2);font-size:9.5px;">회원 UID</span>
+            <code id="profileUid" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:9.5px;"></code>
+            <button type="button" onclick="copyProfileUid()" style="border:1px solid rgba(215,180,106,.18);border-radius:8px;padding:3px 7px;background:rgba(215,180,106,.06);color:var(--gold-hi);font:inherit;font-size:9px;cursor:pointer;">복사</button>
+          </div>
           <div class="pf-badge-row">
             <span class="pf-badge" id="profileTier">무료 회원</span>
             <span class="pf-expiry" id="premiumExpiry" style="display:none;"></span>
@@ -4893,25 +4898,68 @@ function updateAuthNav() {
   if (bottomLabel) bottomLabel.textContent = (kakaoUser || fbUser) ? '프로필' : '로그인';
 }
 
+async function copyProfileUid() {
+  const el = document.getElementById('profileUid');
+  const uid = el ? String(el.textContent || '').trim() : '';
+  if (!uid) return;
+  try {
+    await navigator.clipboard.writeText(uid);
+    showToast('회원 UID를 복사했어요.');
+  } catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = uid;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (_) {}
+    ta.remove();
+    showToast('회원 UID를 복사했어요.');
+  }
+}
+
 function renderProfile() {
   const kakaoUser = getKakaoUser();
   const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser && !firebaseAuthUser.isAnonymous) ? firebaseAuthUser : null;
-  let name = '회원', meta = '', initial = '택';
+  let name = '회원', meta = '', initial = '택', uid = '';
 
-  if (fbUser) {
+  // 카카오 로그인은 Firebase Custom Token 세션도 함께 생기므로
+  // fbUser가 존재하더라도 UID가 kakao_로 시작하거나 카카오 로컬 프로필이 있으면 카카오로 표시합니다.
+  const isKakaoSession = !!(
+    kakaoUser ||
+    (fbUser && String(fbUser.uid || '').startsWith('kakao_'))
+  );
+
+  if (isKakaoSession) {
+    name = (kakaoUser && kakaoUser.nickname) ||
+      (fbUser && fbUser.displayName) ||
+      '카카오 사용자';
+    const email = (kakaoUser && kakaoUser.email) || (fbUser && fbUser.email) || '';
+    meta = '카카오 회원' + (email ? ' · ' + email : '');
+    initial = name.charAt(0);
+    uid = (fbUser && fbUser.uid) ||
+      (kakaoUser && kakaoUser.id ? 'kakao_' + String(kakaoUser.id) : '');
+  } else if (fbUser) {
     name = fbUser.displayName || (fbUser.email ? fbUser.email.split('@')[0] : '회원');
-    const provider = (fbUser.providerData[0] && fbUser.providerData[0].providerId === 'google.com') ? 'Google 로그인' : '이전 회원';
+    const providers = Array.isArray(fbUser.providerData)
+      ? fbUser.providerData.map(p => p && p.providerId).filter(Boolean)
+      : [];
+    const provider = providers.includes('google.com') ? 'Google 회원' : '이전 회원';
     meta = provider + (fbUser.email ? ' · ' + fbUser.email : '');
     initial = name.charAt(0).toUpperCase();
-  } else if (kakaoUser) {
-    name = kakaoUser.nickname || '카카오 사용자';
-    meta = '카카오 로그인' + (kakaoUser.email ? ' · ' + kakaoUser.email : '');
-    initial = name.charAt(0);
+    uid = fbUser.uid || '';
   }
 
   document.getElementById('profileAvatar').textContent = initial;
   document.getElementById('profileName').textContent = name;
   document.getElementById('profileMeta').textContent = meta;
+
+  const uidRow = document.getElementById('profileUidRow');
+  const uidEl = document.getElementById('profileUid');
+  if (uidRow && uidEl) {
+    uidEl.textContent = uid;
+    uidRow.style.display = uid ? 'flex' : 'none';
+  }
 
   const tierEl = document.getElementById('profileTier');
   const upgradeBtn = document.getElementById('profileUpgradeBtn');
