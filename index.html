@@ -1928,7 +1928,11 @@ footer{padding-bottom:90px}
 .home-free-value span{display:block;margin-top:5px;font-size:12px;color:var(--muted)}
 #homeGuestHint b{font-size:13px}
 #homeGuestHint span{font-size:11px}
-@media(max-width:640px){.home-free-value b{font-size:15px}.auth-free-benefit{margin-bottom:13px}}
+.home-free-value{margin:12px 0 8px}
+.home-free-value b{font-size:15px}
+.home-free-value span{font-size:10.5px;line-height:1.5}
+.auth-free-benefit span{line-height:1.55}
+@media(max-width:640px){.home-free-value b{font-size:14.5px}.auth-free-benefit{margin-bottom:13px}}
 </style>
 
 <style id="today-fortune-ai-question-style">
@@ -1988,8 +1992,11 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <!-- ============ AUTH MODAL ============ -->
 <div id="authOverlay">
   <div class="modal-box">
-    <div class="modal-title" id="authTitle">10초면 시작해요</div>
-    <div class="auth-free-benefit"><b>가입하고 연우에게 3번 무료로 물어보세요</b><span>결제수단 등록 없음 · 자동결제 없음</span></div>
+    <div class="modal-title" id="authTitle">연우에게 바로 물어보세요</div>
+    <div class="auth-free-benefit">
+      <b>첫 질문 3개는 무료예요</b>
+      <span>Google 또는 카카오로 10초 시작 · 카드등록 없음 · 자동결제 없음</span>
+    </div>
     <div id="authSetupNotice" class="setup-notice" style="display:none;">
       아직 계정 저장소가 연결되지 않았어요. Firebase 설정을 먼저 연결해야 실제로 저장됩니다.
     </div>
@@ -2091,10 +2098,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
         <!-- STEP 0: 소개 + 시작하기 (모두에게 동일하게 보임, 로그인 불필요) -->
         <div id="homeIntroOverlay" class="ai-chat-setup-overlay home-conversion-intro">
-          <div class="home-conversion-kicker">AI 사주 상담 · 연우</div>
+          <div class="home-conversion-kicker">AI 사주 상담 · 첫 질문 3개 무료</div>
           <div class="ai-chat-bubble-npc home-conversion-bubble">
-            <strong>고민을 말하면 사주를 읽고, 중요한 날까지 함께 골라드려요.</strong>
-            <span>연애·돈·직업 고민부터 결혼·이사·개업 날짜까지 연우에게 물어보세요.</span>
+            <strong>지금 궁금한 걸 고르면, 연우가 내 사주로 바로 답해드려요.</strong>
+            <span>연애·돈·직업 고민부터 결혼·이사·개업 날짜까지 한 번 입력한 사주로 계속 상담할 수 있어요.</span>
           </div>
 
           <div class="home-conversion-question">오늘 가장 궁금한 건 무엇인가요?</div>
@@ -2105,10 +2112,13 @@ const ADMIN_EMAIL = "green092432@gmail.com";
             <button onclick="handleHomeCategoryClick(this, '결혼, 이사, 개업, 계약 중 중요한 날짜를 잡고 싶어요')"><span>📅</span> 중요한 날짜</button>
           </div>
 
-          <div class="home-free-value"><b>연우에게 내 사주 물어보기</b></div>
-          <p id="homeGuestHint" class="ai-chat-guest-hint"><b>가입하면 AI 사주 상담 3회 무료</b></p>
-          <button id="homeStartChatBtn" class="btn btn-primary home-start-chat-btn" style="width:100%;" onclick="handleHomeChatStart(this)">✨ 연우에게 무료로 물어보기</button>
-          <div class="home-conversion-trust"><span>계산된 사주 데이터 기준</span><i>·</i><span>없는 정보 임의 생성 최소화</span><i>·</i><span>자동결제 없음</span></div>
+          <div class="home-free-value">
+            <b>궁금한 것 3가지를 직접 물어보세요</b>
+            <span>사주를 저장하면 다음 상담에서도 다시 입력할 필요 없어요.</span>
+          </div>
+          <p id="homeGuestHint" class="ai-chat-guest-hint"><b>첫 질문 3개 무료</b><span> · 카드등록 없음 · 자동결제 없음</span></p>
+          <button id="homeStartChatBtn" class="btn btn-primary home-start-chat-btn" style="width:100%;" onclick="handleHomeChatStart(this)">✨ 궁금한 것 무료로 물어보기</button>
+          <div class="home-conversion-trust"><span>카드등록 없음</span><i>·</i><span>자동결제 없음</span><i>·</i><span>저장한 사주로 계속 상담</span></div>
         </div>
 
         <!-- STEP 1: 생년월일 입력 (시작하기 클릭 + 로그인 후에만 보임) -->
@@ -8820,7 +8830,7 @@ async function updateHomeGuestHint() {
   if (hint) hint.style.display = loggedIn ? 'none' : 'block';
   if (startBtn) startBtn.textContent = loggedIn
     ? '✨ 연우와 상담 시작하기'
-    : '✨ 연우에게 무료로 3번 물어보기';
+    : '✨ 궁금한 것 무료로 물어보기';
 }
 
 async function handleHomeChatStart(btn) {
