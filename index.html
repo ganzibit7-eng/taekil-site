@@ -2858,6 +2858,27 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <div class="admin-stat"><small>질문권 구매수</small><b id="statPurchasesQuestionPacks">–</b></div>
           <div class="admin-stat"><small>답변 대기 문의</small><b id="statPendingInquiries" style="color:var(--warn);">–</b></div>
         </div>
+
+        <div class="section-head" style="margin-top:40px;">
+          <div>
+            <div class="section-kicker">TODAY FUNNEL · KST</div>
+            <h2 class="section-title" style="font-size:24px;">오늘 전환 퍼널</h2>
+          </div>
+        </div>
+        <div class="price-note" style="margin:0 0 14px;">
+          한국시간 00:00 기준 · 각 단계 아래 %는 바로 이전 단계 대비 전환율입니다.
+        </div>
+        <div id="adminFunnelGrid" class="admin-stats" style="margin-bottom:10px;">
+          <div class="admin-stat"><small>방문</small><b id="funnelVisits">0</b><span id="funnelVisitsRate" style="font-size:9px;color:var(--muted-2);">기준</span></div>
+          <div class="admin-stat"><small>오늘의 운세 결과</small><b id="funnelFortune">0</b><span id="funnelFortuneRate" style="font-size:9px;color:var(--muted-2);">0%</span></div>
+          <div class="admin-stat"><small>연우 CTA 클릭</small><b id="funnelAiCta">0</b><span id="funnelAiCtaRate" style="font-size:9px;color:var(--muted-2);">0%</span></div>
+          <div class="admin-stat"><small>신규 가입</small><b id="funnelSignup">0</b><span id="funnelSignupRate" style="font-size:9px;color:var(--muted-2);">0%</span></div>
+          <div class="admin-stat"><small>첫 AI 답변</small><b id="funnelFirstAi">0</b><span id="funnelFirstAiRate" style="font-size:9px;color:var(--muted-2);">0%</span></div>
+          <div class="admin-stat"><small>무료 3회 소진</small><b id="funnelFreeDone">0</b><span id="funnelFreeDoneRate" style="font-size:9px;color:var(--muted-2);">0%</span></div>
+          <div class="admin-stat"><small>결제 완료</small><b id="funnelPurchase">0</b><span id="funnelPurchaseRate" style="font-size:9px;color:var(--muted-2);">0%</span></div>
+        </div>
+        <div id="adminFunnelHint" class="price-note" style="margin:0 0 24px;">오늘 데이터가 쌓이면 가장 큰 이탈 구간을 자동으로 표시합니다.</div>
+
         <div class="section-head" style="margin-top:40px;">
           <div><div class="section-kicker">MEMBERS</div><h2 class="section-title" style="font-size:24px;">회원 목록</h2></div>
         </div>
@@ -2887,7 +2908,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
             <button type="button" class="admin-ban-refresh" onclick="loadAdminBanList()">새로고침</button>
           </div>
           <div class="price-note" style="margin:10px 0 12px;">
-            강제탈퇴된 계정은 여기에 남고, 관리자가 직접 밴 해제하기 전까지 같은 같은 Google 또는 Kakao 계정으로 다시 가입할 수 없습니다.
+            강제탈퇴된 계정은 여기에 남고, 관리자가 직접 밴 해제하기 전까지 같은 Google 또는 Kakao 계정으로 다시 가입할 수 없습니다.
           </div>
           <div id="adminBanList" class="usecase-list">
             <div class="empty-note">밴 목록을 불러오는 중…</div>
@@ -3182,6 +3203,7 @@ function goTo(route, presetEvent) {
   if (route !== 'admin') {
     if (typeof adminStatsUnsub === 'function') { adminStatsUnsub(); adminStatsUnsub = null; }
     if (typeof adminDailyVisitsUnsub === 'function') { adminDailyVisitsUnsub(); adminDailyVisitsUnsub = null; }
+    if (typeof adminFunnelUnsub === 'function') { adminFunnelUnsub(); adminFunnelUnsub = null; }
     if (adminDailyVisitsMidnightTimer) { clearTimeout(adminDailyVisitsMidnightTimer); adminDailyVisitsMidnightTimer = null; }
   }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('visible'));
@@ -4564,6 +4586,7 @@ async function recordSignup(uid, data) {
 
       // 레거시 통계도 유지하되, 관리자 화면의 총 가입자수는 실제 users 문서 수를 사용합니다.
       bumpStat('signups');
+      bumpDailyFunnel('signups');
       return;
     }
 
@@ -5515,6 +5538,7 @@ function filterAdminUserList(query) {
 let adminStatsUnsub = null;
 let adminDailyVisitsUnsub = null;
 let adminDailyVisitsMidnightTimer = null;
+let adminFunnelUnsub = null;
 let adminUsersUnsub = null;
 let adminMemberSortMode = 'recent_signup';
 
@@ -5650,6 +5674,7 @@ function renderAdmin() {
 
     adminDailyVisitsUnsub = db.collection('dailyVisits').doc(todayKey).onSnapshot((snap) => {
       if (todayEl) todayEl.textContent = snap.exists ? (snap.data().count || 0) : 0;
+      try { window.dispatchEvent(new CustomEvent('taekilso:todayVisitsUpdated')); } catch(e) {}
     }, (err) => console.error('오늘 방문수 실시간 조회 실패', err));
 
     if (adminDailyVisitsMidnightTimer) clearTimeout(adminDailyVisitsMidnightTimer);
@@ -5660,6 +5685,56 @@ function renderAdmin() {
   }
 
   watchTodayVisitsKst();
+
+  function funnelRate(n, d) {
+    if (!d) return '0%';
+    return Math.round((Number(n || 0) / Number(d || 1)) * 100) + '%';
+  }
+
+  let lastTodayFunnelData = {};
+  function renderTodayFunnel(d) {
+    lastTodayFunnelData = d || {};
+    const visits = Number((document.getElementById('statTodayVisits') || {}).textContent || 0) || 0;
+    const steps = [
+      ['funnelVisits','funnelVisitsRate',visits,null],
+      ['funnelFortune','funnelFortuneRate',Number(d.fortuneResults||0),visits],
+      ['funnelAiCta','funnelAiCtaRate',Number(d.aiCtaClicks||0),Number(d.fortuneResults||0)],
+      ['funnelSignup','funnelSignupRate',Number(d.signups||0),Number(d.aiCtaClicks||0)],
+      ['funnelFirstAi','funnelFirstAiRate',Number(d.firstAiAnswers||0),Number(d.signups||0)],
+      ['funnelFreeDone','funnelFreeDoneRate',Number(d.freeLimitExhausted||0),Number(d.firstAiAnswers||0)],
+      ['funnelPurchase','funnelPurchaseRate',Number(d.purchases||0),Number(d.freeLimitExhausted||0)]
+    ];
+    steps.forEach(([id,rid,n,prev],i)=>{
+      const el=document.getElementById(id), rate=document.getElementById(rid);
+      if(el) el.textContent=String(n);
+      if(rate) rate.textContent=i===0?'기준':funnelRate(n,prev);
+    });
+
+    const hint=document.getElementById('adminFunnelHint');
+    if (hint) {
+      const labels=['오늘의 운세 실행','연우 CTA 클릭','신규 가입','첫 AI 답변','무료 3회 소진','결제'];
+      const pairs=steps.slice(1).map((s,i)=>({
+        label:labels[i], n:Number(s[2]||0), prev:Number(s[3]||0),
+        rate:Number(s[3]||0)>0 ? Number(s[2]||0)/Number(s[3]) : null
+      })).filter(x=>x.prev>0);
+      if (!pairs.length) hint.textContent='오늘 데이터가 쌓이면 가장 큰 이탈 구간을 자동으로 표시합니다.';
+      else {
+        pairs.sort((a,b)=>a.rate-b.rate);
+        const x=pairs[0];
+        hint.textContent=`현재 가장 큰 이탈: ${x.label} · 이전 단계 대비 ${Math.round(x.rate*100)}% 전환`;
+      }
+    }
+  }
+
+  function watchTodayFunnelKst() {
+    if (adminFunnelUnsub) { adminFunnelUnsub(); adminFunnelUnsub=null; }
+    const key=getKstDateKey();
+    adminFunnelUnsub=db.collection('dailyFunnel').doc(key).onSnapshot(snap=>{
+      renderTodayFunnel(snap.exists ? (snap.data()||{}) : {});
+    }, err=>console.warn('오늘 전환 퍼널 조회 실패',err));
+  }
+  watchTodayFunnelKst();
+  window.addEventListener('taekilso:todayVisitsUpdated', () => renderTodayFunnel(lastTodayFunnelData), { once:false });
 
   if (adminUsersUnsub) adminUsersUnsub();
   adminUsersUnsub = db.collection('users').onSnapshot(async (qs) => {
@@ -9096,6 +9171,23 @@ function clearPendingPaidAiQuestion(){
   try{localStorage.removeItem(AI_PENDING_PAID_QUESTION_KEY);}catch(e){}
 }
 
+const DAILY_FUNNEL_EVENT_MAP = {
+  today_fortune_result_view: 'fortuneResults',
+  today_fortune_to_ai_click: 'aiCtaClicks',
+  free_limit_exhausted: 'freeLimitExhausted',
+  premium_purchase_confirmed: 'purchases',
+  question_pack_purchase_confirmed: 'purchases'
+};
+
+function bumpDailyFunnel(field){
+  if (!db || !field) return;
+  const dateKey = getKstDateKey();
+  db.collection('dailyFunnel').doc(dateKey).set({
+    date: dateKey,
+    [field]: firebase.firestore.FieldValue.increment(1)
+  }, { merge:true }).catch(err => console.warn('전환 퍼널 기록 실패', field, err));
+}
+
 function trackAiFunnel(eventName, extra){
   const name=String(eventName||'').slice(0,60);
   if(!name) return;
@@ -9106,7 +9198,11 @@ function trackAiFunnel(eventName, extra){
     safe.push(item);
     localStorage.setItem(AI_FUNNEL_KEY,JSON.stringify(safe.slice(-200)));
   }catch(e){}
-  // 기존 Firestore 구조/Rules를 건드리지 않기 위해 우선 브라우저 퍼널 로그로 안전하게 수집합니다.
+
+  // 운영 퍼널에는 질문 내용/사주/UID를 저장하지 않고 단계별 숫자만 +1 합니다.
+  const funnelField = DAILY_FUNNEL_EVENT_MAP[name];
+  if (funnelField) bumpDailyFunnel(funnelField);
+
   try{
     window.dispatchEvent(new CustomEvent('taekilso:aiFunnel',{detail:item}));
   }catch(e){}
@@ -9455,6 +9551,17 @@ async function sendAiChatMessage() {
     }
 
     saveCurrentAiConversation();
+
+    // 첫 AI 답변을 실제 activation으로 집계합니다.
+    // 질문/답변 내용은 저장하지 않고, 해당 계정의 첫 성공 답변일 때만 숫자 +1.
+    try {
+      const firstAiKey = 'taekilso_first_ai_answer_' + String(uid || 'guest');
+      if (!localStorage.getItem(firstAiKey)) {
+        localStorage.setItem(firstAiKey, String(Date.now()));
+        bumpDailyFunnel('firstAiAnswers');
+      }
+    } catch(e) {}
+
     // 사용자가 채팅에 2개 이상의 실제 후보 날짜를 적었다면, AI 문장 답변 아래에
     // 같은 택일 계산식을 사용한 비교 카드를 바로 붙입니다. 일반적인 날짜 질문은 기존 택일 CTA를 유지합니다.
     const renderedInlineDateCompare = appendAiInlineSpecificDateComparison(message);
