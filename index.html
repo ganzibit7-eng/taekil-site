@@ -1930,6 +1930,18 @@ footer{padding-bottom:90px}
 #homeGuestHint span{font-size:11px}
 @media(max-width:640px){.home-free-value b{font-size:15px}.auth-free-benefit{margin-bottom:13px}}
 </style>
+
+<style id="today-fortune-ai-question-style">
+.today-fortune-ai-questions{display:grid;gap:7px;margin-top:10px}
+.today-fortune-ai-questions button{width:100%;display:flex;align-items:center;gap:9px;padding:11px 12px;border:1px solid rgba(231,199,125,.18);border-radius:12px;background:rgba(255,255,255,.035);color:#eee8da;font-family:inherit;text-align:left;cursor:pointer;transition:.2s ease}
+.today-fortune-ai-questions button:hover{border-color:rgba(231,199,125,.38);background:rgba(231,199,125,.08);transform:translateY(-1px)}
+.today-fortune-ai-questions button span{font-size:15px;flex:0 0 auto}
+.today-fortune-ai-questions button b{font-size:12px;font-weight:500;flex:1}
+.today-fortune-ai-questions button i{font-style:normal;color:var(--gold-hi);opacity:.8}
+.today-fortune-direct-ai{width:100%;margin-top:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.10);border-radius:12px;background:transparent;color:var(--muted);font-family:inherit;font-size:11px;cursor:pointer}
+.today-fortune-direct-ai:hover{color:#f3dfad;border-color:rgba(231,199,125,.26)}
+</style>
+
 </head>
 <body>
 
@@ -8766,9 +8778,12 @@ function startAiChat() {
   // 결제 후 돌아온 경우 상담 화면이 준비되는 즉시, 사용자가 눌렀던 잠금 질문을 자동으로 이어갑니다.
   if (getPendingPaidAiQuestion()) setTimeout(() => resumePendingPaidAiQuestion(), 650);
 
-  // 소개 화면에서 고민 카테고리를 먼저 눌렀던 경우, 여기서 그 질문을 자동으로 이어서 보냅니다.
-  if (window.__pendingCategoryQuestion) {
-    const q = window.__pendingCategoryQuestion;
+  // 소개 화면/오늘의 운세에서 추천 질문을 먼저 눌렀던 경우,
+  // 로그인·카카오 리다이렉트·사주 선택이 끝난 뒤 자동으로 그 질문을 이어서 보냅니다.
+  const storedTodayQuestion = takeTodayFortunePendingQuestion();
+  const pendingQuestion = window.__pendingCategoryQuestion || storedTodayQuestion;
+  if (pendingQuestion) {
+    const q = pendingQuestion;
     window.__pendingCategoryQuestion = null;
     setTimeout(() => quickAskAiChat(q), 300);
   }
@@ -8854,6 +8869,20 @@ function showAiChatSetupStep() {
 function continueHomeChatAfterLogin() {
   if (localStorage.getItem('taekilso_pending_chat_start') !== '1') return;
   localStorage.removeItem('taekilso_pending_chat_start');
+
+  // 카카오 로그인은 페이지가 새로 열리므로 오늘의 운세 추천 질문을 다시 복구합니다.
+  if (!window.__pendingCategoryQuestion) {
+    try {
+      const raw = localStorage.getItem(TODAY_FORTUNE_PENDING_QUESTION_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        if (data && data.question && Date.now() - Number(data.createdAt || 0) <= 30 * 60 * 1000) {
+          window.__pendingCategoryQuestion = String(data.question || '').trim();
+        }
+      }
+    } catch(e) {}
+  }
+
   showAiChatSetupStep();
 }
 
@@ -9635,12 +9664,85 @@ function openFortuneModal(){
 }
 function closeFortuneModal(){document.getElementById('fortuneModal').classList.remove('show')}
 
-function startAiFromTodayFortune(){
-  try { trackAiFunnel('today_fortune_to_ai_click', { source:'today_fortune_result' }); } catch(e) {}
+
+const TODAY_FORTUNE_PENDING_QUESTION_KEY = 'taekilso_pending_today_fortune_question_v1';
+
+function saveTodayFortunePendingQuestion(question){
+  const q = String(question || '').trim();
+  if (!q) return;
+  window.__pendingCategoryQuestion = q;
+  try {
+    localStorage.setItem(TODAY_FORTUNE_PENDING_QUESTION_KEY, JSON.stringify({
+      question: q,
+      createdAt: Date.now()
+    }));
+  } catch(e) {}
+}
+
+function takeTodayFortunePendingQuestion(){
+  try {
+    const raw = localStorage.getItem(TODAY_FORTUNE_PENDING_QUESTION_KEY);
+    if (!raw) return '';
+    const data = JSON.parse(raw);
+    localStorage.removeItem(TODAY_FORTUNE_PENDING_QUESTION_KEY);
+    if (!data || !data.question) return '';
+    if (Date.now() - Number(data.createdAt || 0) > 30 * 60 * 1000) return '';
+    return String(data.question || '').trim();
+  } catch(e) {
+    try { localStorage.removeItem(TODAY_FORTUNE_PENDING_QUESTION_KEY); } catch(_) {}
+    return '';
+  }
+}
+
+function buildTodayFortuneQuestions(score, todayOh, userOh){
+  const s = Number(score || 0);
+  const high = s >= 78;
+  const low = s < 65;
+  const relation = todayOh === userOh
+    ? '오늘은 내 기운과 같은 오행이 겹치는 날'
+    : (GENERATES[userOh] === todayOh || GENERATES[todayOh] === userOh)
+      ? '오늘은 내 사주와 상생 흐름이 있는 날'
+      : (OVERCOMES[userOh] === todayOh || OVERCOMES[todayOh] === userOh)
+        ? '오늘은 내 사주와 상극 흐름이 있어 속도 조절이 필요한 날'
+        : '오늘은 균형을 확인하면서 움직이면 좋은 날';
+
+  if (high) {
+    return [
+      { icon:'💰', label:'오늘 재물운 활용법', q:`${relation}이라고 나왔어요. 오늘 제 재물운에서 가장 잘 활용하면 좋은 점과 돈과 관련해 현실적으로 할 수 있는 행동을 알려주세요.` },
+      { icon:'💕', label:'오늘 연애·관계운', q:`${relation}이라고 나왔어요. 오늘 연애나 인간관계에서 제가 먼저 움직여도 좋은지, 어떤 태도가 유리한지 알려주세요.` },
+      { icon:'💼', label:'오늘 일·사업운', q:`${relation}이라고 나왔어요. 오늘 직장이나 사업에서 밀어붙여도 좋은 일과 한 번 더 확인해야 할 일을 나눠서 알려주세요.` }
+    ];
+  }
+
+  if (low) {
+    return [
+      { icon:'💰', label:'오늘 돈에서 조심할 점', q:`${relation}이라고 나왔어요. 오늘 돈이나 소비, 계약과 관련해 특히 조심해야 할 점과 무리하지 않는 방법을 알려주세요.` },
+      { icon:'💕', label:'오늘 관계에서 피할 행동', q:`${relation}이라고 나왔어요. 오늘 연애나 인간관계에서 오해를 만들기 쉬운 행동과 더 좋은 대응 방법을 알려주세요.` },
+      { icon:'💼', label:'오늘 일에서 주의할 점', q:`${relation}이라고 나왔어요. 오늘 직장이나 사업에서 서두르지 말아야 할 부분과 우선순위를 알려주세요.` }
+    ];
+  }
+
+  return [
+    { icon:'💰', label:'오늘 재물운 핵심', q:`${relation}이라고 나왔어요. 오늘 제 재물운에서 가장 중요한 포인트와 돈과 관련해 우선하면 좋은 행동을 알려주세요.` },
+    { icon:'💕', label:'오늘 연애·관계운', q:`${relation}이라고 나왔어요. 오늘 연애나 인간관계에서 어떤 태도를 취하면 좋은지 구체적으로 알려주세요.` },
+    { icon:'💼', label:'오늘 일·사업운', q:`${relation}이라고 나왔어요. 오늘 직장이나 사업에서 가장 중요한 포인트와 현실적으로 챙길 일을 알려주세요.` }
+  ];
+}
+
+function startAiFromTodayFortune(question){
+  const q = String(question || '').trim();
+  if (q) saveTodayFortunePendingQuestion(q);
+  try {
+    trackAiFunnel('today_fortune_to_ai_click', {
+      source:'today_fortune_result',
+      preset: q ? 'recommended_question' : 'direct_question'
+    });
+  } catch(e) {}
   closeFortuneModal();
   try { goTo('home'); } catch(e) {}
   setTimeout(() => handleHomeChatStart(), 80);
 }
+
 
 function calculateTodayFortune(){
   const y=+document.getElementById('fortuneYear').value;
@@ -9674,12 +9776,19 @@ function calculateTodayFortune(){
       <div class="service-badge">내 일주 ${ganjiFull(userIdx)} · ${userOh} · ${reasons.length?reasons.join(' · '):'균형 확인'}</div>
       <p>${advice}</p>
     </div>
-    <div style="margin-top:12px;padding:13px 14px;border:1px solid rgba(215,181,109,.20);border-radius:15px;background:rgba(215,181,109,.055);">
-      <b style="display:block;color:#f3dfad;font-size:13px;margin-bottom:5px;">오늘 운세, 내 사주에서는 어떤 의미일까요?</b>
-      <span style="display:block;color:var(--muted);font-size:11px;line-height:1.55;margin-bottom:10px;">연애·돈·직장 중 궁금한 걸 연우에게 더 자세히 물어보세요.</span>
-      <button class="btn btn-primary" style="width:100%;" onclick="startAiFromTodayFortune()">✨ 연우에게 무료로 물어보기</button>
-      <small style="display:block;text-align:center;color:var(--muted-2);font-size:9.5px;margin-top:7px;">가입하면 AI 사주 상담 3회 무료 · 결제수단 등록 없음</small>
-    </div>
+    ${(() => {
+      const qs = buildTodayFortuneQuestions(score, todayOh, userOh);
+      return `
+      <div style="margin-top:12px;padding:13px 14px;border:1px solid rgba(215,181,109,.20);border-radius:15px;background:rgba(215,181,109,.055);">
+        <b style="display:block;color:#f3dfad;font-size:13px;margin-bottom:5px;">오늘 운세에서 더 궁금한 걸 바로 물어보세요</b>
+        <span style="display:block;color:var(--muted);font-size:11px;line-height:1.55;margin-bottom:10px;">지금 결과에 맞춰 연우가 이어서 보기 좋은 질문을 골랐어요.</span>
+        <div class="today-fortune-ai-questions">
+          ${qs.map(item => `<button type="button" onclick='startAiFromTodayFortune(${JSON.stringify(item.q)})'><span>${item.icon}</span><b>${item.label}</b><i>→</i></button>`).join('')}
+        </div>
+        <button class="today-fortune-direct-ai" type="button" onclick="startAiFromTodayFortune()">직접 질문하기</button>
+        <small style="display:block;text-align:center;color:var(--muted-2);font-size:9.5px;margin-top:8px;">가입하면 궁금한 것 3가지를 무료로 물어볼 수 있어요 · 카드등록 없음</small>
+      </div>`;
+    })()}
     <p style="color:var(--muted-2);font-size:10.5px;line-height:1.7;margin:12px 2px 0">※ 자동 계산된 참고용 운세입니다. 의료·법률·재정 등 전문적인 판단을 대신하지 않습니다.</p>`;
   try { trackAiFunnel('today_fortune_result_view', { score, todayOh, userOh }); } catch(e) {}
 }
