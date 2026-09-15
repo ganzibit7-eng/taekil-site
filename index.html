@@ -2,6 +2,218 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<script id="traffic-v2-script">
+/* Anonymous entry attribution. No account ID, birth data, chat text, or query strings. */
+const TRAFFIC_V2_COLLECTION = 'trafficVisitsV2';
+const TRAFFIC_V2_SESSION = 'taekilso_traffic_entry_v2';
+const TRAFFIC_V2_TTL = 30 * 60 * 1000;
+const trafficV2Labels = {
+  naverBlog:'네이버 블로그', naverCafe:'네이버 카페', naverSearch:'네이버 검색', naverOther:'네이버 기타',
+  google:'Google 검색', daum:'다음 검색', bing:'Bing 검색', tistory:'티스토리',
+  instagram:'인스타그램', threads:'Threads', youtube:'유튜브', facebook:'페이스북',
+  kakao:'카카오', x:'X / Twitter', tiktok:'TikTok', referral:'외부 사이트',
+  campaign:'기타 추적 링크', unknown:'직접 / 출처 확인 불가'
+};
+function trafficV2Text(value, max=120) {
+  return String(value || '').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,max);
+}
+function trafficV2Domain(host, domain) { return host === domain || host.endsWith('.'+domain); }
+function trafficV2Classify(source, host) {
+  const s=source.toLowerCase().replace(/[\s-]+/g,'_');
+  const aliases={naver_blog:'naverBlog',naverblog:'naverBlog',naver_cafe:'naverCafe',navercafe:'naverCafe',naver:'naverSearch',naver_search:'naverSearch',google:'google',daum:'daum',bing:'bing',tistory:'tistory',instagram:'instagram',threads:'threads',youtube:'youtube',facebook:'facebook',kakao:'kakao',kakaotalk:'kakao',twitter:'x',x:'x',tiktok:'tiktok'};
+  if(s) return aliases[s] || 'campaign';
+  if(trafficV2Domain(host,'blog.naver.com')) return 'naverBlog';
+  if(trafficV2Domain(host,'cafe.naver.com')) return 'naverCafe';
+  if(trafficV2Domain(host,'search.naver.com')) return 'naverSearch';
+  if(trafficV2Domain(host,'naver.com')) return 'naverOther';
+  if(host==='google.com'||host==='www.google.com'||host==='www.google.co.kr'||host==='google.co.kr') return 'google';
+  for(const [domain,channel] of Object.entries({'daum.net':'daum','bing.com':'bing','tistory.com':'tistory','instagram.com':'instagram','threads.net':'threads','threads.com':'threads','youtube.com':'youtube','youtu.be':'youtube','facebook.com':'facebook','kakao.com':'kakao','kakaotalk.com':'kakao','twitter.com':'x','x.com':'x','tiktok.com':'tiktok'})) {
+    if(trafficV2Domain(host,domain)) return channel;
+  }
+  return host ? 'referral' : 'unknown';
+}
+function trafficV2Attribution(href, referrer) {
+  const url=new URL(href), p=url.searchParams;
+  const source=trafficV2Text(p.get('utm_source'));
+  const medium=trafficV2Text(p.get('utm_medium'));
+  const campaign=trafficV2Text(p.get('utm_campaign'));
+  const content=trafficV2Text(p.get('utm_content'));
+  let host='', referrerPage='';
+  try {
+    const ref=new URL(referrer);
+    if(['https:','http:'].includes(ref.protocol) && ref.hostname.replace(/^www\./,'')!==url.hostname.replace(/^www\./,'')) {
+      host=trafficV2Text(ref.hostname.toLowerCase(),253);
+      // A referrer may contain search terms or tokens: discard all query keys except Naver post identifiers.
+      const safe=new URL(ref.origin+ref.pathname);
+      if(trafficV2Domain(host,'blog.naver.com')) {
+        for(const key of ['blogId','logNo']) {
+          const value=ref.searchParams.get(key);
+          if(value && /^[A-Za-z0-9_-]{1,80}$/.test(value)) safe.searchParams.set(key,value);
+        }
+      }
+      if(ref.pathname!=='/' || safe.search) referrerPage=trafficV2Text(safe.href,700);
+    }
+  } catch (_) {}
+  const channel=trafficV2Classify(source,host);
+  const basis=source||medium||campaign||content ? 'utm' : referrerPage ? 'referrer_page' : host ? 'referrer_domain' : 'unknown';
+  return {channel,source,medium,campaign,content,referrerHost:host,referrerPage,landingPath:trafficV2Text(url.pathname,300),basis};
+}
+function trafficV2Capture(href, referrer, now=Date.now()) {
+  const incoming=trafficV2Attribution(href,referrer);
+  const params=new URL(href).searchParams;
+  const authReturn=params.has('code');
+  let previous=null;
+  try { previous=JSON.parse(sessionStorage.getItem(TRAFFIC_V2_SESSION)||'null'); } catch (_) {}
+  const fresh=previous && previous.id && previous.entry && now-previous.lastSeen<TRAFFIC_V2_TTL && now>=previous.lastSeen;
+  const signature=x=>JSON.stringify([x.source,x.medium,x.campaign,x.content]);
+  if(fresh && (authReturn || incoming.basis!=='utm' || signature(incoming)===signature(previous.entry))) {
+    previous.lastSeen=now;
+    try { sessionStorage.setItem(TRAFFIC_V2_SESSION,JSON.stringify(previous)); } catch (_) {}
+    return previous;
+  }
+  if(authReturn) return null; // Never count a login callback as a new referral.
+  const bytes=new Uint8Array(16); crypto.getRandomValues(bytes);
+  const id=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
+  const session={id,entry:incoming,enteredAt:now,lastSeen:now,recorded:false};
+  try { sessionStorage.setItem(TRAFFIC_V2_SESSION,JSON.stringify(session)); } catch (_) {}
+  return session;
+}
+// Capture before login scripts remove URL parameters or redirect the visitor.
+const trafficV2Entry=trafficV2Capture(location.href,document.referrer);
+let trafficV2Recording=false;
+async function recordTrafficVisitV2() {
+  if(!db || isAdmin() || !trafficV2Entry || trafficV2Entry.recorded || trafficV2Recording) return;
+  trafficV2Recording=true;
+  try {
+    await db.collection(TRAFFIC_V2_COLLECTION).doc(trafficV2Entry.id).set({
+      version:2,date:getKstDateKey(new Date(trafficV2Entry.enteredAt)),
+      ...trafficV2Entry.entry,createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    trafficV2Entry.recorded=true;
+    try { sessionStorage.setItem(TRAFFIC_V2_SESSION,JSON.stringify(trafficV2Entry)); } catch (_) {}
+  } catch(error) {
+    console.warn('상세 유입 기록 실패: trafficVisitsV2 보안 규칙과 네트워크를 확인하세요.',error);
+  } finally { trafficV2Recording=false; }
+}
+
+let trafficV2Rows=[], trafficV2Request=0;
+function trafficV2Group(rows,mode) {
+  const groups=new Map();
+  for(const row of rows) {
+    let label;
+    if(mode==='channel') label=trafficV2Labels[row.channel]||row.channel;
+    else if(mode==='site') label=row.referrerHost || (row.source ? '추적 링크: '+row.source : '직접 / 출처 확인 불가');
+    else label=JSON.stringify([row.channel,row.source,row.medium,row.campaign,row.content,row.referrerHost,row.referrerPage]);
+    const group=groups.get(label)||{label,count:0,row}; group.count++; groups.set(label,group);
+  }
+  return [...groups.values()].sort((a,b)=>b.count-a.count || a.label.localeCompare(b.label));
+}
+function trafficV2Render() {
+  const host=document.getElementById('trafficV2Results'); if(!host) return;
+  host.replaceChildren();
+  const mode=document.getElementById('trafficV2Group').value;
+  const groups=trafficV2Group(trafficV2Rows,mode);
+  if(!groups.length) { host.textContent='이 기간에 수집된 상세 유입이 없습니다. 배포 및 보안 규칙 적용 이후부터 수집됩니다.'; return; }
+  for(const group of groups) {
+    const row=group.row, item=document.createElement('div'); item.className='traffic-v2-row';
+    const main=document.createElement('div');
+    const title=document.createElement('strong');
+    title.textContent=mode==='post' ? (row.content || row.referrerPage || '게시글 확인 불가') : group.label;
+    main.appendChild(title);
+    if(mode==='post') {
+      const meta=document.createElement('small');
+      const evidence={utm:'추적 링크에 지정한 정보',referrer_page:'브라우저가 전달한 페이지',referrer_domain:'도메인만 전달됨',unknown:'출처 미전달'};
+      meta.textContent=[trafficV2Labels[row.channel]||row.channel,row.source&&'소스: '+row.source,row.campaign&&'캠페인: '+row.campaign,evidence[row.basis]].filter(Boolean).join(' · ');
+      main.appendChild(meta);
+    }
+    const count=document.createElement('span'); count.textContent=group.count+'회 · '+Math.round(group.count/trafficV2Rows.length*100)+'%';
+    item.append(main,count); host.appendChild(item);
+  }
+}
+async function trafficV2Load() {
+  if(!isAdmin() || !db) return;
+  const request=++trafficV2Request;
+  const status=document.getElementById('trafficV2Status');
+  const start=document.getElementById('trafficV2Start').value,end=document.getElementById('trafficV2End').value;
+  const duration=Date.parse(end)-Date.parse(start);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end)||!Number.isFinite(duration)||duration<0||duration>92*86400000) {status.textContent='시작일과 종료일을 확인해주세요. 한 번에 최대 93일을 조회할 수 있습니다.';return;}
+  status.textContent='상세 유입 조회 중…';
+  trafficV2Rows=[]; trafficV2Render();
+  document.getElementById('trafficV2Csv').disabled=true;
+  try {
+    const snap=await db.collection(TRAFFIC_V2_COLLECTION).where('date','>=',start).where('date','<=',end).orderBy('date','desc').limit(1001).get();
+    if(request!==trafficV2Request || !isAdmin()) return;
+    trafficV2Rows=snap.docs.slice(0,1000).map(d=>d.data());
+    status.textContent=`${start} ~ ${end} · ${trafficV2Rows.length.toLocaleString('ko-KR')}회 유입`+(snap.size>1000?' · 1,000건까지만 표시합니다. 기간을 줄여주세요.':'')+' · 새로고침은 같은 탭에서 30분 동안 중복 제외 (고유 방문자 수 아님)';
+    document.getElementById('trafficV2Csv').disabled=!trafficV2Rows.length;
+    trafficV2Render();
+  } catch(error) {
+    if(request!==trafficV2Request) return;
+    status.textContent='조회 실패: Firebase의 trafficVisitsV2 읽기 권한과 연결을 확인해주세요. 기존 통계와 별도 설정이 필요합니다.';
+    document.getElementById('trafficV2Results').textContent='데이터를 불러오지 못했습니다.';
+    console.warn('상세 유입 조회 실패',error);
+  }
+}
+function trafficV2InitAdmin() {
+  const start=document.getElementById('trafficV2Start'),end=document.getElementById('trafficV2End');
+  if(!start || !end) return;
+  if(!end.value) end.value=getKstDateKey();
+  if(!start.value) start.value=getKstDateKey(new Date(Date.now()-6*86400000));
+  trafficV2Load();
+}
+function trafficV2CsvCell(value) {
+  let text=String(value??'');
+  if(/^[\s]*[=+@-]/.test(text)) text="'"+text;
+  return '"'+text.replace(/"/g,'""')+'"';
+}
+function trafficV2Export() {
+  if(!isAdmin() || !trafficV2Rows.length) return;
+  const fields=['date','channel','source','medium','campaign','content','referrerHost','referrerPage','landingPath','basis'];
+  const lines=[fields,...trafficV2Rows.map(row=>fields.map(key=>row[key]))];
+  const blob=new Blob(['\ufeff'+lines.map(row=>row.map(trafficV2CsvCell).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='taekilso-traffic-'+document.getElementById('trafficV2Start').value+'-'+document.getElementById('trafficV2End').value+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function trafficV2BuildLink(base,source,medium,campaign,content) {
+  const url=new URL(base);
+  if(!['https:','http:'].includes(url.protocol) || url.username || url.password) throw new Error('정상적인 사이트 주소를 입력해주세요.');
+  for(const [key,value] of Object.entries({utm_source:source,utm_medium:medium,utm_campaign:campaign,utm_content:content})) {
+    const clean=trafficV2Text(value); if(!clean) throw new Error('매체·유형·캠페인·게시글 이름을 모두 입력해주세요.');
+    url.searchParams.set(key,clean);
+  }
+  return url.href;
+}
+function trafficV2Generate() {
+  const output=document.getElementById('trafficV2Link');
+  try {
+    output.value=trafficV2BuildLink('https://taekilso.com/',document.getElementById('trafficV2Source').value,document.getElementById('trafficV2Medium').value,document.getElementById('trafficV2Campaign').value,document.getElementById('trafficV2Content').value);
+    document.getElementById('trafficV2LinkStatus').textContent='이 링크를 해당 게시글에 넣으세요. 게시글마다 이름을 다르게 지정해야 구분됩니다.';
+  } catch(error) {output.value='';document.getElementById('trafficV2LinkStatus').textContent=error.message;}
+}
+async function trafficV2Copy() {
+  const output=document.getElementById('trafficV2Link');if(!output.value) return;
+  try {await navigator.clipboard.writeText(output.value);document.getElementById('trafficV2LinkStatus').textContent='추적 링크를 복사했습니다.';}
+  catch (_) {output.focus();output.select();document.getElementById('trafficV2LinkStatus').textContent='링크가 선택됐습니다. Ctrl+C 또는 길게 눌러 복사해주세요.';}
+}
+
+</script>
+<style id="traffic-v2-style">
+.traffic-v2-panel{margin:0 0 28px;padding:20px;border:1px solid var(--line);border-radius:18px;background:var(--panel)}
+.traffic-v2-panel h3{margin:0 0 10px;font-size:19px}
+.traffic-v2-panel p{font-size:12px;color:var(--muted);line-height:1.8}
+.traffic-v2-controls{display:flex;align-items:end;flex-wrap:wrap;gap:10px;margin:16px 0}
+.traffic-v2-controls label,.traffic-v2-link-label{display:flex;flex-direction:column;gap:7px;font-size:12px;min-width:0}
+.traffic-v2-controls input,.traffic-v2-controls select,.traffic-v2-panel textarea{background:#161614;color:var(--white);border:1px solid var(--line);border-radius:8px;padding:10px;max-width:100%;font:inherit}
+.traffic-v2-controls .btn{min-height:40px;padding:8px 16px}
+.traffic-v2-results{max-height:480px;overflow:auto;font-size:13px}
+.traffic-v2-row{display:flex;justify-content:space-between;align-items:start;gap:16px;padding:13px 0;border-bottom:1px solid var(--line-soft)}
+.traffic-v2-row>div{min-width:0;overflow-wrap:anywhere}.traffic-v2-row>span{white-space:nowrap;color:var(--gold-hi)}
+.traffic-v2-row small{display:block;color:var(--muted);line-height:1.7;margin-top:5px}
+.traffic-v2-panel details{border-top:1px solid var(--line);padding-top:16px;margin-top:18px}
+.traffic-v2-panel summary{cursor:pointer;color:var(--gold-hi)}
+.traffic-v2-panel textarea{width:100%;margin-bottom:10px;overflow-wrap:anywhere}
+@media(max-width:520px){.traffic-v2-panel{padding:15px}.traffic-v2-controls label{width:100%}.traffic-v2-controls input,.traffic-v2-controls select{width:100%}.traffic-v2-row{gap:8px}}
+
+</style>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>택일소 | AI 사주 상담 · 오늘의 운세 · 결혼·이사·개업 택일</title>
 <meta name="description" content="AI 사주 상담가 연우에게 오늘의 운세, 연애운, 재물운, 궁합을 묻고 결혼·이사·개업·계약 날짜까지 비교해보세요. 첫 질문 3개 무료.">
@@ -2918,6 +3130,35 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         </div>
         <div id="adminFunnelHint" class="price-note" style="margin:0 0 24px;">오늘 데이터가 쌓이면 가장 큰 이탈 구간을 자동으로 표시합니다.</div>
 
+        <section class="traffic-v2-panel" aria-labelledby="trafficV2Title">
+          <h3 id="trafficV2Title">상세 유입 분석</h3>
+          <p>네이버 블로그·카페·검색을 구분하고, 사이트 또는 게시글별 유입을 확인합니다. 이전 방문의 게시글 주소는 복원할 수 없습니다.</p>
+          <div class="traffic-v2-controls">
+            <label>시작일<input id="trafficV2Start" type="date"></label>
+            <label>종료일<input id="trafficV2End" type="date"></label>
+            <label>묶어 보기<select id="trafficV2Group" onchange="trafficV2Render()"><option value="channel">매체별</option><option value="site">사이트별</option><option value="post">게시글 / 캠페인별</option></select></label>
+            <button class="btn" type="button" onclick="trafficV2Load()">조회</button>
+            <button class="btn" type="button" id="trafficV2Csv" disabled onclick="trafficV2Export()">CSV 저장</button>
+          </div>
+          <p id="trafficV2Status" role="status" aria-live="polite"></p>
+          <div id="trafficV2Results" class="traffic-v2-results"></div>
+          <p>게시글 주소는 브라우저가 전달한 경우에만 확인됩니다. ‘직접 / 출처 확인 불가’에는 주소 직접 입력 외에 앱·메신저 등 출처가 전달되지 않은 유입도 포함됩니다. 추적 링크가 공유되면 원래 지정한 게시글 이름으로 집계됩니다.</p>
+          <details>
+            <summary>게시글별 추적 링크 만들기</summary>
+            <p>같은 네이버 블로그에서도 게시글마다 다른 이름을 넣으세요. 이름에 개인정보를 넣지 마세요.</p>
+            <div class="traffic-v2-controls">
+              <label>매체<input id="trafficV2Source" value="naver_blog" maxlength="120" placeholder="naver_blog / instagram"></label>
+              <label>유형<input id="trafficV2Medium" value="referral" maxlength="120" placeholder="referral / social / paid"></label>
+              <label>캠페인<input id="trafficV2Campaign" maxlength="120" placeholder="2026_가을홍보"></label>
+              <label>게시글 이름<input id="trafficV2Content" maxlength="120" placeholder="결혼택일_후기_01"></label>
+              <button class="btn btn-primary" type="button" onclick="trafficV2Generate()">링크 만들기</button>
+            </div>
+            <label class="traffic-v2-link-label">생성된 링크<textarea id="trafficV2Link" rows="3" readonly></textarea></label>
+            <button class="btn" type="button" onclick="trafficV2Copy()">링크 복사</button>
+            <p id="trafficV2LinkStatus" role="status"></p>
+          </details>
+        </section>
+
         <button id="adminTrafficSourceCard" type="button" onclick="toggleAdminTrafficSources()" aria-expanded="false"
           style="width:100%;margin:0 0 24px;padding:15px 16px;text-align:left;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.09);border-radius:16px;color:inherit;font:inherit;cursor:pointer;">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
@@ -3037,6 +3278,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <div class="legal-block">
         <h3>개인정보처리방침 (요약)</h3>
         <p>기본 택일 계산과 일부 검색 기록은 이용자의 브라우저에서 처리·저장됩니다. AI 상담을 이용하는 경우 답변 생성을 위해 이용자가 선택한 생년월일·출생시간·사주 계산 정보, 질문 및 최근 대화 일부가 택일소 서버와 AI 제공업체로 전송될 수 있습니다. 로그인·결제 및 서비스 이용 상태는 계정 기능 제공과 결제 확인을 위해 Firebase에 저장될 수 있습니다.</p>
+        <p>유입 분석을 위해 유입 사이트 도메인, 전달된 공개 페이지 경로, 추적 링크의 매체·캠페인·게시글 식별값, 방문 날짜와 도착 페이지 경로를 Firebase에 저장합니다. 같은 탭의 중복 유입 집계를 줄이기 위해 임시 무작위 식별값을 sessionStorage에 저장하며, 이 유입 기록에는 회원 ID·생년월일·상담 내용을 포함하지 않습니다.</p>
         <p>회원가입 시 로그인 제공자가 전달하는 계정 식별정보 등 서비스 제공에 필요한 최소한의 정보를 처리할 수 있습니다. 실제 운영에 사용하는 외부 처리업체, 보유기간, 파기 및 이용자 권리에 관한 상세 내용은 정식 개인정보처리방침에 최신 상태로 안내해야 합니다.</p>
       </div>
       <div class="legal-block">
@@ -4630,6 +4872,7 @@ function recordVisit() {
     { merge: true }
   ).catch(err => console.error('일일 방문 기록 실패', err));
   recordTrafficSource(todayKey);
+  recordTrafficVisitV2();
 }
 
 function detectTrafficSource(){
@@ -5900,6 +6143,7 @@ function renderAdmin() {
     },err=>console.warn('오늘 유입 경로 조회 실패',err));
   }
   watchTodayTrafficSourcesKst();
+  trafficV2InitAdmin();
   window.addEventListener('taekilso:todayVisitsUpdated', () => renderTodayFunnel(lastTodayFunnelData), { once:false });
 
   if (adminUsersUnsub) adminUsersUnsub();
