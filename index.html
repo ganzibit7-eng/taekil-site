@@ -1534,10 +1534,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <div class="price-card featured premium-plan-card">
           <div class="popular">MOST POPULAR · PREMIUM</div>
           <h3>프리미엄 이용권</h3>
-          <div class="plan-price"><strong>19,900원</strong><span>/ 30일</span></div>
+          <div class="plan-price"><strong>8,900원</strong><span>/ 30일</span></div>
           <p class="plan-lead">결제일로부터 <b>30일간</b> AI 상담과 정밀 택일 기능을 넉넉하게 이용할 수 있어요. 만료 후 다시 필요한 기간만 구매하세요.</p>
           <ul>
-            <li>✨ <b>AI 상담 하루 20개</b> 질문 (무료는 평생 3개)</li>
+            <li>✨ <b>AI 상담 하루 15개</b> 질문 (무료는 평생 3개)</li>
             <li><b>최대 365일</b> 후보 중 <b>TOP 20</b> 정밀 비교</li>
             <li><b>두 사람 궁합 택일</b> 상세 분석</li>
             <li><b>월별 베스트 날짜</b> + 전체 캘린더 열람</li>
@@ -1568,7 +1568,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <details class="faq-item"><summary>내 정보는 어디에 저장되나요?</summary><p>기본 택일 계산과 일부 검색 기록은 브라우저에서 처리·저장됩니다. AI 상담을 이용할 때는 답변 생성을 위해 선택한 사주 정보와 질문·최근 대화 일부가 택일소 서버를 거쳐 AI 제공업체로 전송될 수 있습니다. 로그인·결제 상태는 계정 기능 제공을 위해 Firebase에 저장됩니다.</p></details>
         <details class="faq-item"><summary>사주 계산에는 어떤 정보를 쓰나요?</summary><p>택일 기능은 서비스가 계산한 일주 정보를 핵심 기준으로 사용하고, AI 사주 상담은 계산 라이브러리가 제공하는 년주·월주·일주와 출생시간이 있는 경우 시주, 오행·십신·지장간 정보를 함께 참고합니다. 대운·세운·용신처럼 현재 계산 데이터에 없는 요소는 AI가 임의로 만들어내지 않도록 제한하고 있어요.</p></details>
         <details class="faq-item"><summary>AI가 사주를 대신 봐주나요?</summary><p>택일소의 날짜 추천은 정해진 오행·일진 기준으로 계산됩니다. 생성형 AI가 임의로 운세를 만들어내는 방식과 달리, 계산 기준을 먼저 고정하고 결과를 설명하는 방향을 우선합니다.</p></details>
-        <details class="faq-item"><summary>유료 결제하면 무엇이 달라지나요?</summary><p>무료에서는 AI 상담 평생 3개와 최대 30일·TOP 5 중심으로 확인하고, 프리미엄에서는 <b>AI 상담 하루 20개</b>와 최대 365일 후보·TOP 20·월별 베스트·두 사람 궁합 택일·상세 리포트와 전체 캘린더, 정밀사주·궁합·재물 심층 분석을 <b>30일간</b> 이용할 수 있습니다.</p></details>
+        <details class="faq-item"><summary>유료 결제하면 무엇이 달라지나요?</summary><p>무료에서는 AI 상담 평생 3개와 최대 30일·TOP 5 중심으로 확인하고, 프리미엄에서는 <b>AI 상담 하루 15개</b>와 최대 365일 후보·TOP 20·월별 베스트·두 사람 궁합 택일·상세 리포트와 전체 캘린더, 정밀사주·궁합·재물 심층 분석을 <b>30일간</b> 이용할 수 있습니다.</p></details>
         <details class="faq-item"><summary>결과를 저장하거나 출력할 수 있나요?</summary><p>추천 결과 화면에서 브라우저 인쇄 기능을 이용해 PDF로 저장할 수 있도록 구성했습니다. 회원 로그인 상태에서는 검색 기록과 프리미엄 상태를 계정에 연결하는 구조로 확장할 수 있습니다.</p></details>
       </div>
     </div>
@@ -2116,6 +2116,46 @@ const PREMIUM_DAYS = 30;
 // users/{uid}.premiumUntil을 기록하는 방식으로 전환하세요.
 const PAYAPP_FEEDBACK_URL = 'https://taekilso-backend-lemon.vercel.app/api/payapp-feedback';
 const AI_CHAT_URL = 'https://taekilso-backend-lemon.vercel.app/api/ai-chat';
+const MEMBER_ACCESS_STATUS_URL = 'https://taekilso-backend-lemon.vercel.app/api/member-access-status';
+const MEMBER_SELF_DELETE_URL = 'https://taekilso-backend-lemon.vercel.app/api/member-self-delete';
+
+async function getVerifiedFirebaseBearer(user) {
+  if (!user || user.isAnonymous || typeof user.getIdToken !== 'function') return '';
+  const token = await user.getIdToken();
+  return token ? ('Bearer ' + token) : '';
+}
+
+async function verifyMemberAccess(user) {
+  if (!user || user.isAnonymous) return { allowed: false, error: 'AUTH_REQUIRED' };
+  try {
+    const auth = await getVerifiedFirebaseBearer(user);
+    const res = await fetch(MEMBER_ACCESS_STATUS_URL, {
+      method: 'GET',
+      headers: { Authorization: auth, 'Accept': 'application/json' },
+      cache: 'no-store'
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.allowed !== false) return { allowed: true, data };
+    return {
+      allowed: false,
+      error: data.error || 'MEMBER_ACCESS_DENIED',
+      message: data.message || (res.status === 403 ? '현재 이 계정은 이용할 수 없어요.' : '회원 이용상태를 확인하지 못했어요.')
+    };
+  } catch (err) {
+    console.error('회원 이용상태 확인 실패', err);
+    return { allowed: false, error: 'MEMBER_ACCESS_CHECK_FAILED', message: '회원 이용상태를 확인하지 못했어요. 잠시 후 다시 시도해주세요.' };
+  }
+}
+
+async function enforceMemberAccess(user) {
+  const result = await verifyMemberAccess(user);
+  if (result.allowed) return true;
+  try { if (firebaseReady && firebase.auth) await firebase.auth().signOut(); } catch (e) {}
+  firebaseAuthUser = null;
+  showAuthError(result.message || '현재 이 계정은 이용할 수 없어요.');
+  return false;
+}
+
 // 질문권(소모성 상품): 무료 3개를 다 쓴 뒤 이어서 물어볼 수 있게 해주는 상품입니다.
 // price가 실제 결제되는 금액(할인가)이고, originalPrice는 화면에 취소선으로 보여줄 정가입니다.
 const AI_QUESTION_PACKS = {
@@ -2123,7 +2163,7 @@ const AI_QUESTION_PACKS = {
   ai_question_pack_10: { price: 3200, originalPrice: 4900, goodname: 'AI 질문권 10개', memo: 'AI 상담 질문 10개 추가', count: 10 }
 };
 const PAYAPP_RETURN_URL = window.location.origin + window.location.pathname + '?premium=1';
-const PREMIUM_PRICE = 19900;
+const PREMIUM_PRICE = 8900;
 const PREMIUM_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30일
 
 let verifiedPremium = (localStorage.getItem(PREMIUM_KEY) === 'true' && !!localStorage.getItem(PREMIUM_OWNER_KEY));
@@ -2807,7 +2847,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
         <div class="pr-tag">🔒 여기서부터 정밀 분석</div>
         <p><b>무료 결과는 핵심 후보만 보여드렸어요.</b><br>프리미엄에서는 두 분의 기운을 더 깊이 비교하고, 전체 후보·점수·월별 BEST·상세 이유까지 한 번에 확인할 수 있어요.</p>
         <div class="pp-list" style="margin-top:12px"><div><strong>무료</strong><br>TOP 5 · 기본 점수 · 손없는 날</div><div><strong>30일 프리미엄</strong><br>365일 · TOP 20 · 상세 리포트 · 궁합 택일</div></div>
-        <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="payPremium()">19,900원으로 30일 전체 결과 보기 →</button>
+        <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="payPremium()">8,900원으로 30일 전체 결과 보기 →</button>
         <div style="font-size:10px;color:var(--muted-2);margin-top:9px;text-align:center">자동결제 없음 · 30일 후 자동 만료</div>
       `;
     }
@@ -2819,7 +2859,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
         <div class="pr-tag">✦ 무료 결과 확인 완료</div>
         <p><b>지금 고른 기간 안에서 더 좋은 날짜가 있는지 확인해보세요.</b><br>무료는 TOP 5를 보여드리고, 프리미엄에서는 최대 365일 전체 후보를 다시 비교해 TOP 20과 월별 BEST까지 확인할 수 있어요.</p>
         <div class="pp-list" style="margin-top:12px"><div><strong>무료로 확인한 것</strong><br>추천 TOP 5 · 일진 · 오행 · 손없는 날</div><div><strong>프리미엄에서 추가</strong><br>365일 · TOP 20 · 상세 이유 · 월별 BEST</div></div>
-        <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="payPremium()">19,900원으로 30일 전체 분석 열기 →</button>
+        <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="payPremium()">8,900원으로 30일 전체 분석 열기 →</button>
         <div style="font-size:10px;color:var(--muted-2);margin-top:9px;text-align:center">자동결제 없음 · 결제일로부터 30일</div>
       `;
     } else {
@@ -3131,25 +3171,7 @@ try {
           updatePremiumUI();
         });
       });
-
-    firebaseAuthInitPromise.then(async () => {
-      // signInWithRedirect()로 돌아온 경우 결과를 반드시 소비합니다.
-      try {
-        const result = await firebase.auth().getRedirectResult();
-        if (result && result.user) {
-          if (result.additionalUserInfo && result.additionalUserInfo.isNewUser) {
-            recordSignup(result.user.uid, { email: result.user.email, provider: 'google' });
-          }
-          closeAuthModal();
-          showToast('구글 계정으로 로그인했어요');
-          continueHomeChatAfterLogin();
-        }
-      } catch (err) {
-        console.error('Google redirect 로그인 결과 처리 실패', err);
-        showAuthError(formatAuthError(err));
-      }
-    });
-    // 방문자 수는 로그인 여부가 확정된 뒤에 기록합니다. 이렇게 해야 지금 접속한 사람이
+// 방문자 수는 로그인 여부가 확정된 뒤에 기록합니다. 이렇게 해야 지금 접속한 사람이
     // 관리자 계정인지 미리 확인하고, 관리자의 방문은 통계에서 빼놓을 수 있습니다.
     firebaseAuthSettled.then(recordVisit);
   }
@@ -4030,13 +4052,13 @@ async function requestRefund() {
     ? '\n\n✓ 결제 이후 프리미엄 기능을 한 번도 이용하지 않으신 것으로 확인돼요. 이 경우 환불이 가능해요.'
     : `\n\n참고로, 결제 이후 프리미엄 기능(365일 검색 · TOP20 · 상세 리포트 등)을 이미 ${usedCount}회 이용하신 기록이 있어요. 서비스를 정상적으로 이용하신 이후의 환불 요청은 제한될 수 있는 점 양해 부탁드려요.`;
 
-  if (!confirm('프리미엄 결제(19,900원)에 대한 환불을 요청할까요?' + usageNotice + '\n\n확인을 누르면 문의가 등록되고, 순차적으로 확인 후 안내드릴게요.')) return;
+  if (!confirm('프리미엄 결제(8,900원)에 대한 환불을 요청할까요?' + usageNotice + '\n\n확인을 누르면 문의가 등록되고, 순차적으로 확인 후 안내드릴게요.')) return;
 
   goTo('support');
   setTimeout(() => {
     document.getElementById('supportTitle').value = '프리미엄 결제 환불 요청';
     document.getElementById('supportMessage').value =
-      '프리미엄(19,900원) 결제에 대한 환불을 요청합니다.\n\n' +
+      '프리미엄(8,900원) 결제에 대한 환불을 요청합니다.\n\n' +
       '환불 사유: \n(자세한 사유를 여기에 적어주세요)\n\n' +
       '── 자동 기록 (서버 확인값, 조작 불가) ──\n' +
       `주문번호: ${orderId}\n` +
@@ -4047,46 +4069,39 @@ async function requestRefund() {
   }, 100);
 }
 
-function confirmDeleteAccount() {
-  const kakaoUser = getKakaoUser();
-  const fbUser = (firebaseReady && firebaseAuthReady && firebaseAuthUser && !firebaseAuthUser.isAnonymous) ? firebaseAuthUser : null;
-  if (!kakaoUser && !fbUser) { showToast('로그인 후 이용해주세요.'); return; }
+async function confirmDeleteAccount() {
+  const paymentUser = await ensureFirestorePaymentAuth();
+  if (!paymentUser || paymentUser.isAnonymous) {
+    showToast('로그인 보안 연결을 확인하지 못했어요. 다시 로그인한 뒤 시도해주세요.');
+    return;
+  }
+  if (!confirm('계정을 삭제하면 30일 동안 같은 계정으로 다시 가입할 수 없어요. 정말 탈퇴할까요?')) return;
 
-  const msg = kakaoUser
-    ? '이 브라우저에 저장된 택일소 로그인 정보를 삭제할게요. (카카오 계정 자체는 카카오톡 앱에서 별도로 연결 해제하셔야 완전히 끊겨요) 계속할까요?'
-    : '계정을 삭제하면 되돌릴 수 없어요. 정말 삭제할까요?';
-  if (!confirm(msg)) return;
+  try {
+    const auth = await getVerifiedFirebaseBearer(paymentUser);
+    const res = await fetch(MEMBER_SELF_DELETE_URL, {
+      method: 'POST',
+      headers: { Authorization: auth, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ confirm: true }),
+      cache: 'no-store'
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || '회원탈퇴를 완료하지 못했어요.');
 
-  if (kakaoUser) {
-    // 브릿지(카카오 로그인을 Firebase 세션으로 잇는 것)가 아직 안 끝났거나 실패했더라도
-    // 확실히 지워지도록, Firebase 인증 상태에 의존하지 않고 알고 있는 카카오 UID로 바로 지웁니다.
-    if (db) {
-      db.collection('users').doc('kakao_' + kakaoUser.id).delete().catch(() => {});
-    }
     localStorage.removeItem(KAKAO_USER_KEY);
     sessionStorage.removeItem(KAKAO_USER_KEY);
     sessionStorage.removeItem('taekilso_kakao_access_token');
-    if (firebaseReady && firebase.auth) firebase.auth().signOut().catch(() => {});
+    clearLocalPremium();
+    try { await firebase.auth().signOut(); } catch (e) {}
     firebaseAuthUser = null;
     updateAuthNav();
-    showToast('택일소 로그인 정보를 삭제했어요.');
+    updatePremiumUI();
+    showToast('회원탈퇴가 완료됐어요. 30일 동안 재가입이 제한됩니다.');
     goTo('home');
-    return;
+  } catch (err) {
+    console.error('회원탈퇴 실패', err);
+    showToast(err.message || '회원탈퇴에 실패했어요. 잠시 후 다시 시도해주세요.');
   }
-
-  const uid = fbUser.uid;
-  fbUser.delete().then(() => {
-    if (db) db.collection('users').doc(uid).delete().catch(() => {});
-    showToast('계정이 삭제됐어요.');
-    goTo('home');
-  }).catch((err) => {
-    if (err.code === 'auth/requires-recent-login') {
-      showToast('보안을 위해 다시 로그인한 뒤 삭제해주세요.');
-      logout();
-    } else {
-      showToast('삭제 실패: ' + err.message);
-    }
-  });
 }
 
 let cachedGoogleProvider = null;
@@ -4116,6 +4131,7 @@ async function loginWithGoogle() {
     if (!provider) throw new Error('Google 로그인 제공자를 준비하지 못했어요.');
     try {
       const result = await firebase.auth().signInWithPopup(provider);
+      if (!await enforceMemberAccess(result.user)) return;
       closeAuthModal();
       showToast('구글 계정으로 로그인했어요');
       continueHomeChatAfterLogin();
@@ -4125,11 +4141,12 @@ async function loginWithGoogle() {
     } catch (err) {
       console.warn('Google popup 로그인 실패', err);
       const cancelledCodes = ['auth/popup-closed-by-user', 'auth/cancelled-popup-request'];
-      if (!cancelledCodes.includes(err.code)) {
-        showToast('팝업 방식이 안 돼서 전체 화면 Google 로그인으로 다시 시도할게요.');
-        await firebase.auth().signInWithRedirect(provider);
+      if (cancelledCodes.includes(err.code)) return;
+      if (err && err.code === 'auth/popup-blocked') {
+        showAuthError('브라우저가 Google 로그인 팝업을 차단했어요. 팝업을 허용한 뒤 다시 시도해주세요.');
         return;
       }
+      throw err;
     }
   } catch (err) {
     console.error('Google 로그인 처리 실패', err);
@@ -4273,7 +4290,13 @@ async function exchangeKakaoCode(code) {
       email: account.email || null
     };
 
-    // 기존 사용자 경험은 그대로 유지합니다.
+    // Firestore/결제/회원상태는 Firebase custom-token 인증이 끝난 뒤에만 사용합니다.
+    const bridgedUser = await kakaoBridgePromise;
+    if (!bridgedUser || bridgedUser.isAnonymous) throw new Error('카카오 로그인 보안 연결을 완료하지 못했어요.');
+    if (!await enforceMemberAccess(bridgedUser)) return;
+    const firestoreUid = bridgedUser.uid;
+
+    // 회원상태 확인까지 통과한 뒤에만 브라우저 로그인 상태를 저장합니다.
     localStorage.setItem(KAKAO_USER_KEY, JSON.stringify(profile));
     sessionStorage.setItem(KAKAO_USER_KEY, JSON.stringify(profile));
     sessionStorage.setItem('taekilso_kakao_access_token', tokenData.access_token);
@@ -4281,10 +4304,6 @@ async function exchangeKakaoCode(code) {
     updateAuthNav();
     showToast('카카오로 로그인했어요');
     continueHomeChatAfterLogin();
-
-    // Firestore 민감 데이터는 Firebase custom-token 인증이 된 뒤에만 접근합니다.
-    const bridgedUser = await kakaoBridgePromise;
-    const firestoreUid = bridgedUser && !bridgedUser.isAnonymous ? bridgedUser.uid : null;
 
     if (db && firestoreUid) {
       const userRef = db.collection('users').doc(firestoreUid);
@@ -4505,7 +4524,7 @@ async function payPremium() {
       checkretry: 'y',
       returnurl: PAYAPP_RETURN_URL,
       var1: orderId,
-      memo: '30일 이용권 · AI 상담 하루 20개 · 365일 택일 · 정밀사주·궁합·재물 분석',
+      memo: '30일 이용권 · AI 상담 하루 15개 · 365일 택일 · 정밀사주·궁합·재물 분석',
       redirectpay: '1'
     };
     // 서버 검증 함수가 연결되어 있으면 feedbackurl도 처음부터 같이 보냅니다. setParam을
@@ -4662,7 +4681,7 @@ function buildPremiumProgramPanel() {
   if (!panel) return;
   if (!isPremium()) {
     panel.style.display='block';
-    panel.innerHTML = `<div class="premium-lock-card"><b>🔒 여기부터 프리미엄 분석입니다</b><p>30일 동안 AI 상담 하루 20개, 365일 전체 후보 · TOP 20 · 월별 베스트 · 두 사람 궁합 · 상세 리포트를 이용할 수 있어요.</p><button class="btn btn-primary" onclick="payPremium()">19,900원으로 30일 이용하기</button></div>`;
+    panel.innerHTML = `<div class="premium-lock-card"><b>🔒 여기부터 프리미엄 분석입니다</b><p>30일 동안 AI 상담 하루 15개, 365일 전체 후보 · TOP 20 · 월별 베스트 · 두 사람 궁합 · 상세 리포트를 이용할 수 있어요.</p><button class="btn btn-primary" onclick="payPremium()">8,900원으로 30일 이용하기</button></div>`;
     return;
   }
   const list = window.__chronological || [];
@@ -5358,7 +5377,7 @@ function appendQuestionPackOffers() {
   `).join('') + `
     <button class="ai-chat-offer-card ai-chat-offer-premium" onclick="goTo('profile')">
       <b>프리미엄 구독</b>
-      <span>30일간 하루 20개까지 · 19,900원</span>
+      <span>30일간 하루 15개까지 · 8,900원</span>
     </button>
   `;
   win.appendChild(wrap);
@@ -5439,7 +5458,7 @@ function updateAiChatStatus(freeUsed, freeLimit, isPremiumNow, extra) {
   if (!el) return;
   if (isPremiumNow) {
     const used = extra && Number.isFinite(Number(extra.premiumDailyUsed)) ? Number(extra.premiumDailyUsed) : null;
-    const limit = extra && Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 20;
+    const limit = extra && Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 15;
     el.textContent = used == null ? `✦ 프리미엄 이용 중 (하루 ${limit}개까지)` : `✦ 프리미엄 오늘 ${used}/${limit}개 사용`;
   } else if (extra && extra.usingCredit) {
     el.textContent = `질문권 ${extra.questionCreditsLeft}개 남음`;
