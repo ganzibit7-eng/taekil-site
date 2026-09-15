@@ -2918,6 +2918,19 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         </div>
         <div id="adminFunnelHint" class="price-note" style="margin:0 0 24px;">오늘 데이터가 쌓이면 가장 큰 이탈 구간을 자동으로 표시합니다.</div>
 
+        <button id="adminTrafficSourceCard" type="button" onclick="toggleAdminTrafficSources()" aria-expanded="false"
+          style="width:100%;margin:0 0 24px;padding:15px 16px;text-align:left;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.09);border-radius:16px;color:inherit;font:inherit;cursor:pointer;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <div>
+              <div class="section-kicker" style="margin-bottom:4px;">TODAY TRAFFIC · KST</div>
+              <div style="font-size:15px;font-weight:800;">오늘 유입 경로 <span id="trafficSourceTotal" style="color:var(--gold);">0명</span></div>
+            </div>
+            <span id="trafficSourceChevron" style="font-size:18px;color:var(--muted-2);transition:transform .2s ease;">⌄</span>
+          </div>
+          <div id="trafficSourceSummary" style="margin-top:8px;color:var(--muted-2);font-size:11px;line-height:1.6;">검색 0 · SNS 0 · 직접 0 · 기타 0</div>
+          <div id="trafficSourceDetails" style="display:none;margin-top:13px;padding-top:13px;border-top:1px solid rgba(255,255,255,.08);"></div>
+        </button>
+
         <div class="section-head" style="margin-top:40px;">
           <div><div class="section-kicker">MEMBERS</div><h2 class="section-title" style="font-size:24px;">회원 목록</h2></div>
         </div>
@@ -4616,6 +4629,42 @@ function recordVisit() {
     { count: firebase.firestore.FieldValue.increment(1), date: todayKey },
     { merge: true }
   ).catch(err => console.error('일일 방문 기록 실패', err));
+  recordTrafficSource(todayKey);
+}
+
+function detectTrafficSource(){
+  let utm='';
+  try { utm=(new URLSearchParams(location.search).get('utm_source')||'').toLowerCase().trim(); } catch(e){}
+  const ref=(document.referrer||'').toLowerCase();
+  let host='';
+  try { host=ref ? new URL(ref).hostname.replace(/^www\./,'') : ''; } catch(e){}
+
+  const sourceText=(utm||host||'').toLowerCase();
+  if(/google/.test(sourceText)) return {category:'search', channel:'google'};
+  if(/naver/.test(sourceText)) return {category:'search', channel:'naver'};
+  if(/bing|daum|yahoo/.test(sourceText)) return {category:'search', channel:'otherSearch'};
+  if(/threads|thread/.test(sourceText)) return {category:'sns', channel:'threads'};
+  if(/instagram|instagr\.am/.test(sourceText)) return {category:'sns', channel:'instagram'};
+  if(/facebook|fb\.me/.test(sourceText)) return {category:'sns', channel:'facebook'};
+  if(/kakao|kakaotalk/.test(sourceText)) return {category:'sns', channel:'kakao'};
+  if(/twitter|x\.com|tiktok/.test(sourceText)) return {category:'sns', channel:'otherSns'};
+  if(!ref && !utm) return {category:'direct', channel:'direct'};
+  try {
+    if(host && host===location.hostname.replace(/^www\./,'')) return {category:'direct', channel:'direct'};
+  } catch(e){}
+  return {category:'other', channel:'other'};
+}
+
+function recordTrafficSource(dateKey){
+  if(!db || isAdmin()) return;
+  const s=detectTrafficSource();
+  const inc=firebase.firestore.FieldValue.increment(1);
+  db.collection('dailyTrafficSources').doc(dateKey).set({
+    date:dateKey,
+    total:inc,
+    [s.category]:inc,
+    [s.channel]:inc
+  },{merge:true}).catch(err=>console.warn('유입 경로 기록 실패',err));
 }
 
 /*
@@ -5810,6 +5859,47 @@ function renderAdmin() {
     }, err=>console.warn('오늘 전환 퍼널 조회 실패',err));
   }
   watchTodayFunnelKst();
+
+  let adminTrafficSourceUnsub=null;
+  function trafficPct(n,total){ return total ? Math.round((Number(n||0)/total)*100) : 0; }
+  function renderAdminTrafficSources(d){
+    d=d||{};
+    const total=Number(d.total||0);
+    const search=Number(d.search||0), sns=Number(d.sns||0), direct=Number(d.direct||0), other=Number(d.other||0);
+    const totalEl=document.getElementById('trafficSourceTotal');
+    const summary=document.getElementById('trafficSourceSummary');
+    const details=document.getElementById('trafficSourceDetails');
+    if(totalEl) totalEl.textContent=total.toLocaleString('ko-KR')+'명';
+    if(summary) summary.textContent=`검색 ${search} · SNS ${sns} · 직접 ${direct} · 기타 ${other}`;
+    if(details){
+      const rows=[
+        ['Google',Number(d.google||0)],['네이버',Number(d.naver||0)],['기타 검색',Number(d.otherSearch||0)],
+        ['Threads',Number(d.threads||0)],['Instagram',Number(d.instagram||0)],['Facebook',Number(d.facebook||0)],
+        ['카카오',Number(d.kakao||0)],['기타 SNS',Number(d.otherSns||0)],['직접 방문',direct],['기타',other]
+      ].filter(x=>x[1]>0);
+      details.innerHTML=rows.length ? rows.map(([name,n])=>
+        `<div style="display:flex;justify-content:space-between;gap:12px;padding:5px 0;font-size:11px;color:var(--muted-2);"><span>${name}</span><span><b style="color:var(--white);">${n}</b>명 · ${trafficPct(n,total)}%</span></div>`
+      ).join('') : '<div style="font-size:11px;color:var(--muted-2);">아직 오늘 유입 데이터가 없어요.</div>';
+    }
+  }
+  function toggleAdminTrafficSources(){
+    const details=document.getElementById('trafficSourceDetails');
+    const card=document.getElementById('adminTrafficSourceCard');
+    const chevron=document.getElementById('trafficSourceChevron');
+    if(!details) return;
+    const open=details.style.display==='none';
+    details.style.display=open?'block':'none';
+    if(card) card.setAttribute('aria-expanded',open?'true':'false');
+    if(chevron) chevron.style.transform=open?'rotate(180deg)':'rotate(0deg)';
+  }
+  function watchTodayTrafficSourcesKst(){
+    if(adminTrafficSourceUnsub){adminTrafficSourceUnsub();adminTrafficSourceUnsub=null;}
+    const key=getKstDateKey();
+    adminTrafficSourceUnsub=db.collection('dailyTrafficSources').doc(key).onSnapshot(snap=>{
+      renderAdminTrafficSources(snap.exists?(snap.data()||{}):{});
+    },err=>console.warn('오늘 유입 경로 조회 실패',err));
+  }
+  watchTodayTrafficSourcesKst();
   window.addEventListener('taekilso:todayVisitsUpdated', () => renderTodayFunnel(lastTodayFunnelData), { once:false });
 
   if (adminUsersUnsub) adminUsersUnsub();
