@@ -2,218 +2,6 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<script id="traffic-v2-script">
-/* Anonymous entry attribution. No account ID, birth data, chat text, or query strings. */
-const TRAFFIC_V2_COLLECTION = 'trafficVisitsV2';
-const TRAFFIC_V2_SESSION = 'taekilso_traffic_entry_v2';
-const TRAFFIC_V2_TTL = 30 * 60 * 1000;
-const trafficV2Labels = {
-  naverBlog:'네이버 블로그', naverCafe:'네이버 카페', naverSearch:'네이버 검색', naverOther:'네이버 기타',
-  google:'Google 검색', daum:'다음 검색', bing:'Bing 검색', tistory:'티스토리',
-  instagram:'인스타그램', threads:'Threads', youtube:'유튜브', facebook:'페이스북',
-  kakao:'카카오', x:'X / Twitter', tiktok:'TikTok', referral:'외부 사이트',
-  campaign:'기타 추적 링크', unknown:'직접 / 출처 확인 불가'
-};
-function trafficV2Text(value, max=120) {
-  return String(value || '').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,max);
-}
-function trafficV2Domain(host, domain) { return host === domain || host.endsWith('.'+domain); }
-function trafficV2Classify(source, host) {
-  const s=source.toLowerCase().replace(/[\s-]+/g,'_');
-  const aliases={naver_blog:'naverBlog',naverblog:'naverBlog',naver_cafe:'naverCafe',navercafe:'naverCafe',naver:'naverSearch',naver_search:'naverSearch',google:'google',daum:'daum',bing:'bing',tistory:'tistory',instagram:'instagram',threads:'threads',youtube:'youtube',facebook:'facebook',kakao:'kakao',kakaotalk:'kakao',twitter:'x',x:'x',tiktok:'tiktok'};
-  if(s) return aliases[s] || 'campaign';
-  if(trafficV2Domain(host,'blog.naver.com')) return 'naverBlog';
-  if(trafficV2Domain(host,'cafe.naver.com')) return 'naverCafe';
-  if(trafficV2Domain(host,'search.naver.com')) return 'naverSearch';
-  if(trafficV2Domain(host,'naver.com')) return 'naverOther';
-  if(host==='google.com'||host==='www.google.com'||host==='www.google.co.kr'||host==='google.co.kr') return 'google';
-  for(const [domain,channel] of Object.entries({'daum.net':'daum','bing.com':'bing','tistory.com':'tistory','instagram.com':'instagram','threads.net':'threads','threads.com':'threads','youtube.com':'youtube','youtu.be':'youtube','facebook.com':'facebook','kakao.com':'kakao','kakaotalk.com':'kakao','twitter.com':'x','x.com':'x','tiktok.com':'tiktok'})) {
-    if(trafficV2Domain(host,domain)) return channel;
-  }
-  return host ? 'referral' : 'unknown';
-}
-function trafficV2Attribution(href, referrer) {
-  const url=new URL(href), p=url.searchParams;
-  const source=trafficV2Text(p.get('utm_source'));
-  const medium=trafficV2Text(p.get('utm_medium'));
-  const campaign=trafficV2Text(p.get('utm_campaign'));
-  const content=trafficV2Text(p.get('utm_content'));
-  let host='', referrerPage='';
-  try {
-    const ref=new URL(referrer);
-    if(['https:','http:'].includes(ref.protocol) && ref.hostname.replace(/^www\./,'')!==url.hostname.replace(/^www\./,'')) {
-      host=trafficV2Text(ref.hostname.toLowerCase(),253);
-      // A referrer may contain search terms or tokens: discard all query keys except Naver post identifiers.
-      const safe=new URL(ref.origin+ref.pathname);
-      if(trafficV2Domain(host,'blog.naver.com')) {
-        for(const key of ['blogId','logNo']) {
-          const value=ref.searchParams.get(key);
-          if(value && /^[A-Za-z0-9_-]{1,80}$/.test(value)) safe.searchParams.set(key,value);
-        }
-      }
-      if(ref.pathname!=='/' || safe.search) referrerPage=trafficV2Text(safe.href,700);
-    }
-  } catch (_) {}
-  const channel=trafficV2Classify(source,host);
-  const basis=source||medium||campaign||content ? 'utm' : referrerPage ? 'referrer_page' : host ? 'referrer_domain' : 'unknown';
-  return {channel,source,medium,campaign,content,referrerHost:host,referrerPage,landingPath:trafficV2Text(url.pathname,300),basis};
-}
-function trafficV2Capture(href, referrer, now=Date.now()) {
-  const incoming=trafficV2Attribution(href,referrer);
-  const params=new URL(href).searchParams;
-  const authReturn=params.has('code');
-  let previous=null;
-  try { previous=JSON.parse(sessionStorage.getItem(TRAFFIC_V2_SESSION)||'null'); } catch (_) {}
-  const fresh=previous && previous.id && previous.entry && now-previous.lastSeen<TRAFFIC_V2_TTL && now>=previous.lastSeen;
-  const signature=x=>JSON.stringify([x.source,x.medium,x.campaign,x.content]);
-  if(fresh && (authReturn || incoming.basis!=='utm' || signature(incoming)===signature(previous.entry))) {
-    previous.lastSeen=now;
-    try { sessionStorage.setItem(TRAFFIC_V2_SESSION,JSON.stringify(previous)); } catch (_) {}
-    return previous;
-  }
-  if(authReturn) return null; // Never count a login callback as a new referral.
-  const bytes=new Uint8Array(16); crypto.getRandomValues(bytes);
-  const id=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
-  const session={id,entry:incoming,enteredAt:now,lastSeen:now,recorded:false};
-  try { sessionStorage.setItem(TRAFFIC_V2_SESSION,JSON.stringify(session)); } catch (_) {}
-  return session;
-}
-// Capture before login scripts remove URL parameters or redirect the visitor.
-const trafficV2Entry=trafficV2Capture(location.href,document.referrer);
-let trafficV2Recording=false;
-async function recordTrafficVisitV2() {
-  if(!db || isAdmin() || !trafficV2Entry || trafficV2Entry.recorded || trafficV2Recording) return;
-  trafficV2Recording=true;
-  try {
-    await db.collection(TRAFFIC_V2_COLLECTION).doc(trafficV2Entry.id).set({
-      version:2,date:getKstDateKey(new Date(trafficV2Entry.enteredAt)),
-      ...trafficV2Entry.entry,createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-    trafficV2Entry.recorded=true;
-    try { sessionStorage.setItem(TRAFFIC_V2_SESSION,JSON.stringify(trafficV2Entry)); } catch (_) {}
-  } catch(error) {
-    console.warn('상세 유입 기록 실패: trafficVisitsV2 보안 규칙과 네트워크를 확인하세요.',error);
-  } finally { trafficV2Recording=false; }
-}
-
-let trafficV2Rows=[], trafficV2Request=0;
-function trafficV2Group(rows,mode) {
-  const groups=new Map();
-  for(const row of rows) {
-    let label;
-    if(mode==='channel') label=trafficV2Labels[row.channel]||row.channel;
-    else if(mode==='site') label=row.referrerHost || (row.source ? '추적 링크: '+row.source : '직접 / 출처 확인 불가');
-    else label=JSON.stringify([row.channel,row.source,row.medium,row.campaign,row.content,row.referrerHost,row.referrerPage]);
-    const group=groups.get(label)||{label,count:0,row}; group.count++; groups.set(label,group);
-  }
-  return [...groups.values()].sort((a,b)=>b.count-a.count || a.label.localeCompare(b.label));
-}
-function trafficV2Render() {
-  const host=document.getElementById('trafficV2Results'); if(!host) return;
-  host.replaceChildren();
-  const mode=document.getElementById('trafficV2Group').value;
-  const groups=trafficV2Group(trafficV2Rows,mode);
-  if(!groups.length) { host.textContent='이 기간에 수집된 상세 유입이 없습니다. 배포 및 보안 규칙 적용 이후부터 수집됩니다.'; return; }
-  for(const group of groups) {
-    const row=group.row, item=document.createElement('div'); item.className='traffic-v2-row';
-    const main=document.createElement('div');
-    const title=document.createElement('strong');
-    title.textContent=mode==='post' ? (row.content || row.referrerPage || '게시글 확인 불가') : group.label;
-    main.appendChild(title);
-    if(mode==='post') {
-      const meta=document.createElement('small');
-      const evidence={utm:'추적 링크에 지정한 정보',referrer_page:'브라우저가 전달한 페이지',referrer_domain:'도메인만 전달됨',unknown:'출처 미전달'};
-      meta.textContent=[trafficV2Labels[row.channel]||row.channel,row.source&&'소스: '+row.source,row.campaign&&'캠페인: '+row.campaign,evidence[row.basis]].filter(Boolean).join(' · ');
-      main.appendChild(meta);
-    }
-    const count=document.createElement('span'); count.textContent=group.count+'회 · '+Math.round(group.count/trafficV2Rows.length*100)+'%';
-    item.append(main,count); host.appendChild(item);
-  }
-}
-async function trafficV2Load() {
-  if(!isAdmin() || !db) return;
-  const request=++trafficV2Request;
-  const status=document.getElementById('trafficV2Status');
-  const start=document.getElementById('trafficV2Start').value,end=document.getElementById('trafficV2End').value;
-  const duration=Date.parse(end)-Date.parse(start);
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end)||!Number.isFinite(duration)||duration<0||duration>92*86400000) {status.textContent='시작일과 종료일을 확인해주세요. 한 번에 최대 93일을 조회할 수 있습니다.';return;}
-  status.textContent='상세 유입 조회 중…';
-  trafficV2Rows=[]; trafficV2Render();
-  document.getElementById('trafficV2Csv').disabled=true;
-  try {
-    const snap=await db.collection(TRAFFIC_V2_COLLECTION).where('date','>=',start).where('date','<=',end).orderBy('date','desc').limit(1001).get();
-    if(request!==trafficV2Request || !isAdmin()) return;
-    trafficV2Rows=snap.docs.slice(0,1000).map(d=>d.data());
-    status.textContent=`${start} ~ ${end} · ${trafficV2Rows.length.toLocaleString('ko-KR')}회 유입`+(snap.size>1000?' · 1,000건까지만 표시합니다. 기간을 줄여주세요.':'')+' · 새로고침은 같은 탭에서 30분 동안 중복 제외 (고유 방문자 수 아님)';
-    document.getElementById('trafficV2Csv').disabled=!trafficV2Rows.length;
-    trafficV2Render();
-  } catch(error) {
-    if(request!==trafficV2Request) return;
-    status.textContent='조회 실패: Firebase의 trafficVisitsV2 읽기 권한과 연결을 확인해주세요. 기존 통계와 별도 설정이 필요합니다.';
-    document.getElementById('trafficV2Results').textContent='데이터를 불러오지 못했습니다.';
-    console.warn('상세 유입 조회 실패',error);
-  }
-}
-function trafficV2InitAdmin() {
-  const start=document.getElementById('trafficV2Start'),end=document.getElementById('trafficV2End');
-  if(!start || !end) return;
-  if(!end.value) end.value=getKstDateKey();
-  if(!start.value) start.value=getKstDateKey(new Date(Date.now()-6*86400000));
-  trafficV2Load();
-}
-function trafficV2CsvCell(value) {
-  let text=String(value??'');
-  if(/^[\s]*[=+@-]/.test(text)) text="'"+text;
-  return '"'+text.replace(/"/g,'""')+'"';
-}
-function trafficV2Export() {
-  if(!isAdmin() || !trafficV2Rows.length) return;
-  const fields=['date','channel','source','medium','campaign','content','referrerHost','referrerPage','landingPath','basis'];
-  const lines=[fields,...trafficV2Rows.map(row=>fields.map(key=>row[key]))];
-  const blob=new Blob(['\ufeff'+lines.map(row=>row.map(trafficV2CsvCell).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'});
-  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='taekilso-traffic-'+document.getElementById('trafficV2Start').value+'-'+document.getElementById('trafficV2End').value+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
-}
-function trafficV2BuildLink(base,source,medium,campaign,content) {
-  const url=new URL(base);
-  if(!['https:','http:'].includes(url.protocol) || url.username || url.password) throw new Error('정상적인 사이트 주소를 입력해주세요.');
-  for(const [key,value] of Object.entries({utm_source:source,utm_medium:medium,utm_campaign:campaign,utm_content:content})) {
-    const clean=trafficV2Text(value); if(!clean) throw new Error('매체·유형·캠페인·게시글 이름을 모두 입력해주세요.');
-    url.searchParams.set(key,clean);
-  }
-  return url.href;
-}
-function trafficV2Generate() {
-  const output=document.getElementById('trafficV2Link');
-  try {
-    output.value=trafficV2BuildLink('https://taekilso.com/',document.getElementById('trafficV2Source').value,document.getElementById('trafficV2Medium').value,document.getElementById('trafficV2Campaign').value,document.getElementById('trafficV2Content').value);
-    document.getElementById('trafficV2LinkStatus').textContent='이 링크를 해당 게시글에 넣으세요. 게시글마다 이름을 다르게 지정해야 구분됩니다.';
-  } catch(error) {output.value='';document.getElementById('trafficV2LinkStatus').textContent=error.message;}
-}
-async function trafficV2Copy() {
-  const output=document.getElementById('trafficV2Link');if(!output.value) return;
-  try {await navigator.clipboard.writeText(output.value);document.getElementById('trafficV2LinkStatus').textContent='추적 링크를 복사했습니다.';}
-  catch (_) {output.focus();output.select();document.getElementById('trafficV2LinkStatus').textContent='링크가 선택됐습니다. Ctrl+C 또는 길게 눌러 복사해주세요.';}
-}
-
-</script>
-<style id="traffic-v2-style">
-.traffic-v2-panel{margin:0 0 28px;padding:20px;border:1px solid var(--line);border-radius:18px;background:var(--panel)}
-.traffic-v2-panel h3{margin:0 0 10px;font-size:19px}
-.traffic-v2-panel p{font-size:12px;color:var(--muted);line-height:1.8}
-.traffic-v2-controls{display:flex;align-items:end;flex-wrap:wrap;gap:10px;margin:16px 0}
-.traffic-v2-controls label,.traffic-v2-link-label{display:flex;flex-direction:column;gap:7px;font-size:12px;min-width:0}
-.traffic-v2-controls input,.traffic-v2-controls select,.traffic-v2-panel textarea{background:#161614;color:var(--white);border:1px solid var(--line);border-radius:8px;padding:10px;max-width:100%;font:inherit}
-.traffic-v2-controls .btn{min-height:40px;padding:8px 16px}
-.traffic-v2-results{max-height:480px;overflow:auto;font-size:13px}
-.traffic-v2-row{display:flex;justify-content:space-between;align-items:start;gap:16px;padding:13px 0;border-bottom:1px solid var(--line-soft)}
-.traffic-v2-row>div{min-width:0;overflow-wrap:anywhere}.traffic-v2-row>span{white-space:nowrap;color:var(--gold-hi)}
-.traffic-v2-row small{display:block;color:var(--muted);line-height:1.7;margin-top:5px}
-.traffic-v2-panel details{border-top:1px solid var(--line);padding-top:16px;margin-top:18px}
-.traffic-v2-panel summary{cursor:pointer;color:var(--gold-hi)}
-.traffic-v2-panel textarea{width:100%;margin-bottom:10px;overflow-wrap:anywhere}
-@media(max-width:520px){.traffic-v2-panel{padding:15px}.traffic-v2-controls label{width:100%}.traffic-v2-controls input,.traffic-v2-controls select{width:100%}.traffic-v2-row{gap:8px}}
-
-</style>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>택일소 | AI 사주 상담 · 오늘의 운세 · 결혼·이사·개업 택일</title>
 <meta name="description" content="AI 사주 상담가 연우에게 오늘의 운세, 연애운, 재물운, 궁합을 묻고 결혼·이사·개업·계약 날짜까지 비교해보세요. 첫 질문 3개 무료.">
@@ -1111,7 +899,6 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
   .home-conversion-bubble{padding:10px 12px}
   .home-conversion-bubble strong{font-size:17px}
   .home-conversion-categories button{min-height:34px;padding:7px 5px}
-  .home-conversion-trust{display:none}
 }
 .ai-chat-setup-row{display:grid; grid-template-columns:.72fr 1fr .78fr .78fr; gap:6px; margin-bottom:10px;}
 .ai-chat-setup-row.ai-chat-detail-row{grid-template-columns:1fr 1fr 1fr 1fr;}
@@ -2140,8 +1927,6 @@ footer{padding-bottom:90px}
 .home-free-value span{display:block;margin-top:5px;font-size:12px;color:var(--muted)}
 #homeGuestHint b{font-size:13px}
 #homeGuestHint span{font-size:11px}
-#homeGuestHint{margin:8px 0 10px;text-align:center;color:var(--muted);font-size:10px;line-height:1.4}
-#homeGuestHint b{font-size:10px;font-weight:500;color:var(--muted)}
 .home-free-value{margin:12px 0 8px}
 .home-free-value b{font-size:15px}
 .home-free-value span{font-size:10.5px;line-height:1.5}
@@ -2177,18 +1962,7 @@ footer{padding-bottom:90px}
 @media(max-width:520px){.seo-core-guides{padding:24px 16px 48px}.seo-core-guide-grid{grid-template-columns:1fr}.seo-core-guide-card{min-height:112px}}
 </style>
 
-<style>
-#view-admin .admin-fold{border:1px solid var(--line);border-radius:16px;margin:16px 0;background:var(--panel);padding:0;scroll-margin-top:100px}
-#view-admin .admin-fold>summary{padding:17px 20px;cursor:pointer;font-size:16px;font-weight:700;color:var(--white)}
-#view-admin .admin-fold>summary small{display:block;margin:5px 0 0 17px;font-size:11px;font-weight:400;color:var(--muted)}
-#view-admin .admin-fold-body{padding:6px 20px 20px}#view-admin .admin-fold[open]>summary{border-bottom:1px solid var(--line-soft);margin-bottom:12px}
-#view-admin .admin-member-tools,#view-admin .admin-quick{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0}
-#view-admin select{max-width:100%;background:#161614;color:var(--white);padding:10px;border:1px solid var(--line);border-radius:10px}
-#view-admin .admin-quick .btn,#view-admin .admin-member-tools .btn{min-height:38px;padding:8px 14px;font-size:12px}
-#adminMemberResultCount,#adminInquiryResultCount{font-size:12px;color:var(--muted)}
-#adminUserList,#adminInquiryList,#adminBanList{max-height:650px;overflow:auto}
-@media(max-width:520px){#view-admin .admin-fold-body{padding:6px 12px 14px}#view-admin .admin-fold>summary{padding:15px 12px}#view-admin .admin-quick .btn{flex:1 1 140px}}
-</style></head>
+</head>
 <body>
 
 <script>
@@ -2355,6 +2129,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           </div>
 
           <button id="homeStartChatBtn" class="btn btn-primary home-start-chat-btn" style="width:100%;" onclick="handleHomeChatStart(this)">✨ 궁금한 것 무료로 물어보기</button>
+          <div class="home-conversion-trust"><span>카드등록 없음</span><i>·</i><span>자동결제 없음</span><i>·</i><span>저장한 사주로 계속 상담</span></div>
         </div>
 
         <!-- STEP 1: 생년월일 입력 (시작하기 클릭 + 로그인 후에만 보임) -->
@@ -2472,14 +2247,14 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <div class="home-free-report-card">
         <div class="home-feature-kicker">FREE REPORT</div>
         <h3>내 사주 기본 리포트</h3>
-        <p>태어난 날의 일주 오행을 기준으로 성향과 강점을 살펴보세요. 같은 오행에는 같은 기본 설명이 제공되며, 개인적인 고민은 연우에게 이어서 물어볼 수 있어요.</p>
+        <p>오행 구성부터 성향·재물·연애·직업 흐름까지 한 번에 보고, 궁금한 부분은 연우에게 바로 이어서 물어보세요.</p>
         <div class="home-report-tags"><span>오행</span><span>성향</span><span>재물</span><span>연애</span><span>직업</span></div>
         <button type="button" onclick="openSajuInsight('profile')">무료 기본 리포트 보기 <i>→</i></button>
       </div>
       <div class="home-deeper-list">
-        <button onclick="openSajuInsight('profile')"><b>오행 성향 리포트</b><small>일주 오행 기준 · 성향과 강점</small><i>→</i></button>
-        <button onclick="openSajuInsight('love')"><b>관계 성향 리포트</b><small>내 오행의 관계 성향 · 소통 포인트</small><i>→</i></button>
-        <button onclick="openSajuInsight('money')"><b>일과 소비 습관</b><small>오행별 강점 · 돌아볼 질문</small><i>→</i></button>
+        <button onclick="openSajuInsight('profile')"><b>AI 정밀사주</b><small>내 사주 심층 분석 · 대운 흐름</small><i>→</i></button>
+        <button onclick="openSajuInsight('love')"><b>궁합·연애 분석</b><small>두 사람의 오행 궁합</small><i>→</i></button>
+        <button onclick="openSajuInsight('money')"><b>재물·직업 분석</b><small>강점과 흐름을 자세히</small><i>→</i></button>
         <button onclick="goTo('profile')"><b>프리미엄 전체 서비스</b><small>365일 택일 · 상세 리포트 등</small><i>→</i></button>
       </div>
       <div class="home-consult-to-date">
@@ -2535,16 +2310,15 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <div class="popular">MOST POPULAR · PREMIUM</div>
           <h3>프리미엄 이용권</h3>
           <div class="plan-price"><strong>8,900원</strong><span>/ 30일</span></div>
-          <p class="plan-lead">결제일로부터 <b>30일간</b> AI 상담과 날짜 비교 기능을 넉넉하게 이용할 수 있어요. 만료 후 다시 필요한 기간만 구매하세요.</p>
+          <p class="plan-lead">결제일로부터 <b>30일간</b> AI 상담과 정밀 택일 기능을 넉넉하게 이용할 수 있어요. 만료 후 다시 필요한 기간만 구매하세요.</p>
           <ul>
             <li>✨ <b>AI 상담 하루 15개</b> 질문 (무료는 평생 3개)</li>
             <li><b>최대 365일</b> 후보 중 <b>TOP 20</b> 정밀 비교</li>
             <li><b>두 사람 궁합 택일</b> 상세 분석</li>
             <li><b>월별 베스트 날짜</b> + 전체 캘린더 열람</li>
-            <li><b>상세 리포트</b> · 좋은 이유 / 주의 이유까지</li>
+            <li><b>정밀 리포트</b> · 좋은 이유 / 주의 이유까지</li>
           </ul>
           <button class="btn btn-primary form-submit premium-buy-btn" onclick="payPremium()">✦ 프리미엄 시작하기</button>
-          <p style="font-size:12px;line-height:1.8;color:var(--muted)">AI 상담은 계산된 사주 정보와 질문을 바탕으로 답변합니다. 별도 오행 리포트는 오행별 공통 설명이며, 대운·연도별 운세 계산은 포함하지 않습니다.</p>
           <div class="secure-note">🔒 결제는 페이앱 결제창에서 진행됩니다.</div>
         </div>
       </div>
@@ -2569,7 +2343,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <details class="faq-item"><summary>내 정보는 어디에 저장되나요?</summary><p>기본 택일 계산과 일부 검색 기록은 브라우저에서 처리·저장됩니다. AI 상담을 이용할 때는 답변 생성을 위해 선택한 사주 정보와 질문·최근 대화 일부가 택일소 서버를 거쳐 AI 제공업체로 전송될 수 있습니다. 로그인·결제 상태와 사용자가 저장한 사주·AI 상담 기록은 계정 기능 제공과 기기 간 동기화를 위해 Firebase에 저장될 수 있습니다.</p></details>
         <details class="faq-item"><summary>사주 계산에는 어떤 정보를 쓰나요?</summary><p>택일 기능은 서비스가 계산한 일주 정보를 핵심 기준으로 사용하고, AI 사주 상담은 계산 라이브러리가 제공하는 년주·월주·일주와 출생시간이 있는 경우 시주, 오행·십신·지장간 정보를 함께 참고합니다. 대운·세운·용신처럼 현재 계산 데이터에 없는 요소는 AI가 임의로 만들어내지 않도록 제한하고 있어요.</p></details>
         <details class="faq-item"><summary>AI가 사주를 대신 봐주나요?</summary><p>택일소의 날짜 추천은 정해진 오행·일진 기준으로 계산됩니다. 생성형 AI가 임의로 운세를 만들어내는 방식과 달리, 계산 기준을 먼저 고정하고 결과를 설명하는 방향을 우선합니다.</p></details>
-        <details class="faq-item"><summary>유료 결제하면 무엇이 달라지나요?</summary><p>무료에서는 AI 상담 평생 3개와 최대 30일·TOP 5 중심으로 확인하고, 프리미엄에서는 <b>AI 상담 하루 15개</b>와 최대 365일 후보·TOP 20·월별 베스트·두 사람 궁합 택일·상세 리포트와 전체 캘린더, 오행별 성향·관계·일과 소비 습관 리포트을 <b>30일간</b> 이용할 수 있습니다.</p></details>
+        <details class="faq-item"><summary>유료 결제하면 무엇이 달라지나요?</summary><p>무료에서는 AI 상담 평생 3개와 최대 30일·TOP 5 중심으로 확인하고, 프리미엄에서는 <b>AI 상담 하루 15개</b>와 최대 365일 후보·TOP 20·월별 베스트·두 사람 궁합 택일·상세 리포트와 전체 캘린더, 정밀사주·궁합·재물 심층 분석을 <b>30일간</b> 이용할 수 있습니다.</p></details>
         <details class="faq-item"><summary>결과를 저장하거나 출력할 수 있나요?</summary><p>추천 결과는 브라우저 인쇄 기능으로 PDF 저장이 가능해요. 로그인 상태에서는 사주 보관함을 계정과 동기화해 다른 기기에서도 다시 불러올 수 있도록 구성했습니다.</p></details>
       </div>
     </div>
@@ -3103,47 +2877,40 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <div class="container" style="max-width:800px;">
       <div id="adminDenied" style="display:none; text-align:center; color:var(--muted); padding:40px 0;">관리자 계정으로 로그인해야 볼 수 있어요.</div>
       <div id="adminContent" style="display:none;">
-<div class="admin-stats"><div class="admin-stat"><small>오늘 방문수 · 00시 초기화</small><b id="statTodayVisits">–</b></div>
-<div class="admin-stat"><small>총 가입자수</small><b id="statSignups">–</b></div>
-<div class="admin-stat"><small>총 구매수</small><b id="statPurchases">–</b></div>
-<div class="admin-stat"><small>누적 매출</small><b id="statRevenue" style="font-size:20px;">–</b></div>
-<div class="admin-stat"><small>현재 프리미엄 회원</small><b id="statActivePremium">–</b></div>
-<div class="admin-stat"><small>답변 대기 문의</small><b id="statPendingInquiries" style="color:var(--warn);">–</b></div></div><details class="admin-fold"><summary>기타 운영 통계 <small>누적 방문·접속 회원·상품별 구매</small></summary><div class="admin-fold-body admin-stats"><div class="admin-stat"><small>누적 방문수</small><b id="statVisits">–</b></div>
-<div class="admin-stat"><small>카카오 가입자</small><b id="statKakaoMembers">–</b></div>
-<div class="admin-stat"><small>오늘 접속 회원</small><b id="statActiveToday">–</b></div>
-<div class="admin-stat"><small>최근 7일 접속</small><b id="statActive7d">–</b></div>
-<div class="admin-stat"><small>프리미엄 구매수</small><b id="statPurchasesPremium">–</b></div>
-<div class="admin-stat"><small>질문권 구매수</small><b id="statPurchasesQuestionPacks">–</b></div></div></details>
-<div class="admin-quick"><button class="btn" onclick="adminOpenWork('pending')">답변 대기 문의</button><button class="btn" onclick="adminOpenWork('refund')">미답변 환불 문의</button><button class="btn" onclick="adminOpenWork('expiring')">7일 내 만료 회원</button></div>
+        <div class="admin-stats">
+          <div class="admin-stat"><small>누적 방문수</small><b id="statVisits">–</b></div>
+          <div class="admin-stat"><small>오늘 방문수 · 00시 초기화</small><b id="statTodayVisits">–</b></div>
+          <div class="admin-stat"><small>총 가입자수</small><b id="statSignups">–</b></div>
+          <div class="admin-stat"><small>카카오 가입자</small><b id="statKakaoMembers">–</b></div>
+          <div class="admin-stat"><small>오늘 접속 회원</small><b id="statActiveToday">–</b></div>
+          <div class="admin-stat"><small>최근 7일 접속</small><b id="statActive7d">–</b></div>
+          <div class="admin-stat"><small>총 구매수</small><b id="statPurchases">–</b></div>
+          <div class="admin-stat"><small>누적 매출</small><b id="statRevenue" style="font-size:20px;">–</b></div>
+          <div class="admin-stat"><small>현재 프리미엄 회원</small><b id="statActivePremium">–</b></div>
+          <div class="admin-stat"><small>프리미엄 구매수</small><b id="statPurchasesPremium">–</b></div>
+          <div class="admin-stat"><small>질문권 구매수</small><b id="statPurchasesQuestionPacks">–</b></div>
+          <div class="admin-stat"><small>답변 대기 문의</small><b id="statPendingInquiries" style="color:var(--warn);">–</b></div>
+        </div>
 
-        <details id="adminTrafficDetails" class="traffic-v2-panel admin-fold" ontoggle="if(this.open) trafficV2InitAdmin()"><summary id="trafficV2Title">상세 유입 분석 <small>매체·사이트·게시글별 조회 / 추적 링크 만들기</small></summary><div class="admin-fold-body">
-
-          <p>네이버 블로그·카페·검색을 구분하고, 사이트 또는 게시글별 유입을 확인합니다. 이전 방문의 게시글 주소는 복원할 수 없습니다.</p>
-          <div class="traffic-v2-controls">
-            <label>시작일<input id="trafficV2Start" type="date"></label>
-            <label>종료일<input id="trafficV2End" type="date"></label>
-            <label>묶어 보기<select id="trafficV2Group" onchange="trafficV2Render()"><option value="channel">매체별</option><option value="site">사이트별</option><option value="post">게시글 / 캠페인별</option></select></label>
-            <button class="btn" type="button" onclick="trafficV2Load()">조회</button>
-            <button class="btn" type="button" id="trafficV2Csv" disabled onclick="trafficV2Export()">CSV 저장</button>
+        <div class="section-head" style="margin-top:40px;">
+          <div>
+            <div class="section-kicker">TODAY FUNNEL · KST</div>
+            <h2 class="section-title" style="font-size:24px;">오늘 전환 퍼널</h2>
           </div>
-          <p id="trafficV2Status" role="status" aria-live="polite"></p>
-          <div id="trafficV2Results" class="traffic-v2-results"></div>
-          <p>게시글 주소는 브라우저가 전달한 경우에만 확인됩니다. ‘직접 / 출처 확인 불가’에는 주소 직접 입력 외에 앱·메신저 등 출처가 전달되지 않은 유입도 포함됩니다. 추적 링크가 공유되면 원래 지정한 게시글 이름으로 집계됩니다.</p>
-          <details>
-            <summary>게시글별 추적 링크 만들기</summary>
-            <p>같은 네이버 블로그에서도 게시글마다 다른 이름을 넣으세요. 이름에 개인정보를 넣지 마세요.</p>
-            <div class="traffic-v2-controls">
-              <label>매체<input id="trafficV2Source" value="naver_blog" maxlength="120" placeholder="naver_blog / instagram"></label>
-              <label>유형<input id="trafficV2Medium" value="referral" maxlength="120" placeholder="referral / social / paid"></label>
-              <label>캠페인<input id="trafficV2Campaign" maxlength="120" placeholder="2026_가을홍보"></label>
-              <label>게시글 이름<input id="trafficV2Content" maxlength="120" placeholder="결혼택일_후기_01"></label>
-              <button class="btn btn-primary" type="button" onclick="trafficV2Generate()">링크 만들기</button>
-            </div>
-            <label class="traffic-v2-link-label">생성된 링크<textarea id="trafficV2Link" rows="3" readonly></textarea></label>
-            <button class="btn" type="button" onclick="trafficV2Copy()">링크 복사</button>
-            <p id="trafficV2LinkStatus" role="status"></p>
-          </details>
-        </div></details>
+        </div>
+        <div class="price-note" style="margin:0 0 14px;">
+          한국시간 00:00 기준 · 각 단계 아래 %는 바로 이전 단계 대비 전환율입니다.
+        </div>
+        <div id="adminFunnelGrid" class="admin-stats" style="margin-bottom:10px;">
+          <div class="admin-stat"><small>방문</small><b id="funnelVisits">0</b><span id="funnelVisitsRate" style="font-size:9px;color:var(--muted-2);">기준</span></div>
+          <div class="admin-stat"><small>오늘의 운세 결과</small><b id="funnelFortune">0</b><span id="funnelFortuneRate" style="font-size:9px;color:var(--muted-2);">0%</span></div>
+          <div class="admin-stat"><small>연우 CTA 클릭</small><b id="funnelAiCta">0</b><span id="funnelAiCtaRate" style="font-size:9px;color:var(--muted-2);">0%</span></div>
+          <div class="admin-stat"><small>신규 가입</small><b id="funnelSignup">0</b><span id="funnelSignupRate" style="font-size:9px;color:var(--muted-2);">0%</span></div>
+          <div class="admin-stat"><small>첫 AI 답변</small><b id="funnelFirstAi">0</b><span id="funnelFirstAiRate" style="font-size:9px;color:var(--muted-2);">0%</span></div>
+          <div class="admin-stat"><small>무료 3회 소진</small><b id="funnelFreeDone">0</b><span id="funnelFreeDoneRate" style="font-size:9px;color:var(--muted-2);">0%</span></div>
+          <div class="admin-stat"><small>결제 완료</small><b id="funnelPurchase">0</b><span id="funnelPurchaseRate" style="font-size:9px;color:var(--muted-2);">0%</span></div>
+        </div>
+        <div id="adminFunnelHint" class="price-note" style="margin:0 0 24px;">오늘 데이터가 쌓이면 가장 큰 이탈 구간을 자동으로 표시합니다.</div>
 
         <button id="adminTrafficSourceCard" type="button" onclick="toggleAdminTrafficSources()" aria-expanded="false"
           style="width:100%;margin:0 0 24px;padding:15px 16px;text-align:left;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.09);border-radius:16px;color:inherit;font:inherit;cursor:pointer;">
@@ -3158,12 +2925,14 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <div id="trafficSourceDetails" style="display:none;margin-top:13px;padding-top:13px;border-top:1px solid rgba(255,255,255,.08);"></div>
         </button>
 
-<details id="adminMembersDetails" class="admin-fold"><summary>회원 관리 <small>검색·권한·만료 예정 확인</small></summary><div class="admin-fold-body">
+        <div class="section-head" style="margin-top:40px;">
+          <div><div class="section-kicker">MEMBERS</div><h2 class="section-title" style="font-size:24px;">회원 목록</h2></div>
+        </div>
         <div class="admin-member-tools" style="margin-bottom:14px;">
           <div class="field full" style="margin:0;flex:1;min-width:0;">
             <input type="text" id="adminUserSearch" placeholder="이메일/닉네임/UID/가입방식으로 검색" oninput="filterAdminUserList(this.value)" style="width:100%; padding:12px 14px; background:#090908; border:1px solid rgba(255,255,255,.10); border-radius:12px; color:var(--white); font-family:inherit; font-size:13.5px;">
           </div>
-          <select id="adminMemberFilter" aria-label="회원 상태" onchange="filterAdminUserList(document.getElementById('adminUserSearch').value)"><option value="all">전체 회원</option><option value="premium">프리미엄</option><option value="expiring">7일 내 만료</option><option value="free">일반 회원</option></select><button class="btn" onclick="adminResetMemberFilter()">필터 초기화</button><span id="adminMemberResultCount" role="status"></span><select id="adminMemberSort" class="admin-member-sort" onchange="setAdminMemberSort(this.value)" aria-label="회원 정렬">
+          <select id="adminMemberSort" class="admin-member-sort" onchange="setAdminMemberSort(this.value)" aria-label="회원 정렬">
             <option value="recent_signup">최근 가입순</option>
             <option value="recent_access">최근 접속순</option>
             <option value="premium_first">프리미엄 우선</option>
@@ -3176,8 +2945,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <div id="adminUserList" class="usecase-list"></div>
         <div class="price-note" style="margin-top:20px;">※ 최근 접속시간은 이 버전 배포 후 로그인/재접속한 회원부터 기록됩니다. 문의 이력이 있으면 최근 문의가 표시됩니다. 프리미엄 회원 정보가 일부 누락되어도 서버의 결제 완료 기록(paymentOrders)을 기준으로 자동 복구하며, 관리자 회수 이력이 더 최신인 경우에는 복구하지 않습니다.</div>
 
-</div></details>
-<details class="admin-fold"><summary>영구 밴 관리 <small>차단 계정 확인·해제</small></summary><div class="admin-fold-body">        <div id="adminBanSection" class="admin-ban-section">
+        <div id="adminBanSection" class="admin-ban-section">
           <div class="admin-ban-head">
             <div>
               <div class="section-kicker">BANNED</div>
@@ -3193,9 +2961,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           </div>
         </div>
 
-</div></details>
-<details id="adminSupportDetails" class="admin-fold"><summary>문의 관리 <small>답변 대기·환불 요청 우선 확인</small></summary><div class="admin-fold-body">
-<div class="admin-member-tools"><select id="adminInquiryFilter" aria-label="문의 상태" onchange="adminFilterInquiries()"><option value="pending">답변 대기</option><option value="refund">미답변 환불 문의</option><option value="answered">답변 완료</option><option value="all">전체</option></select><button class="btn" onclick="renderAdminInquiries()">문의 새로고침</button><span id="adminInquiryResultCount" role="status"></span></div><div id="adminInquiryList"></div></div></details>
+        <div class="section-head" style="margin-top:40px;">
+          <div><div class="section-kicker">SUPPORT</div><h2 class="section-title" style="font-size:24px;">1:1 문의 관리</h2></div>
+        </div>
+        <div id="adminInquiryList"></div>
       </div>
     </div>
   </section>
@@ -3262,7 +3031,6 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <div class="legal-block">
         <h3>개인정보처리방침 (요약)</h3>
         <p>기본 택일 계산과 일부 검색 기록은 이용자의 브라우저에서 처리·저장됩니다. AI 상담을 이용하는 경우 답변 생성을 위해 이용자가 선택한 생년월일·출생시간·사주 계산 정보, 질문 및 최근 대화 일부가 택일소 서버와 AI 제공업체로 전송될 수 있습니다. 로그인·결제 및 서비스 이용 상태는 계정 기능 제공과 결제 확인을 위해 Firebase에 저장될 수 있습니다.</p>
-        <p>유입 분석을 위해 유입 사이트 도메인, 전달된 공개 페이지 경로, 추적 링크의 매체·캠페인·게시글 식별값, 방문 날짜와 도착 페이지 경로를 Firebase에 저장합니다. 같은 탭의 중복 유입 집계를 줄이기 위해 임시 무작위 식별값을 sessionStorage에 저장하며, 이 유입 기록에는 회원 ID·생년월일·상담 내용을 포함하지 않습니다.</p>
         <p>회원가입 시 로그인 제공자가 전달하는 계정 식별정보 등 서비스 제공에 필요한 최소한의 정보를 처리할 수 있습니다. 실제 운영에 사용하는 외부 처리업체, 보유기간, 파기 및 이용자 권리에 관한 상세 내용은 정식 개인정보처리방침에 최신 상태로 안내해야 합니다.</p>
       </div>
       <div class="legal-block">
@@ -3518,6 +3286,7 @@ function goTo(route, presetEvent) {
   if (route !== 'admin') {
     if (typeof adminStatsUnsub === 'function') { adminStatsUnsub(); adminStatsUnsub = null; }
     if (typeof adminDailyVisitsUnsub === 'function') { adminDailyVisitsUnsub(); adminDailyVisitsUnsub = null; }
+    if (typeof adminFunnelUnsub === 'function') { adminFunnelUnsub(); adminFunnelUnsub = null; }
     if (adminDailyVisitsMidnightTimer) { clearTimeout(adminDailyVisitsMidnightTimer); adminDailyVisitsMidnightTimer = null; }
   }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('visible'));
@@ -3933,9 +3702,7 @@ function getCalType(toggleId) {
 /* 음력 생년월일을 실제 양력 날짜(Date)로 변환. 실패하거나 라이브러리 없으면 null 반환 */
 function resolveBirthDate(dateVal, calType, isLeap) {
   if (!dateVal) return null;
-  if (typeof dateVal !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(dateVal)) { showToast('생년월일 형식을 확인해주세요.'); return null; }
   const [y, m, d] = dateVal.split('-').map(Number);
-  if (!Number.isInteger(y) || y < 100 || m < 1 || m > 12 || d < 1 || d > 31) { showToast('생년월일을 확인해주세요.'); return null; }
   if (calType === 'lunar') {
     try {
       if (typeof Lunar === 'undefined') { showToast('음력 변환 기능을 불러오지 못했어요. 새로고침 후 다시 시도해주세요.'); return null; }
@@ -3947,12 +3714,7 @@ function resolveBirthDate(dateVal, calType, isLeap) {
       return null;
     }
   }
-  const birth = new Date(y, m - 1, d);
-  if (birth.getFullYear() !== y || birth.getMonth() !== m - 1 || birth.getDate() !== d) {
-    showToast('존재하지 않는 날짜예요. 생년월일을 다시 확인해주세요.');
-    return null;
-  }
-  return birth;
+  return new Date(y, m - 1, d);
 }
 
 /* ---------- LIVE SAJU PREVIEW ---------- */
@@ -4599,7 +4361,7 @@ function applyDowFilter(mode) {
 // 1) firebase.google.com 에서 무료 프로젝트 생성
 // 2) 프로젝트 설정 > 웹 앱 추가 후 나오는 값을 아래에 붙여넣기
 // 3) Authentication > Sign-in method 에서 Google 사용 설정
-console.log('[택일소 빌드] v' + '2026-09-09-security-fix-vault-feature' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
+console.log('[택일소 빌드] v' + '2026-09-09-show-trust-line-always' + ' — 이 문구가 콘솔에 안 보이면 예전 캐시본입니다. 강력 새로고침(Ctrl+Shift+R) 해주세요.');
 const firebaseConfig = {
   apiKey: "AIzaSyANOyfG-zIBBtQ7alO4K3FNfMy-DXpCQOk",
   authDomain: "taekilso.firebaseapp.com",
@@ -4862,7 +4624,6 @@ function recordVisit() {
     { merge: true }
   ).catch(err => console.error('일일 방문 기록 실패', err));
   recordTrafficSource(todayKey);
-  recordTrafficVisitV2();
 }
 
 function detectTrafficSource(){
@@ -5885,26 +5646,18 @@ async function submitAdminPermissionAction(){
   }
 }
 
-function adminMemberMatches(data,query,mode,now=Date.now()) {
- const search=!query || (data.searchKey||'').includes(query.trim().toLowerCase());
- const premium=data.premium==='1', until=Number(data.premiumUntil||0);
- return search && (mode==='all' || (mode==='premium' && premium) || (mode==='free' && !premium) || (mode==='expiring' && premium && until>now && until<=now+7*86400000));
+function filterAdminUserList(query) {
+  const q = query.trim().toLowerCase();
+  document.querySelectorAll('#adminUserList .usecase-item').forEach(item => {
+    const match = !q || (item.dataset.searchKey || '').includes(q);
+    item.style.display = match ? '' : 'none';
+  });
 }
-function filterAdminUserList(query='') {
- const mode=document.getElementById('adminMemberFilter').value;
- const items=[...document.querySelectorAll('#adminUserList .usecase-item')];let count=0;
- items.forEach(item=>{const match=adminMemberMatches(item.dataset,query,mode);item.style.display=match?'':'none';if(match)count++;});
- document.getElementById('adminMemberResultCount').textContent=count+' / '+items.length+'명';
-}
-function adminResetMemberFilter(){document.getElementById('adminMemberFilter').value='all';document.getElementById('adminUserSearch').value='';filterAdminUserList('');}
-function adminOpenWork(mode){if(!isAdmin())return;const member=mode==='expiring';const panel=document.getElementById(member?'adminMembersDetails':'adminSupportDetails');panel.open=true;if(member){document.getElementById('adminMemberFilter').value=mode;document.getElementById('adminUserSearch').value='';filterAdminUserList('');}else{document.getElementById('adminInquiryFilter').value=mode;adminFilterInquiries();}panel.scrollIntoView({behavior:'smooth',block:'start'});}
-function adminInquiryMatches(data,mode){return mode==='all'||(mode==='pending'&&data.answered!=='1')||(mode==='answered'&&data.answered==='1')||(mode==='refund'&&data.refund==='1'&&data.answered!=='1');}
-function adminFilterInquiries(){const items=[...document.querySelectorAll('#adminInquiryList .admin-inq-card')];const mode=document.getElementById('adminInquiryFilter').value;let count=0;items.forEach(item=>{const show=adminInquiryMatches(item.dataset,mode);item.style.display=show?'':'none';if(show)count++;});document.getElementById('adminInquiryResultCount').textContent=count+' / '+items.length+'건';}
 
 let adminStatsUnsub = null;
 let adminDailyVisitsUnsub = null;
 let adminDailyVisitsMidnightTimer = null;
-
+let adminFunnelUnsub = null;
 let adminUsersUnsub = null;
 let adminMemberSortMode = 'recent_signup';
 
@@ -6052,6 +5805,55 @@ function renderAdmin() {
 
   watchTodayVisitsKst();
 
+  function funnelRate(n, d) {
+    if (!d) return '0%';
+    return Math.round((Number(n || 0) / Number(d || 1)) * 100) + '%';
+  }
+
+  let lastTodayFunnelData = {};
+  function renderTodayFunnel(d) {
+    lastTodayFunnelData = d || {};
+    const visits = Number((document.getElementById('statTodayVisits') || {}).textContent || 0) || 0;
+    const steps = [
+      ['funnelVisits','funnelVisitsRate',visits,null],
+      ['funnelFortune','funnelFortuneRate',Number(d.fortuneResults||0),visits],
+      ['funnelAiCta','funnelAiCtaRate',Number(d.aiCtaClicks||0),Number(d.fortuneResults||0)],
+      ['funnelSignup','funnelSignupRate',Number(d.signups||0),Number(d.aiCtaClicks||0)],
+      ['funnelFirstAi','funnelFirstAiRate',Number(d.firstAiAnswers||0),Number(d.signups||0)],
+      ['funnelFreeDone','funnelFreeDoneRate',Number(d.freeLimitExhausted||0),Number(d.firstAiAnswers||0)],
+      ['funnelPurchase','funnelPurchaseRate',Number(d.purchases||0),Number(d.freeLimitExhausted||0)]
+    ];
+    steps.forEach(([id,rid,n,prev],i)=>{
+      const el=document.getElementById(id), rate=document.getElementById(rid);
+      if(el) el.textContent=String(n);
+      if(rate) rate.textContent=i===0?'기준':funnelRate(n,prev);
+    });
+
+    const hint=document.getElementById('adminFunnelHint');
+    if (hint) {
+      const labels=['오늘의 운세 실행','연우 CTA 클릭','신규 가입','첫 AI 답변','무료 3회 소진','결제'];
+      const pairs=steps.slice(1).map((s,i)=>({
+        label:labels[i], n:Number(s[2]||0), prev:Number(s[3]||0),
+        rate:Number(s[3]||0)>0 ? Number(s[2]||0)/Number(s[3]) : null
+      })).filter(x=>x.prev>0);
+      if (!pairs.length) hint.textContent='오늘 데이터가 쌓이면 가장 큰 이탈 구간을 자동으로 표시합니다.';
+      else {
+        pairs.sort((a,b)=>a.rate-b.rate);
+        const x=pairs[0];
+        hint.textContent=`현재 가장 큰 이탈: ${x.label} · 이전 단계 대비 ${Math.round(x.rate*100)}% 전환`;
+      }
+    }
+  }
+
+  function watchTodayFunnelKst() {
+    if (adminFunnelUnsub) { adminFunnelUnsub(); adminFunnelUnsub=null; }
+    const key=getKstDateKey();
+    adminFunnelUnsub=db.collection('dailyFunnel').doc(key).onSnapshot(snap=>{
+      renderTodayFunnel(snap.exists ? (snap.data()||{}) : {});
+    }, err=>console.warn('오늘 전환 퍼널 조회 실패',err));
+  }
+  watchTodayFunnelKst();
+
   let adminTrafficSourceUnsub=null;
   function trafficPct(n,total){ return total ? Math.round((Number(n||0)/total)*100) : 0; }
   function renderAdminTrafficSources(d){
@@ -6092,15 +5894,13 @@ function renderAdmin() {
     },err=>console.warn('오늘 유입 경로 조회 실패',err));
   }
   watchTodayTrafficSourcesKst();
-  if(document.getElementById('adminTrafficDetails').open) trafficV2InitAdmin();
+  window.addEventListener('taekilso:todayVisitsUpdated', () => renderTodayFunnel(lastTodayFunnelData), { once:false });
 
   if (adminUsersUnsub) adminUsersUnsub();
   adminUsersUnsub = db.collection('users').onSnapshot(async (qs) => {
     const list = document.getElementById('adminUserList');
     if (qs.empty) {
       list.innerHTML = '<div class="empty-note">아직 가입한 회원이 없어요.</div>';
-      filterAdminUserList('');
-      filterAdminUserList('');
       const signupEl = document.getElementById('statSignups');
       const kakaoEl = document.getElementById('statKakaoMembers');
       if (signupEl) signupEl.textContent = '0';
@@ -6255,7 +6055,6 @@ function renderAdmin() {
       item.dataset.lastSeenMs = String(lastSeenMs || 0);
       item.dataset.credits = String(credits || 0);
       item.dataset.premium = isActivePremium ? '1' : '0';
-      item.dataset.premiumUntil = String(untilMs || 0);
       item.dataset.sortName = String(u.nickname || u.displayName || u.email || label || doc.id || '').toLowerCase();
       item.dataset.searchKey = (
         label + ' ' + (u.nickname || '') + ' ' + provider + ' ' + doc.id +
@@ -6303,7 +6102,7 @@ function renderAdmin() {
     sortAdminUserListDom();
 
     const searchBox = document.getElementById('adminUserSearch');
-    filterAdminUserList(searchBox ? searchBox.value : '');
+    if (searchBox && searchBox.value) filterAdminUserList(searchBox.value);
 
     list.querySelectorAll('[data-force-delete-uid]').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -6401,11 +6200,10 @@ function renderAdminInquiries() {
   const pendingEl = document.getElementById('statPendingInquiries');
   if (!wrap || !db) return;
   wrap.innerHTML = '<div class="loading-line" style="margin-top:0;">불러오는 중…</div>';
-  db.collection('inquiries').get().then((qs) => {
+  db.collection('inquiries').limit(200).get().then((qs) => {
     if (qs.empty) {
       wrap.innerHTML = '<div class="empty-note">아직 등록된 문의가 없어요.</div>';
       if (pendingEl) pendingEl.textContent = '0';
-      adminFilterInquiries();
       return;
     }
     wrap.innerHTML = '';
@@ -6425,8 +6223,6 @@ function renderAdminInquiries() {
       const q = doc.data();
       const card = document.createElement('div');
       card.className = 'admin-inq-card';
-      card.dataset.answered = q.status === '답변완료' ? '1' : '0';
-      card.dataset.refund = /환불/.test(String(q.title||'')+' '+String(q.message||'')) ? '1' : '0';
       const dateStr = q.createdAt && q.createdAt.toDate ? q.createdAt.toDate().toLocaleDateString('ko-KR') : '';
       card.innerHTML = `
         <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
@@ -6440,7 +6236,6 @@ function renderAdminInquiries() {
       `;
       wrap.appendChild(card);
     });
-    adminFilterInquiries();
     wrap.querySelectorAll('[data-reply-id]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const id = e.target.dataset.replyId;
@@ -7442,7 +7237,7 @@ async function payPremium() {
       checkretry: 'y',
       returnurl: PAYAPP_RETURN_URL,
       var1: orderId,
-      memo: '30일 이용권 · AI 상담 하루 15개 · 365일 택일 · 오행별 성향·관계·일과 소비 습관 리포트',
+      memo: '30일 이용권 · AI 상담 하루 15개 · 365일 택일 · 정밀사주·궁합·재물 분석',
       redirectpay: '1'
     };
     // 서버 검증 함수가 연결되어 있으면 feedbackurl도 처음부터 같이 보냅니다. setParam을
@@ -7718,7 +7513,7 @@ function buildPremiumProgramPanel() {
   const monthRows = Object.entries(months).slice(0,12).map(([k,v])=>{const m=v.slice().sort((a,b)=>b.score-a.score)[0];return `<div><strong>${k.replace('-', '년 ')}월</strong> · ${m.date.getMonth()+1}/${m.date.getDate()} 추천 · ${to100(m.score)}점</div>`}).join('');
   const couple = window.__ctx && window.__ctx.coupleMode ? '두 분의 기운을 함께 반영한 결과입니다.' : '단독 택일 기준으로 분석했습니다.';
   panel.style.display='block';
-  panel.innerHTML = `<div class="pp-head"><div><div class="pp-kicker">✦ PREMIUM DEEP REPORT</div><div class="pp-title">${eventType} 날짜 비교 리포트</div></div><div class="pp-score">${to100(best.score)}<small style="font-size:11px;color:var(--muted)"> / BEST</small></div></div><div class="pp-grid"><div class="pp-stat"><small>최우선 추천일</small><b>${best.date.getFullYear()}.${String(best.date.getMonth()+1).padStart(2,'0')}.${String(best.date.getDate()).padStart(2,'0')}</b></div><div class="pp-stat"><small>강한 추천 후보</small><b>${high}일</b></div><div class="pp-stat"><small>손없는 날</small><b>${son}일</b></div><div class="pp-stat"><small>후보 평균 기운</small><b>${avg}</b></div><div class="pp-stat"><small>최고 일진</small><b>${best.ganji}(${best.ganjiHanja})</b></div><div class="pp-stat"><small>핵심 오행</small><b>${best.ohaeng}</b></div></div><p class="pp-text"><b>최우선 추천일 ${best.date.getMonth()+1}월 ${best.date.getDate()}일</b>은 ${best.ohaeng} 기운과 현재 행사 조건을 종합했을 때 가장 높은 점수를 받은 날짜입니다. ${best.reasons.length ? '주요 근거는 '+best.reasons.slice(0,3).join(', ')+'입니다.' : '특별한 감점 요인이 적은 편입니다.'} ${couple}</p><div class="pp-list"><div><strong>좋은 점</strong><br>${best.reasons.length ? best.reasons.join(' · ') : '전체 기준에서 무난한 흐름'}</div><div><strong>체크할 점</strong><br>${cautionTextFor(eventType)}</div></div><div style="margin-top:18px"><div class="pp-kicker">MONTHLY BEST</div><div class="pp-list">${monthRows || '<div>월별 후보가 없습니다.</div>'}</div></div><button class="btn btn-primary no-print" style="width:100%; margin-top:20px;" onclick="window.print()">📄 이 리포트 PDF로 저장</button>`;
+  panel.innerHTML = `<div class="pp-head"><div><div class="pp-kicker">✦ PREMIUM DEEP REPORT</div><div class="pp-title">${eventType} 정밀 택일 리포트</div></div><div class="pp-score">${to100(best.score)}<small style="font-size:11px;color:var(--muted)"> / BEST</small></div></div><div class="pp-grid"><div class="pp-stat"><small>최우선 추천일</small><b>${best.date.getFullYear()}.${String(best.date.getMonth()+1).padStart(2,'0')}.${String(best.date.getDate()).padStart(2,'0')}</b></div><div class="pp-stat"><small>강한 추천 후보</small><b>${high}일</b></div><div class="pp-stat"><small>손없는 날</small><b>${son}일</b></div><div class="pp-stat"><small>후보 평균 기운</small><b>${avg}</b></div><div class="pp-stat"><small>최고 일진</small><b>${best.ganji}(${best.ganjiHanja})</b></div><div class="pp-stat"><small>핵심 오행</small><b>${best.ohaeng}</b></div></div><p class="pp-text"><b>최우선 추천일 ${best.date.getMonth()+1}월 ${best.date.getDate()}일</b>은 ${best.ohaeng} 기운과 현재 행사 조건을 종합했을 때 가장 높은 점수를 받은 날짜입니다. ${best.reasons.length ? '주요 근거는 '+best.reasons.slice(0,3).join(', ')+'입니다.' : '특별한 감점 요인이 적은 편입니다.'} ${couple}</p><div class="pp-list"><div><strong>좋은 점</strong><br>${best.reasons.length ? best.reasons.join(' · ') : '전체 기준에서 무난한 흐름'}</div><div><strong>체크할 점</strong><br>${cautionTextFor(eventType)}</div></div><div style="margin-top:18px"><div class="pp-kicker">MONTHLY BEST</div><div class="pp-list">${monthRows || '<div>월별 후보가 없습니다.</div>'}</div></div><button class="btn btn-primary no-print" style="width:100%; margin-top:20px;" onclick="window.print()">📄 이 리포트 PDF로 저장</button>`;
 }
 
 function openAuthModal() {
@@ -10301,49 +10096,50 @@ function calculateTodayFortune(){
     const today=new Date(), todayIdx=dayGanjiIndex(today), todayOh=ohaengOf(todayIdx);
     const rel=(GENERATES[oh]===todayOh||GENERATES[todayOh]===oh)?'상생 흐름':(OVERCOMES[oh]===todayOh||OVERCOMES[todayOh]===oh)?'속도 조절':'균형 흐름';
     const base={목:{strength:'성장·기획·관계 확장',watch:'과속과 감정적인 결정'},화:{strength:'표현·추진·주도성',watch:'충동적인 선택과 소진'},토:{strength:'안정·실무·신뢰',watch:'변화를 너무 늦게 받아들이는 것'},금:{strength:'판단·기준·정리',watch:'지나친 완벽주의'},수:{strength:'유연함·정보·직관',watch:'결정 미루기'}}[oh];
+    let score=65+((idx*7)%21);
+    if(rel==='상생 흐름')score+=8;if(rel==='속도 조절')score-=5;score=Math.max(50,Math.min(92,score));
     const content={
       profile:['오늘 기준 핵심',`일주 ${ganjiFull(idx)} · ${oh} 기운을 중심으로 보면 ${base.strength} 쪽 강점을 살릴 때 흐름이 편합니다.`,`주의할 점은 ${base.watch}입니다.`],
-      year:['생활 속 성향 키워드',`평소에는 ${base.strength}을 활용해 ‘선택을 좁히는 것’이 중요합니다. 기회를 무작정 늘리기보다 기준을 세우세요.`,`중요한 일정은 좋은 날을 고르는 것까지 연결하면 활용도가 높아집니다.`],
+      year:['2026 키워드',`올해는 ${base.strength}을 활용해 ‘선택을 좁히는 것’이 중요합니다. 기회를 무작정 늘리기보다 기준을 세우세요.`,`중요한 일정은 좋은 날을 고르는 것까지 연결하면 활용도가 높아집니다.`],
       love:['관계 키워드',`관계에서는 ${base.strength}이 장점으로 작용하기 쉽습니다. 서로의 차이를 이기는 것보다 맞추는 방식이 유리합니다.`,`결혼처럼 중요한 일정이라면 두 사람의 생년월일을 함께 넣어 날짜를 비교해보세요.`],
       money:['재물·직업 키워드',`${base.strength}을 실제 업무나 선택 기준으로 바꾸면 강점이 됩니다. 숫자만 보고 결정하기보다 오래 유지할 수 있는지를 함께 보세요.`,`큰 계약·개업 등은 실제 조건과 함께 날짜를 비교하는 방식이 좋습니다.`],
-      monthly:['날짜 선택 키워드',`현재 기운은 ${rel}로 계산됩니다. 특정 날짜를 고를 때는 ‘좋다/나쁘다’보다 후보를 여러 개 놓고 비교하는 방식이 유용합니다.`,`택일소에서는 무료 TOP 5를 먼저 확인한 뒤 필요하면 365일 후보와 상세 리포트로 확장할 수 있습니다.`]
+      monthly:['날짜 선택 키워드',`현재 기운은 ${rel}로 계산됩니다. 특정 날짜를 고를 때는 ‘좋다/나쁘다’보다 후보를 여러 개 놓고 비교하는 방식이 유용합니다.`,`택일소에서는 무료 TOP 5를 먼저 확인한 뒤 필요하면 365일 후보와 정밀 리포트로 확장할 수 있습니다.`]
     }[type]||[];
     const deepAnalysis = {
-      목:{personality:'새로운 것을 시작하고 키우는 힘이 강한 편입니다. 아이디어가 많고 사람·기회를 확장하는 데 능하지만, 한 번에 여러 갈래로 벌이면 마무리가 약해질 수 있습니다.', talent:'남들이 못 보는 새 기회를 먼저 알아채는 감각이 있습니다. 이 감각을 "시작"에만 쓰지 말고, 이미 있는 것에 새 아이디어를 접목하는 데 써보면 성과가 커집니다.'},
-      화:{personality:'표현력과 추진력이 두드러집니다. 사람들 앞에서 주도하는 역할이 잘 맞고 에너지가 클 때 성과도 큰 편이지만, 감정 기복이 판단에 영향을 줄 수 있습니다.', talent:'사람의 마음을 움직이고 분위기를 이끄는 힘이 강점입니다. 발표·설득·리더십이 필요한 자리에서 특히 빛을 발하니, 그런 역할을 스스로 만들어 나서보세요.'},
-      토:{personality:'꾸준함과 신뢰가 강점입니다. 실무적이고 안정적인 선택을 선호하며 맡은 역할을 끝까지 해내는 힘이 있지만, 변화가 필요한 순간에도 기존 방식을 오래 붙드는 경향이 있습니다.', talent:'한번 맡은 일은 끝까지 책임지는 신뢰감이 최대 강점입니다. 이 신뢰를 바탕으로 사람들이 자연스럽게 중요한 역할을 맡기게 되니, 기회가 왔을 때 망설이지 말고 받아들이세요.'},
-      금:{personality:'기준이 분명하고 판단이 정확한 편입니다. 원칙과 완성도를 중시해 신뢰를 얻지만, 기준에 못 미치는 상황을 받아들이기 어려워할 때가 있습니다.', talent:'정확한 판단력과 높은 완성도가 강점입니다. 남들이 대충 넘어가는 디테일을 챙기는 능력이 있으니, 품질·검증이 중요한 역할에서 특히 인정받습니다.'},
-      수:{personality:'유연하고 직관이 발달한 편입니다. 정보를 흡수하고 상황에 맞춰 방향을 바꾸는 데 능하지만, 결정을 계속 미루다 타이밍을 놓치는 경우가 있습니다.', talent:'상황을 빠르게 파악하고 유연하게 대처하는 직관이 강점입니다. 변화가 잦은 환경일수록 이 강점이 두드러지니, 정해진 틀보다 유동적인 역할이 잘 맞습니다.'}
+      목:{personality:'새로운 것을 시작하고 키우는 힘이 강한 편입니다. 아이디어가 많고 사람·기회를 확장하는 데 능하지만, 한 번에 여러 갈래로 벌이면 마무리가 약해질 수 있습니다.', daeun:'큰 흐름에서는 확장기와 정리기가 번갈아 오는 편으로 봅니다. 확장기에 벌인 일을 정리기에 추스르는 리듬을 의식하면 유리합니다.', talent:'남들이 못 보는 새 기회를 먼저 알아채는 감각이 있습니다. 이 감각을 "시작"에만 쓰지 말고, 이미 있는 것에 새 아이디어를 접목하는 데 써보면 성과가 커집니다.', h1:'상반기는 새로운 인연·기회·정보가 유독 많이 들어오는 시기입니다. 다 붙잡기보다 마음이 확실히 가는 1~2가지만 골라 깊게 파고드는 편이 낫습니다.', h2:'하반기는 상반기에 벌인 것들을 정리하고 결과를 확인하는 시기입니다. 새로운 걸 또 벌이기보다, 이미 시작한 것의 마무리에 집중하면 성과가 확실해집니다.'},
+      화:{personality:'표현력과 추진력이 두드러집니다. 사람들 앞에서 주도하는 역할이 잘 맞고 에너지가 클 때 성과도 큰 편이지만, 감정 기복이 판단에 영향을 줄 수 있습니다.', daeun:'열기가 오를 때와 식을 때의 낙차가 큰 편으로 봅니다. 열기가 오를 때 결정한 일을 열기가 식은 뒤 다시 점검하는 습관이 도움이 됩니다.', talent:'사람의 마음을 움직이고 분위기를 이끄는 힘이 강점입니다. 발표·설득·리더십이 필요한 자리에서 특히 빛을 발하니, 그런 역할을 스스로 만들어 나서보세요.', h1:'상반기는 에너지가 높고 추진력이 좋은 시기입니다. 다만 중요한 계약이나 큰 결정은 감정이 격해진 순간이 아니라, 하루 정도 시간을 두고 다시 확인한 뒤 진행하세요.', h2:'하반기는 열기가 가라앉으며 차분하게 되돌아보게 되는 시기입니다. 상반기에 급하게 결정한 일이 있다면, 이 시기에 한 번 재점검해보는 게 좋습니다.'},
+      토:{personality:'꾸준함과 신뢰가 강점입니다. 실무적이고 안정적인 선택을 선호하며 맡은 역할을 끝까지 해내는 힘이 있지만, 변화가 필요한 순간에도 기존 방식을 오래 붙드는 경향이 있습니다.', daeun:'안정기가 길게 이어지다가 한 번씩 큰 변화의 시점이 오는 리듬으로 봅니다. 변화의 신호가 왔을 때 너무 늦게 반응하지 않는 것이 중요합니다.', talent:'한번 맡은 일은 끝까지 책임지는 신뢰감이 최대 강점입니다. 이 신뢰를 바탕으로 사람들이 자연스럽게 중요한 역할을 맡기게 되니, 기회가 왔을 때 망설이지 말고 받아들이세요.', h1:'상반기는 지금까지 해온 것들이 안정적으로 쌓이는 시기입니다. 큰 변화보다는 지금 하는 일의 완성도를 높이는 데 집중하면 좋은 평가로 이어집니다.', h2:'하반기엔 오래 미뤄온 결정(이직·계약 변경 등)을 재검토해볼 만한 흐름이 옵니다. 변화의 신호를 느꼈다면 너무 늦지 않게 움직여보세요.'},
+      금:{personality:'기준이 분명하고 판단이 정확한 편입니다. 원칙과 완성도를 중시해 신뢰를 얻지만, 기준에 못 미치는 상황을 받아들이기 어려워할 때가 있습니다.', daeun:'정리·수확의 시기와 도전의 시기가 교차하는 흐름으로 봅니다. 정리의 시기에는 무리한 확장보다 다듬는 데 집중하는 편이 유리합니다.', talent:'정확한 판단력과 높은 완성도가 강점입니다. 남들이 대충 넘어가는 디테일을 챙기는 능력이 있으니, 품질·검증이 중요한 역할에서 특히 인정받습니다.', h1:'상반기는 그동안 쌓아온 것을 정리하고 다듬기 좋은 시기입니다. 완벽한 조건을 기다리기보다, 70% 정도 준비됐을 때 움직이면 기회를 놓치지 않습니다.', h2:'하반기엔 도전적인 기회가 찾아올 수 있는 흐름입니다. 기준을 조금 낮추고 우선 시작해보는 유연함이 이 시기엔 더 큰 결실로 이어집니다.'},
+      수:{personality:'유연하고 직관이 발달한 편입니다. 정보를 흡수하고 상황에 맞춰 방향을 바꾸는 데 능하지만, 결정을 계속 미루다 타이밍을 놓치는 경우가 있습니다.', daeun:'흐름을 타는 시기와 방향을 잡지 못하는 시기가 함께 오는 편으로 봅니다. 방향이 흐릿할 때는 큰 결정을 미루고 정보를 더 모으는 편이 안전합니다.', talent:'상황을 빠르게 파악하고 유연하게 대처하는 직관이 강점입니다. 변화가 잦은 환경일수록 이 강점이 두드러지니, 정해진 틀보다 유동적인 역할이 잘 맞습니다.', h1:'상반기는 여러 정보와 선택지가 한꺼번에 들어오는 시기입니다. 다 검토하려다 시간만 흐르기 쉬우니, 기준 하나를 정해두고 그에 맞는 것만 추리세요.', h2:'하반기는 그동안 모은 정보를 바탕으로 결단을 내려야 할 시기입니다. 여러 선택지 중 하나를 정해 밀어붙이는 편이 이 시기엔 특히 유리합니다.'}
     }[oh];
     const deepAnalysisLove = {
-      목:{personality:'관계에서 먼저 다가가고 이끄는 편입니다. 호감이 생기면 속도가 빠른 편이라, 상대가 준비되기 전에 진도를 너무 빨리 나가면 부담스러워할 수 있습니다.', match:'수(水) 기운을 가진 상대와 특히 잘 맞는 편입니다. 수 기운은 목 기운을 채워주는 관계라, 함께 있을 때 마음이 편안해지고 관계가 오래갑니다. 화 기운의 상대와는 서로를 활발하게 만들어주는 케미가 있습니다.'},
-      화:{personality:'표현이 솔직하고 애정 표현이 큰 편입니다. 관계에 몰입할 때 에너지가 크지만, 감정 기복이 그대로 다툼으로 이어질 수 있습니다.', match:'목(木) 기운을 가진 상대와 특히 잘 맞는 편입니다. 목 기운이 화 기운을 북돋아줘서 관계에 활력이 생깁니다. 토 기운의 상대와는 당신이 상대를 편안하게 감싸주는 안정적인 케미가 있습니다.'},
-      토:{personality:'신뢰를 오래 쌓는 안정적인 연애 스타일입니다. 한 사람에게 진득한 편이지만, 관계가 편해지면 표현을 점점 줄이는 경향이 있습니다.', match:'화(火) 기운을 가진 상대와 특히 잘 맞는 편입니다. 화 기운이 토 기운을 채워주는 관계라 안정감 속에서도 관계에 온기가 유지됩니다. 금 기운의 상대와는 당신이 이끌어주는 신뢰 관계가 형성됩니다.'},
-      금:{personality:'상대를 볼 때 기준이 뚜렷한 편입니다. 신뢰가 쌓이면 깊이 있는 관계를 만들지만, 상대의 사소한 실수를 오래 마음에 담아둘 수 있습니다.', match:'토(土) 기운을 가진 상대와 특히 잘 맞는 편입니다. 토 기운이 금 기운을 든든하게 받쳐줘서 안정적인 관계가 됩니다. 수 기운의 상대와는 당신이 방향을 잡아주는 보완 관계가 형성됩니다.'},
-      수:{personality:'대화가 잘 통하는 사람에게 끌리는 편입니다. 유연하게 맞춰주는 장점이 있지만, 갈등이 생기면 회피하고 넘어가려는 경향이 있습니다.', match:'금(金) 기운을 가진 상대와 특히 잘 맞는 편입니다. 금 기운이 수 기운에게 방향과 기준을 잡아줘서 관계가 안정적으로 흘러갑니다. 목 기운의 상대와는 당신이 성장을 도와주는 케미가 있습니다.'}
+      목:{personality:'관계에서 먼저 다가가고 이끄는 편입니다. 호감이 생기면 속도가 빠른 편이라, 상대가 준비되기 전에 진도를 너무 빨리 나가면 부담스러워할 수 있습니다.', daeun:'새로운 인연이 자주 찾아오는 시기와, 한 사람에게 정착하고 싶어지는 시기가 번갈아 오는 편으로 봅니다.', match:'수(水) 기운을 가진 상대와 특히 잘 맞는 편입니다. 수 기운은 목 기운을 채워주는 관계라, 함께 있을 때 마음이 편안해지고 관계가 오래갑니다. 화 기운의 상대와는 서로를 활발하게 만들어주는 케미가 있습니다.', h1:'상반기는 새로운 만남의 기회가 유독 많은 시기입니다. 서두르기보다 몇 번 더 만나보고 판단하는 여유를 가져보세요.', h2:'하반기는 관계가 한 단계 깊어지거나, 반대로 정리가 필요한 관계가 명확해지는 시기입니다. 애매하게 끌어온 관계가 있다면 이 시기에 방향을 정해보세요.'},
+      화:{personality:'표현이 솔직하고 애정 표현이 큰 편입니다. 관계에 몰입할 때 에너지가 크지만, 감정 기복이 그대로 다툼으로 이어질 수 있습니다.', daeun:'열정적으로 가까워지는 시기와 서로 지쳐서 거리를 두는 시기가 뚜렷하게 오는 편입니다.', match:'목(木) 기운을 가진 상대와 특히 잘 맞는 편입니다. 목 기운이 화 기운을 북돋아줘서 관계에 활력이 생깁니다. 토 기운의 상대와는 당신이 상대를 편안하게 감싸주는 안정적인 케미가 있습니다.', h1:'상반기는 감정 표현이 풍부해지고 관계가 뜨거워지기 쉬운 시기입니다. 다만 다툼이 생기면 그 자리에서 결론 내지 말고 시간을 두고 다시 이야기하세요.', h2:'하반기는 열기가 한 차례 가라앉으며 관계의 진짜 모습이 드러나는 시기입니다. 상반기의 설렘 이후에도 편안하게 남아있다면 좋은 신호입니다.'},
+      토:{personality:'신뢰를 오래 쌓는 안정적인 연애 스타일입니다. 한 사람에게 진득한 편이지만, 관계가 편해지면 표현을 점점 줄이는 경향이 있습니다.', daeun:'오래 만나던 관계가 자연스럽게 다음 단계(결혼 등)로 넘어가는 흐름이 오는 편으로 봅니다.', match:'화(火) 기운을 가진 상대와 특히 잘 맞는 편입니다. 화 기운이 토 기운을 채워주는 관계라 안정감 속에서도 관계에 온기가 유지됩니다. 금 기운의 상대와는 당신이 이끌어주는 신뢰 관계가 형성됩니다.', h1:'상반기는 지금까지 쌓아온 관계가 더 단단해지는 시기입니다. 편해진 사이일수록 의도적으로 애정 표현을 챙기면 만족도가 크게 올라갑니다.', h2:'하반기는 오래 만난 관계라면 다음 단계(동거, 결혼 등)를 진지하게 고민해볼 만한 흐름이 옵니다. 미뤄둔 이야기가 있다면 꺼내보기 좋은 시기입니다.'},
+      금:{personality:'상대를 볼 때 기준이 뚜렷한 편입니다. 신뢰가 쌓이면 깊이 있는 관계를 만들지만, 상대의 사소한 실수를 오래 마음에 담아둘 수 있습니다.', daeun:'까다롭게 고르는 시기 이후, 확신이 서는 상대를 만나 관계가 급진전되는 흐름이 오는 편입니다.', match:'토(土) 기운을 가진 상대와 특히 잘 맞는 편입니다. 토 기운이 금 기운을 든든하게 받쳐줘서 안정적인 관계가 됩니다. 수 기운의 상대와는 당신이 방향을 잡아주는 보완 관계가 형성됩니다.', h1:'상반기는 마음에 드는 사람을 신중하게 가늠해보는 시기입니다. 완벽한 상대를 기다리기보다, 지금 관계에서 좋은 점을 먼저 보는 연습이 도움이 됩니다.', h2:'하반기엔 확신이 서는 상대를 만나면 관계가 급진전될 수 있는 흐름입니다. 이 시기엔 망설임보다 마음이 가는 대로 움직여보는 게 좋습니다.'},
+      수:{personality:'대화가 잘 통하는 사람에게 끌리는 편입니다. 유연하게 맞춰주는 장점이 있지만, 갈등이 생기면 회피하고 넘어가려는 경향이 있습니다.', daeun:'여러 인연을 두루 만나는 시기와, 한 사람에게 깊이 집중하는 시기가 함께 오는 편으로 봅니다.', match:'금(金) 기운을 가진 상대와 특히 잘 맞는 편입니다. 금 기운이 수 기운에게 방향과 기준을 잡아줘서 관계가 안정적으로 흘러갑니다. 목 기운의 상대와는 당신이 성장을 도와주는 케미가 있습니다.', h1:'상반기는 여러 사람과 두루 인연이 닿는 시기입니다. 가볍게 만나보되, 마음이 확실히 가는 사람에게는 조금 더 적극적으로 다가가보세요.', h2:'하반기는 한 사람에게 마음이 깊어지는 시기입니다. 갈등이 생겨도 피하지 말고 직접 이야기 나누는 편이 관계를 다음 단계로 넘어가게 합니다.'}
     }[oh];
     const deepAnalysisMoney = {
-      목:{personality:'목 오행의 전통적 성향 설명은 새 일을 기획하고 확장하는 모습에 초점을 둡니다. 실제 일하는 방식과 맞는지 살펴보세요.',style:'최근 시작한 일 중 끝까지 마친 것은 무엇인가요? 새로운 지출을 결정할 때 어떤 기준을 세우고 있나요?'},
-      화:{personality:'화 오행의 전통적 성향 설명은 표현과 추진력에 초점을 둡니다. 상황에 따라 장점이 어떻게 나타나는지 돌아보세요.',style:'의욕이 클 때 계획보다 일을 많이 맡지는 않나요? 즉흥적인 소비를 한 뒤 만족감은 얼마나 오래갔나요?'},
-      토:{personality:'토 오행의 전통적 성향 설명은 꾸준함과 안정적인 실무에 초점을 둡니다. 자신의 경험과 비교해보세요.',style:'꾸준히 유지해서 도움이 된 습관은 무엇인가요? 익숙하다는 이유만으로 계속하는 지출은 없나요?'},
-      금:{personality:'금 오행의 전통적 성향 설명은 기준과 정리에 초점을 둡니다. 실제 판단 과정에서 이 모습이 나타나는지 살펴보세요.',style:'일을 마쳤다고 판단하는 기준은 무엇인가요? 물건을 고를 때 가격 외에 어떤 조건을 중요하게 생각하나요?'},
-      수:{personality:'수 오행의 전통적 성향 설명은 정보 수집과 유연함에 초점을 둡니다. 자신에게 도움이 된 사례를 떠올려보세요.',style:'정보를 모은 뒤 결정을 내리는 기준은 무엇인가요? 비교에 들이는 시간과 구매 만족도는 어떤 관계가 있었나요?'}
+      목:{personality:'새로운 기회를 스스로 만들어내는 데 능합니다. 사업 확장이나 새 프로젝트에 강하지만, 벌여둔 일이 많아지면 자금 관리가 흐트러질 수 있습니다.', daeun:'수입원이 늘어나는 확장기와, 벌여둔 것을 정리하며 자산을 다지는 시기가 번갈아 오는 편입니다.', style:'분산 투자보다, 성장 가능성이 보이는 곳에 자원을 집중하는 방식이 잘 맞습니다. 다만 여러 곳에 벌여두면 관리가 안 되니, 동시에 진행하는 건 2~3개로 제한하는 편이 좋습니다.', h1:'상반기는 새 수입원이나 투자 기회가 여러 개 보이는 시기입니다. 전부 시도하기보다, 가장 성과 좋은 하나에 자원을 몰아주는 편이 유리합니다.', h2:'하반기는 상반기에 벌인 것들을 정리하며 실제 성과를 확인하는 시기입니다. 새로운 지출보다 기존 것을 다지는 데 집중하면 자산이 안정적으로 쌓입니다.'},
+      화:{personality:'추진력 있게 밀어붙여 성과를 내는 편입니다. 큰 돈이 움직일 때 순간적인 판단력이 좋지만, 감정적으로 흥분한 상태에서 지출·투자 결정을 내리기 쉽습니다.', daeun:'큰 수익 기회가 오는 시기와, 그만큼 지출도 커지는 시기가 함께 오는 흐름입니다.', style:'단기간에 승부를 보는 방식이 잘 맞지만, 그만큼 손실 위험도 큽니다. 투자·지출 금액에 미리 상한선을 정해두고 그 안에서만 움직이는 규칙이 꼭 필요합니다.', h1:'상반기는 큰 수익 기회가 찾아올 수 있는 시기입니다. 다만 감정이 격해진 순간의 결정은 하루 지나 다시 판단하는 습관이 손실을 막아줍니다.', h2:'하반기는 상반기의 성과와 지출을 함께 점검해야 하는 시기입니다. 열기가 컸던 만큼 새어나간 돈도 있을 수 있으니, 가계부·장부를 한 번 정리해보세요.'},
+      토:{personality:'꾸준히 모으고 지키는 재물운입니다. 계획적인 소비와 저축에 강하지만, 변화하는 기회를 너무 신중하게 재다가 놓치는 경우가 있습니다.', daeun:'안정적으로 자산이 쌓이는 시기가 길게 이어지다, 한 번씩 큰 결단이 필요한 시점이 오는 흐름입니다.', style:'정기적인 저축·적립식 투자처럼 꾸준히 쌓는 방식이 체질에 잘 맞습니다. 다만 너무 안전한 것만 고집하면 자산이 늘어나는 속도가 더디니, 일부는 성장형에 배분해보는 것도 방법입니다.', h1:'상반기는 지금까지 해온 대로 꾸준히 쌓아가기 좋은 시기입니다. 큰 변화보다는 기존 계획을 착실히 지키는 편이 유리합니다.', h2:'하반기엔 이미 충분히 검토한 기회가 있다면, 완벽한 확신이 없어도 한 번은 움직여볼 만한 흐름이 옵니다. 너무 오래 재다가 놓치지 않도록 하세요.'},
+      금:{personality:'숫자와 조건을 정확히 따지는 편이라 손해 보는 거래가 적습니다. 다만 기준이 까다로워 좋은 기회도 조건이 안 맞으면 쉽게 포기하는 경향이 있습니다.', daeun:'꼼꼼히 정리하는 시기 이후, 확실한 조건의 기회를 잡아 수익이 크게 느는 흐름이 오는 편입니다.', style:'조건과 수치를 꼼꼼히 따지는 방식 자체가 강점입니다. 다만 100% 조건이 맞는 것만 찾다 보면 기회 자체가 줄어드니, 핵심 조건 2~3가지만 기준으로 삼는 편이 유리합니다.', h1:'상반기는 그동안의 자산·지출을 정리하고 다듬기 좋은 시기입니다. 이 시기에 정리해둔 것이 하반기 기회를 잡는 밑거름이 됩니다.', h2:'하반기엔 조건이 맞는 기회가 나타날 수 있는 흐름입니다. 100% 확신을 기다리기보다 80% 정도 맞으면 움직이는 유연함이 이 시기엔 특히 유리합니다.'},
+      수:{personality:'정보를 빠르게 흡수해 흐름을 잘 타는 재물운입니다. 유연한 대응이 강점이지만, 결정을 계속 미루다 타이밍을 놓치는 경우가 있습니다.', daeun:'여러 정보를 모으는 시기와, 방향을 정해 집중하는 시기가 함께 오는 흐름으로 봅니다.', style:'트렌드에 민감하게 반응하는 방식이 잘 맞습니다. 다만 정보를 계속 모으기만 하고 실행을 미루는 경향이 있으니, 정보 수집 기한을 미리 정해두는 게 도움이 됩니다.', h1:'상반기는 여러 정보와 기회가 동시에 들어오는 시기입니다. 다 검토하려다 시간만 흐르기 쉬우니, 기준을 하나 정해두고 그에 맞는 것만 추리세요.', h2:'하반기는 그동안 모은 정보를 바탕으로 실행에 옮겨야 할 시기입니다. 정보가 어느 정도 모였다면, 더 기다리지 않고 하나를 정해 움직이는 결단이 유리합니다.'}
     }[oh];
     const insightConfig = {
-      profile: { kicker: '오행 성향 리포트', deep: deepAnalysis,
-        lockDesc: '일주 오행별 성향 설명과 강점 포인트를 확인합니다. 같은 오행에는 같은 설명이 제공되며, 개인별 대운·연도별 운세를 계산한 리포트는 아닙니다.',
-        blocks: [['오행별 성향','personality'],['강점으로 살펴볼 부분','talent']] },
-      love: { kicker: '관계 성향 리포트', deep: deepAnalysisLove,
-        lockDesc: '내 일주 오행별 관계 성향과 전통적인 오행 관계 설명을 확인합니다. 상대방의 생년월일을 함께 계산한 두 사람의 궁합 결과는 아닙니다.',
-        blocks: [['오행별 관계 성향','personality'],['전통적인 오행 관계 설명','match']] },
-      money: { kicker: '일과 소비 습관 리포트', deep: deepAnalysisMoney,
-        lockDesc: '일주 오행별 일하는 성향과 소비 습관을 돌아볼 질문을 제공합니다. 수익 예측이나 개인별 투자 방식 추천은 제공하지 않습니다.',
-        blocks: [['일하는 성향 살펴보기','personality'],['나에게 물어볼 질문','style']] }
+      profile: { kicker: 'AI 정밀사주', deep: deepAnalysis,
+        lockDesc: '성격 심층 분석 · 나만의 재능 포인트 · 대운 흐름 · 2026년 상반기·하반기 흐름까지, 프리미엄 회원이면 확인할 수 있어요.',
+        blocks: [['성격 심층 분석','personality'],['나만의 재능 포인트','talent'],['대운(인생 큰 흐름)','daeun'],['2026년 상반기 흐름','h1'],['2026년 하반기 흐름','h2']] },
+      love: { kicker: 'AI 궁합·연애 분석', deep: deepAnalysisLove,
+        lockDesc: '연애 패턴 심층 분석 · 잘 맞는 궁합 오행 · 관계 흐름 · 2026년 상반기·하반기 연애운까지, 프리미엄 회원이면 확인할 수 있어요.',
+        blocks: [['연애 패턴 심층 분석','personality'],['잘 맞는 궁합 오행','match'],['관계 흐름(대운)','daeun'],['2026년 상반기 연애운','h1'],['2026년 하반기 연애운','h2']] },
+      money: { kicker: 'AI 재물·직업 분석', deep: deepAnalysisMoney,
+        lockDesc: '재물 흐름 심층 분석 · 나에게 맞는 재테크 방식 · 대운 흐름 · 2026년 상반기·하반기 재물운까지, 프리미엄 회원이면 확인할 수 있어요.',
+        blocks: [['재물 흐름 심층 분석','personality'],['나에게 맞는 재테크 방식','style'],['재물 대운 흐름','daeun'],['2026년 상반기 재물운','h1'],['2026년 하반기 재물운','h2']] }
     }[type];
     const deepSectionHtml = !insightConfig ? '' : (isPremium() ? `
         <div class="sir-deep">
           <div class="sir-deep-kicker">🔓 ${insightConfig.kicker} · 프리미엄</div>
-          <p style="font-size:12px;line-height:1.8;color:var(--muted)">${insightConfig.lockDesc}</p>
           ${insightConfig.blocks.map(([label,key])=>`<div class="sir-deep-block"><b>${label}</b><p>${insightConfig.deep[key]}</p></div>`).join('')}
           <button class="btn btn-primary no-print" style="width:100%; margin-top:16px;" onclick="printSajuInsight('${insightConfig.kicker}')">📄 이 리포트 PDF로 저장</button>
         </div>` : `
@@ -10354,9 +10150,8 @@ function calculateTodayFortune(){
         </div>`);
     document.getElementById('sajuInsightResult').innerHTML=`
       <div class="saju-insight-result">
-        <div class="sir-head"><div><div class="fortune-kicker">${type.toUpperCase()} · FREE</div><div class="sir-title">${content[0]}</div></div><div class="sir-score" style="font-size:18px">${oh} 오행</div></div>
+        <div class="sir-head"><div><div class="fortune-kicker">${type.toUpperCase()} · FREE</div><div class="sir-title">${content[0]}</div></div><div class="sir-score">${score}<small style="font-size:10px;color:var(--muted)"> / 100</small></div></div>
         <div class="sir-tags"><span>일주 ${ganjiFull(idx)}</span><span>${oh} 오행</span><span>${rel}</span></div>
-        <p style="font-size:12px;line-height:1.8;color:var(--muted)">분석 기준: 생년월일에서 계산한 일주의 오행입니다. 출생시간과 전체 사주 구성을 반영한 분석은 아니며, 같은 오행에는 같은 성향 설명을 제공합니다.</p>
         <p style="color:#d3cec3;font-size:13px;line-height:1.85;margin:15px 0 0">${content[1]}</p>
         <div class="sir-grid"><div><b>강점</b><br>${base.strength}</div><div><b>체크</b><br>${base.watch}</div></div>
         <div class="sir-cta"><p>${content[2]}</p><button class="btn btn-primary" style="width:100%" onclick="closeSajuInsight();goTo('tool')">내 좋은 날짜까지 찾아보기 →</button></div>
@@ -10932,3 +10727,4 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(setupAiShareObserver
   });
 })();
 </script>
+
