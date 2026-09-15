@@ -6073,6 +6073,57 @@ function calculateTodayFortune(){
 })();
 </script>
 
+
+<style id="faq-footer-free-scroll-fix">
+/* FAQ부터 footer(All rights reserved)까지는 PPT 스냅을 끄고 일반 세로 스크롤로 동작 */
+#view-home > .home-faq-section{
+  min-height:auto !important;
+  height:auto !important;
+  justify-content:flex-start !important;
+  scroll-snap-align:none !important;
+  scroll-snap-stop:normal !important;
+  overflow:visible !important;
+}
+html.snap-active.home-free-scroll{
+  scroll-snap-type:none !important;
+}
+body.home-faq-free-scroll{
+  overflow-y:auto !important;
+  overscroll-behavior-y:auto !important;
+}
+</style>
+<script id="faq-footer-free-scroll-fix-js">
+(function(){
+  function faqSection(){
+    return document.querySelector('#view-home > .home-faq-section');
+  }
+  function setFreeScroll(on){
+    document.documentElement.classList.toggle('home-free-scroll', !!on);
+    document.body.classList.toggle('home-faq-free-scroll', !!on);
+  }
+  function updateFaqFreeScroll(){
+    const faq = faqSection();
+    if(!faq) return;
+    const r = faq.getBoundingClientRect();
+    /* FAQ 영역에 진입하면 footer까지 일반 스크롤. 위 PPT 영역으로 돌아가면 기존 스냅 복구. */
+    setFreeScroll(r.top <= Math.max(120, window.innerHeight * 0.45));
+  }
+  let ticking=false;
+  function onScroll(){
+    if(ticking) return;
+    ticking=true;
+    requestAnimationFrame(function(){
+      ticking=false;
+      updateFaqFreeScroll();
+    });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', updateFaqFreeScroll, {passive:true});
+  document.addEventListener('DOMContentLoaded', updateFaqFreeScroll);
+  updateFaqFreeScroll();
+})();
+</script>
+
 </body>
 </html>
 
