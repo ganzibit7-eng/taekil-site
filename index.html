@@ -2232,10 +2232,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <!-- ============ AUTH MODAL ============ -->
 <div id="authOverlay">
   <div class="modal-box">
-    <div class="modal-title" id="authTitle">연우에게 바로 물어보세요</div>
+    <div class="modal-title" id="authTitle">가입하고 내 질문으로 상담을 시작하세요</div>
     <div class="auth-free-benefit">
       <b>첫 질문 3개는 무료예요</b>
-      <span>Google 또는 카카오로 10초 시작 · 카드등록 없음 · 자동결제 없음</span>
+      <span>Google·카카오로 가입/로그인 · 카드등록 없음 · 자동결제 없음</span>
     </div>
     <div id="authSetupNotice" class="setup-notice" style="display:none;">
       아직 계정 저장소가 연결되지 않았어요. Firebase 설정을 먼저 연결해야 실제로 저장됩니다.
@@ -2247,6 +2247,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <button class="btn" style="width:100%; margin-bottom:9px; background:#FEE500; color:#181600; border:0;" onclick="loginWithKakao()">
       💬 카카오로 시작하기
     </button>
+    <p style="font-size:12px;color:var(--muted);line-height:1.7">처음 이용하면 계정이 생성되고, 기존 회원은 로그인됩니다. 무료 질문 3회는 처음 가입한 계정에 제공됩니다.</p>
     <div id="authError" class="auth-error" style="display:none;"></div>
     <div class="auth-close" onclick="closeAuthModal()">닫기</div>
   </div>
@@ -2340,11 +2341,11 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <div id="homeIntroOverlay" class="ai-chat-setup-overlay home-conversion-intro">
           <div class="home-conversion-kicker">AI 사주 상담 · 첫 질문 3개 무료</div>
           <div class="ai-chat-bubble-npc home-conversion-bubble">
-            <strong>지금 궁금한 걸 고르면, 연우가 내 사주로 바로 답해드려요.</strong>
-            <span>연애·돈·직업 고민부터 결혼·이사·개업 날짜까지 한 번 입력한 사주로 계속 상담할 수 있어요.</span>
+            <strong>내 사주로, 지금 내 고민을 물어보세요.</strong>
+            <span>연애·직업·중요한 날짜까지. 가입 후 생년월일을 입력하면 내 질문으로 AI 상담을 시작할 수 있어요. 처음 가입하면 질문 3개가 무료예요.</span>
           </div>
 
-          <div class="home-conversion-question">오늘 가장 궁금한 건 무엇인가요?</div>
+          <div class="home-conversion-question">가입 후 가장 먼저 물어보고 싶은 것은?</div>
           <div class="ai-chat-intro-categories home-conversion-categories">
             <button onclick="handleHomeCategoryClick(this, '올해 연애운과 궁합이 궁금해요')"><span>❤️</span> 연애·궁합</button>
             <button onclick="handleHomeCategoryClick(this, '올해 돈 흐름과 재물운이 궁금해요')"><span>💰</span> 돈·재물</button>
@@ -2357,7 +2358,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
             <span>사주를 저장하면 다음 상담에서도 다시 입력할 필요 없어요.</span>
           </div>
           <p id="homeGuestHint" class="ai-chat-guest-hint"><b>첫 질문 3개 무료</b><span> · 카드등록 없음 · 자동결제 없음</span></p>
-          <button id="homeStartChatBtn" class="btn btn-primary home-start-chat-btn" style="width:100%;" onclick="handleHomeChatStart(this)">✨ 궁금한 것 무료로 물어보기</button>
+          <button id="homeStartChatBtn" class="btn btn-primary home-start-chat-btn" style="width:100%;" onclick="handleHomeChatStart(this)">가입하고 AI 상담 시작하기 · 첫 3회 무료</button>
           <div class="home-conversion-trust"><span>카드등록 없음</span><i>·</i><span>자동결제 없음</span><i>·</i><span>저장한 사주로 계속 상담</span></div>
         </div>
 
@@ -9152,7 +9153,7 @@ function startAiChat() {
 /* 소개 화면의 4개 고민 카테고리 버튼입니다. 로그인/생년월일 입력이 끝나면
    자동으로 그 질문을 이어서 보내도록, 원하는 질문을 잠깐 기억해둡니다. */
 function handleHomeCategoryClick(btn, questionText) {
-  window.__pendingCategoryQuestion = questionText;
+  saveTodayFortunePendingQuestion(questionText);
   handleHomeChatStart(btn);
 }
 
@@ -9176,7 +9177,7 @@ async function updateHomeGuestHint() {
   if (hint) hint.style.display = loggedIn ? 'none' : 'block';
   if (startBtn) startBtn.textContent = loggedIn
     ? '✨ 연우와 상담 시작하기'
-    : '✨ 궁금한 것 무료로 물어보기';
+    : '가입하고 AI 상담 시작하기 · 첫 3회 무료';
 }
 
 async function handleHomeChatStart(btn) {
@@ -10936,3 +10937,19 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(setupAiShareObserver
 })();
 </script>
 
+
+<style id="yeonwoo-face-safe-layout">
+/* Keep text outside the portrait instead of guessing where the moving face will be. */
+#view-home .ai-chat-stage{display:flex;flex-direction:column;height:auto;max-height:none;aspect-ratio:auto;background:#10100f;border:1px solid var(--line);border-radius:24px;overflow:hidden}
+#view-home .ai-chat-stage>.ai-chat-topbar-overlay{position:relative;top:auto;left:auto;order:0;flex-shrink:0;padding:12px 16px;background:#10100f}
+#view-home .ai-chat-stage>.ai-chat-bgvideo{position:relative;inset:auto;order:1;display:block;flex-shrink:0;width:100%;height:clamp(260px,42svh,420px);object-fit:contain;object-position:center;background:#080808}
+#view-home .ai-chat-stage>.ai-chat-vignette-top,#view-home .ai-chat-stage>.ai-chat-vignette-bottom{display:none}
+#view-home .ai-chat-stage>.ai-chat-setup-overlay{position:relative;inset:auto;order:2;flex-shrink:0;width:100%;background:#10100f;padding:18px 16px}
+#view-home .ai-chat-stage>.ai-chat-panel-overlay{position:relative;inset:auto;order:2;flex-shrink:0;width:100%;height:clamp(360px,60svh,600px);background:#10100f}
+#view-home .home-conversion-bubble{max-width:100%;background:transparent;border:0;backdrop-filter:none;padding:0;margin-bottom:14px}
+#view-home .home-conversion-bubble strong{font-size:21px;line-height:1.4}
+#view-home .home-conversion-bubble span{font-size:12px;line-height:1.7}
+#view-home .home-conversion-trust{display:none}
+#view-home .home-first-block{scroll-snap-stop:normal}
+@media(max-width:640px){#view-home .ai-chat-stage{border-radius:20px}#view-home .ai-chat-stage>.ai-chat-bgvideo{height:clamp(240px,38svh,340px)}#view-home .home-conversion-bubble strong{font-size:19px}}
+</style>
