@@ -8,6 +8,11 @@
 <meta name="keywords" content="사주, 사주풀이, 무료사주, 사주궁합, 오늘의운세, 신년운세, 택일, 결혼택일, 이사택일, 개업택일, 손없는날, 만세력">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="https://taekilso.com/">
+<link rel="preconnect" href="https://accounts.google.com">
+<link rel="preconnect" href="https://www.googleapis.com">
+<link rel="preconnect" href="https://kauth.kakao.com">
+<link rel="preconnect" href="https://kapi.kakao.com">
+
 <meta property="og:title" content="택일소 · 이 날, 나에게 맞는 날일까요?">
 <meta property="og:description" content="결혼식, 이사, 개업, 계약처럼 중요한 날을 AI 사주 택일로 무료로 바로 확인해보세요.">
 <meta property="og:type" content="website">
@@ -4084,6 +4089,15 @@ function confirmDeleteAccount() {
   });
 }
 
+let cachedGoogleProvider = null;
+function getGoogleProvider(){
+  if (cachedGoogleProvider) return cachedGoogleProvider;
+  if (!firebaseReady || !window.firebase || !firebase.auth) return null;
+  cachedGoogleProvider = new firebase.auth.GoogleAuthProvider();
+  cachedGoogleProvider.setCustomParameters({ prompt: 'select_account' });
+  return cachedGoogleProvider;
+}
+
 async function loginWithGoogle() {
   if (!firebaseReady || !window.firebase || !firebase.auth) {
     document.getElementById('authSetupNotice').style.display = 'block';
@@ -4098,8 +4112,8 @@ async function loginWithGoogle() {
     // Prevent two local identity systems from being active at once.
     localStorage.removeItem(KAKAO_USER_KEY);
     sessionStorage.removeItem(KAKAO_USER_KEY);
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
+    const provider = getGoogleProvider();
+    if (!provider) throw new Error('Google 로그인 제공자를 준비하지 못했어요.');
     try {
       const result = await firebase.auth().signInWithPopup(provider);
       closeAuthModal();
@@ -4243,6 +4257,9 @@ async function exchangeKakaoCode(code) {
       throw new Error((tokenData.error || '오류') + ': ' + (tokenData.error_description || '토큰 발급 실패'));
     }
 
+    // 카카오 프로필 조회와 Firebase 보안 세션 연결은 서로 독립적이므로 동시에 시작합니다.
+    // 보안 검증을 생략하지 않고, 순차 대기 시간만 줄입니다.
+    const kakaoBridgePromise = ensureKakaoFirebaseSession(tokenData.access_token);
     const meRes = await fetch('https://kapi.kakao.com/v2/user/me', {
       headers: { Authorization: 'Bearer ' + tokenData.access_token }
     });
@@ -4266,7 +4283,7 @@ async function exchangeKakaoCode(code) {
     continueHomeChatAfterLogin();
 
     // Firestore 민감 데이터는 Firebase custom-token 인증이 된 뒤에만 접근합니다.
-    const bridgedUser = await ensureKakaoFirebaseSession(tokenData.access_token);
+    const bridgedUser = await kakaoBridgePromise;
     const firestoreUid = bridgedUser && !bridgedUser.isAnonymous ? bridgedUser.uid : null;
 
     if (db && firestoreUid) {
