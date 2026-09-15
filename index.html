@@ -2013,24 +2013,6 @@ footer{padding-bottom:90px}
   }
 }
 </style>
-<style id="faq-footer-free-scroll-fix">
-/* FAQ부터 footer(All rights reserved)까지는 PPT 스냅을 끄고 일반 세로 스크롤로 동작 */
-#view-home > .home-faq-section{
-  min-height:auto !important;
-  height:auto !important;
-  justify-content:flex-start !important;
-  scroll-snap-align:none !important;
-  scroll-snap-stop:normal !important;
-  overflow:visible !important;
-}
-html.snap-active.home-free-scroll{
-  scroll-snap-type:none !important;
-}
-body.home-faq-free-scroll{
-  overflow-y:auto !important;
-  overscroll-behavior-y:auto !important;
-}
-</style>
 <link rel="preconnect" href="https://accounts.google.com">
 <link rel="preconnect" href="https://www.googleapis.com">
 <link rel="preconnect" href="https://kauth.kakao.com">
@@ -10531,37 +10513,98 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(setupAiShareObserver
   window.addEventListener('orientationchange', () => setTimeout(applyViewport, 150), {passive:true});
 })();
 </script>
-<script id="faq-footer-free-scroll-fix-js">
-(function(){
-  function faqSection(){
-    return document.querySelector('#view-home > .home-faq-section');
+
+<style id="premium-faq-free-scroll-fix">
+/* 프리미엄 이후 FAQ/footer는 PPT 스냅 대상이 아니라 일반 문서 흐름으로 스크롤 */
+html.home-after-premium,
+html.home-after-premium body {
+  scroll-snap-type: none !important;
+}
+html.home-after-premium body {
+  overflow-y: auto !important;
+  overscroll-behavior-y: auto !important;
+}
+#view-home .pricing,
+#view-home [id*="premium"],
+#view-home .faq-section,
+#view-home .home-faq-section,
+#view-home footer {
+  scroll-snap-stop: normal !important;
+}
+#view-home .faq-section,
+#view-home .home-faq-section,
+#view-home footer {
+  scroll-snap-align: none !important;
+  min-height: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+</style>
+<script id="premium-faq-free-scroll-fix-js">
+(function () {
+  function homeVisible() {
+    var home = document.getElementById('view-home');
+    return home && !home.classList.contains('hidden') &&
+      getComputedStyle(home).display !== 'none';
   }
-  function setFreeScroll(on){
-    document.documentElement.classList.toggle('home-free-scroll', !!on);
-    document.body.classList.toggle('home-faq-free-scroll', !!on);
+
+  function getFaq() {
+    return document.querySelector(
+      '#view-home .home-faq-section, #view-home .faq-section, #view-home [id*="faq" i]'
+    );
   }
-  function updateFaqFreeScroll(){
-    const faq = faqSection();
-    if(!faq) return;
-    const r = faq.getBoundingClientRect();
-    /* FAQ 영역에 진입하면 footer까지 일반 스크롤. 위 PPT 영역으로 돌아가면 기존 스냅 복구. */
-    setFreeScroll(r.top <= Math.max(120, window.innerHeight * 0.45));
+
+  function getPremium() {
+    return document.querySelector(
+      '#view-home .pricing, #view-home [id*="premium" i], #view-home [class*="premium" i]'
+    );
   }
-  let ticking=false;
-  function onScroll(){
-    if(ticking) return;
-    ticking=true;
-    requestAnimationFrame(function(){
-      ticking=false;
-      updateFaqFreeScroll();
+
+  function update() {
+    if (!homeVisible()) {
+      document.documentElement.classList.remove('home-after-premium');
+      return;
+    }
+    var faq = getFaq();
+    var premium = getPremium();
+    if (!faq) return;
+
+    var faqRect = faq.getBoundingClientRect();
+    var premiumRect = premium ? premium.getBoundingClientRect() : null;
+
+    // FAQ가 다음 화면에 가까워졌거나 프리미엄 하단까지 내려오면 PPT snap 해제.
+    var release =
+      faqRect.top <= window.innerHeight * 1.15 ||
+      (premiumRect && premiumRect.bottom <= window.innerHeight * 1.05);
+
+    // 위쪽 PPT 구간으로 충분히 되돌아간 경우에만 기존 snap 복원.
+    if (!release && faqRect.top > window.innerHeight * 1.65) {
+      document.documentElement.classList.remove('home-after-premium');
+    } else if (release) {
+      document.documentElement.classList.add('home-after-premium');
+    }
+  }
+
+  var ticking = false;
+  function schedule() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () {
+      ticking = false;
+      update();
     });
   }
-  window.addEventListener('scroll', onScroll, {passive:true});
-  window.addEventListener('resize', updateFaqFreeScroll, {passive:true});
-  document.addEventListener('DOMContentLoaded', updateFaqFreeScroll);
-  updateFaqFreeScroll();
+
+  window.addEventListener('scroll', schedule, {passive:true});
+  window.addEventListener('wheel', schedule, {passive:true});
+  window.addEventListener('touchmove', schedule, {passive:true});
+  window.addEventListener('resize', schedule, {passive:true});
+  document.addEventListener('DOMContentLoaded', schedule);
+  setTimeout(schedule, 100);
+  setTimeout(schedule, 500);
 })();
 </script>
+
 </body>
 </html>
 
