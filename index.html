@@ -2340,6 +2340,12 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
         <!-- STEP 0: 소개 + 시작하기 (모두에게 동일하게 보임, 로그인 불필요) -->
         <div id="homeIntroOverlay" class="ai-chat-setup-overlay home-conversion-intro">
+          <div class="home-conversion-kicker">AI 사주 상담 · 첫 질문 3개 무료</div>
+          <div class="ai-chat-bubble-npc home-conversion-bubble">
+            <strong>지금 궁금한 걸 고르면, 연우가 내 사주로 바로 답해드려요.</strong>
+            <span>연애·돈·직업 고민부터 결혼·이사·개업 날짜까지 한 번 입력한 사주로 계속 상담할 수 있어요.</span>
+          </div>
+
           <div class="home-conversion-question">오늘 가장 궁금한 건 무엇인가요?</div>
           <div class="ai-chat-intro-categories home-conversion-categories">
             <button onclick="handleHomeCategoryClick(this, '올해 연애운과 궁합이 궁금해요')"><span>❤️</span> 연애·궁합</button>
@@ -6093,6 +6099,7 @@ function renderAdmin() {
     const list = document.getElementById('adminUserList');
     if (qs.empty) {
       list.innerHTML = '<div class="empty-note">아직 가입한 회원이 없어요.</div>';
+      filterAdminUserList('');
       filterAdminUserList('');
       const signupEl = document.getElementById('statSignups');
       const kakaoEl = document.getElementById('statKakaoMembers');
