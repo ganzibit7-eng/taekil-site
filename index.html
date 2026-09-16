@@ -2054,6 +2054,23 @@ footer{padding-bottom:90px}
 @media(max-width:640px){.admin-fold-toolbar{top:58px;padding:10px}.admin-fold-toolbar-main{align-items:flex-start}.admin-fold-toolbar-actions button{padding:6px 7px;font-size:9px}}
 </style>
 
+
+<style id="admin-overview-card-cleanup">
+/* 관리자 운영현황에서는 요청한 두 카드만 비표시. 데이터 로직은 그대로 보존. */
+#adminKakaoSignupCard,
+#adminRecent7dCard{display:none!important}
+</style>
+
+
+<style id="admin-menu-overview-style">
+.admin-menu-overview{margin:12px 0 16px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.admin-menu-overview button{min-height:54px;padding:10px 11px;border:1px solid rgba(255,255,255,.10);border-radius:13px;background:rgba(255,255,255,.025);color:var(--white);font:inherit;font-size:11px;font-weight:700;cursor:pointer;text-align:left}
+.admin-menu-overview button small{display:block;margin-bottom:3px;color:var(--gold);font-size:8px;letter-spacing:.12em}
+.admin-menu-overview button:hover{background:rgba(215,180,106,.08);border-color:rgba(215,180,106,.35)}
+.admin-fold{scroll-margin-top:150px}
+@media(max-width:640px){.admin-menu-overview{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.admin-menu-overview button{min-height:50px;font-size:10.5px}}
+</style>
+
 </head>
 <body>
 
@@ -2982,13 +2999,14 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <button type="button" onclick="setAllAdminFolds(false)">전체 접기</button>
     </div>
   </div>
-  <div class="admin-fold-shortcuts" aria-label="관리자 섹션 바로가기">
-    <button type="button" onclick="openAndGoAdminFold('adminFoldStats')">운영 통계</button>
-    <button type="button" onclick="openAndGoAdminFold('adminFoldFunnel')">전환 퍼널</button>
-    <button type="button" onclick="openAndGoAdminFold('adminFoldMembers')">회원 관리</button>
-    <button type="button" onclick="openAndGoAdminFold('adminFoldBans')">영구 밴</button>
-    <button type="button" onclick="openAndGoAdminFold('adminFoldSupport')">1:1 문의</button>
-  </div>
+  <div class="admin-menu-overview" aria-label="관리자 전체 메뉴">
+  <button type="button" onclick="openAndGoAdminFold('adminFoldStats')"><small>OVERVIEW</small>운영 현황</button>
+  <button type="button" onclick="openAndGoAdminFold('adminFoldFunnel')"><small>FUNNEL</small>오늘 전환 퍼널</button>
+  <button type="button" onclick="openAdminTrafficMenu()"><small>TRAFFIC</small>오늘 유입 경로</button>
+  <button type="button" onclick="openAndGoAdminFold('adminFoldMembers')"><small>MEMBERS</small>회원 관리</button>
+  <button type="button" onclick="openAndGoAdminFold('adminFoldBans')"><small>BANNED</small>영구 밴 관리</button>
+  <button type="button" onclick="openAndGoAdminFold('adminFoldSupport')"><small>SUPPORT</small>1:1 문의 관리</button>
+</div>
 </div>
 
 <div class="admin-fold" id="adminFoldStats">
@@ -3046,6 +3064,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
   </div>
 </div>
 
+        <div id="adminTrafficMenuAnchor" style="scroll-margin-top:150px"></div>
         <button id="adminTrafficSourceCard" type="button" onclick="toggleAdminTrafficSources()" aria-expanded="false"
           style="width:100%;margin:0 0 24px;padding:15px 16px;text-align:left;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.09);border-radius:16px;color:inherit;font:inherit;cursor:pointer;">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
@@ -10753,11 +10772,10 @@ function toggleAdminFold(id){
 }
 function restoreAdminFolds(){
   document.querySelectorAll('.admin-fold').forEach(box=>{
-    let open=false;
-    try{open=sessionStorage.getItem('taekilso_'+box.id)==='1';}catch(e){}
-    box.classList.toggle('open',open);
+    box.classList.remove('open');
     const btn=box.querySelector('.admin-fold-toggle');
-    if(btn) btn.setAttribute('aria-expanded',open?'true':'false');
+    if(btn) btn.setAttribute('aria-expanded','false');
+    try{sessionStorage.setItem('taekilso_'+box.id,'0');}catch(e){}
   });
 }
 document.addEventListener('DOMContentLoaded',restoreAdminFolds);
@@ -10781,6 +10799,26 @@ function openAndGoAdminFold(id){
   setAdminFoldState(box,true);
   requestAnimationFrame(()=>box.scrollIntoView({behavior:'smooth',block:'start'}));
 }
+</script>
+
+
+<script id="admin-menu-overview-js">
+function cleanAdminOverviewCards(){
+  const root=document.getElementById('adminFoldStats') || document;
+  root.querySelectorAll('.stat-card,.admin-stat-card,[class*="stat-card"]').forEach(card=>{
+    const txt=(card.textContent||'').replace(/\s+/g,' ').trim();
+    if(txt.includes('카카오 가입자') || txt.includes('최근 7일 접속')) card.style.display='none';
+  });
+}
+function openAdminTrafficMenu(){
+  const card=document.getElementById('adminTrafficSourceCard');
+  const details=document.getElementById('trafficSourceDetails');
+  const anchor=document.getElementById('adminTrafficMenuAnchor') || card;
+  if(details && details.style.display==='none') toggleAdminTrafficSources();
+  if(anchor) requestAnimationFrame(()=>anchor.scrollIntoView({behavior:'smooth',block:'start'}));
+}
+document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards);
+setTimeout(cleanAdminOverviewCards,300);
 </script>
 
 </body>
