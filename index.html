@@ -2050,7 +2050,7 @@ footer{padding-bottom:90px}
 
 .admin-fold-shortcuts{display:flex;gap:6px;overflow-x:auto;padding-top:9px;scrollbar-width:none}
 .admin-fold-shortcuts::-webkit-scrollbar{display:none}.admin-fold-shortcuts button{white-space:nowrap}
-.admin-fold-toggle:focus-visible,
+.admin-fold-toggle:focus-visible,.admin-menu-overview button:focus-visible{outline:2px solid rgba(215,180,106,.65);outline-offset:2px}
 @media(max-width:640px){.admin-fold-toolbar-actions button{padding:6px 7px;font-size:9px}}
 </style>
 
@@ -2063,12 +2063,12 @@ footer{padding-bottom:90px}
 
 
 <style id="admin-menu-overview-style">
-
-
-
-
+.admin-menu-overview{margin:12px 0 16px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.admin-menu-overview button{min-height:54px;padding:10px 11px;border:1px solid rgba(255,255,255,.10);border-radius:13px;background:rgba(255,255,255,.025);color:var(--white);font:inherit;font-size:11px;font-weight:700;cursor:pointer;text-align:left}
+.admin-menu-overview button small{display:block;margin-bottom:3px;color:var(--gold);font-size:8px;letter-spacing:.12em}
+.admin-menu-overview button:hover{background:rgba(215,180,106,.08);border-color:rgba(215,180,106,.35)}
 .admin-fold{scroll-margin-top:150px}
-@media(max-width:640px){}
+@media(max-width:640px){.admin-menu-overview{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.admin-menu-overview button{min-height:50px;font-size:10.5px}}
 </style>
 
 
@@ -2077,8 +2077,10 @@ html.admin-exclusive-mode,html.admin-exclusive-mode body{
   scroll-snap-type:none!important;
   overflow-y:auto!important;
 }
-/* 관리자 화면의 조상 컨테이너는 숨기지 않는다.
-   일반 사용자 영역은 아래의 명시적 선택자로만 숨긴다. */
+body.admin-exclusive-mode > *:not(#app):not(script):not(style),
+body.admin-exclusive-mode #app > *:not(#view-admin){
+  display:none!important;
+}
 body.admin-exclusive-mode #view-admin{
   display:block!important;
   min-height:100vh!important;
@@ -2101,8 +2103,24 @@ body.admin-exclusive-mode #view-admin > .section-head:first-child{
 }
 
 /* 관리자 전체 메뉴: 동일 크기/간격 */
-body.admin-exclusive-mode 
-body.admin-exclusive-mode 
+body.admin-exclusive-mode .admin-menu-overview{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:10px!important;
+  margin:0 0 16px!important;
+}
+body.admin-exclusive-mode .admin-menu-overview button{
+  min-width:0!important;
+  min-height:68px!important;
+  padding:12px 14px!important;
+  border-radius:14px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  gap:3px!important;
+  line-height:1.35!important;
+  box-sizing:border-box!important;
+}
 
 /* 빠른 메뉴/전체 접기 영역 */
 
@@ -2154,8 +2172,8 @@ body.admin-exclusive-mode #view-admin footer{
   body.admin-exclusive-mode #view-admin{padding-top:12px!important}
   body.admin-exclusive-mode #view-admin .admin-wrap,
   body.admin-exclusive-mode #view-admin .container{width:min(100% - 20px,1100px)!important}
-  body.admin-exclusive-mode 
-  body.admin-exclusive-mode 
+  body.admin-exclusive-mode .admin-menu-overview{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  body.admin-exclusive-mode .admin-menu-overview button{min-height:60px!important;padding:10px 11px!important}
   
   body.admin-exclusive-mode .admin-fold-toggle{min-height:58px!important;padding:12px 14px!important}
   body.admin-exclusive-mode .admin-fold-body{padding:0 13px 14px!important}
@@ -2163,86 +2181,26 @@ body.admin-exclusive-mode #view-admin footer{
 </style>
 
 
-<style id="admin-exclusive-safe-visibility">
-body.admin-exclusive-mode #view-home,
-body.admin-exclusive-mode #view-saju,
-body.admin-exclusive-mode #view-ai,
-body.admin-exclusive-mode #view-profile,
-body.admin-exclusive-mode #view-compatibility,
-body.admin-exclusive-mode #view-date,
-body.admin-exclusive-mode #view-fortune,
-body.admin-exclusive-mode #view-history,
-body.admin-exclusive-mode #view-premium,
-body.admin-exclusive-mode .bottom-nav,
-body.admin-exclusive-mode .home-more-cue,
-body.admin-exclusive-mode .seo-core-guides{
-  display:none!important;
+<style id="admin-performance-ui-fix">
+body.admin-exclusive-mode .admin-fold-toolbar,
+body.admin-exclusive-mode .admin-menu-overview,
+body.admin-exclusive-mode .admin-fold{
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
 }
 body.admin-exclusive-mode #view-admin{
-  display:block!important;
-  visibility:visible!important;
-  opacity:1!important;
+  contain:layout style;
 }
-</style>
-
-
-<style id="admin-strict-dashboard-only">
-/* 관리자 모드에서는 관리자 대시보드 외 일반 사용자 UI를 전부 비표시 */
-body.admin-exclusive-mode header:not(#view-admin header),
-body.admin-exclusive-mode nav:not(#view-admin nav),
-body.admin-exclusive-mode footer:not(#view-admin footer),
-body.admin-exclusive-mode .bottom-nav,
-body.admin-exclusive-mode .home-more-cue,
-body.admin-exclusive-mode .seo-core-guides,
-body.admin-exclusive-mode [class*="seo-guide"],
-body.admin-exclusive-mode [id*="seo-guide"],
-body.admin-exclusive-mode .home-guide,
-body.admin-exclusive-mode [class*="user-guide"]{
+body.admin-exclusive-mode .admin-fold:not(.open) .admin-fold-body{
   display:none!important;
 }
-
-/* 알려진 일반 사용자 view는 관리자 모드에서 절대 노출하지 않음 */
-body.admin-exclusive-mode #view-home,
-body.admin-exclusive-mode #view-saju,
-body.admin-exclusive-mode #view-ai,
-body.admin-exclusive-mode #view-profile,
-body.admin-exclusive-mode #view-compatibility,
-body.admin-exclusive-mode #view-date,
-body.admin-exclusive-mode #view-fortune,
-body.admin-exclusive-mode #view-history,
-body.admin-exclusive-mode #view-premium{
-  display:none!important;
-}
-
-/* 관리자 대시보드와 긴 접이식 관리자 카드만 표시 */
-body.admin-exclusive-mode #view-admin{
+body.admin-exclusive-mode .admin-fold.open .admin-fold-body{
   display:block!important;
-  visibility:visible!important;
-  opacity:1!important;
-  width:100%!important;
-  max-width:none!important;
 }
-body.admin-exclusive-mode #view-admin .admin-fold{
-  display:block!important;
-  width:100%!important;
-  margin:10px 0!important;
-}
-body.admin-exclusive-mode #view-admin .admin-fold-toggle{
-  width:100%!important;
-  min-height:64px!important;
-  box-sizing:border-box!important;
-}
-
-/* 혹시 관리자 view 내부에 섞인 일반 사주/궁합/운세 분석 UI는 숨김 */
-body.admin-exclusive-mode #view-admin .saju-card,
-body.admin-exclusive-mode #view-admin .saju-analysis,
-body.admin-exclusive-mode #view-admin [class*="saju-analysis"],
-body.admin-exclusive-mode #view-admin [id*="saju-analysis"],
-body.admin-exclusive-mode #view-admin .compatibility-card,
-body.admin-exclusive-mode #view-admin .fortune-card,
-body.admin-exclusive-mode #view-admin .date-tool,
-body.admin-exclusive-mode #view-admin .ai-chat-panel:not(.admin-ai-panel){
-  display:none!important;
+@media(max-width:760px){
+  body.admin-exclusive-mode #view-admin *{
+    scroll-behavior:auto!important;
+  }
 }
 </style>
 
@@ -3166,7 +3124,14 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <div class="container" style="max-width:800px;">
       <div id="adminDenied" style="display:none; text-align:center; color:var(--muted); padding:40px 0;">관리자 계정으로 로그인해야 볼 수 있어요.</div>
       <div id="adminContent" style="display:none;">
-
+<div class="admin-menu-overview" aria-label="관리자 전체 메뉴">
+  <button type="button" onclick="openAndGoAdminFold('adminFoldStats')"><small>OVERVIEW</small>운영 현황</button>
+  <button type="button" onclick="openAndGoAdminFold('adminFoldFunnel')"><small>FUNNEL</small>오늘 전환 퍼널</button>
+  <button type="button" onclick="openAdminTrafficMenu()"><small>TRAFFIC</small>오늘 유입 경로</button>
+  <button type="button" onclick="openAndGoAdminFold('adminFoldMembers')"><small>MEMBERS</small>회원 관리</button>
+  <button type="button" onclick="openAndGoAdminFold('adminFoldBans')"><small>BANNED</small>영구 밴 관리</button>
+  <button type="button" onclick="openAndGoAdminFold('adminFoldSupport')"><small>SUPPORT</small>1:1 문의 관리</button>
+</div>
 </div>
 
 <div class="admin-fold" id="adminFoldStats">
@@ -10977,131 +10942,29 @@ function openAdminTrafficMenu(){
   if(details && details.style.display==='none') toggleAdminTrafficSources();
   if(anchor) requestAnimationFrame(()=>anchor.scrollIntoView({behavior:'smooth',block:'start'}));
 }
-document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards);
-setTimeout(cleanAdminOverviewCards,300);
+document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true});
 </script>
 
 
 <script id="admin-exclusive-mode-js">
 (function(){
+  let lastAdminVisible=null;
   function syncAdminExclusiveMode(){
     const admin=document.getElementById('view-admin');
     if(!admin) return;
-    const cs=getComputedStyle(admin);
-    const visible=cs.display!=='none' && cs.visibility!=='hidden' && !admin.hidden;
+    const visible=admin.style.display!=='none' && !admin.hidden &&
+      !admin.classList.contains('hidden') &&
+      getComputedStyle(admin).display!=='none';
+    if(visible===lastAdminVisible) return;
+    lastAdminVisible=visible;
     document.body.classList.toggle('admin-exclusive-mode',visible);
     document.documentElement.classList.toggle('admin-exclusive-mode',visible);
   }
-  document.addEventListener('DOMContentLoaded',()=>{
-    syncAdminExclusiveMode();
-    const admin=document.getElementById('view-admin');
-    if(admin){
-      new MutationObserver(syncAdminExclusiveMode).observe(admin,{
-        attributes:true,attributeFilter:['class','style','hidden']
-      });
-    }
-    new MutationObserver(syncAdminExclusiveMode).observe(document.body,{
-      attributes:true,attributeFilter:['class']
-    });
-  });
-  window.addEventListener('hashchange',()=>requestAnimationFrame(syncAdminExclusiveMode));
-  document.addEventListener('click',()=>setTimeout(syncAdminExclusiveMode,0),true);
-})();
-</script>
-
-
-<script id="admin-view-visibility-repair">
-(function(){
-  function adminViewIsSelected(){
-    const admin=document.getElementById('view-admin');
-    if(!admin) return false;
-    return admin.classList.contains('active') ||
-           admin.style.display==='block' ||
-           location.hash==='#admin';
-  }
-  function repairAdminVisibility(){
-    const admin=document.getElementById('view-admin');
-    if(!admin) return;
-    const selected=adminViewIsSelected();
-    document.body.classList.toggle('admin-exclusive-mode',selected);
-    document.documentElement.classList.toggle('admin-exclusive-mode',selected);
-    if(selected){
-      let p=admin.parentElement;
-      while(p && p!==document.body){
-        if(getComputedStyle(p).display==='none') p.style.display='';
-        p=p.parentElement;
-      }
-      admin.style.display='block';
-      admin.style.visibility='visible';
-      admin.style.opacity='1';
-    }
-  }
-  document.addEventListener('DOMContentLoaded',()=>{
-    repairAdminVisibility();
-    const admin=document.getElementById('view-admin');
-    if(admin){
-      new MutationObserver(()=>requestAnimationFrame(repairAdminVisibility))
-        .observe(admin,{attributes:true,attributeFilter:['class','style','hidden']});
-    }
-  });
-  document.addEventListener('click',e=>{
-    const el=e.target.closest && e.target.closest('[onclick*="admin"],[data-view="admin"],[href="#admin"]');
-    if(el) setTimeout(repairAdminVisibility,0);
-  },true);
-  window.addEventListener('hashchange',()=>setTimeout(repairAdminVisibility,0));
-})();
-</script>
-
-
-<script id="admin-strict-dashboard-only-js">
-(function(){
-  function isAdminSelected(admin){
-    if(!admin) return false;
-    return admin.classList.contains('active') ||
-           admin.style.display==='block' ||
-           location.hash==='#admin';
-  }
-  function syncStrictAdminDashboard(){
-    const admin=document.getElementById('view-admin');
-    if(!admin) return;
-    const active=isAdminSelected(admin);
-    document.body.classList.toggle('admin-exclusive-mode',active);
-    document.documentElement.classList.toggle('admin-exclusive-mode',active);
-
-    document.querySelectorAll('[id^="view-"]').forEach(view=>{
-      if(view===admin) return;
-      if(active){
-        if(!view.dataset.adminPrevDisplay) view.dataset.adminPrevDisplay=view.style.display||'__empty__';
-        view.style.setProperty('display','none','important');
-      }else if(view.dataset.adminPrevDisplay){
-        const prev=view.dataset.adminPrevDisplay;
-        view.style.removeProperty('display');
-        if(prev!=='__empty__') view.style.display=prev;
-        delete view.dataset.adminPrevDisplay;
-      }
-    });
-
-    if(active){
-      // Never hide admin ancestors.
-      let p=admin.parentElement;
-      while(p && p!==document.body){
-        p.style.removeProperty('display');
-        p=p.parentElement;
-      }
-      admin.style.setProperty('display','block','important');
-      admin.style.setProperty('visibility','visible','important');
-    }
-  }
-  document.addEventListener('DOMContentLoaded',()=>{
-    syncStrictAdminDashboard();
-    const admin=document.getElementById('view-admin');
-    if(admin){
-      new MutationObserver(()=>requestAnimationFrame(syncStrictAdminDashboard))
-        .observe(admin,{attributes:true,attributeFilter:['class','style','hidden']});
-    }
-  });
-  document.addEventListener('click',()=>setTimeout(syncStrictAdminDashboard,0),true);
-  window.addEventListener('hashchange',()=>setTimeout(syncStrictAdminDashboard,0));
+  window.syncAdminExclusiveMode=syncAdminExclusiveMode;
+  document.addEventListener('DOMContentLoaded',syncAdminExclusiveMode,{once:true});
+  window.addEventListener('hashchange',syncAdminExclusiveMode,{passive:true});
+  window.addEventListener('popstate',syncAdminExclusiveMode,{passive:true});
+  window.addEventListener('pageshow',syncAdminExclusiveMode,{passive:true});
 })();
 </script>
 
