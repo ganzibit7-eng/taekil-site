@@ -2024,6 +2024,22 @@ footer{padding-bottom:90px}
 .legal-detail-section .legal-block p{margin:0;color:var(--muted);font-size:12px;line-height:1.85;word-break:keep-all}
 @media(max-width:640px){.legal-detail-section{padding:26px 15px 8px}.legal-detail-section h2{font-size:21px}.legal-detail-section .legal-block{padding:16px 15px}.legal-detail-section .legal-block h3{font-size:13px}.legal-detail-section .legal-block p{font-size:11.5px;line-height:1.8}}
 </style>
+
+<style id="admin-dashboard-accordion-style">
+.admin-fold{margin:18px 0 0;border:1px solid rgba(255,255,255,.09);border-radius:18px;background:rgba(255,255,255,.018);overflow:hidden}
+.admin-fold-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:17px 18px;background:transparent;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.admin-fold-toggle:hover{background:rgba(255,255,255,.025)}
+.admin-fold-title{display:flex;flex-direction:column;gap:3px}
+.admin-fold-title small{font-size:9px;letter-spacing:.16em;color:var(--gold);font-weight:800}
+.admin-fold-title b{font-size:17px;color:var(--white)}
+.admin-fold-chevron{font-size:19px;color:var(--muted-2);transition:transform .2s ease}
+.admin-fold.open .admin-fold-chevron{transform:rotate(180deg)}
+.admin-fold-body{display:none;padding:0 18px 18px}
+.admin-fold.open .admin-fold-body{display:block}
+.admin-fold-body > .section-head:first-child{margin-top:4px!important}
+@media(max-width:640px){.admin-fold-toggle{padding:15px}.admin-fold-body{padding:0 14px 15px}.admin-fold-title b{font-size:15px}}
+</style>
+
 </head>
 <body>
 
@@ -2944,6 +2960,12 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <div class="container" style="max-width:800px;">
       <div id="adminDenied" style="display:none; text-align:center; color:var(--muted); padding:40px 0;">관리자 계정으로 로그인해야 볼 수 있어요.</div>
       <div id="adminContent" style="display:none;">
+<div class="admin-fold" id="adminFoldStats">
+  <button type="button" class="admin-fold-toggle" onclick="toggleAdminFold('adminFoldStats')" aria-expanded="false">
+    <span class="admin-fold-title"><small>OVERVIEW</small><b>운영 통계</b></span>
+    <span class="admin-fold-chevron">⌄</span>
+  </button>
+  <div class="admin-fold-body">
         <div class="admin-stats">
           <div class="admin-stat"><small>누적 방문수</small><b id="statVisits">–</b></div>
           <div class="admin-stat"><small>오늘 방문수 · 00시 초기화</small><b id="statTodayVisits">–</b></div>
@@ -2959,6 +2981,16 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <div class="admin-stat"><small>답변 대기 문의</small><b id="statPendingInquiries" style="color:var(--warn);">–</b></div>
         </div>
 
+
+  </div>
+</div>
+
+<div class="admin-fold" id="adminFoldFunnel">
+  <button type="button" class="admin-fold-toggle" onclick="toggleAdminFold('adminFoldFunnel')" aria-expanded="false">
+    <span class="admin-fold-title"><small>TODAY FUNNEL · KST</small><b>오늘 전환 퍼널</b></span>
+    <span class="admin-fold-chevron">⌄</span>
+  </button>
+  <div class="admin-fold-body">
         <div class="section-head" style="margin-top:40px;">
           <div>
             <div class="section-kicker">TODAY FUNNEL · KST</div>
@@ -2979,6 +3011,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         </div>
         <div id="adminFunnelHint" class="price-note" style="margin:0 0 24px;">오늘 데이터가 쌓이면 가장 큰 이탈 구간을 자동으로 표시합니다.</div>
 
+
+  </div>
+</div>
+
         <button id="adminTrafficSourceCard" type="button" onclick="toggleAdminTrafficSources()" aria-expanded="false"
           style="width:100%;margin:0 0 24px;padding:15px 16px;text-align:left;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.09);border-radius:16px;color:inherit;font:inherit;cursor:pointer;">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
@@ -2992,6 +3028,12 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <div id="trafficSourceDetails" style="display:none;margin-top:13px;padding-top:13px;border-top:1px solid rgba(255,255,255,.08);"></div>
         </button>
 
+<div class="admin-fold" id="adminFoldMembers">
+  <button type="button" class="admin-fold-toggle" onclick="toggleAdminFold('adminFoldMembers')" aria-expanded="false">
+    <span class="admin-fold-title"><small>MEMBERS</small><b>회원 관리</b></span>
+    <span class="admin-fold-chevron">⌄</span>
+  </button>
+  <div class="admin-fold-body">
         <div class="section-head" style="margin-top:40px;">
           <div><div class="section-kicker">MEMBERS</div><h2 class="section-title" style="font-size:24px;">회원 목록</h2></div>
         </div>
@@ -3012,6 +3054,16 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <div id="adminUserList" class="usecase-list"></div>
         <div class="price-note" style="margin-top:20px;">※ 최근 접속시간은 이 버전 배포 후 로그인/재접속한 회원부터 기록됩니다. 문의 이력이 있으면 최근 문의가 표시됩니다. 프리미엄 회원 정보가 일부 누락되어도 서버의 결제 완료 기록(paymentOrders)을 기준으로 자동 복구하며, 관리자 회수 이력이 더 최신인 경우에는 복구하지 않습니다.</div>
 
+
+  </div>
+</div>
+
+<div class="admin-fold" id="adminFoldBans">
+  <button type="button" class="admin-fold-toggle" onclick="toggleAdminFold('adminFoldBans')" aria-expanded="false">
+    <span class="admin-fold-title"><small>BANNED</small><b>영구 밴 관리</b></span>
+    <span class="admin-fold-chevron">⌄</span>
+  </button>
+  <div class="admin-fold-body">
         <div id="adminBanSection" class="admin-ban-section">
           <div class="admin-ban-head">
             <div>
@@ -3028,10 +3080,22 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           </div>
         </div>
 
+
+  </div>
+</div>
+
+<div class="admin-fold" id="adminFoldSupport">
+  <button type="button" class="admin-fold-toggle" onclick="toggleAdminFold('adminFoldSupport')" aria-expanded="false">
+    <span class="admin-fold-title"><small>SUPPORT</small><b>1:1 문의 관리</b></span>
+    <span class="admin-fold-chevron">⌄</span>
+  </button>
+  <div class="admin-fold-body">
         <div class="section-head" style="margin-top:40px;">
           <div><div class="section-kicker">SUPPORT</div><h2 class="section-title" style="font-size:24px;">1:1 문의 관리</h2></div>
         </div>
         <div id="adminInquiryList"></div>
+  </div>
+</div>
       </div>
     </div>
   </section>
@@ -10643,6 +10707,29 @@ html.home-after-premium body {
   setTimeout(schedule, 100);
   setTimeout(schedule, 500);
 })();
+</script>
+
+
+<script id="admin-dashboard-accordion-js">
+function toggleAdminFold(id){
+  const box=document.getElementById(id);
+  if(!box) return;
+  const willOpen=!box.classList.contains('open');
+  box.classList.toggle('open',willOpen);
+  const btn=box.querySelector('.admin-fold-toggle');
+  if(btn) btn.setAttribute('aria-expanded',willOpen?'true':'false');
+  try{sessionStorage.setItem('taekilso_'+id,willOpen?'1':'0');}catch(e){}
+}
+function restoreAdminFolds(){
+  document.querySelectorAll('.admin-fold').forEach(box=>{
+    let open=false;
+    try{open=sessionStorage.getItem('taekilso_'+box.id)==='1';}catch(e){}
+    box.classList.toggle('open',open);
+    const btn=box.querySelector('.admin-fold-toggle');
+    if(btn) btn.setAttribute('aria-expanded',open?'true':'false');
+  });
+}
+document.addEventListener('DOMContentLoaded',restoreAdminFolds);
 </script>
 
 </body>
