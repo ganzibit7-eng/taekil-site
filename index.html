@@ -2042,16 +2042,16 @@ footer{padding-bottom:90px}
 
 
 <style id="admin-fold-toolbar-style">
-.admin-fold-toolbar{position:sticky;top:70px;z-index:8;margin:12px 0 16px;padding:12px 14px;border:1px solid rgba(215,180,106,.18);border-radius:16px;background:rgba(18,16,13,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(0,0,0,.18)}
-.admin-fold-toolbar-main{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.admin-fold-toolbar-main>b{font-size:12px;color:#f0d99e}
-.admin-fold-toolbar-actions{display:flex;gap:6px}
-.admin-fold-toolbar button{border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.035);color:var(--muted);border-radius:9px;padding:7px 9px;font-size:10px;cursor:pointer}
-.admin-fold-toolbar button:hover{border-color:rgba(215,180,106,.4);color:var(--white)}
+
+
+
+
+
+
 .admin-fold-shortcuts{display:flex;gap:6px;overflow-x:auto;padding-top:9px;scrollbar-width:none}
 .admin-fold-shortcuts::-webkit-scrollbar{display:none}.admin-fold-shortcuts button{white-space:nowrap}
-.admin-fold-toggle:focus-visible,.admin-fold-toolbar button:focus-visible{outline:2px solid rgba(215,180,106,.65);outline-offset:2px}
-@media(max-width:640px){.admin-fold-toolbar{top:58px;padding:10px}.admin-fold-toolbar-main{align-items:flex-start}.admin-fold-toolbar-actions button{padding:6px 7px;font-size:9px}}
+.admin-fold-toggle:focus-visible,.admin-menu-overview button:focus-visible{outline:2px solid rgba(215,180,106,.65);outline-offset:2px}
+@media(max-width:640px){.admin-fold-toolbar-actions button{padding:6px 7px;font-size:9px}}
 </style>
 
 
@@ -2123,13 +2123,6 @@ body.admin-exclusive-mode .admin-menu-overview button{
 }
 
 /* 빠른 메뉴/전체 접기 영역 */
-body.admin-exclusive-mode .admin-fold-toolbar{
-  position:sticky!important;
-  top:10px!important;
-  margin:0 0 16px!important;
-  padding:12px!important;
-  border-radius:16px!important;
-}
 
 /* 모든 접이식 메뉴의 폭·여백·제목 높이를 통일 */
 body.admin-exclusive-mode .admin-fold{
@@ -2181,7 +2174,7 @@ body.admin-exclusive-mode #view-admin footer{
   body.admin-exclusive-mode #view-admin .container{width:min(100% - 20px,1100px)!important}
   body.admin-exclusive-mode .admin-menu-overview{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
   body.admin-exclusive-mode .admin-menu-overview button{min-height:60px!important;padding:10px 11px!important}
-  body.admin-exclusive-mode .admin-fold-toolbar{top:6px!important}
+  
   body.admin-exclusive-mode .admin-fold-toggle{min-height:58px!important;padding:12px 14px!important}
   body.admin-exclusive-mode .admin-fold-body{padding:0 13px 14px!important}
 }
@@ -3107,15 +3100,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <div class="container" style="max-width:800px;">
       <div id="adminDenied" style="display:none; text-align:center; color:var(--muted); padding:40px 0;">관리자 계정으로 로그인해야 볼 수 있어요.</div>
       <div id="adminContent" style="display:none;">
-<div class="admin-fold-toolbar" id="adminFoldToolbar">
-  <div class="admin-fold-toolbar-main">
-    <b>관리자 빠른 메뉴</b>
-    <div class="admin-fold-toolbar-actions">
-      <button type="button" onclick="setAllAdminFolds(true)">전체 펼치기</button>
-      <button type="button" onclick="setAllAdminFolds(false)">전체 접기</button>
-    </div>
-  </div>
-  <div class="admin-menu-overview" aria-label="관리자 전체 메뉴">
+<div class="admin-menu-overview" aria-label="관리자 전체 메뉴">
   <button type="button" onclick="openAndGoAdminFold('adminFoldStats')"><small>OVERVIEW</small>운영 현황</button>
   <button type="button" onclick="openAndGoAdminFold('adminFoldFunnel')"><small>FUNNEL</small>오늘 전환 퍼널</button>
   <button type="button" onclick="openAdminTrafficMenu()"><small>TRAFFIC</small>오늘 유입 경로</button>
