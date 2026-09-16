@@ -2040,6 +2040,20 @@ footer{padding-bottom:90px}
 @media(max-width:640px){.admin-fold-toggle{padding:15px}.admin-fold-body{padding:0 14px 15px}.admin-fold-title b{font-size:15px}}
 </style>
 
+
+<style id="admin-fold-toolbar-style">
+.admin-fold-toolbar{position:sticky;top:70px;z-index:8;margin:12px 0 16px;padding:12px 14px;border:1px solid rgba(215,180,106,.18);border-radius:16px;background:rgba(18,16,13,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.admin-fold-toolbar-main{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.admin-fold-toolbar-main>b{font-size:12px;color:#f0d99e}
+.admin-fold-toolbar-actions{display:flex;gap:6px}
+.admin-fold-toolbar button{border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.035);color:var(--muted);border-radius:9px;padding:7px 9px;font-size:10px;cursor:pointer}
+.admin-fold-toolbar button:hover{border-color:rgba(215,180,106,.4);color:var(--white)}
+.admin-fold-shortcuts{display:flex;gap:6px;overflow-x:auto;padding-top:9px;scrollbar-width:none}
+.admin-fold-shortcuts::-webkit-scrollbar{display:none}.admin-fold-shortcuts button{white-space:nowrap}
+.admin-fold-toggle:focus-visible,.admin-fold-toolbar button:focus-visible{outline:2px solid rgba(215,180,106,.65);outline-offset:2px}
+@media(max-width:640px){.admin-fold-toolbar{top:58px;padding:10px}.admin-fold-toolbar-main{align-items:flex-start}.admin-fold-toolbar-actions button{padding:6px 7px;font-size:9px}}
+</style>
+
 </head>
 <body>
 
@@ -2960,6 +2974,23 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <div class="container" style="max-width:800px;">
       <div id="adminDenied" style="display:none; text-align:center; color:var(--muted); padding:40px 0;">관리자 계정으로 로그인해야 볼 수 있어요.</div>
       <div id="adminContent" style="display:none;">
+<div class="admin-fold-toolbar" id="adminFoldToolbar">
+  <div class="admin-fold-toolbar-main">
+    <b>관리자 빠른 메뉴</b>
+    <div class="admin-fold-toolbar-actions">
+      <button type="button" onclick="setAllAdminFolds(true)">전체 펼치기</button>
+      <button type="button" onclick="setAllAdminFolds(false)">전체 접기</button>
+    </div>
+  </div>
+  <div class="admin-fold-shortcuts" aria-label="관리자 섹션 바로가기">
+    <button type="button" onclick="openAndGoAdminFold('adminFoldStats')">운영 통계</button>
+    <button type="button" onclick="openAndGoAdminFold('adminFoldFunnel')">전환 퍼널</button>
+    <button type="button" onclick="openAndGoAdminFold('adminFoldMembers')">회원 관리</button>
+    <button type="button" onclick="openAndGoAdminFold('adminFoldBans')">영구 밴</button>
+    <button type="button" onclick="openAndGoAdminFold('adminFoldSupport')">1:1 문의</button>
+  </div>
+</div>
+
 <div class="admin-fold" id="adminFoldStats">
   <button type="button" class="admin-fold-toggle" onclick="toggleAdminFold('adminFoldStats')" aria-expanded="false">
     <span class="admin-fold-title"><small>OVERVIEW</small><b>운영 통계</b></span>
@@ -10730,6 +10761,26 @@ function restoreAdminFolds(){
   });
 }
 document.addEventListener('DOMContentLoaded',restoreAdminFolds);
+</script>
+
+
+<script id="admin-fold-toolbar-js">
+function setAdminFoldState(box,open){
+  if(!box) return;
+  box.classList.toggle('open',!!open);
+  const btn=box.querySelector('.admin-fold-toggle');
+  if(btn) btn.setAttribute('aria-expanded',open?'true':'false');
+  try{sessionStorage.setItem('taekilso_'+box.id,open?'1':'0');}catch(e){}
+}
+function setAllAdminFolds(open){
+  document.querySelectorAll('.admin-fold').forEach(box=>setAdminFoldState(box,open));
+}
+function openAndGoAdminFold(id){
+  const box=document.getElementById(id);
+  if(!box) return;
+  setAdminFoldState(box,true);
+  requestAnimationFrame(()=>box.scrollIntoView({behavior:'smooth',block:'start'}));
+}
 </script>
 
 </body>
