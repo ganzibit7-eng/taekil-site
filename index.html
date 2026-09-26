@@ -3131,6 +3131,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
   <button type="button" onclick="openAndGoAdminFold('adminFoldStats')"><small>OVERVIEW</small>운영 현황</button>
   <button type="button" onclick="openAndGoAdminFold('adminFoldFunnel')"><small>FUNNEL</small>오늘 전환 퍼널</button>
   <button type="button" onclick="openAdminTrafficMenu()"><small>TRAFFIC</small>오늘 유입 경로</button>
+  <button type="button" onclick="openAndGoAdminFold('adminFoldSeo')"><small>SEO</small>SEO 성과</button>
   <button type="button" onclick="openAndGoAdminFold('adminFoldMembers')"><small>MEMBERS</small>회원 관리</button>
   <button type="button" onclick="openAndGoAdminFold('adminFoldBans')"><small>BANNED</small>영구 밴 관리</button>
   <button type="button" onclick="openAndGoAdminFold('adminFoldSupport')"><small>SUPPORT</small>1:1 문의 관리</button>
@@ -3189,6 +3190,24 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <div id="adminFunnelHint" class="price-note" style="margin:0 0 24px;">오늘 데이터가 쌓이면 가장 큰 이탈 구간을 자동으로 표시합니다.</div>
 
 
+  </div>
+</div>
+
+<div class="admin-fold" id="adminFoldSeo">
+  <button type="button" class="admin-fold-toggle" onclick="toggleAdminFold('adminFoldSeo')" aria-expanded="false">
+    <span class="admin-fold-title"><small>SEO · KST</small><b>SEO 성과</b></span><span class="admin-fold-chevron">⌄</span>
+  </button>
+  <div class="admin-fold-body">
+    <div class="price-note" style="margin:16px 0 12px;">검색 가이드에서 메인 상담으로 넘어온 세션을 익명 집계합니다. 질문·사주·이메일은 저장하지 않습니다.</div>
+    <div id="adminSeoSummary" class="admin-stats" style="margin-bottom:12px;">
+      <div class="admin-stat"><small>SEO 상담 유입</small><b id="seoVisits">0</b></div>
+      <div class="admin-stat"><small>가입</small><b id="seoSignups">0</b></div>
+      <div class="admin-stat"><small>첫 AI 답변</small><b id="seoFirstAi">0</b></div>
+      <div class="admin-stat"><small>무료 3회 소진</small><b id="seoFreeDone">0</b></div>
+      <div class="admin-stat"><small>결제 완료</small><b id="seoPurchases">0</b></div>
+      <div class="admin-stat"><small>SEO→결제</small><b id="seoPurchaseRate">0%</b></div>
+    </div>
+    <div id="adminSeoLandingRows" class="price-note" style="margin:0 0 24px;">SEO 유입 데이터가 쌓이면 랜딩페이지별 성과를 표시합니다.</div>
   </div>
 </div>
 
@@ -5039,6 +5058,7 @@ async function recordSignup(uid, data) {
       // 레거시 통계도 유지하되, 관리자 화면의 총 가입자수는 실제 users 문서 수를 사용합니다.
       bumpStat('signups');
       bumpDailyFunnel('signups');
+      trackSeoConversion('signups');
       return;
     }
 
@@ -6186,6 +6206,25 @@ function renderAdmin() {
     }, err=>console.warn('오늘 전환 퍼널 조회 실패',err));
   }
   watchTodayFunnelKst();
+  let adminSeoUnsub=null;
+  function renderSeoLandingPerformance(rows){
+    const sum={visits:0,signups:0,firstAiAnswers:0,freeLimitExhausted:0,purchases:0};
+    rows.forEach(x=>Object.keys(sum).forEach(k=>sum[k]+=Number(x[k]||0)));
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    set('seoVisits',sum.visits.toLocaleString('ko-KR')); set('seoSignups',sum.signups.toLocaleString('ko-KR'));
+    set('seoFirstAi',sum.firstAiAnswers.toLocaleString('ko-KR')); set('seoFreeDone',sum.freeLimitExhausted.toLocaleString('ko-KR'));
+    set('seoPurchases',sum.purchases.toLocaleString('ko-KR')); set('seoPurchaseRate',sum.visits?Math.round(sum.purchases/sum.visits*1000)/10+'%':'0%');
+    const box=document.getElementById('adminSeoLandingRows'); if(!box)return;
+    const top=rows.slice().sort((a,b)=>(Number(b.purchases||0)-Number(a.purchases||0))||(Number(b.visits||0)-Number(a.visits||0))).slice(0,12);
+    box.innerHTML=top.length?top.map(x=>{const v=Number(x.visits||0),p=Number(x.purchases||0);return '<div style="display:grid;grid-template-columns:1fr auto auto;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span>/'+String(x.slug||'')+'/</span><span>'+v+'명</span><b style="color:var(--gold)">'+p+'결제 · '+(v?Math.round(p/v*1000)/10:0)+'%</b></div>';}).join(''):'SEO 유입 데이터가 쌓이면 랜딩페이지별 성과를 표시합니다.';
+  }
+  function watchSeoLandingPerformance(){
+    if(adminSeoUnsub){adminSeoUnsub();adminSeoUnsub=null;}
+    const key=getKstDateKey();
+    adminSeoUnsub=db.collection('dailySeoLanding').where('date','==',key).onSnapshot(s=>renderSeoLandingPerformance(s.docs.map(d=>d.data()||{})),()=>{});
+  }
+  watchSeoLandingPerformance();
+
 
   let adminTrafficSourceUnsub=null;
   function trafficPct(n,total){ return total ? Math.round((Number(n||0)/total)*100) : 0; }
@@ -7643,6 +7682,7 @@ function tryActivatePendingPremium() {
             }
           }
 
+          trackSeoConversion('purchases');
           trackAiFunnel('question_pack_purchase_confirmed', {
             product: pending.product,
             credits: confirmedCredits
@@ -7678,6 +7718,7 @@ function tryActivatePendingPremium() {
           }, 700);
         } else {
           trackAiFunnel('premium_purchase_confirmed', {});
+          trackSeoConversion('purchases');
           showToast('프리미엄이 활성화됐어요!' + (getPendingPaidAiQuestion() ? ' 이전 질문을 이어갈게요.' : ''));
           setTimeout(() => {
             if (!restored) restoreActiveAiConversation({ silent:true });
@@ -9650,6 +9691,39 @@ function clearPendingPaidAiQuestion(){
   try{localStorage.removeItem(AI_PENDING_PAID_QUESTION_KEY);}catch(e){}
 }
 
+const TAEKILSO_SEO_ATTR_KEY='taekilso_seo_attribution_v1';
+const TAEKILSO_SEO_GUIDE_SLUGS=new Set(['2026-fortune','job-change-fortune','reunion-fortune','gapmok-day-master','eulmok-day-master','byeonghwa-day-master','jeonghwa-day-master','mujeong-day-master','gito-day-master','gyeonggeum-day-master','singeum-day-master','imsu-day-master','gyesu-day-master','employment-fortune','business-fortune','marriage-fortune','daewoon-guide','sewoon-guide','love-fortune','career-fortune','money-fortune','relationship-fortune','monthly-fortune','saju-compatibility-guide','marriage-date-guide','moving-date-guide','opening-date-guide','saju-guide']);
+function getSeoAttribution(){
+  try{const x=JSON.parse(localStorage.getItem(TAEKILSO_SEO_ATTR_KEY)||'null');if(!x||!x.slug||Date.now()-Number(x.at||0)>30*24*60*60*1000)return null;return x;}catch(e){return null;}
+}
+function captureSeoAttributionFromUrl(){
+  try{
+    const p=new URLSearchParams(location.search), slug=String(p.get('seo_landing')||'').trim();
+    if(!TAEKILSO_SEO_GUIDE_SLUGS.has(slug))return;
+    const x={slug,at:Date.now()};
+    localStorage.setItem(TAEKILSO_SEO_ATTR_KEY,JSON.stringify(x));
+    sessionStorage.setItem('taekilso_seo_session_'+slug,'1');
+    bumpDailySeoLanding('visits',slug,true);
+  }catch(e){}
+}
+function seoSafeSlug(slug){return String(slug||'').toLowerCase().replace(/[^a-z0-9-]/g,'').slice(0,50);}
+function bumpDailySeoLanding(field,slug,once){
+  if(!db)return;
+  slug=seoSafeSlug(slug); if(!TAEKILSO_SEO_GUIDE_SLUGS.has(slug))return;
+  const allowed=new Set(['visits','signups','firstAiAnswers','freeLimitExhausted','purchases']); if(!allowed.has(field))return;
+  const key='seo_'+getKstDateKey()+'_'+slug+'_'+field;
+  if(once){try{if(localStorage.getItem(key))return;localStorage.setItem(key,'1');}catch(e){}}
+  db.collection('dailySeoLanding').doc(getKstDateKey()+'__'+slug).set({date:getKstDateKey(),slug,[field]:firebase.firestore.FieldValue.increment(1)},{merge:true}).catch(()=>{});
+}
+function trackSeoConversion(field){
+  const x=getSeoAttribution(); if(!x)return;
+  const uid=getCurrentUserKey()||'guest';
+  const k='seo_conv_'+field+'_'+x.slug+'_'+uid;
+  try{if(localStorage.getItem(k))return;localStorage.setItem(k,'1');}catch(e){}
+  bumpDailySeoLanding(field,x.slug,false);
+}
+setTimeout(captureSeoAttributionFromUrl,900);
+
 const DAILY_FUNNEL_EVENT_MAP = {
   today_fortune_result_view: 'fortuneResults',
   today_fortune_to_ai_click: 'aiCtaClicks',
@@ -10038,6 +10112,7 @@ async function sendAiChatMessage() {
       if (!localStorage.getItem(firstAiKey)) {
         localStorage.setItem(firstAiKey, String(Date.now()));
         bumpDailyFunnel('firstAiAnswers');
+        trackSeoConversion('firstAiAnswers');
       }
     } catch(e) {}
 
@@ -10063,7 +10138,7 @@ async function sendAiChatMessage() {
       updateAiChatStatus(data.freeUsed, data.freeLimit, false, data);
       const freeDone = Number(data.freeUsed) >= Number(data.freeLimit || 3);
       trackAiFunnel(`free_question_${Number(data.freeUsed)}`, { question: message });
-      if (freeDone) trackAiFunnel('free_limit_exhausted', { question: message });
+      if (freeDone) { trackAiFunnel('free_limit_exhausted', { question: message }); trackSeoConversion('freeLimitExhausted'); }
       showAiFollowups(message, data.reply, data.freeUsed, data.freeLimit || 3, freeDone);
       if (freeDone) appendAiChatUpsell(message);
     }
