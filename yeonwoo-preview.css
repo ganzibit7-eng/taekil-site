@@ -1,0 +1,64 @@
+/* One accent, an editorial index, and space to read. */
+.yeonwoo-intro{--ink:#203d33;--quiet:#6b7068;--paper:#f7f5ef;position:relative;z-index:1;background:var(--paper);color:var(--ink);color-scheme:light;padding:70px max(28px,calc((100vw - 1040px)/2)) 0;font-family:var(--sans)}
+.yeonwoo-masthead{display:flex;align-items:center;justify-content:space-between;gap:48px;padding-bottom:28px}
+.yeonwoo-kicker{font-size:13px;letter-spacing:.06em;color:var(--quiet);margin:0 0 22px}
+.yeonwoo-intro h1{font:500 clamp(30px,3vw,42px)/1.5 'Noto Serif KR',serif;letter-spacing:-.055em;margin:0 0 20px;word-break:keep-all;color:var(--ink)}
+.yeonwoo-lead{font-size:15px;line-height:1.9;color:#62685f;margin:0;word-break:keep-all}
+.yeonwoo-portrait{margin:0 28px 0 0;flex:0 0 150px}
+.yeonwoo-portrait img{display:block;width:150px;height:180px;object-fit:cover;object-position:52% 25%;border-radius:75px 75px 0 0;filter:saturate(.6)}
+.yeonwoo-portrait figcaption{font-size:11px;color:var(--quiet);margin-top:10px;text-align:center}
+.yeonwoo-actions{display:flex;align-items:center;gap:24px;padding-bottom:48px}
+.yeonwoo-intro button{font-family:inherit;cursor:pointer;min-height:44px}
+.yeonwoo-intro :is(button,a):focus-visible{outline:2px solid #926b42;outline-offset:5px}
+.yeonwoo-start{background:var(--ink);color:#fff;border:1px solid var(--ink);border-radius:3px;padding:16px 30px;font-size:14px;font-weight:600;letter-spacing:-.02em}
+.yeonwoo-start:hover{background:#304f42}
+.yeonwoo-benefit{font-size:12px;line-height:1.85;margin:0;color:#4d5b50}
+.yeonwoo-benefit span{color:var(--quiet);font-size:11px}
+.yeonwoo-reading{border-top:1px solid #bac1b5;display:grid;grid-template-columns:240px 1fr;gap:60px;padding:38px 0 40px}
+.yeonwoo-index h2{font:600 16px var(--sans);margin:0 0 12px;letter-spacing:-.03em;color:var(--ink)}
+.yeonwoo-index>p{color:var(--quiet);font-size:12px;line-height:1.8;margin:0 0 22px}
+.yeonwoo-topics{display:flex;flex-direction:column}
+.yeonwoo-topics button{display:flex;align-items:center;justify-content:space-between;text-align:left;gap:10px;border:0;border-bottom:1px solid #e1e3d9;border-radius:0;background:transparent;color:#6b7068;padding:12px 0;font-size:14px;font-weight:400}
+.yeonwoo-topics button span{opacity:0;font-size:16px}
+.yeonwoo-topics button[aria-pressed=true]{font-weight:700;color:var(--ink)}
+.yeonwoo-topics button[aria-pressed=true] span{opacity:1}
+.yeonwoo-demo{min-width:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
+.yeonwoo-demo-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #d8ddd1;padding:0 0 18px;color:var(--ink);font-size:13px}
+.yeonwoo-demo-head small{font-size:10px;color:var(--quiet);font-weight:400}
+.yeonwoo-transcript{padding:25px 0 20px;min-height:300px;font-size:15px;line-height:1.9;overflow-wrap:anywhere}
+.yeonwoo-speaker{font-size:11px;color:#8a7760;margin:0 0 8px;letter-spacing:.06em}
+.yeonwoo-question{font:500 18px/1.7 'Noto Serif KR',serif;letter-spacing:-.04em;margin:0 0 24px;word-break:keep-all;color:var(--ink)}
+.yeonwoo-answer{margin:0;white-space:pre-line;color:#434f44;word-break:keep-all}
+.yeonwoo-answer.animate{animation:yeonwoo-appear .2s ease-out}
+.yeonwoo-evidence{font-size:10px;line-height:1.8;color:#797d73;margin:0;max-width:540px}
+.yeonwoo-services{display:grid;grid-template-columns:1fr 1fr;gap:60px;padding:28px 0 34px;border-top:1px solid #bac1b5}
+.yeonwoo-services a{display:block;min-height:44px;color:var(--ink)}
+.yeonwoo-services span{display:block;font-size:11px;color:var(--quiet);margin-bottom:8px}
+.yeonwoo-services b{font-size:14px;font-weight:500}
+html.snap-active{scroll-snap-type:none}
+#view-home>.home-first-block:not(.is-consulting){display:none}
+.home-free-value{display:none}
+#authOverlay{background:rgba(20,29,24,.45);backdrop-filter:blur(3px)}
+#authOverlay .modal-box{background:#f7f5ef;color:#203d33;border:1px solid #d8ddd1;border-radius:6px;box-shadow:0 16px 60px rgba(0,0,0,.15);padding:34px;max-height:calc(100dvh - 48px);overflow:auto}
+#authOverlay .modal-title{font:500 23px/1.6 'Noto Serif KR',serif;letter-spacing:-.04em}
+#authOverlay .auth-free-benefit{background:transparent;border:0;border-radius:0;padding:8px 0 24px;margin:0;color:#65705f;box-shadow:none}
+#authOverlay .auth-free-benefit b{font-size:14px;color:#203d33}
+#authOverlay .auth-free-benefit span{color:#65705f;font-size:12px;line-height:1.8}
+#authOverlay .btn{min-height:50px;border-radius:3px;background:#fff;color:#203d33;border:1px solid #cdd3c6;box-shadow:none;font-size:14px}
+#authOverlay .auth-close{display:block;width:100%;min-height:44px;border:0;background:none;color:#687267;font-size:12px;margin:12px 0 0}
+#authOverlay button:focus-visible{outline:2px solid #203d33;outline-offset:3px}
+body:has(#view-home.visible) .topbar{background:#f7f5ef;border:0;border-bottom:1px solid #dce0d5;border-radius:0;box-shadow:none;backdrop-filter:none;top:0;width:100%;margin:0;padding:22px 0;color:#203d33}
+body:has(#view-home.visible) .topbar>.container{max-width:1040px}
+body:has(#view-home.visible) .topbar .nav-links a{color:#687267!important;background:none}
+body:has(#view-home.visible) .topbar .nav-links a.active{color:#203d33!important}
+body:has(#view-home.visible) .topbar .nav-cta{background:transparent!important;border:0!important;box-shadow:none!important;color:#203d33!important;text-decoration:none;font-weight:500}
+body:has(#view-home.visible) .topbar .brand-mark{background:#203d33;border-color:#203d33;box-shadow:none}
+body:has(#view-home.visible) .bottom-tabbar{background:#f7f5ef;border-color:#dce0d5;backdrop-filter:none}
+body:has(#view-home.visible) .bt-item{color:#787e74}
+body:has(#view-home.visible) .bt-item.active{color:#203d33}
+@keyframes yeonwoo-appear{from{opacity:0}to{opacity:1}}
+@media(max-width:760px){
+  .yeonwoo-intro{padding:38px 24px 0}.yeonwoo-masthead{gap:18px;padding-bottom:24px;align-items:flex-start}.yeonwoo-kicker{font-size:11px;margin-bottom:18px}.yeonwoo-intro h1{font-size:28px;line-height:1.55;margin-bottom:15px}.yeonwoo-lead{font-size:13px;line-height:1.9}.yeonwoo-portrait{flex-basis:76px;margin:34px 0 0}.yeonwoo-portrait img{width:76px;height:100px;border-radius:40px 40px 0 0}.yeonwoo-portrait figcaption{display:none}.yeonwoo-actions{align-items:flex-start;flex-direction:column;gap:12px;padding-bottom:30px}.yeonwoo-start{width:100%;padding:15px 20px}.yeonwoo-benefit br{display:none}.yeonwoo-benefit span{display:block}.yeonwoo-reading{grid-template-columns:1fr;gap:25px;padding:26px 0 30px}.yeonwoo-index h2{font-size:15px;margin-bottom:14px}.yeonwoo-index>p{display:none}.yeonwoo-topics{flex-direction:row;flex-wrap:wrap;gap:0 16px}.yeonwoo-topics button{min-height:44px;font-size:12px;padding:7px 0;border-bottom:1px solid transparent}.yeonwoo-topics button[aria-pressed=true]{border-color:#203d33}.yeonwoo-topics button span{display:none}.yeonwoo-demo-head{font-size:12px;padding-bottom:14px;gap:8px}.yeonwoo-demo-head small{font-size:9px}.yeonwoo-transcript{padding:22px 0;min-height:300px;font-size:14px}.yeonwoo-question{font-size:17px}.yeonwoo-services{grid-template-columns:1fr;gap:24px;padding:26px 0 36px}.yeonwoo-services b{font-size:13px}body:has(#view-home.visible) .topbar{padding:17px 0}body:has(#view-home.visible) .topbar>.container{width:calc(100% - 48px)}
+}
+@media(max-width:380px){.yeonwoo-intro{padding-left:20px;padding-right:20px}.yeonwoo-intro h1{font-size:26px}.yeonwoo-portrait{display:none}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}.yeonwoo-answer.animate{animation:none}.acp-online-dot{animation:none}.ai-chat-bgvideo{display:none}.ai-chat-stage{background:#18291f url('ai-consultant-poster.jpg') center/cover no-repeat}}
