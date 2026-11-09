@@ -3674,7 +3674,7 @@ function goTo(route, presetEvent) {
   const btItem = document.querySelector('.bt-item[data-route="' + route + '"]');
   if (btItem) btItem.classList.add('active');
   else if (route === 'profile') document.getElementById('bottomProfileTab').classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+  window.scrollTo({ top: 0, behavior: 'instant' });
   if (history.replaceState) {
     const u = new URL(location.href);
     u.hash = route === 'home' ? '' : route;
