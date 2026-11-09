@@ -28,9 +28,6 @@
     window.__pendingCategoryQuestion = examples[selected][1];
     // Existing Kakao redirect restoration already reads this key with a 30-minute expiry.
     try { localStorage.setItem(TODAY_FORTUNE_PENDING_QUESTION_KEY, JSON.stringify({question: examples[selected][1], createdAt: Date.now()})); } catch (_) {}
-    const chatSection = document.querySelector('.home-first-block');
-    chatSection.classList.add('is-consulting');
-    chatSection.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
     await handleHomeChatStart(event.currentTarget);
   });
   render(selected);

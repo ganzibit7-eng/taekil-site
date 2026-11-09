@@ -9351,7 +9351,6 @@ async function updateHomeGuestHint() {
 }
 
 async function handleHomeChatStart(btn) {
-  document.querySelector('.home-first-block')?.classList.add('is-consulting');
   // 카카오로 로그인된 상태면 firebaseAuthReady와 무관하게 바로 진행할 수 있습니다.
   if (getKakaoUser()) { showAiChatSetupStep(); return; }
 
@@ -9383,6 +9382,7 @@ async function handleHomeChatStart(btn) {
    비어있는 채로 남는 경우가 없게 합니다(이미 채워져 있으면 그냥 넘어갑니다). */
 function showAiChatSetupStep() {
   document.querySelector('.home-first-block')?.classList.add('is-consulting');
+  requestAnimationFrame(() => document.querySelector('.home-first-block')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }));
   fillAiChatDateSelects();
   refreshAiProfileSelectors();
   const intro = document.getElementById('homeIntroOverlay');
