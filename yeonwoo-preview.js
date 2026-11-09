@@ -24,11 +24,51 @@
     requestAnimationFrame(() => answer.classList.add('animate'));
   }
   root.querySelectorAll('[data-preview-topic]').forEach(button => button.addEventListener('click', () => render(button.dataset.previewTopic)));
-  root.querySelector('[data-preview-start]').addEventListener('click', async event => {
+  root.querySelectorAll('[data-preview-start]').forEach(button => button.addEventListener('click', async event => {
     window.__pendingCategoryQuestion = examples[selected][1];
     // Existing Kakao redirect restoration already reads this key with a 30-minute expiry.
     try { localStorage.setItem(TODAY_FORTUNE_PENDING_QUESTION_KEY, JSON.stringify({question: examples[selected][1], createdAt: Date.now()})); } catch (_) {}
     await handleHomeChatStart(event.currentTarget);
+  }));
+  root.querySelector('[data-preview-read]')?.addEventListener('click', () => {
+    document.getElementById('yeonwooSample').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block:'start'});
   });
   render(selected);
+  const video = document.getElementById('yeonwooHeroVideo');
+  const motionButton = root.querySelector('[data-preview-motion]');
+  if (video && motionButton) {
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    let wantsMotion = !reducedMotion.matches && !navigator.connection?.saveData;
+    let visible = false;
+    video.muted = true;
+    function reflectMotion() {
+      const playing = !video.paused;
+      motionButton.textContent = playing ? '영상 멈추기' : '영상 재생';
+      motionButton.setAttribute('aria-label', playing ? '연우 영상 멈추기' : '연우 영상 재생');
+    }
+    function syncMotion() {
+      if (wantsMotion && visible && document.visibilityState !== 'hidden') video.play().catch(reflectMotion);
+      else video.pause();
+      reflectMotion();
+    }
+    video.addEventListener('play', reflectMotion);
+    video.addEventListener('pause', reflectMotion);
+    motionButton.addEventListener('click', () => { wantsMotion = video.paused; syncMotion(); });
+    reducedMotion.addEventListener('change', () => { wantsMotion = !reducedMotion.matches && !navigator.connection?.saveData; syncMotion(); });
+    document.addEventListener('visibilitychange', syncMotion);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(entries => { visible = entries[0].isIntersecting; syncMotion(); }, {threshold:0.1}).observe(video);
+    } else {
+      visible = true;
+      syncMotion();
+    }
+    reflectMotion();
+  }
+  const consultation = document.querySelector('.home-first-block');
+  if (consultation && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      document.body.classList.toggle('yeonwoo-consulting-visible', entries[0].isIntersecting);
+    }, { threshold: 0.05 });
+    observer.observe(consultation);
+  }
 })();
