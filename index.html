@@ -2207,6 +2207,9 @@ body.admin-exclusive-mode .admin-fold.open .admin-fold-body{
 <meta property="og:type" content="website"><meta property="og:locale" content="ko_KR"><meta property="og:site_name" content="택일소">
 <meta property="og:title" content="택일소 | 사주·궁합·이직운·택일 AI 상담"><meta property="og:description" content="생년월일시를 바탕으로 사주 흐름을 확인하고 AI 연우에게 궁금한 운세를 직접 질문해 보세요."><meta property="og:url" content="https://taekilso.com/"><meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json" id="taekilso-seo-schema">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://taekilso.com/#website","url":"https://taekilso.com/","name":"택일소","inLanguage":"ko-KR"},{"@type":"WebApplication","@id":"https://taekilso.com/#app","name":"택일소","url":"https://taekilso.com/","applicationCategory":"LifestyleApplication","operatingSystem":"Web","description":"생년월일시를 바탕으로 사주 흐름을 확인하고 AI 상담으로 연애운, 재물운, 이직운, 궁합과 택일을 질문할 수 있는 웹서비스.","isPartOf":{"@id":"https://taekilso.com/#website"}}]}</script>
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="yeonwoo-preview.css">
+<script src="ai-request-state.js" defer></script>
 </head>
 <body>
 
@@ -2231,7 +2234,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <div class="brand" onclick="goTo('home')"><span class="brand-mark"></span>택일소</div>
       <div class="nav-right">
         <div class="nav-links" id="navLinks">
-          <a data-route="home" onclick="goTo('home')" style="color:var(--gold-hi); font-weight:700;">✨ AI사주</a>
+          <a data-route="home" onclick="goTo('home')" style="color:var(--gold-hi); font-weight:700;">AI 사주 상담</a>
           <div class="nav-dropdown" id="navTaekilDropdown">
             <a class="nav-dropdown-trigger" onclick="toggleNavDropdown(event)">택일 <span class="nav-dropdown-caret">▾</span></a>
             <div class="nav-dropdown-menu" id="navTaekilMenu">
@@ -2252,11 +2255,11 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 <!-- ============ AUTH MODAL ============ -->
 <div id="authOverlay">
-  <div class="modal-box">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="authTitle" tabindex="-1">
     <div class="modal-title" id="authTitle">연우에게 바로 물어보세요</div>
     <div class="auth-free-benefit">
       <b>첫 질문 3개는 무료예요</b>
-      <span>Google 또는 카카오로 10초 시작 · 카드등록 없음 · 자동결제 없음</span>
+      <span>Google 또는 카카오로 시작하세요.<br>카드 등록 없이 · 자동결제 없이</span>
     </div>
     <div id="authSetupNotice" class="setup-notice" style="display:none;">
       아직 계정 저장소가 연결되지 않았어요. Firebase 설정을 먼저 연결해야 실제로 저장됩니다.
@@ -2269,7 +2272,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       💬 카카오로 시작하기
     </button>
     <div id="authError" class="auth-error" style="display:none;"></div>
-    <div class="auth-close" onclick="closeAuthModal()">닫기</div>
+    <button type="button" class="auth-close" onclick="closeAuthModal()">닫기</button>
   </div>
 </div>
 
@@ -2337,10 +2340,26 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 <!-- ============ HOME ============ -->
 <section id="view-home" class="view">
+<section id="yeonwooPreview" class="yeonwoo-intro" aria-labelledby="yeonwooTitle">
+  <div class="yeonwoo-cinematic">
+    <figure class="yeonwoo-scene"><video id="yeonwooHeroVideo" aria-label="밤의 정원에서 움직이는 AI 사주 상담가 연우" muted loop playsinline preload="none" poster="ai-consultant-poster.jpg"><source src="ai-consultant-loop.mp4" type="video/mp4"></video></figure>
+    <p class="yeonwoo-scene-label">택일소의 AI 사주 상담가 · 연우</p>
+    <button type="button" class="yeonwoo-motion-toggle" data-preview-motion aria-label="연우 영상 멈추기">영상 멈추기</button>
+    <div class="yeonwoo-scene-copy"><p class="yeonwoo-kicker">당신의 사주, 당신의 이야기</p><h1 id="yeonwooTitle">말하지 못했던 고민,<br>연우에게 들려주세요.</h1><button type="button" class="yeonwoo-read-link" data-preview-read>상담 이야기를 먼저 만나보세요 <span aria-hidden="true">↓</span></button></div>
+  </div>
+  <div class="yeonwoo-prologue"><p class="yeonwoo-prologue-title">같은 질문이어도,<br>내 사주로 보면<br>이야기가 달라집니다.</p><p>연애와 관계, 일과 돈, 중요한 날의 선택.<br>계산된 사주를 바탕으로<br>지금의 고민부터 차분히 이야기해요.</p></div>
+  <div class="yeonwoo-promises"><div><span>01</span><p><b>내 사주에서 시작해요</b>생년월일로 계산한 사주를 읽고,<br>확인할 수 있는 근거를 설명해요.</p></div><div><span>02</span><p><b>하나의 고민을 충분히</b>같은 상담의 앞선 질문을 이어서,<br>궁금한 부분을 더 구체적으로 살펴봐요.</p></div><div><span>03</span><p><b>중요한 날짜까지 함께</b>결혼·이사·개업·계약을 앞두셨다면,<br>택일에서 계산한 후보를 비교할 수 있어요.</p></div></div>
+  <div class="yeonwoo-reading" id="yeonwooSample"><div class="yeonwoo-index"><p class="yeonwoo-kicker">연우의 상담 미리보기</p><h2>연우는 이렇게 답해요.</h2><p>궁금한 주제부터 골라보세요.</p><div class="yeonwoo-topics" role="group" aria-label="미리보기 주제"><button type="button" data-preview-topic="love" aria-pressed="false">연애·관계</button><button type="button" data-preview-topic="career" aria-pressed="true">직업·이직</button><button type="button" data-preview-topic="money" aria-pressed="false">돈·재물</button><button type="button" data-preview-topic="year" aria-pressed="false">올해·내년</button><button type="button" data-preview-topic="date" aria-pressed="false">결혼·이사</button></div></div>
+  <article class="yeonwoo-demo" aria-label="미리 작성한 상담 예시"><div class="yeonwoo-demo-head"><span>상담 예시</span><small>1990. 01. 01. 양력 · 출생시간 모름</small></div><div class="yeonwoo-transcript" aria-live="polite" aria-atomic="true"><p class="yeonwoo-speaker">질문</p><h3 class="yeonwoo-question" data-preview-question>이직을 고민 중인데, 어떤 환경이 저와 맞을까요?</h3><p class="yeonwoo-speaker yeonwoo-answer-name">연우</p><p class="yeonwoo-answer" data-preview-answer>회사 이름보다 실제로 맡을 역할과 일하는 방식을 먼저 비교해보면 좋겠어요.</p></div><p class="yeonwoo-evidence">가상 인물의 사주로 미리 작성한 예시입니다.<br>실시간 AI 답변이 아니며 무료 횟수를 사용하지 않아요.</p></article></div>
+  <div class="yeonwoo-invitation"><span aria-hidden="true">緣</span><h2>이제, 내 이야기를<br>시작해볼까요?</h2><p>가입 후 처음 3회의 AI 답변은 무료예요.<br>카드 등록이나 자동결제 없이 시작하세요.</p><button type="button" class="yeonwoo-start" data-preview-start>내 사주로 연우와 상담하기</button></div>
+  <nav class="yeonwoo-services" aria-label="바로 이용하기"><a href="#tool" onclick="goTo('tool');return false;"><span>결혼·이사·개업·계약</span><b>중요한 날짜 찾아보기 ↗</b></a><a href="#history" onclick="goTo('history');return false;"><span>이전에 나눈 이야기</span><b>내 사주와 상담 기록 ↗</b></a></nav>
+  <div class="yeonwoo-fixed-action"><p>첫 가입 · AI 답변 3회 무료</p><button type="button" class="yeonwoo-start" data-preview-start>내 사주로 연우와 상담하기 <span aria-hidden="true">→</span></button></div>
+</section>
+
   <div class="block home-first-block" style="padding-bottom:8px;">
     <div class="container" style="max-width:480px;">
       <div class="ai-chat-stage">
-        <video class="ai-chat-bgvideo" autoplay muted loop playsinline poster="ai-consultant-poster.jpg">
+        <video class="ai-chat-bgvideo" preload="none" muted loop playsinline poster="ai-consultant-poster.jpg">
           <source src="ai-consultant-loop.mp4" type="video/mp4">
         </video>
         <div class="ai-chat-vignette-top"></div>
@@ -2418,7 +2437,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
             </div>
           </div>
           <label style="display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.72);font-size:10px;margin:0 2px 8px;"><input id="aiChatLeap" type="checkbox" style="accent-color:var(--gold-hi)" onchange="this.disabled=false"> 윤달(음력)인 경우 체크</label>
-          <div class="ai-chat-profile-note">출생시간을 알면 시주까지 반영해 상담 깊이를 높일 수 있어요. 모르면 '시간 모름'으로 시작할 수 있습니다. (태양시 기준 계산 방식은 기존 기능을 그대로 사용합니다.)</div>
+          <div class="ai-chat-profile-note">태어난 시간을 알면 시주도 함께 살펴봐요. 시간을 모르면 '시간 모름'을 선택해주세요.</div>
           <div class="ai-chat-profile-picker" style="margin-bottom:8px;">
             <label class="ai-chat-setup-label" for="aiChatCompareProfile">함께 비교할 사람 <span style="opacity:.65">(선택 · 최대 2명)</span></label>
             <select id="aiChatCompareProfile"><option value="">비교하지 않음</option></select>
@@ -2502,7 +2521,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <button type="button" onclick="openSajuInsight('profile')">무료 기본 리포트 보기 <i>→</i></button>
       </div>
       <div class="home-deeper-list">
-        <button onclick="openSajuInsight('profile')"><b>AI 정밀사주</b><small>내 사주 심층 분석 · 대운 흐름</small><i>→</i></button>
+        <button onclick="openSajuInsight('profile')"><b>AI 정밀사주</b><small>내 사주 심층 분석 · 오행과 성향</small><i>→</i></button>
         <button onclick="openSajuInsight('love')"><b>궁합·연애 분석</b><small>두 사람의 오행 궁합</small><i>→</i></button>
         <button onclick="openSajuInsight('money')"><b>재물·직업 분석</b><small>강점과 흐름을 자세히</small><i>→</i></button>
         <button onclick="goTo('profile')"><b>프리미엄 전체 서비스</b><small>365일 택일 · 상세 리포트 등</small><i>→</i></button>
@@ -2557,7 +2576,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <button class="btn form-submit" onclick="goTo('tool')">무료로 시작</button>
         </div>
         <div class="price-card featured premium-plan-card">
-          <div class="popular">MOST POPULAR · PREMIUM</div>
+          <div class="popular">PREMIUM · 30일 이용권</div>
           <h3>프리미엄 이용권</h3>
           <div class="plan-price"><strong>8,900원</strong><span>/ 30일</span></div>
           <p class="plan-lead">결제일로부터 <b>30일간</b> AI 상담과 정밀 택일 기능을 넉넉하게 이용할 수 있어요. 만료 후 다시 필요한 기간만 구매하세요.</p>
@@ -7859,12 +7878,27 @@ function buildPremiumProgramPanel() {
   panel.innerHTML = `<div class="pp-head"><div><div class="pp-kicker">✦ PREMIUM DEEP REPORT</div><div class="pp-title">${eventType} 정밀 택일 리포트</div></div><div class="pp-score">${to100(best.score)}<small style="font-size:11px;color:var(--muted)"> / BEST</small></div></div><div class="pp-grid"><div class="pp-stat"><small>최우선 추천일</small><b>${best.date.getFullYear()}.${String(best.date.getMonth()+1).padStart(2,'0')}.${String(best.date.getDate()).padStart(2,'0')}</b></div><div class="pp-stat"><small>강한 추천 후보</small><b>${high}일</b></div><div class="pp-stat"><small>손없는 날</small><b>${son}일</b></div><div class="pp-stat"><small>후보 평균 기운</small><b>${avg}</b></div><div class="pp-stat"><small>최고 일진</small><b>${best.ganji}(${best.ganjiHanja})</b></div><div class="pp-stat"><small>핵심 오행</small><b>${best.ohaeng}</b></div></div><p class="pp-text"><b>최우선 추천일 ${best.date.getMonth()+1}월 ${best.date.getDate()}일</b>은 ${best.ohaeng} 기운과 현재 행사 조건을 종합했을 때 가장 높은 점수를 받은 날짜입니다. ${best.reasons.length ? '주요 근거는 '+best.reasons.slice(0,3).join(', ')+'입니다.' : '특별한 감점 요인이 적은 편입니다.'} ${couple}</p><div class="pp-list"><div><strong>좋은 점</strong><br>${best.reasons.length ? best.reasons.join(' · ') : '전체 기준에서 무난한 흐름'}</div><div><strong>체크할 점</strong><br>${cautionTextFor(eventType)}</div></div><div style="margin-top:18px"><div class="pp-kicker">MONTHLY BEST</div><div class="pp-list">${monthRows || '<div>월별 후보가 없습니다.</div>'}</div></div><button class="btn btn-primary no-print" style="width:100%; margin-top:20px;" onclick="window.print()">📄 이 리포트 PDF로 저장</button>`;
 }
 
+let authReturnFocus = null;
 function openAuthModal() {
+  authReturnFocus = document.activeElement;
   document.getElementById('authOverlay').style.display = 'flex';
   document.getElementById('authSetupNotice').style.display = firebaseReady ? 'none' : 'block';
   document.getElementById('authError').style.display = 'none';
+  document.querySelector('#authOverlay button')?.focus();
 }
-function closeAuthModal() { document.getElementById('authOverlay').style.display = 'none'; }
+function closeAuthModal() {
+  document.getElementById('authOverlay').style.display = 'none';
+  authReturnFocus?.focus();
+}
+document.getElementById('authOverlay').addEventListener('keydown', event => {
+  if (event.key === 'Escape') { event.preventDefault(); closeAuthModal(); return; }
+  if (event.key !== 'Tab') return;
+  const items = [...document.querySelectorAll('#authOverlay button:not(:disabled), #authOverlay a[href], #authOverlay input:not(:disabled)')].filter(el => el.getClientRects().length);
+  if (!items.length) return;
+  const first = items[0], last = items[items.length - 1];
+  if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+});
 
 </script>
 
@@ -9345,6 +9379,8 @@ async function handleHomeChatStart(btn) {
    여기서 다시 한번 날짜 선택 목록을 채워서, 페이지 로드 타이밍 문제로
    비어있는 채로 남는 경우가 없게 합니다(이미 채워져 있으면 그냥 넘어갑니다). */
 function showAiChatSetupStep() {
+  document.querySelector('.home-first-block')?.classList.add('is-consulting');
+  requestAnimationFrame(() => document.querySelector('.home-first-block')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }));
   fillAiChatDateSelects();
   refreshAiProfileSelectors();
   const intro = document.getElementById('homeIntroOverlay');
@@ -10026,11 +10062,14 @@ async function sendAiChatMessage() {
   if (!loggedIn) { showToast('로그인 후 이용할 수 있어요.'); openAuthModal(); return; }
 
   const input = document.getElementById('aiChatInput');
+  if (window.__aiRequestInFlight) return;
   const message = input.value.trim();
   if (!message) return;
   if (message.length > 500) { showToast('질문은 500자 이내로 적어주세요.'); return; }
 
   const uid = getCurrentUserKey();
+  window.__aiRequestInFlight = true;
+  let receivedAnswer = false;
   const sendBtn = document.getElementById('aiChatSendBtn');
   input.value = '';
   sendBtn.disabled = true;
@@ -10046,7 +10085,8 @@ async function sendAiChatMessage() {
   }
 
   const userQuestionEl = appendAiChatMessage('user', message);
-  window.__aiChatHistory.push({ role: 'user', content: message });
+  const historyEntry = { role: 'user', content: message };
+  window.__aiChatHistory.push(historyEntry);
   setActiveAiSession(window.__aiConversationId);
 
   const typingEl = appendAiChatMessage('assistant', '');
@@ -10059,7 +10099,7 @@ async function sendAiChatMessage() {
     const res = await fetch(AI_CHAT_URL, {
       method: 'POST',
       headers: await getAiRequestHeaders(),
-      body: JSON.stringify({
+      body: window.yeonwooRequests.begin(JSON.stringify([uid, window.__aiConversationId, window.__aiChatProfile, window.__aiChatSubjects]), {
         uid,
         sajuSummary: window.__aiChatSaju,
         sajuProfile: window.__aiChatProfile,
@@ -10072,11 +10112,13 @@ async function sendAiChatMessage() {
     typingEl.remove();
 
     if (res.status === 401) {
+      window.yeonwooRequests.clear();
       showToast('로그인 보안 세션이 만료됐어요. 다시 로그인한 뒤 질문해주세요.');
       return;
     }
 
     if (!res.ok) {
+      if (res.status < 500 && data.error !== 'REQUEST_IN_PROGRESS') window.yeonwooRequests.clear();
       if (data.error === 'FREE_LIMIT_REACHED') {
         appendAiChatMessage('system-note', data.message || '무료 질문을 모두 사용하셨어요.');
         appendQuestionPackOffers();
@@ -10084,12 +10126,19 @@ async function sendAiChatMessage() {
         appendAiChatMessage('system-note', data.message || '오늘 상담 가능 횟수를 모두 사용하셨어요.');
       } else if (data.error === 'AI_TIMEOUT') {
         appendAiChatMessage('system-note', data.message || '답변 생성 시간이 길어졌어요. 같은 질문을 다시 보내주세요.');
+      } else if (data.error === 'REQUEST_IN_PROGRESS') {
+        appendAiChatMessage('system-note', '앞선 질문의 답변을 확인하고 있어요. 잠시 후 같은 질문을 다시 보내주세요.');
+      } else if (data.error === 'EMAIL_VERIFICATION_REQUIRED') {
+        appendAiChatMessage('system-note', '이메일 인증을 완료한 뒤 다시 상담해주세요.');
       } else {
         appendAiChatMessage('system-note', '답변을 받아오지 못했어요. 잠시 후 다시 시도해주세요.');
       }
       return;
     }
 
+    if (typeof data.reply !== 'string' || !data.reply.trim()) throw new Error('EMPTY_REPLY');
+    receivedAnswer = true;
+    window.yeonwooRequests.clear();
     const answerEl = appendAiChatMessage('assistant', data.reply, { scroll: 'start' });
     window.__aiChatHistory.push({ role: 'assistant', content: data.reply });
 
@@ -10161,6 +10210,13 @@ async function sendAiChatMessage() {
     appendAiChatMessage('system-note', '연결에 문제가 있었어요. 잠시 후 다시 시도해주세요.');
     console.error('AI 상담 오류', err);
   } finally {
+    if (!receivedAnswer) {
+      const last = window.__aiChatHistory[window.__aiChatHistory.length - 1];
+      if (last === historyEntry) window.__aiChatHistory.pop();
+      userQuestionEl?.remove();
+      if (!input.value) input.value = message;
+    }
+    window.__aiRequestInFlight = false;
     sendBtn.disabled = false;
     if (stage) stage.classList.remove('ai-chat-thinking');
   }
@@ -11047,6 +11103,7 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 </script>
 
 <section class="seo-service-hub" aria-labelledby="seo-service-hub-title"><div class="seo-service-hub-inner"><p class="seo-eyebrow">택일소 사주 가이드</p><h2 id="seo-service-hub-title">사주 원국부터 궁합·이직운·택일까지 한곳에서</h2><p>택일소는 생년월일시를 바탕으로 사주 흐름을 살펴보고, 궁금한 내용을 AI 연우에게 직접 질문하는 방식의 사주 상담 서비스입니다. 사주는 전통 명리 해석을 참고하는 콘텐츠이며 중요한 의료·법률·투자 판단을 대신하지 않습니다.</p><nav class="seo-service-links" aria-label="사주 핵심 서비스"><a href="/compatibility/">사주 궁합</a><a href="/wedding-date/">결혼 택일</a><a href="/moving-date/">이사 택일</a><a href="/opening-date/">개업 택일</a><a href="/wealth/">재물운</a><a href="/saju-guide/">사주 가이드</a></nav><div class="seo-topic-copy"><h3>2026년 신년운세와 이직운은 어떻게 볼까?</h3><p>신년운세나 이직운처럼 시기에 따라 달라지는 질문은 한 문장으로 단정하기보다 사주 원국과 현재 고민을 함께 놓고 살펴보는 것이 좋습니다. 저장한 사주를 바탕으로 연애, 직장, 재물, 인간관계 등 구체적인 질문을 이어갈 수 있습니다.</p></div></div></section><style id="seo-service-hub-style">.seo-service-hub{padding:56px 20px 72px;scroll-snap-align:none}.seo-service-hub-inner{max-width:880px;margin:0 auto}.seo-eyebrow{font-size:11px;letter-spacing:.16em;color:var(--gold);margin:0 0 8px}.seo-service-hub h2{font-size:clamp(22px,4vw,34px);line-height:1.3;margin:0 0 12px}.seo-service-hub p{line-height:1.8;color:var(--muted)}.seo-service-links{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:22px 0}.seo-service-links a{display:flex;align-items:center;justify-content:center;min-height:48px;padding:9px;border:1px solid rgba(255,255,255,.1);border-radius:12px;text-decoration:none;color:var(--white);font-size:12px}.seo-topic-copy{margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,255,255,.08)}.seo-topic-copy h3{font-size:18px;margin:0 0 8px}body.admin-exclusive-mode .seo-service-hub{display:none!important}@media(max-width:640px){.seo-service-hub{padding:42px 16px 60px}.seo-service-links{grid-template-columns:repeat(2,minmax(0,1fr))}}</style>
+<script src="yeonwoo-preview.js"></script>
 </body>
 </html>
 
