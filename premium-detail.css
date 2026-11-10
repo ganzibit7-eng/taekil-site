@@ -62,3 +62,6 @@ html{background:#101715;color-scheme:dark;scroll-padding-top:32px}
  .premium-article .w{padding-top:28px}.premium-article .k{margin-top:42px}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Full-page navigation opens without a smooth-scroll transition. */
+html{scroll-behavior:auto!important;overflow-anchor:none}

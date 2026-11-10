@@ -3,7 +3,7 @@ const baselineRef='d7bd53ed709f19d5ffb633b622dcae97158de697';
 const baseline=cp.execFileSync('git',['show',baselineRef+':index.html'],{encoding:'utf8'}).replace(/\r\n/g,'\n');
 const current=fs.readFileSync('index.html','utf8').replace(/\r\n/g,'\n');
 const scripts=html=>[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].map(m=>[m[1],m[2]]);
-const originalScripts=scripts(current).filter(([attrs])=>!['premium-motion.js','admin-analytics-core.js','admin-analytics.js'].some(src=>new RegExp('src="'+src.replaceAll('.', '\\.')+'(?:\\?[^"]*)?"').test(attrs)));
+const originalScripts=scripts(current).filter(([attrs])=>!['premium-motion.js','admin-analytics-core.js','admin-analytics.js','consultation-stage.js','navigation-stability.js'].some(src=>new RegExp('src="'+src.replaceAll('.', '\\.')+'(?:\\?[^"]*)?"').test(attrs)));
 assert.deepEqual(originalScripts,scripts(baseline),'Existing inline and external scripts must remain exactly unchanged');
 new Function(fs.readFileSync('premium-motion.js','utf8'));
 const hooks=html=>[...html.matchAll(/\bon(?:click|change|input|keydown|submit)="[^"]*"/g)].map(m=>m[0]);
@@ -63,3 +63,7 @@ const analytics=fs.readFileSync('admin-analytics.js','utf8');
 assert(!/\.(set|update|delete|add)\(/.test(analytics),'Reporting must not mutate database documents');
 assert(analytics.includes('isAdmin()')&&analytics.includes("get({source:'server'})"));
 console.log('PASS: new administrator analytics scripts compile, mount once behind the existing admin gate, and contain no database write calls.');
+
+new Function(fs.readFileSync('consultation-stage.js','utf8'));
+
+new Function(fs.readFileSync('navigation-stability.js','utf8'));
