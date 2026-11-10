@@ -65,3 +65,5 @@ html{background:#101715;color-scheme:dark;scroll-padding-top:32px}
 
 /* Full-page navigation opens without a smooth-scroll transition. */
 html{scroll-behavior:auto!important;overflow-anchor:none}
+
+.premium-article .taekilso-symbol{width:44px;height:44px}
