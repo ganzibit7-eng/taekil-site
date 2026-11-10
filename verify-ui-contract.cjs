@@ -3,7 +3,7 @@ const baselineRef='d7bd53ed709f19d5ffb633b622dcae97158de697';
 const baseline=cp.execFileSync('git',['show',baselineRef+':index.html'],{encoding:'utf8'}).replace(/\r\n/g,'\n');
 const current=fs.readFileSync('index.html','utf8').replace(/\r\n/g,'\n');
 const scripts=html=>[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].map(m=>[m[1],m[2]]);
-const originalScripts=scripts(current).filter(([attrs])=>!['premium-motion.js','admin-analytics-core.js','admin-analytics.js','consultation-stage.js','navigation-stability.js','newyear-consultation.js','free-report-handoff-core.js','free-report-handoff.js','navigation-refinement.js'].some(src=>new RegExp('src="'+src.replaceAll('.', '\\.')+'(?:\\?[^"]*)?"').test(attrs)));
+const originalScripts=scripts(current).filter(([attrs])=>!['premium-motion.js','admin-analytics-core.js','admin-analytics.js','consultation-stage.js','navigation-stability.js','newyear-consultation.js','free-report-handoff-core.js','free-report-handoff.js','navigation-refinement.js','profile-picker-controls.js'].some(src=>new RegExp('src="'+src.replaceAll('.', '\\.')+'(?:\\?[^"]*)?"').test(attrs)));
 const normalizeReport=source=>source
 .replace(/  \/\* REPORT_MANUAL_OPTION_START \*\/[\s\S]*?  \/\* REPORT_MANUAL_OPTION_END \*\/\n/,'')
 .replace(/      \/\* REPORT_SIGNUP_EVENT_START \*\/[\s\S]*?      \/\* REPORT_SIGNUP_EVENT_END \*\/\n/,'')
@@ -85,3 +85,5 @@ assert(current.includes("data.error === 'NEWYEAR_PASS_REQUIRED'"));
 for(const f of ['free-report-handoff-core.js','free-report-handoff.js'])new Function(fs.readFileSync(f,'utf8'));
 
 const footer=current.slice(current.indexOf('<footer>'),current.indexOf('</footer>'));assert.equal((footer.match(/class="footer-link"/g)||[]).length,3);for(const label of ['이용약관','개인정보처리방침','문의하기'])assert(footer.includes(label));assert(!footer.includes('이용권 안내')&&!footer.includes('서비스 안내'));new Function(fs.readFileSync('navigation-refinement.js','utf8'));
+
+assert(current.includes('id="aiChatDeleteProfile"'));new Function(fs.readFileSync('profile-picker-controls.js','utf8'));

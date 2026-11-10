@@ -2384,7 +2384,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <div class="ai-chat-bubble-npc">상담할 사람을 선택하거나 새 사주를 등록해주세요.<br>저장해두면 다음 상담부터 바로 불러올 수 있어요.</div>
           <div class="ai-chat-profile-picker">
             <label class="ai-chat-setup-label" for="aiChatSavedProfile">저장된 사주</label>
-            <select id="aiChatSavedProfile" onchange="loadAiSavedProfile(this.value)"><option value="">+ 새 사주 입력</option></select>
+            <div class="ai-chat-profile-picker-row"><select id="aiChatSavedProfile" onchange="loadAiSavedProfile(this.value)"><option value="">+ 새 사주 입력</option></select><button type="button" id="aiChatDeleteProfile" class="ai-chat-profile-delete" aria-label="선택한 사주 삭제" title="선택한 사주 삭제" hidden><span aria-hidden="true">×</span></button></div><p id="aiChatSelectedProfileMeta" class="ai-chat-profile-meta" hidden></p>
           </div>
           <div class="ai-chat-profile-fields">
             <input id="aiChatProfileName" maxlength="20" placeholder="이름/호칭 (예: 나, 배우자)" value="나">
@@ -11389,10 +11389,11 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <link rel="stylesheet" href="newyear-consultation.css?v=20261110-1">
 <script src="newyear-consultation.js?v=20261110-2"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=20261110-1">
-<script src="free-report-handoff-core.js?v=20261110-1"></script>
-<script src="free-report-handoff.js?v=20261110-1"></script>
-<link rel="stylesheet" href="navigation-refinement.css?v=20261110-1">
+<script src="free-report-handoff-core.js?v=20261110-2"></script>
+<script src="free-report-handoff.js?v=20261110-2"></script>
+<link rel="stylesheet" href="navigation-refinement.css?v=20261110-2">
 <script src="navigation-refinement.js?v=20261110-1"></script>
+<script src="profile-picker-controls.js?v=20261110-1"></script>
 </body>
 </html>
 
