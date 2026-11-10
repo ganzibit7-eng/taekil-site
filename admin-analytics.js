@@ -5,6 +5,17 @@
   const fmt=n=>n==null?'—':Number(n).toLocaleString('ko-KR');
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   let data=null,busy=false,request=0,active=false,days=30,metric='visits',asOf=0;
+  function syncPaymentTotals(){
+    const paid=data?.ok.orders?data.orders.filter(o=>o.status==='paid'):null;
+    const values={statPurchases:paid?fmt(paid.length):'—',statRevenue:paid?fmt(paid.reduce((n,o)=>n+A.number(o.amount),0))+'원':'—',statPurchasesPremium:paid?fmt(paid.filter(o=>o.product==='taekilso_premium_30days').length):'—',statPurchasesQuestionPacks:paid?fmt(paid.filter(o=>/^ai_question_pack_/.test(o.product)).length):'—'};
+    values.funnelPurchase=paid?fmt(paid.filter(o=>A.dateKey(A.orderTime(o))===A.dateKey(Date.now())).length):'—';values.funnelPurchaseRate='주문 기준';
+    if(A.dateKey(Date.now())<='2026-11-11'){values.seoPurchases=paid?.length===0?'0':'—';values.seoPurchaseRate='초기화 당일 구분 불가';}
+    for(const [id,value]of Object.entries(values)){const e=document.getElementById(id);if(e&&e.textContent!==value)e.textContent=value;}
+    if(A.dateKey(Date.now())<='2026-11-11')document.querySelectorAll('#adminSeoLandingRows b').forEach(e=>{if(e.textContent!=='테스트 제외 구분 불가')e.textContent='테스트 제외 구분 불가';});
+  }
+  const totalsWatch=new MutationObserver(syncPaymentTotals);
+  for(const id of ['statPurchases','statRevenue','statPurchasesPremium','statPurchasesQuestionPacks','funnelPurchase','funnelPurchaseRate','seoPurchases','seoPurchaseRate']){const e=document.getElementById(id);if(e)totalsWatch.observe(e,{childList:true,characterData:true,subtree:true});}
+  const seoRows=document.getElementById('adminSeoLandingRows');if(seoRows)totalsWatch.observe(seoRows,{childList:true,characterData:true,subtree:true});
   const allowed=()=>typeof isAdmin==='function'&&isAdmin()&&typeof db!=='undefined'&&db&&document.getElementById('view-admin').classList.contains('visible');
   const delta=(n,p)=>{const v=A.change(n,p);return v==null?(p===0&&n>0?'이전 기간 기록 0':'비교 기준 없음'):(v>0?'+':'')+v+'% · 이전 동기간 대비';};
   root.innerHTML=`<div class="aa-heading"><div><span class="aa-eyebrow">택일소 운영 분석</span><h2>흐름을 읽는 운영 현황</h2><p>방문부터 상담, 결제까지. 같은 기간의 기록을 함께 살펴보세요.</p></div><button type="button" class="aa-btn" data-aa-refresh>새로고침</button></div><div class="aa-toolbar"><div class="aa-period" role="group" aria-label="통계 기간">${[[1,'오늘'],[7,'최근 7일'],[30,'최근 30일'],[90,'최근 90일']].map(([v,t])=>`<button type="button" data-aa-days="${v}" aria-pressed="${v===30}">${t}</button>`).join('')}</div><button type="button" class="aa-btn" data-aa-export disabled>일별 CSV 내보내기</button></div><p class="aa-status" role="status" aria-live="polite" id="aaStatus">관리자 인증 후 통계를 불러옵니다.</p><div id="aaReport"></div>`;
@@ -18,19 +29,22 @@
   }
   function render(){
     if(!data||!allowed())return;
+    syncPaymentTotals();
     const end=A.dateKey(Date.now()),range=A.keys(end,days),start=range[0],prior=A.keys(A.dateKey(Date.parse(start+'T00:00:00+09:00')-86400000),days),r=A.aggregate(data,start,end),p=A.aggregate(data,prior[0],prior.at(-1));
     const paidOK=data.ok.orders,visitsOK=data.ok.visits,funnelOK=data.ok.funnel;
+    r.events=r.events.filter(x=>x.name!=='결제 완료 이벤트');r.events.push({name:'테스트 제외 완료 주문',value:r.paid});
+    if(start<='2026-11-11')r.seo.forEach(row=>{row.purchases=null;});
     const partial=data.capped?' · 주문은 최근 1,000건 범위, 비교도 부분 집계':'';
     status(`${start} — ${end} · 한국시간(KST) · 조회 ${new Date(asOf).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul'})}${partial}${data.errors.length?' · 조회 실패: '+data.errors.join(', ')+' (새로고침으로 재시도)':''}`);
     const kpi=(label,value,note)=>`<article class="aa-kpi"><h3>${label}</h3><strong>${value}</strong><p>${esc(note)}</p></article>`;
-    const b=data.ok.counters?A.baseline(data.counters):null;
-    const correction=b?`초기 테스트 기준을 제외한 누적 참고값 <b>${fmt(b.revenue)}원 · ${fmt(b.count)}건</b>`:'누적 테스트 보정 참고값을 계산할 수 없습니다.';
+    const b=data.ok.orders?{revenue:data.orders.filter(o=>o.status==='paid').reduce((n,o)=>n+A.number(o.amount),0),count:data.orders.filter(o=>o.status==='paid').length}:null;
+    const correction=b?`테스트 주문 제외 후 조회된 누적 결제 <b>${fmt(b.revenue)}원 · ${fmt(b.count)}건</b>`:'주문 기록을 불러오지 못했습니다.';
     const storedTotal=data.orders.filter(o=>o.status==='paid').reduce((n,o)=>n+A.number(o.amount),0),counterTotal=A.number(data.counters.revenue);
-    const reconciliation=paidOK&&data.ok.counters?`<p class="aa-reconcile">누적 기록 대조 · 조회된 완료 주문 저장 금액 ${fmt(storedTotal)}원 / 누적 결제 카운터 ${fmt(counterTotal)}원${storedTotal!==counterTotal?`<br><b>두 기록에 ${fmt(Math.abs(storedTotal-counterTotal))}원 차이가 있습니다.</b> 과거 주문의 요청 금액·누락·취소 이력을 페이앱 거래 내역과 대조해 주세요. 이 화면만으로 실제 매출을 확정하지 않습니다.`:' · 현재 조회 범위의 합계가 같습니다.'}${data.capped?' · 주문은 부분 조회 범위입니다.':''}</p>`:'';
-    root.querySelector('#aaReport').innerHTML=`<div class="aa-kpis">${kpi('방문 기록',visitsOK?fmt(r.visits):'—',visitsOK?delta(r.visits,p.visits)+' · 방문 집계 기준':'방문 기록 조회 실패')}${kpi('신규 가입 이벤트',funnelOK?fmt(r.signups):'—',funnelOK?delta(r.signups,p.signups):'행동 기록 조회 실패')}${kpi('완료 주문 저장 금액',paidOK?fmt(r.revenue)+'원':'—',paidOK?'주문에 저장된 금액 · 테스트 포함 · 실제 매출 대조 필요'+(data.capped?' · 부분 집계':''):'주문 원장 조회 실패')}${kpi('완료 주문 / 평균 주문금액',paidOK?fmt(r.paid)+'건':'—',paidOK?'완료 주문당 '+(r.aov==null?'계산할 주문 없음':fmt(r.aov)+'원'):'주문 원장 조회 실패')}</div>
-    <aside class="aa-baseline"><span class="aa-eyebrow">테스트 매출 구분</span><p>${correction}</p><small>운영자가 확인한 초기 테스트 13건·33,200원을 누적 결제 카운터에서 한 번 제외한 참고값입니다. 거래별 테스트 분류나 순매출이 아닙니다. 위 기간별 원장 수치와 아래 상품별 수치에는 이 일괄 보정을 적용하지 않습니다. 원본 통계·주문은 변경하지 않습니다.</small>${reconciliation}</aside>
+    const reconciliation='';
+    root.querySelector('#aaReport').innerHTML=`<div class="aa-kpis">${kpi('방문 기록',visitsOK?fmt(r.visits):'—',visitsOK?delta(r.visits,p.visits)+' · 방문 집계 기준':'방문 기록 조회 실패')}${kpi('신규 가입 이벤트',funnelOK?fmt(r.signups):'—',funnelOK?delta(r.signups,p.signups):'행동 기록 조회 실패')}${kpi('완료 주문 저장 금액',paidOK?fmt(r.revenue)+'원':'—',paidOK?'주문에 저장된 금액 · 테스트 제외 · 실제 매출 대조 필요'+(data.capped?' · 부분 집계':''):'주문 원장 조회 실패')}${kpi('완료 주문 / 평균 주문금액',paidOK?fmt(r.paid)+'건':'—',paidOK?'완료 주문당 '+(r.aov==null?'계산할 주문 없음':fmt(r.aov)+'원'):'주문 원장 조회 실패')}</div>
+    <aside class="aa-baseline"><span class="aa-eyebrow">테스트 매출 구분</span><p>${correction}</p><small>운영자가 테스트로 확인한 2026년 11월 11일 01:36:26 이전 생성 주문을 제외했습니다. 이후 생성된 주문부터 집계하며 결제 원본과 이용권은 보존합니다.</small>${reconciliation}</aside>
     <section class="aa-panel"><div class="aa-panel-head"><div><h3>일별 흐름</h3><p>같은 축의 일별 기록으로 변화를 확인하세요.</p></div><div class="aa-period" role="group" aria-label="추이 지표"><button type="button" data-aa-metric="visits" aria-pressed="${metric==='visits'}">방문</button><button type="button" data-aa-metric="revenue" aria-pressed="${metric==='revenue'}">주문 저장 금액</button></div></div>${data.ok[metric==='visits'?'visits':'orders']?chart(r.series):'<p class="aa-empty">이 지표를 불러오지 못했습니다.</p>'}<details class="aa-daily"><summary>일별 수치 표 보기</summary>${table(['날짜','방문 기록','완료 주문','주문 저장 금액'],r.series.slice().reverse().map(x=>[x.date,visitsOK?fmt(x.visits):'—',paidOK?fmt(x.orders):'—',paidOK?fmt(x.revenue)+'원':'—']),'해당 기간 기록이 없습니다.')}</details></section>
-    <div class="aa-two"><section class="aa-panel"><h3>상품별 결제</h3><p>결제 완료 주문 기준 · 테스트 포함</p>${paidOK?table(['상품','주문','금액'],r.products.map(x=>[x.name,fmt(x.count)+'건',fmt(x.revenue)+'원']),'완료된 주문이 없습니다.'):'<p class="aa-empty">주문 원장을 불러오지 못했습니다.</p>'}</section><section class="aa-panel"><h3>유입 경로</h3><p>검색·SNS·직접·기타 유입의 집계 기록</p>${data.ok.traffic?bars(r.traffic):'<p class="aa-empty">유입 기록을 불러오지 못했습니다.</p>'}</section></div>
+    <div class="aa-two"><section class="aa-panel"><h3>상품별 결제</h3><p>결제 완료 주문 기준 · 테스트 제외</p>${paidOK?table(['상품','주문','금액'],r.products.map(x=>[x.name,fmt(x.count)+'건',fmt(x.revenue)+'원']),'완료된 주문이 없습니다.'):'<p class="aa-empty">주문 원장을 불러오지 못했습니다.</p>'}</section><section class="aa-panel"><h3>유입 경로</h3><p>검색·SNS·직접·기타 유입의 집계 기록</p>${data.ok.traffic?bars(r.traffic):'<p class="aa-empty">유입 기록을 불러오지 못했습니다.</p>'}</section></div>
     <section class="aa-panel"><h3>상담과 구매로 이어지는 주요 행동</h3><p>각 항목은 기간 내 독립적인 이벤트 건수입니다. 같은 이용자의 순서나 이동을 추적한 전환율이 아니며, 항목 간 차이를 이탈률로 해석하지 않습니다.</p>${funnelOK?bars(r.events):'<p class="aa-empty">행동 기록을 불러오지 못했습니다.</p>'}</section>
     <section class="aa-panel"><h3>무료 기본 리포트에서 연우로</h3><p>이 경로에서 발생한 단계별 기록입니다. 같은 브라우저의 결과 흐름당 각 단계는 한 번만 기록합니다. 가입은 신규 계정만, 첫 상담은 해당 흐름에서 실제 답변을 받은 첫 질문만 셉니다. 기기 간 이용자 추적이나 동일 기간 코호트 전환율은 아닙니다.</p>${!funnelOK?'<p class="aa-empty">행동 기록을 불러오지 못했습니다.</p>':r.reportInstrumented?bars(r.reportEvents):'<p class="aa-empty">선택 기간에 무료 리포트 전환 기록이 없습니다. 신규 집계 필드 수집은 관련 화면과 Firestore 규칙을 함께 적용한 뒤 시작됩니다.</p>'}</section>
     <section class="aa-panel"><h3>검색 가이드 성과</h3><p>가이드에서 상담으로 이어진 기록 · 결제 이벤트, 주문 원장과 집계 기준이 다를 수 있습니다.</p>${data.ok.seo?table(['가이드','상담 유입','가입','첫 답변','결제 이벤트'],r.seo.slice(0,20).map(x=>['/'+x.name+'/',fmt(x.visits),fmt(x.signups),fmt(x.answers),fmt(x.purchases)]),'선택한 기간에 검색 가이드 유입 기록이 없습니다.'):'<p class="aa-empty">검색 가이드 기록을 불러오지 못했습니다.</p>'}${data.seoCapped?'<p>검색 가이드 기록은 최대 2,000개 문서 범위의 부분 집계입니다.</p>':''}</section>
@@ -54,7 +68,7 @@
       if(token!==request||!allowed())return;
       const next={ok:{},errors:[],orders:[],visits:[],funnel:[],traffic:[],seo:[],counters:{}};
       results.forEach((result,i)=>{const [key,label]=jobs[i];next.ok[key]=result.status==='fulfilled';if(result.status==='rejected'){const reason={'permission-denied':'조회 권한 확인 필요','failed-precondition':'조회 인덱스 확인 필요','unavailable':'연결 상태 확인 필요'}[result.reason?.code]||'조회 오류';next.errors.push(label+' · '+reason);return;}const snap=result.value;if(key==='counters')next.counters=snap.exists?snap.data():{};else next[key]=snap.docs.map(doc=>({...doc.data(),id:doc.id}));if(key==='seo')next.seoCapped=!!snap.capped;});
-      next.capped=next.orders.length>1000;next.orders=next.orders.slice(0,1000);data=next;asOf=Date.now();render();
+      next.capped=next.orders.length>1000;next.orders=next.orders.slice(0,1000).filter(window.TaekilPaymentBaseline.isProductionOrder);data=next;asOf=Date.now();render();
     }catch(e){if(allowed())status('통계를 불러오지 못했습니다. 새로고침으로 다시 시도해 주세요.');}
     finally{busy=false;button.disabled=false;}
   }
@@ -65,7 +79,7 @@
     if(btn.dataset.aaMetric){metric=btn.dataset.aaMetric;render();}
     if(btn.hasAttribute('data-aa-export')&&data){
       const end=A.dateKey(Date.now()),r=A.aggregate(data,A.keys(end,days)[0],end),safe=v=>`"${String(v).replace(/"/g,'""')}"`;
-      const csv='\uFEFF'+[['날짜(KST)','방문 기록','완료 주문(테스트 포함)','주문 저장 금액(실제 매출 대조 필요)'],...r.series.map(x=>[x.date,data.ok.visits?x.visits:'조회 실패',data.ok.orders?x.orders:'조회 실패',data.ok.orders?x.revenue:'조회 실패'])].map(row=>row.map(safe).join(',')).join('\r\n');
+      const csv='\uFEFF'+[['날짜(KST)','방문 기록','완료 주문(테스트 제외)','주문 저장 금액(실제 매출 대조 필요)'],...r.series.map(x=>[x.date,data.ok.visits?x.visits:'조회 실패',data.ok.orders?x.orders:'조회 실패',data.ok.orders?x.revenue:'조회 실패'])].map(row=>row.map(safe).join(',')).join('\r\n');
       const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=`taekilso-analytics-${end}-${days}days${data.capped?'-partial':''}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
     }
   });
