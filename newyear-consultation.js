@@ -31,13 +31,13 @@
     content.replaceChildren();
     profiles=typeof getSajuVault==='function'?getSajuVault():[];
     content.append(el('h2','어느 분의 한 해를 살펴볼까요?'));
-    const note=el('p','한 계정당 2027년 리포트 1인분입니다. 작성이 완료되면 사주를 바꿀 수 없으니 생년월일을 확인해 주세요.','newyear-muted');content.append(note);
+    const note=el('p','2027년 리포트는 계정당 한 분의 사주로 작성합니다. 작성이 완료되면 사주를 바꿀 수 없으니 생년월일을 확인해 주세요.','newyear-muted');content.append(note);
     if(!profiles.length){content.append(button('상담할 사주 등록하기',()=>{goTo('home');showAiChatSetupStep();}));return;}
     const label=el('label','저장된 사주');label.htmlFor='newyearProfile';
     const select=el('select');select.id='newyearProfile';
     profiles.forEach((p,i)=>{const o=el('option',`${p.name||'상담자'} · ${p.y}.${p.m}.${p.d} · ${p.calType==='lunar'?'음력':'양력'}${p.isLeap?' 윤달':''}`);o.value=String(i);select.append(o);});
     const confirmation=el('label',null,'newyear-confirm'),check=el('input');check.type='checkbox';
-    confirmation.append(check,document.createTextNode('선택한 사주를 확인했습니다. 이 사주로 1인 리포트를 작성합니다.'));
+    confirmation.append(check,document.createTextNode('선택한 사주를 확인했습니다. 이 사주로 나만의 신년 리포트를 작성합니다.'));
     const generate=button('연우의 2027 신년 리포트 작성하기',async()=>{
       if(busy||!check.checked)return;
       busy=true;generate.disabled=true;select.disabled=true;check.disabled=true;
