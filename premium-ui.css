@@ -226,7 +226,9 @@ input:focus,select:focus,textarea:focus{box-shadow:none!important;transform:none
 #homeIntroOverlay .home-start-chat-btn{background:#C6AA76;border:0;color:#101715;font-weight:600}
 .home-first-block .ai-chat-stage{min-height:650px}
 .home-first-block .ai-chat-bgvideo{border-radius:4px}
-.topbar{border:0;border-bottom:1px solid #344139;border-radius:0;background:#101715}
+.topbar{top:0;margin-top:0;border:0;border-bottom:1px solid #344139;border-radius:0;background:#101715;padding-top:calc(11px + env(safe-area-inset-top,0px))}
+/* Cover the full viewport width while retaining the existing inner alignment. */
+.topbar::before{content:"";position:absolute;inset:0 calc((100% - 100vw)/2);z-index:-1;background:#101715;border-bottom:1px solid #344139;pointer-events:none}
 .btn,.nav-cta,.form-submit,.ai-chat-inputrow,.ai-chat-inputrow button,.qp-strip-cards button{border-radius:6px}
 .price-card,.price-card.featured,.tool-shell,.saju-event-card,.saju-hub-card,.ai-history-item,.saju-vault-card,.best-result-hero,.result-card,.result-card.best{border-radius:4px;box-shadow:none}
 .price-card,.price-card.featured{background:transparent;border:0;border-top:1px solid #344139;padding-left:0;padding-right:0}
