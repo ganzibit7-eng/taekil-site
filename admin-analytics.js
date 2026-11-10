@@ -59,8 +59,17 @@
       const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=`taekilso-analytics-${end}-${days}days${data.capped?'-partial':''}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
     }
   });
-  function sync(){const visible=!!allowed();root.hidden=!visible;if(visible&&!active){active=true;load();}if(!visible&&active){active=false;++request;data=null;root.querySelector('#aaReport').replaceChildren();root.querySelector('[data-aa-export]').disabled=true;}}
+  function sync(){
+    if(typeof window.syncAdminExclusiveMode==='function')window.syncAdminExclusiveMode();
+    const visible=!!allowed(),content=document.getElementById('adminContent');
+    // A direct #admin load can finish routing before the saved login is restored.
+    // Re-render the existing admin view after its navigation reflects the settled login.
+    if(visible&&content.style.display==='none'&&typeof renderAdmin==='function')renderAdmin();
+    if(!visible&&active&&document.getElementById('view-admin').classList.contains('visible')&&typeof renderAdmin==='function')renderAdmin();
+    root.hidden=!visible;if(visible&&!active){active=true;load();}if(!visible&&active){active=false;++request;data=null;root.querySelector('#aaReport').replaceChildren();root.querySelector('[data-aa-export]').disabled=true;}
+  }
   new MutationObserver(sync).observe(document.getElementById('view-admin'),{attributes:true,attributeFilter:['class','style']});
   new MutationObserver(sync).observe(document.getElementById('adminContent'),{attributes:true,attributeFilter:['style']});
+  const nav=document.querySelector('.topbar');if(nav)new MutationObserver(sync).observe(nav,{childList:true,subtree:true});
   window.addEventListener('pageshow',sync);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&allowed()&&Date.now()-asOf>300000)load();});sync();
 })();
