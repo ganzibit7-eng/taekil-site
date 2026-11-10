@@ -3,7 +3,7 @@ const baselineRef='d7bd53ed709f19d5ffb633b622dcae97158de697';
 const baseline=cp.execFileSync('git',['show',baselineRef+':index.html'],{encoding:'utf8'}).replace(/\r\n/g,'\n');
 const current=fs.readFileSync('index.html','utf8').replace(/\r\n/g,'\n');
 const scripts=html=>[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].map(m=>[m[1],m[2]]);
-const originalScripts=scripts(current).filter(([attrs])=>!['premium-motion.js','admin-analytics-core.js','admin-analytics.js'].some(src=>attrs.includes('src="'+src+'"')));
+const originalScripts=scripts(current).filter(([attrs])=>!['premium-motion.js','admin-analytics-core.js','admin-analytics.js'].some(src=>new RegExp('src="'+src.replaceAll('.', '\\.')+'(?:\\?[^"]*)?"').test(attrs)));
 assert.deepEqual(originalScripts,scripts(baseline),'Existing inline and external scripts must remain exactly unchanged');
 new Function(fs.readFileSync('premium-motion.js','utf8'));
 const hooks=html=>[...html.matchAll(/\bon(?:click|change|input|keydown|submit)="[^"]*"/g)].map(m=>m[0]);
@@ -57,7 +57,7 @@ console.log('PASS: three actual consultation answers preserve all wording; story
 
 for(const file of ['admin-analytics-core.js','admin-analytics.js'])new Function(fs.readFileSync(file,'utf8'));
 assert.equal((current.match(/src="admin-analytics-core.js"/g)||[]).length,1);
-assert.equal((current.match(/src="admin-analytics.js"/g)||[]).length,1);
+assert.equal((current.match(/src="admin-analytics\.js(?:\?[^"]*)?"/g)||[]).length,1);
 assert(current.includes('id="adminAnalytics" hidden'));
 const analytics=fs.readFileSync('admin-analytics.js','utf8');
 assert(!/\.(set|update|delete|add)\(/.test(analytics),'Reporting must not mutate database documents');
