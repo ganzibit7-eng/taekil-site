@@ -17,4 +17,5 @@ jobs:
           node-version: 24
       - run: node verify-ui-contract.cjs
       - run: node test-admin-analytics.cjs
+      - run: node --test test-free-report-handoff.cjs
       - run: git diff --check

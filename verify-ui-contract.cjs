@@ -3,8 +3,17 @@ const baselineRef='d7bd53ed709f19d5ffb633b622dcae97158de697';
 const baseline=cp.execFileSync('git',['show',baselineRef+':index.html'],{encoding:'utf8'}).replace(/\r\n/g,'\n');
 const current=fs.readFileSync('index.html','utf8').replace(/\r\n/g,'\n');
 const scripts=html=>[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].map(m=>[m[1],m[2]]);
-const originalScripts=scripts(current).filter(([attrs])=>!['premium-motion.js','admin-analytics-core.js','admin-analytics.js','consultation-stage.js','navigation-stability.js','newyear-consultation.js'].some(src=>new RegExp('src="'+src.replaceAll('.', '\\.')+'(?:\\?[^"]*)?"').test(attrs)));
-const normalizeSeasonal=source=>source.replace(/        \/\* NEWYEAR_SCOPE_START \*\/[\s\S]*?        \/\* NEWYEAR_SCOPE_END \*\/\n/,'').replace(/      \/\* NEWYEAR_RESPONSE_START \*\/[\s\S]*?      \/\* NEWYEAR_RESPONSE_END \*\/\n/,'').replace("goodname: '2027 신년상담 · 30일 이용권'","goodname: '택일소 프리미엄 30일 이용권'");
+const originalScripts=scripts(current).filter(([attrs])=>!['premium-motion.js','admin-analytics-core.js','admin-analytics.js','consultation-stage.js','navigation-stability.js','newyear-consultation.js','free-report-handoff-core.js','free-report-handoff.js','navigation-refinement.js'].some(src=>new RegExp('src="'+src.replaceAll('.', '\\.')+'(?:\\?[^"]*)?"').test(attrs)));
+const normalizeReport=source=>source
+.replace(/  \/\* REPORT_MANUAL_OPTION_START \*\/[\s\S]*?  \/\* REPORT_MANUAL_OPTION_END \*\/\n/,'')
+.replace(/      \/\* REPORT_SIGNUP_EVENT_START \*\/[\s\S]*?      \/\* REPORT_SIGNUP_EVENT_END \*\/\n/,'')
+.replace(/    \/\* REPORT_QUESTION_EVENT_START \*\/[\s\S]*?    \/\* REPORT_QUESTION_EVENT_END \*\/\n/,'')
+.replace(/    \/\* REPORT_RESULT_EVENT_START \*\/[\s\S]*?    \/\* REPORT_RESULT_EVENT_END \*\/\n/,'')
+.replace('function startAiChat(reportOptions)', 'function startAiChat()')
+.replace('if (!reportManual && getPendingPaidAiQuestion())','if (getPendingPaidAiQuestion())')
+.replace("const storedTodayQuestion = reportManual ? '' : takeTodayFortunePendingQuestion();",'const storedTodayQuestion = takeTodayFortunePendingQuestion();')
+.replace("const pendingQuestion = reportManual ? '' : (window.__pendingCategoryQuestion || storedTodayQuestion);",'const pendingQuestion = window.__pendingCategoryQuestion || storedTodayQuestion;');
+const normalizeSeasonal=source=>normalizeReport(source).replace(/        \/\* NEWYEAR_SCOPE_START \*\/[\s\S]*?        \/\* NEWYEAR_SCOPE_END \*\/\n/,'').replace(/      \/\* NEWYEAR_RESPONSE_START \*\/[\s\S]*?      \/\* NEWYEAR_RESPONSE_END \*\/\n/,'').replace("goodname: '2027 신년상담 · 30일 이용권'","goodname: '택일소 프리미엄 30일 이용권'");
 assert.deepEqual(originalScripts.map(([a,b])=>[a,normalizeSeasonal(b)]),scripts(baseline),'Existing inline and external scripts must remain exactly unchanged');
 new Function(fs.readFileSync('premium-motion.js','utf8'));
 const hooks=html=>[...html.matchAll(/\bon(?:click|change|input|keydown|submit)="[^"]*"/g)].map(m=>m[0]);
@@ -57,7 +66,7 @@ assert.equal((current.match(/src="premium-motion.js"/g)||[]).length,1);
 console.log('PASS: three actual consultation answers preserve all wording; story assets and presentation-only motion are present.');
 
 for(const file of ['admin-analytics-core.js','admin-analytics.js'])new Function(fs.readFileSync(file,'utf8'));
-assert.equal((current.match(/src="admin-analytics-core.js"/g)||[]).length,1);
+assert.equal((current.match(/src="admin-analytics-core\.js(?:\?[^" ]*)?"/g)||[]).length,1);
 assert.equal((current.match(/src="admin-analytics\.js(?:\?[^"]*)?"/g)||[]).length,1);
 assert(current.includes('id="adminAnalytics" hidden'));
 const analytics=fs.readFileSync('admin-analytics.js','utf8');
@@ -72,3 +81,7 @@ new Function(fs.readFileSync('navigation-stability.js','utf8'));
 new Function(fs.readFileSync('newyear-consultation.js','utf8'));
 assert(current.includes("consultationScope: window.__newyearChatContext ? 'newyear' : undefined"));
 assert(current.includes("data.error === 'NEWYEAR_PASS_REQUIRED'"));
+
+for(const f of ['free-report-handoff-core.js','free-report-handoff.js'])new Function(fs.readFileSync(f,'utf8'));
+
+const footer=current.slice(current.indexOf('<footer>'),current.indexOf('</footer>'));assert.equal((footer.match(/class="footer-link"/g)||[]).length,3);for(const label of ['이용약관','개인정보처리방침','문의하기'])assert(footer.includes(label));assert(!footer.includes('이용권 안내')&&!footer.includes('서비스 안내'));new Function(fs.readFileSync('navigation-refinement.js','utf8'));

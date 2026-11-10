@@ -20,3 +20,8 @@ assert.equal(A.change(10,0),null);assert.equal(A.change(15,10),50);assert.equal(
 assert.deepEqual(A.baseline({purchases:13,revenue:33200}),{count:0,revenue:0});assert.deepEqual(A.baseline({purchases:14,revenue:35100}),{count:1,revenue:1900});assert.equal(A.baseline({purchases:12,revenue:33200}),null);
 assert.equal(A.number(-1),0);assert.equal(A.number('oops'),0);
 console.log('PASS: KST boundaries, date ranges, actual payment dates, paid-only totals, product reconciliation, unknown products, empty periods, average order amount, independent events, period comparisons and test-payment baseline.');
+
+assert.equal(r.reportInstrumented,false);
+const reportData=A.aggregate({...data,funnel:[{id:'2026-11-10',freeReportViews:12,freeReportCompleted:8,reportCtaClicks:5,reportQuestionClicks:3,reportSignupStarts:3,reportSignups:2,reportFirstQuestions:1}]},'2026-11-10','2026-11-10');
+assert.equal(reportData.reportInstrumented,true);assert.deepEqual(reportData.reportEvents.map(x=>x.value),[12,8,5,3,3,2,1]);assert.equal(reportData.revenue,r.revenue);
+console.log('PASS: dedicated report steps preserve existing payment totals and distinguish absent instrumentation.');
