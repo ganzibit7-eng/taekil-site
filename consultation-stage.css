@@ -1,6 +1,9 @@
 /* The same Yeonwoo film continues behind profile entry and the conversation. */
 html{scroll-behavior:auto!important}
 .view{overflow-anchor:none}
+.view.reveal{transform:none!important;transition:none!important;animation:none!important}
+.view.visible{opacity:1!important}
+.view:not(#view-home) .reveal,body.consultation-open #view-home .reveal{opacity:1!important;transform:none!important;transition:none!important;animation:none!important}
 #consultationExit{display:none}
 html.consultation-open{overflow:hidden!important;scroll-snap-type:none!important;scroll-behavior:auto!important;overscroll-behavior:none}
 body.consultation-open{position:fixed;inset:0;width:100%;height:100%;overflow:hidden!important;padding-bottom:0!important;overscroll-behavior:none}
