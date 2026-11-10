@@ -6,6 +6,8 @@ body.admin-exclusive-mode #view-admin .reveal{opacity:1;transform:none}
 body.admin-exclusive-mode #view-admin>.block>.container{max-width:1200px!important;width:calc(100% - 64px)}
 body.admin-exclusive-mode #view-admin .hero{padding:48px 20px 28px;min-height:0}
 body.admin-exclusive-mode #view-admin .hero h1{font-size:34px!important}
+/* Keep the original page heading for assistive technology; avoid a second hero above the report. */
+#view-admin:has(#adminContent[style*="block"])>header.hero{position:absolute!important;width:1px!important;height:1px!important;min-height:0!important;padding:0!important;margin:0!important;overflow:hidden!important;clip-path:inset(50%)}
 #adminAnalytics[hidden]{display:none!important}
 #adminAnalytics{margin:16px 0 52px;font:400 16px/1.7 var(--sans);color:#B6BDB5;min-width:0}
 .aa-heading,.aa-toolbar,.aa-panel-head{display:flex;justify-content:space-between;align-items:center;gap:24px}.aa-heading h2{font:600 30px/1.5 var(--serif);color:#F0EBE1;margin:8px 0 14px}.aa-heading p,.aa-panel p{margin:0;font-size:15px;line-height:1.8}.aa-eyebrow{font-size:13px;color:#C6AA76}
