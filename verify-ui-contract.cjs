@@ -5,6 +5,8 @@ const current=fs.readFileSync('index.html','utf8').replace(/\r\n/g,'\n');
 const scripts=html=>[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].map(m=>[m[1],m[2]]);
 const originalScripts=scripts(current).filter(([attrs])=>!['site-menu.js','yeonwoo-video.js','newyear-example.js','admin-payment-baseline.js','premium-motion.js','admin-analytics-core.js','admin-analytics.js','consultation-stage.js','navigation-stability.js','newyear-consultation.js','free-report-handoff-core.js','free-report-handoff.js','navigation-refinement.js','profile-picker-controls.js','consultation-quality.js','support-channels.js'].some(src=>new RegExp('src="'+src.replaceAll('.', '\\.')+'(?:\\?[^"]*)?"').test(attrs)));
 const normalizeReport=source=>source
+.replaceAll('하루 10개','하루 15개') // Explicitly authorized daily premium policy change; retain all other script invariants.
+.replace('const limit = extra && Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 10;', 'const limit = extra && Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 15;')
 .replace(/\/\* VISITOR_POLICY_START \*\/[\s\S]*?\/\* VISITOR_POLICY_END \*\/\n/,'')
 .replace(/  \/\* VISITOR_GUARD_START \*\/[\s\S]*?  \/\* VISITOR_GUARD_END \*\//,'  if (isAdmin()) return;')
 .replace(/  \/\* TRAFFIC_GUARD_START \*\/[\s\S]*?  \/\* TRAFFIC_GUARD_END \*\//,'  if(!db || isAdmin()) return;')

@@ -25,7 +25,7 @@
   const millis=v=>v&&typeof v.toMillis==='function'?v.toMillis():Number(v||0);
   function availability(member,now=Date.now()){
     if(!member)return {kind:'unknown',label:'이용 상태 확인하기',note:'이용 상태를 확인한 뒤 안내해 드릴게요.'};
-    if(member.premium===true&&millis(member.premiumUntil)>now)return {kind:'premium',label:'연우에게 이어 묻기',note:'30일 상담 이용 중 · 하루 15개 질문 · 질문은 전송 버튼을 눌러야 시작돼요.'};
+    if(member.premium===true&&millis(member.premiumUntil)>now)return {kind:'premium',label:'연우에게 이어 묻기',note:'30일 상담 이용 중 · 하루 10개 질문 · 질문은 전송 버튼을 눌러야 시작돼요.'};
     const left=Math.max(0,3-Math.max(0,Number(member.aiFreeUsed)||0));
     if(left)return {kind:'free',label:'연우에게 무료로 질문하기',note:`무료 질문 ${left}개 남음 · 카드 등록 불필요`};
     const credits=Math.max(0,Math.floor(Number(member.aiQuestionCredits)||0));
