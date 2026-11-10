@@ -3,8 +3,12 @@ const baselineRef='d7bd53ed709f19d5ffb633b622dcae97158de697';
 const baseline=cp.execFileSync('git',['show',baselineRef+':index.html'],{encoding:'utf8'}).replace(/\r\n/g,'\n');
 const current=fs.readFileSync('index.html','utf8').replace(/\r\n/g,'\n');
 const scripts=html=>[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].map(m=>[m[1],m[2]]);
-const originalScripts=scripts(current).filter(([attrs])=>!['site-menu.js','yeonwoo-video.js','newyear-example.js','admin-payment-baseline.js','premium-motion.js','admin-analytics-core.js','admin-analytics.js','consultation-stage.js','navigation-stability.js','newyear-consultation.js','free-report-handoff-core.js','free-report-handoff.js','navigation-refinement.js','profile-picker-controls.js','consultation-quality.js','support-channels.js'].some(src=>new RegExp('src="'+src.replaceAll('.', '\\.')+'(?:\\?[^"]*)?"').test(attrs)));
-const normalizeReport=source=>source
+const originalScripts=scripts(current).filter(([attrs])=>!['campaign-attribution-core.js','campaign-attribution.js','account-session-core.js','account-session.js','site-menu.js','yeonwoo-video.js','newyear-example.js','admin-payment-baseline.js','premium-motion.js','admin-analytics-core.js','admin-analytics.js','consultation-stage.js','navigation-stability.js','newyear-consultation.js','free-report-handoff-core.js','free-report-handoff.js','navigation-refinement.js','profile-picker-controls.js','consultation-quality.js','support-channels.js'].some(src=>new RegExp('src="'+src.replaceAll('.', '\\.')+'(?:\\?[^"]*)?"').test(attrs)));
+const accountChanges=JSON.parse(fs.readFileSync('account-ui-contract-changes.json','utf8'));
+const normalizeAccounts=source=>accountChanges.slice().reverse().reduce((text,change)=>text.split(change.after).join(change.before),source);
+const normalizeReport=source=>normalizeAccounts(source)
+.replace('authDomain: "auth.taekilso.com"','authDomain: "taekilso.firebaseapp.com"')
+.replaceAll('        ...(window.TaekilCampaign ? {attribution: window.TaekilCampaign.order()} : {}),\n','')
 .replaceAll('하루 10개','하루 15개') // Explicitly authorized daily premium policy change; retain all other script invariants.
 .replace('const limit = extra && Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 10;', 'const limit = extra && Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 15;')
 .replace(/\/\* VISITOR_POLICY_START \*\/[\s\S]*?\/\* VISITOR_POLICY_END \*\/\n/,'')

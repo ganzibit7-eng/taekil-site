@@ -33,15 +33,17 @@
   async function member(){
     const actor=user();if(!actor||typeof db==='undefined'||!db)return null;
     const snap=await db.collection('users').doc(actor.uid).get({source:'server'});
+    if(uid()!==actor.uid)return null;
     return snap.exists?snap.data():null;
   }
   async function update(){
+    const actor=uid();
     if(!box)return;
     if(!user()){
       primary.textContent='연우에게 무료로 질문하기';note.textContent='회원가입 후 AI 상담 총 3회 무료 · 카드 등록 불필요';return;
     }
     primary.textContent='이용 상태 확인 중…';
-    try{const state=C.availability(await member());if(!box)return;primary.textContent=state.label;note.textContent=state.note;}
+    try{const state=C.availability(await member());if(!box||uid()!==actor)return;primary.textContent=state.label;note.textContent=state.note;}
     catch(_){primary.textContent='상담 이용 상태 확인하기';note.textContent='이용 상태를 확인하지 못했어요. 버튼을 눌러 다시 확인해 주세요.';}
   }
   async function handoff(){

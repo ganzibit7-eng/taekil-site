@@ -1,0 +1,497 @@
+[
+  {
+    "before": "localStorage.getItem(BIRTH_LOCK_KEY",
+    "after": "accountStore.getItem(BIRTH_LOCK_KEY",
+    "count": 1
+  },
+  {
+    "before": "localStorage.setItem(BIRTH_LOCK_KEY",
+    "after": "accountStore.setItem(BIRTH_LOCK_KEY",
+    "count": 1
+  },
+  {
+    "before": "localStorage.removeItem(BIRTH_LOCK_KEY",
+    "after": "accountStore.removeItem(BIRTH_LOCK_KEY",
+    "count": 1
+  },
+  {
+    "before": "localStorage.getItem(HISTORY_KEY",
+    "after": "accountStore.getItem(HISTORY_KEY",
+    "count": 1
+  },
+  {
+    "before": "localStorage.setItem(HISTORY_KEY",
+    "after": "accountStore.setItem(HISTORY_KEY",
+    "count": 1
+  },
+  {
+    "before": "localStorage.removeItem(HISTORY_KEY",
+    "after": "accountStore.removeItem(HISTORY_KEY",
+    "count": 1
+  },
+  {
+    "before": "localStorage.getItem(SUPPORT_LIST_KEY",
+    "after": "accountStore.getItem(SUPPORT_LIST_KEY",
+    "count": 1
+  },
+  {
+    "before": "localStorage.setItem(SUPPORT_LIST_KEY",
+    "after": "accountStore.setItem(SUPPORT_LIST_KEY",
+    "count": 3
+  },
+  {
+    "before": "localStorage.getItem(AI_CONVERSATION_KEY",
+    "after": "accountStore.getItem(AI_CONVERSATION_KEY",
+    "count": 1
+  },
+  {
+    "before": "localStorage.setItem(AI_CONVERSATION_KEY",
+    "after": "accountStore.setItem(AI_CONVERSATION_KEY",
+    "count": 1
+  },
+  {
+    "before": "localStorage.getItem(AI_ACTIVE_SESSION_KEY",
+    "after": "accountStore.getItem(AI_ACTIVE_SESSION_KEY",
+    "count": 1
+  },
+  {
+    "before": "localStorage.setItem(AI_ACTIVE_SESSION_KEY",
+    "after": "accountStore.setItem(AI_ACTIVE_SESSION_KEY",
+    "count": 1
+  },
+  {
+    "before": "localStorage.removeItem(AI_ACTIVE_SESSION_KEY",
+    "after": "accountStore.removeItem(AI_ACTIVE_SESSION_KEY",
+    "count": 2
+  },
+  {
+    "before": "localStorage.setItem(\n          HISTORY_KEY,",
+    "after": "accountStore.setItem(\n          HISTORY_KEY,",
+    "count": 1
+  },
+  {
+    "before": "return SAJU_VAULT_PREFIX + (getCurrentUserKey() || 'guest');",
+    "after": "return accountStore.owner() ? SAJU_VAULT_PREFIX + accountStore.owner() : accountStore.key('taekilso_saju_vault');",
+    "count": 1
+  },
+  {
+    "before": "if (rec.ownerKey && nowOwner && rec.ownerKey !== nowOwner) return null;",
+    "after": "if (!accountStore.owner() || rec.ownerKey !== accountStore.owner()) return null;",
+    "count": 1
+  },
+  {
+    "before": "async function syncAiConversationHistoryFromCloud(){",
+    "after": "async function syncAiConversationHistoryFromCloud(){\n  const accountToken = accountStore.snapshot();",
+    "count": 1
+  },
+  {
+    "before": "    const merged = new Map();\n    [...getAiConversationStore()",
+    "after": "    if (!accountStore.current(accountToken)) return;\n    const merged = new Map();\n    [...getAiConversationStore()",
+    "count": 1
+  },
+  {
+    "before": "async function syncSajuVaultFromCloud(uid) {",
+    "after": "async function syncSajuVaultFromCloud(uid) {\n  const accountToken = accountStore.snapshot();",
+    "count": 1
+  },
+  {
+    "before": "  if (!ownerUid || !db) return;\n\n  try {\n    const snap = await getSajuVaultCloudRef(ownerUid).limit(50).get();",
+    "after": "  if (!ownerUid || !db || ownerUid !== accountToken.owner) return;\n\n  try {\n    const snap = await getSajuVaultCloudRef(ownerUid).limit(50).get();\n    if (!accountStore.current(accountToken)) return;",
+    "count": 1
+  },
+  {
+    "before": "function resumeAiConversation(id){",
+    "after": "function resumeAiConversation(id){\n  const accountToken = accountStore.snapshot();\n  if (!accountToken.owner) { openAuthModal(); return; }",
+    "count": 1
+  },
+  {
+    "before": "  goTo('home');\n  setTimeout(() => {\n    const intro = document.getElementById('homeIntroOverlay');",
+    "after": "  goTo('home');\n  setTimeout(() => {\n    if (!accountStore.current(accountToken)) return;\n    const intro = document.getElementById('homeIntroOverlay');",
+    "count": 1
+  },
+  {
+    "before": "async function submitInquiry(prefill) {",
+    "after": "async function submitInquiry(prefill) {\n  const accountToken = accountStore.snapshot();",
+    "count": 1
+  },
+  {
+    "before": "  const ownerUid = authUser.uid;\n  const name = kakaoUser",
+    "after": "  if (!accountStore.current(accountToken) || authUser.uid !== accountToken.owner) return;\n  const ownerUid = authUser.uid;\n  const name = kakaoUser",
+    "count": 1
+  },
+  {
+    "before": "    if (timedOut) return;\n\n    saveLocalInquiryRef(docRef.id, title);",
+    "after": "    if (!accountStore.current(accountToken)) return;\n\n    saveLocalInquiryRef(docRef.id, title);",
+    "count": 1
+  },
+  {
+    "before": "    timedOut = true;\n    showSupportStatus",
+    "after": "    timedOut = true;\n    if (!accountStore.current(accountToken)) return;\n    showSupportStatus",
+    "count": 1
+  },
+  {
+    "before": "    console.error('문의 저장 실패', err);",
+    "after": "    if (!accountStore.current(accountToken)) return;\n    console.error('문의 저장 실패', err);",
+    "count": 1
+  },
+  {
+    "before": "function cancelInquiry(id) {",
+    "after": "function cancelInquiry(id) {\n  const accountToken = accountStore.snapshot();",
+    "count": 1
+  },
+  {
+    "before": "  const removeLocally = () => {\n    const list = getMyInquiryList()",
+    "after": "  const removeLocally = () => {\n    if (!accountStore.current(accountToken)) return;\n    const list = getMyInquiryList()",
+    "count": 1
+  },
+  {
+    "before": "    const data = snap.data();\n    if (isRefundRequestTitle(data.title))",
+    "after": "    const data = snap.data();\n    if (!accountStore.current(accountToken) || data.ownerUid !== accountToken.owner) return;\n    if (isRefundRequestTitle(data.title))",
+    "count": 1
+  },
+  {
+    "before": "async function sendAiChatMessage() {",
+    "after": "async function sendAiChatMessage() {\n  const accountToken = accountStore.snapshot();\n  const conversationId = window.__aiConversationId;\n  const sameConversation = () => accountStore.current(accountToken) && window.__aiConversationId === conversationId;",
+    "count": 1
+  },
+  {
+    "before": "      headers: await getAiRequestHeaders(),\n      body: JSON.stringify({\n        uid,",
+    "after": "      headers: await (async () => { const headers = await getAiRequestHeaders(); if (!sameConversation()) throw new Error('ACCOUNT_CHANGED'); return headers; })(),\n      body: JSON.stringify({\n        uid,",
+    "count": 1
+  },
+  {
+    "before": "    const data = await res.json().catch(() => ({}));\n    /* REPORT_QUESTION_EVENT_START */",
+    "after": "    const data = await res.json().catch(() => ({}));\n    if (!sameConversation()) return;\n    /* REPORT_QUESTION_EVENT_START */",
+    "count": 1
+  },
+  {
+    "before": "  } catch (err) {\n    typingEl.remove();\n    appendAiChatMessage",
+    "after": "  } catch (err) {\n    if (!sameConversation()) return;\n    typingEl.remove();\n    appendAiChatMessage",
+    "count": 1
+  },
+  {
+    "before": "  } finally {\n    sendBtn.disabled = false;\n    if (stage)",
+    "after": "  } finally {\n    if (sameConversation()) sendBtn.disabled = false;\n    if (sameConversation() && stage)",
+    "count": 1
+  },
+  {
+    "before": "function goTo(route, presetEvent) {",
+    "after": "function goTo(route, presetEvent, navigationOptions) {",
+    "count": 1
+  },
+  {
+    "before": "    history.replaceState(null, '', u.pathname + u.search + u.hash);",
+    "after": "    const nextUrl = u.pathname + u.search + u.hash;\n    if (!navigationOptions?.skipHistory && nextUrl !== location.pathname + location.search + location.hash) history.pushState(null, '', nextUrl);",
+    "count": 1
+  },
+  {
+    "before": "  goTo(safeRoute(location.hash ? location.hash.slice(1) : 'home'));",
+    "after": "  goTo(safeRoute(location.hash ? location.hash.slice(1) : 'home'), undefined, {skipHistory:true});",
+    "count": 1
+  },
+  {
+    "before": "window.addEventListener('hashchange', () => goTo(safeRoute(location.hash.slice(1))));",
+    "after": "function restoreRouteFromHistory(){ goTo(safeRoute(location.hash.slice(1)), undefined, {skipHistory:true}); }\nwindow.addEventListener('hashchange', restoreRouteFromHistory);\nwindow.addEventListener('popstate', restoreRouteFromHistory);",
+    "count": 1
+  },
+  {
+    "before": "  const canvas=document.createElement('canvas');canvas.id='starfield';document.body.prepend(canvas);const ctx=canvas.getContext('2d');let w,h,dpr,stars=[];\n  function resize(){dpr=Math.min(devicePixelRatio||1,2);w=innerWidth;h=innerHeight;canvas.width=w*dpr;canvas.height=h*dpr;canvas.style.width=w+'px';canvas.style.height=h+'px';ctx.setTransform(dpr,0,0,dpr,0,0);const n=Math.min(115,Math.max(45,Math.floor(w*h/14500)));stars=Array.from({length:n},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.35+.25,a:Math.random()*.55+.12,s:Math.random()*.12+.025,p:Math.random()*Math.PI*2}));}\n  function draw(t){ctx.clearRect(0,0,w,h);for(const q of stars){q.p+=.008;q.y-=q.s;if(q.y<-5)q.y=h+5;const a=q.a*(.62+.38*Math.sin(q.p+t*.0008));ctx.beginPath();ctx.arc(q.x,q.y,q.r,0,Math.PI*2);ctx.fillStyle='rgba(220,195,135,'+a+')';ctx.fill();}requestAnimationFrame(draw)}resize();addEventListener('resize',resize,{passive:true});requestAnimationFrame(draw);\n",
+    "after": "  // The premium theme hides the legacy starfield; do not start its animation loop.\n",
+    "count": 1
+  },
+  {
+    "before": "  /* Cursor light */\n  if(!reduce && window.matchMedia('(pointer:fine)').matches){\n    const glow=document.createElement('div');glow.id='tmCursor';document.body.appendChild(glow);\n    let gx=0,gy=0,tx=0,ty=0;\n    addEventListener('pointermove',e=>{tx=e.clientX;ty=e.clientY},{passive:true});\n    const move=()=>{gx+=(tx-gx)*.12;gy+=(ty-gy)*.12;glow.style.transform=`translate3d(${gx}px,${gy}px,0) translate(-50%,-50%)`;requestAnimationFrame(move)};move();\n  }\n\n",
+    "after": "  // The hidden legacy cursor light has no rendering loop.\n\n",
+    "count": 1
+  },
+  {
+    "before": "localStorage.getItem(AI_PENDING_PAID_QUESTION_KEY",
+    "after": "accountStore.getItem(AI_PENDING_PAID_QUESTION_KEY",
+    "count": 1
+  },
+  {
+    "before": "localStorage.setItem(AI_PENDING_PAID_QUESTION_KEY",
+    "after": "accountStore.setItem(AI_PENDING_PAID_QUESTION_KEY",
+    "count": 1
+  },
+  {
+    "before": "localStorage.removeItem(AI_PENDING_PAID_QUESTION_KEY",
+    "after": "accountStore.removeItem(AI_PENDING_PAID_QUESTION_KEY",
+    "count": 2
+  },
+  {
+    "before": "localStorage.getItem(TODAY_FORTUNE_PENDING_QUESTION_KEY",
+    "after": "accountStore.getItem(TODAY_FORTUNE_PENDING_QUESTION_KEY",
+    "count": 2
+  },
+  {
+    "before": "localStorage.setItem(TODAY_FORTUNE_PENDING_QUESTION_KEY",
+    "after": "accountStore.setItem(TODAY_FORTUNE_PENDING_QUESTION_KEY",
+    "count": 1
+  },
+  {
+    "before": "localStorage.removeItem(TODAY_FORTUNE_PENDING_QUESTION_KEY",
+    "after": "accountStore.removeItem(TODAY_FORTUNE_PENDING_QUESTION_KEY",
+    "count": 2
+  },
+  {
+    "before": "localStorage.getItem(getSajuVaultKey()",
+    "after": "(accountStore.owner() ? localStorage : sessionStorage).getItem(getSajuVaultKey()",
+    "count": 1
+  },
+  {
+    "before": "localStorage.setItem(getSajuVaultKey()",
+    "after": "(accountStore.owner() ? localStorage : sessionStorage).setItem(getSajuVaultKey()",
+    "count": 1
+  },
+  {
+    "before": "  const item={event:name, at:Date.now(), ...(extra||{})};",
+    "after": "  const item={event:name, at:Date.now()}; // Analytics never stores raw questions or personal profile fields.",
+    "count": 1
+  },
+  {
+    "before": "    const safe=Array.isArray(list)?list:[];",
+    "after": "    const safe=Array.isArray(list)?list.map(x=>({event:String(x.event||'').slice(0,60),at:Number(x.at||0)})):[];",
+    "count": 1
+  },
+  {
+    "before": "function syncPremiumFromAccount(uid) {\n  if (!db || !uid) return;\n  db.collection('users').doc(uid).get({ source: 'server' }).then((snap) => {",
+    "after": "function syncPremiumFromAccount(uid) {\n  if (!db || !uid || uid !== accountStore.owner()) return;\n  db.collection('users').doc(uid).get({ source: 'server' }).then((snap) => {\n    if (uid !== accountStore.owner()) return;",
+    "count": 1
+  },
+  {
+    "before": "function backfillUserProfile(uid, existingData) {\n  if (!db || !uid) return;",
+    "after": "function backfillUserProfile(uid, existingData) {\n  if (!db || !uid || uid !== accountStore.owner()) return;",
+    "count": 1
+  },
+  {
+    "before": "async function recoverPremiumFromVerifiedServer(uid){\n  if (!uid) return null;",
+    "after": "async function recoverPremiumFromVerifiedServer(uid){\n  if (!uid || uid !== accountStore.owner()) return null;",
+    "count": 1
+  },
+  {
+    "before": "    const headers = await getAiRequestHeaders();\n    const res = await fetch(PREMIUM_STATUS_URL,",
+    "after": "    const headers = await getAiRequestHeaders();\n    if (uid !== accountStore.owner()) return null;\n    const res = await fetch(PREMIUM_STATUS_URL,",
+    "count": 1
+  },
+  {
+    "before": "    const data = await res.json().catch(() => ({}));\n    if (!res.ok) {\n      console.warn('프리미엄 서버 복구 확인 실패'",
+    "after": "    const data = await res.json().catch(() => ({}));\n    if (uid !== accountStore.owner()) return null;\n    if (!res.ok) {\n      console.warn('프리미엄 서버 복구 확인 실패'",
+    "count": 1
+  },
+  {
+    "before": "async function reconcilePremiumWithAccount(uid) {\n  if (!db || !uid) return;",
+    "after": "async function reconcilePremiumWithAccount(uid) {\n  if (!db || !uid || uid !== accountStore.owner()) return;",
+    "count": 1
+  },
+  {
+    "before": "    const snap = await db.collection('users').doc(uid).get({ source: 'server' });\n    const data = snap.exists ? (snap.data() || {}) : {};",
+    "after": "    const snap = await db.collection('users').doc(uid).get({ source: 'server' });\n    if (uid !== accountStore.owner()) return;\n    const data = snap.exists ? (snap.data() || {}) : {};",
+    "count": 1
+  },
+  {
+    "before": "    const recovered = await recoverPremiumFromVerifiedServer(uid);\n    if (recovered",
+    "after": "    const recovered = await recoverPremiumFromVerifiedServer(uid);\n    if (uid !== accountStore.owner()) return;\n    if (recovered",
+    "count": 1
+  },
+  {
+    "before": "function showInquiryDetail(id) {",
+    "after": "function showInquiryDetail(id) {\n  const accountToken = accountStore.snapshot();",
+    "count": 1
+  },
+  {
+    "before": "    if (!snap.exists) { panel.innerHTML = '<div class=\"empty-note\">문의를 찾을 수 없어요.</div>'; return; }",
+    "after": "    if (!accountStore.current(accountToken)) return;\n    if (!snap.exists) { panel.innerHTML = '<div class=\"empty-note\">문의를 찾을 수 없어요.</div>'; return; }",
+    "count": 1
+  },
+  {
+    "before": "  }).catch(err => { panel.innerHTML = '<div class=\"empty-note\">불러오지 못했어요.</div>'; console.error(err); });",
+    "after": "  }).catch(err => { if (!accountStore.current(accountToken)) return; panel.innerHTML = '<div class=\"empty-note\">불러오지 못했어요.</div>'; console.error(err); });",
+    "count": 1
+  },
+  {
+    "before": "localStorage.getItem('taekilso_last_order_id')",
+    "after": "accountStore.getItem('taekilso_last_order_id')",
+    "count": 2
+  },
+  {
+    "before": "localStorage.getItem('taekilso_last_purchase_at')",
+    "after": "accountStore.getItem('taekilso_last_purchase_at')",
+    "count": 2
+  },
+  {
+    "before": "function setLocalPremium(until, ownerKey) {",
+    "after": "function setLocalPremium(until, ownerKey) {\n  if (ownerKey !== accountStore.owner()) return false;",
+    "count": 1
+  },
+  {
+    "before": "  const current = getCurrentUserKey();\n  if (current && current !== owner)",
+    "after": "  const current = getCurrentUserKey();\n  if (!current) return false;\n  if (current && current !== owner)",
+    "count": 1
+  },
+  {
+    "before": "async function checkPremiumOnServer(uid) {\n  if (!db || !uid) return false;",
+    "after": "async function checkPremiumOnServer(uid) {\n  if (!db || !uid || uid !== accountStore.owner()) return false;",
+    "count": 1
+  },
+  {
+    "before": "    const snap = await db.collection('users').doc(uid).get({ source: 'server' });\n    if (!snap.exists) return false;",
+    "after": "    const snap = await db.collection('users').doc(uid).get({ source: 'server' });\n    if (uid !== accountStore.owner()) return false;\n    if (!snap.exists) return false;",
+    "count": 1
+  },
+  {
+    "before": "    const snap = await db.collection('users').doc(user.uid).get({ source:'server' });\n    const data = snap.exists",
+    "after": "    const snap = await db.collection('users').doc(user.uid).get({ source:'server' });\n    if (user.uid !== accountStore.owner()) return false;\n    const data = snap.exists",
+    "count": 1
+  },
+  {
+    "before": "      const recovered = await recoverPremiumFromVerifiedServer(user.uid);\n\n      if",
+    "after": "      const recovered = await recoverPremiumFromVerifiedServer(user.uid);\n      if (user.uid !== accountStore.owner()) return false;\n\n      if",
+    "count": 1
+  },
+  {
+    "before": "async function getQuestionCreditsFromServer(uid){\n  if (!db || !uid) return null;",
+    "after": "async function getQuestionCreditsFromServer(uid){\n  if (!db || !uid || uid !== accountStore.owner()) return null;",
+    "count": 1
+  },
+  {
+    "before": "    const snap = await db.collection('users').doc(uid).get({ source:'server' });\n    if (!snap.exists) return null;",
+    "after": "    const snap = await db.collection('users').doc(uid).get({ source:'server' });\n    if (uid !== accountStore.owner()) return null;\n    if (!snap.exists) return null;",
+    "count": 1
+  },
+  {
+    "before": "  if (credits == null) return null;\n\n  const panel",
+    "after": "  if (credits == null || uid !== accountStore.owner()) return null;\n\n  const panel",
+    "count": 1
+  },
+  {
+    "before": "  while (Date.now() < deadline) {\n    const paid = await checkOrderPaidOnServer(pending.orderId);",
+    "after": "  while (Date.now() < deadline) {\n    if (verifiedUid !== accountStore.owner()) return { confirmed:false, credits:null };\n    const paid = await checkOrderPaidOnServer(pending.orderId);\n    if (verifiedUid !== accountStore.owner()) return { confirmed:false, credits:null };",
+    "count": 1
+  },
+  {
+    "before": "      const uid = String(pending.paymentUid || getCurrentUserKey() || '').trim();",
+    "after": "      const uid = String(pending.paymentUid || getCurrentUserKey() || '').trim();\n      if (uid !== accountStore.owner()) { hidePaymentPendingStatus(); return; }",
+    "count": 1
+  },
+  {
+    "before": "          confirmed = await checkPremiumOnServer(uid);\n          if (!confirmed)",
+    "after": "          confirmed = await checkPremiumOnServer(uid);\n          if (uid !== accountStore.owner()) { hidePaymentPendingStatus(); return; }\n          if (!confirmed)",
+    "count": 1
+  },
+  {
+    "before": "      hidePaymentPendingStatus();\n\n      if (confirmed)",
+    "after": "      hidePaymentPendingStatus();\n      if (uid !== accountStore.owner()) return;\n\n      if (confirmed)",
+    "count": 1
+  },
+  {
+    "before": "          setTimeout(() => {\n            if (!restored) restoreActiveAiConversation({ silent:true });",
+    "after": "          setTimeout(() => {\n            if (uid !== accountStore.owner()) return;\n            if (!restored) restoreActiveAiConversation({ silent:true });",
+    "count": 2
+  },
+  {
+    "before": "function restoreActiveAiConversation(options){",
+    "after": "function restoreActiveAiConversation(options){\n  const accountToken = accountStore.snapshot();",
+    "count": 1
+  },
+  {
+    "before": "  goTo('home');\n\n  setTimeout(() => {\n    const intro",
+    "after": "  goTo('home');\n\n  setTimeout(() => {\n    if (!accountStore.current(accountToken)) return;\n    const intro",
+    "count": 1
+  },
+  {
+    "before": "      setTimeout(() => resumePendingPaidAiQuestion(), 300);",
+    "after": "      setTimeout(() => { if (accountStore.current(accountToken)) resumePendingPaidAiQuestion(); }, 300);",
+    "count": 1
+  },
+  {
+    "before": "function restoreRouteFromHistory(){ goTo(safeRoute(location.hash.slice(1)), undefined, {skipHistory:true}); }",
+    "after": "function restoreRouteFromHistory(){\n  const route = safeRoute(location.hash.slice(1));\n  if (document.getElementById('view-' + route)?.classList.contains('visible')) return;\n  goTo(route, undefined, {skipHistory:true});\n}",
+    "count": 1
+  },
+  {
+    "before": "function renderAdmin() {",
+    "after": "function renderAdmin() {\n  window.__cleanupLegacyAdminViews?.();\n  const adminToken = accountStore.snapshot();",
+    "count": 1
+  },
+  {
+    "before": "  if (route !== 'admin') {\n    if (typeof adminStatsUnsub",
+    "after": "  if (route !== 'admin') {\n    window.__cleanupLegacyAdminViews?.();\n    if (typeof adminStatsUnsub",
+    "count": 1
+  },
+  {
+    "before": "  window.addEventListener('taekilso:todayVisitsUpdated', () => renderTodayFunnel(lastTodayFunnelData), { once:false });",
+    "after": "  const refreshLegacyFunnel = () => { if (accountStore.current(adminToken) && isAdmin()) renderTodayFunnel(lastTodayFunnelData); };\n  window.addEventListener('taekilso:todayVisitsUpdated', refreshLegacyFunnel);",
+    "count": 1
+  },
+  {
+    "before": "  adminUsersUnsub = db.collection('users').onSnapshot(async (qs) => {\n    const list",
+    "after": "  adminUsersUnsub = db.collection('users').onSnapshot(async (qs) => {\n    if (!accountStore.current(adminToken) || !isAdmin()) return;\n    const list",
+    "count": 1
+  },
+  {
+    "before": "      console.warn('회원 최근 문의 요약 조회 실패', err);\n    }\n\n    list.innerHTML",
+    "after": "      console.warn('회원 최근 문의 요약 조회 실패', err);\n    }\n    if (!accountStore.current(adminToken) || !isAdmin()) return;\n\n    list.innerHTML",
+    "count": 1
+  },
+  {
+    "before": "  loadAdminBanList();\n  renderAdminInquiries();\n}",
+    "after": "  window.__cleanupLegacyAdminViews = () => {\n    if (adminUsersUnsub) { adminUsersUnsub(); adminUsersUnsub=null; }\n    if (adminSeoUnsub) { adminSeoUnsub(); adminSeoUnsub=null; }\n    if (adminTrafficSourceUnsub) { adminTrafficSourceUnsub(); adminTrafficSourceUnsub=null; }\n    window.removeEventListener('taekilso:todayVisitsUpdated', refreshLegacyFunnel);\n  };\n  loadAdminBanList();\n  renderAdminInquiries();\n}",
+    "count": 1
+  },
+  {
+    "before": "async function loadAdminBanList() {",
+    "after": "async function loadAdminBanList() {\n  const accountToken = accountStore.snapshot();",
+    "count": 1
+  },
+  {
+    "before": "    const data = await callAdminMemberSecurity('list_bans');",
+    "after": "    const data = await callAdminMemberSecurity('list_bans');\n    if (!accountStore.current(accountToken) || !isAdmin()) return;",
+    "count": 1
+  },
+  {
+    "before": "function renderAdminInquiries() {",
+    "after": "function renderAdminInquiries() {\n  const accountToken = accountStore.snapshot();\n  if (!isAdmin()) return;",
+    "count": 1
+  },
+  {
+    "before": "  db.collection('inquiries').limit(200).get().then((qs) => {",
+    "after": "  db.collection('inquiries').limit(200).get().then((qs) => {\n    if (!accountStore.current(accountToken) || !isAdmin()) return;",
+    "count": 1
+  },
+  {
+    "before": "async function requestRefund() {",
+    "after": "async function requestRefund() {\n  const accountToken = accountStore.snapshot();",
+    "count": 1
+  },
+  {
+    "before": "  const usageNotice = usedCount === 0",
+    "after": "  if (!accountStore.current(accountToken)) return;\n  const usageNotice = usedCount === 0",
+    "count": 1
+  },
+  {
+    "before": "  setTimeout(() => {\n    document.getElementById('supportTitle').value = '프리미엄 결제 환불 요청';",
+    "after": "  setTimeout(() => {\n    if (!accountStore.current(accountToken)) return;\n    document.getElementById('supportTitle').value = '프리미엄 결제 환불 요청';",
+    "count": 1
+  },
+  {
+    "before": "    const auth = await getVerifiedFirebaseBearer(paymentUser);\n    const res = await fetch(MEMBER_SELF_DELETE_URL",
+    "after": "    const auth = await getVerifiedFirebaseBearer(paymentUser);\n    if (paymentUser.uid !== accountStore.owner()) return;\n    const res = await fetch(MEMBER_SELF_DELETE_URL",
+    "count": 1
+  },
+  {
+    "before": "    if (!res.ok) throw new Error(data.message || '회원탈퇴를 완료하지 못했어요.');",
+    "after": "    if (!res.ok) throw new Error(data.message || '회원탈퇴를 완료하지 못했어요.');\n    if (paymentUser.uid !== accountStore.owner()) return;",
+    "count": 1
+  },
+  {
+    "before": "  const current = getCurrentUserKey();\n  if (!current) return false;",
+    "after": "  const current = accountStore.owner();\n  if (!current) return false;",
+    "count": 1
+  },
+  {
+    "before": "    if (!res.ok) throw new Error(data.message || '회원탈퇴를 완료하지 못했어요.');\n    if (paymentUser.uid !== accountStore.owner()) return;",
+    "after": "    if (!res.ok) throw new Error(data.message || '회원탈퇴를 완료하지 못했어요.');\n    window.clearDeletedAccountCache?.(paymentUser.uid);\n    if (paymentUser.uid !== accountStore.owner()) return;",
+    "count": 1
+  }
+]

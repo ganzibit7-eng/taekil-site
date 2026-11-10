@@ -2,6 +2,12 @@
   'use strict';
   const products={taekilso_premium_30days:'프리미엄 30일',ai_question_pack_5:'질문권 5개',ai_question_pack_10:'질문권 10개'};
   const number=v=>Number.isFinite(Number(v))&&Number(v)>0?Number(v):0;
+  function settledPaid(o){
+    if(!o||o.status!=='paid'||number(o.refundedAmount)||o.cancelledAtMs||o.entitlementRevokedAtMs)return false;
+    if(o.pay_state!=null&&Number(o.pay_state)!==4)return false;
+    if(o.lastPayState!=null&&![0,1,4,10].includes(Number(o.lastPayState)))return false;
+    return true;
+  }
   const dateKey=ms=>new Date(ms+9*3600000).toISOString().slice(0,10);
   function millis(v){if(v&&typeof v.toMillis==='function')return v.toMillis();if(v&&v.seconds)return v.seconds*1000;if(typeof v==='number')return v;if(typeof v==='string'){const n=Date.parse(v);return Number.isFinite(n)?n:0;}return 0;}
   function orderTime(o){
@@ -13,7 +19,13 @@
   function aggregate(data,start,end){
     const inRange=k=>k>=start&&k<=end;
     const sum=(rows,key)=>rows.filter(r=>inRange(r.date||r.id)).reduce((n,r)=>n+number(r[key]),0);
-    const paid=data.orders.filter(o=>o.status==='paid'&&orderTime(o)&&inRange(dateKey(orderTime(o))));
+    const paid=data.orders.filter(o=>settledPaid(o)&&orderTime(o)&&inRange(dateKey(orderTime(o))));
+    const campaignMap=new Map();
+    for(const order of paid){
+      const a=order.attribution||{},source=String(a.source||'기록 없음').slice(0,80),medium=String(a.medium||'—').slice(0,80),campaign=String(a.campaign||'—').slice(0,120),id=JSON.stringify([source,medium,campaign]);
+      const row=campaignMap.get(id)||{source,medium,campaign,count:0,revenue:0};row.count++;row.revenue+=number(order.amount);campaignMap.set(id,row);
+    }
+    const campaigns=[...campaignMap.values()].sort((a,b)=>b.revenue-a.revenue);
     const revenue=paid.reduce((n,o)=>n+number(o.amount),0);
     const productRows=Object.keys(products).map(id=>({id,name:products[id],count:paid.filter(o=>o.product===id).length,revenue:paid.filter(o=>o.product===id).reduce((n,o)=>n+number(o.amount),0)}));
     const unknown=paid.filter(o=>!products[o.product]);if(unknown.length)productRows.push({id:'other',name:'기타 상품',count:unknown.length,revenue:unknown.reduce((n,o)=>n+number(o.amount),0)});
@@ -25,9 +37,9 @@
     const seoMap=new Map();data.seo.filter(r=>inRange(r.date)).forEach(r=>{const id=String(r.slug||'미분류');const row=seoMap.get(id)||{name:id,visits:0,signups:0,answers:0,purchases:0};row.visits+=number(r.visits);row.signups+=number(r.signups);row.answers+=number(r.firstAiAnswers);row.purchases+=number(r.purchases);seoMap.set(id,row);});
     const days=Math.round((Date.parse(end)-Date.parse(start))/86400000)+1;
     const series=keys(end,days).map(date=>({date,visits:sum(data.visits.filter(r=>(r.date||r.id)===date),'count'),revenue:paid.filter(o=>dateKey(orderTime(o))===date).reduce((n,o)=>n+number(o.amount),0),orders:paid.filter(o=>dateKey(orderTime(o))===date).length}));
-    return {visits:sum(data.visits,'count'),signups:sum(data.funnel,'signups'),paid:paid.length,revenue,aov:paid.length?Math.round(revenue/paid.length):null,products:productRows,traffic,events,reportEvents,reportInstrumented,series,seo:[...seoMap.values()].sort((a,b)=>b.purchases-a.purchases||b.visits-a.visits)};
+    return {visits:sum(data.visits,'count'),signups:sum(data.funnel,'signups'),paid:paid.length,revenue,aov:paid.length?Math.round(revenue/paid.length):null,products:productRows,campaigns,traffic,events,reportEvents,reportInstrumented,series,seo:[...seoMap.values()].sort((a,b)=>b.purchases-a.purchases||b.visits-a.visits)};
   }
   function change(current,previous){return previous>0?Math.round((current-previous)/previous*1000)/10:null;}
   function baseline(counters){const count=number(counters.purchases),revenue=number(counters.revenue);return count>=13&&revenue>=33200?{count:count-13,revenue:revenue-33200}:null;}
-  return {products,number,dateKey,millis,orderTime,keys,aggregate,change,baseline};
+  return {products,number,settledPaid,dateKey,millis,orderTime,keys,aggregate,change,baseline};
 });

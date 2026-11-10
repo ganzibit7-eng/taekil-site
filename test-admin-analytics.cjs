@@ -25,3 +25,13 @@ assert.equal(r.reportInstrumented,false);
 const reportData=A.aggregate({...data,funnel:[{id:'2026-11-10',freeReportViews:12,freeReportCompleted:8,reportCtaClicks:5,reportQuestionClicks:3,reportSignupStarts:3,reportSignups:2,reportFirstQuestions:1}]},'2026-11-10','2026-11-10');
 assert.equal(reportData.reportInstrumented,true);assert.deepEqual(reportData.reportEvents.map(x=>x.value),[12,8,5,3,3,2,1]);assert.equal(reportData.revenue,r.revenue);
 console.log('PASS: dedicated report steps preserve existing payment totals and distinguish absent instrumentation.');
+
+for(const state of [8,32,9,64,70,71]){
+ assert.equal(A.settledPaid({status:'paid',pay_state:state}),false);
+ assert.equal(A.settledPaid({status:'paid',pay_state:4,lastPayState:state}),false);
+}
+for(const patch of [{status:'cancelled'},{status:'refunded'},{status:'partially_refunded'},{refundedAmount:100},{cancelledAtMs:1},{entitlementRevokedAtMs:1}])assert.equal(A.settledPaid({status:'paid',pay_state:4,...patch}),false);
+assert.equal(A.settledPaid({status:'paid',pay_state:4,lastPayState:4}),true);
+const attributed=A.aggregate({...data,orders:[{status:'paid',pay_state:4,amount:1900,createdAt:ms('2026-11-10T00:00:00Z'),attribution:{source:'naver',medium:'cpc',campaign:'winter'}},{status:'partially_refunded',pay_state:4,amount:8900,refundedAmount:100,createdAt:ms('2026-11-10T00:00:00Z'),attribution:{source:'naver',medium:'cpc',campaign:'winter'}}]},'2026-11-10','2026-11-10');
+assert.deepEqual(attributed.campaigns,[{source:'naver',medium:'cpc',campaign:'winter',count:1,revenue:1900}]);assert.equal(attributed.revenue,1900);
+console.log('PASS: cancelled/partially-refunded payments excluded and campaign-attributed completed revenue reconciles.');

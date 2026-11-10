@@ -17,7 +17,5 @@ jobs:
           node-version: 24
       - run: node verify-ui-contract.cjs
       - run: node test-admin-analytics.cjs
-      - run: node --test test-free-report-handoff.cjs
-      - run: node --test test-visitor-exclusion.cjs
-      - run: node --test test-payment-baseline.cjs test-yeonwoo-video.cjs
+      - run: node --test test-*.cjs
       - run: git diff --check
