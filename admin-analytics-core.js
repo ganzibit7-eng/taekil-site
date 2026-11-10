@@ -19,10 +19,13 @@
     const unknown=paid.filter(o=>!products[o.product]);if(unknown.length)productRows.push({id:'other',name:'기타 상품',count:unknown.length,revenue:unknown.reduce((n,o)=>n+number(o.amount),0)});
     const traffic=['search','sns','direct','other'].map((key,i)=>({name:['검색','SNS','직접','기타'][i],value:sum(data.traffic,key)}));
     const events=['fortuneResults','aiCtaClicks','signups','firstAiAnswers','freeLimitExhausted','purchases'].map((key,i)=>({name:['오늘 운세 결과','연우 CTA 클릭','신규 가입 이벤트','첫 AI 답변','무료 3회 소진','결제 완료 이벤트'][i],value:sum(data.funnel,key)}));
+    const reportFields=['freeReportViews','freeReportCompleted','reportCtaClicks','reportQuestionClicks','reportSignupStarts','reportSignups','reportFirstQuestions'];
+    const reportEvents=reportFields.map((key,i)=>({name:['무료 기본 결과 확인','결과 하단 도달','연우 CTA 선택','추천 질문 선택','리포트에서 로그인 시작','리포트 유입 신규 가입','이어진 첫 상담 성공'][i],value:sum(data.funnel,key)}));
+    const reportInstrumented=data.funnel.some(r=>inRange(r.date||r.id)&&reportFields.some(k=>Object.prototype.hasOwnProperty.call(r,k)));
     const seoMap=new Map();data.seo.filter(r=>inRange(r.date)).forEach(r=>{const id=String(r.slug||'미분류');const row=seoMap.get(id)||{name:id,visits:0,signups:0,answers:0,purchases:0};row.visits+=number(r.visits);row.signups+=number(r.signups);row.answers+=number(r.firstAiAnswers);row.purchases+=number(r.purchases);seoMap.set(id,row);});
     const days=Math.round((Date.parse(end)-Date.parse(start))/86400000)+1;
     const series=keys(end,days).map(date=>({date,visits:sum(data.visits.filter(r=>(r.date||r.id)===date),'count'),revenue:paid.filter(o=>dateKey(orderTime(o))===date).reduce((n,o)=>n+number(o.amount),0),orders:paid.filter(o=>dateKey(orderTime(o))===date).length}));
-    return {visits:sum(data.visits,'count'),signups:sum(data.funnel,'signups'),paid:paid.length,revenue,aov:paid.length?Math.round(revenue/paid.length):null,products:productRows,traffic,events,series,seo:[...seoMap.values()].sort((a,b)=>b.purchases-a.purchases||b.visits-a.visits)};
+    return {visits:sum(data.visits,'count'),signups:sum(data.funnel,'signups'),paid:paid.length,revenue,aov:paid.length?Math.round(revenue/paid.length):null,products:productRows,traffic,events,reportEvents,reportInstrumented,series,seo:[...seoMap.values()].sort((a,b)=>b.purchases-a.purchases||b.visits-a.visits)};
   }
   function change(current,previous){return previous>0?Math.round((current-previous)/previous*1000)/10:null;}
   function baseline(counters){const count=number(counters.purchases),revenue=number(counters.revenue);return count>=13&&revenue>=33200?{count:count-13,revenue:revenue-33200}:null;}

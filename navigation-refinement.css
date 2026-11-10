@@ -1,0 +1,17 @@
+/* The conversation is the primary service; the annual report is a seasonal option. */
+#homeIntroOverlay .home-start-chat-btn{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);width:min(512px,calc(100% - 40px))!important;z-index:82;background:#c6aa76;color:#101715;border:0;margin:0;font-weight:600}
+#homeIntroOverlay .home-start-chat-btn:hover{transform:translateX(-50%)}
+#homeIntroOverlay .newyear-home-entry{position:static;transform:none;width:100%;margin:16px 0 100px;background:transparent;color:#c6aa76;border:1px solid #c6aa7655;font-size:16px;font-weight:400;border-radius:8px}
+#homeIntroOverlay .newyear-home-entry:hover{transform:none;background:#c6aa760a}
+.profile-plan-guide{width:100%;min-height:48px;margin:0 0 14px;font-size:16px}
+footer{padding-top:32px;padding-bottom:32px}
+.footer-inner{display:flex;align-items:center;justify-content:space-between;gap:24px}
+.footer-brand{font-size:21px;margin:0!important}
+.footer-copy{font-size:13px;line-height:1.6;text-align:right}
+.footer-links{display:flex;flex-wrap:wrap;gap:8px 22px;align-items:center;justify-content:flex-end}
+.footer-links .footer-link{appearance:none;background:transparent;border:0;color:#b6bdb5;padding:8px 0;min-height:44px;font:400 14px/1.6 var(--sans);cursor:pointer}
+.footer-links .footer-link:hover{color:#f0ebe1}
+.footer-links .footer-link:focus-visible{outline:1px solid #c6aa76;outline-offset:4px}
+@media(max-width:600px){.footer-inner{display:block}.footer-brand{margin-bottom:16px!important}.footer-copy{text-align:left}.footer-links{justify-content:flex-start;gap:8px 20px}.footer-links .footer-link{font-size:14px}}
+
+body:has(#view-home.visible) .footer-inner{display:flex;align-items:flex-start}body:has(#view-home.visible) footer{padding-bottom:110px}body.footer-in-view #homeIntroOverlay .home-start-chat-btn{visibility:hidden;pointer-events:none}body.footer-in-view #homeIntroOverlay:after{opacity:0}@media(max-width:600px){body:has(#view-home.visible) .footer-inner{display:block}footer{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}body:has(#view-home.visible) footer{padding-bottom:96px}}

@@ -1,0 +1,264 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email == 'green092432@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    match /stats/counters {
+      allow read: if isAdmin();
+
+      allow create: if
+        request.resource.data.keys().hasOnly(['visits', 'signups'])
+        && (!request.resource.data.keys().hasAny(['visits']) || request.resource.data.visits == 1)
+        && (!request.resource.data.keys().hasAny(['signups']) || (signedIn() && request.resource.data.signups == 1));
+
+      allow update: if
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['visits'])
+          && request.resource.data.visits == resource.data.visits + 1
+        )
+        ||
+        (
+          signedIn()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['signups'])
+          && request.resource.data.signups == resource.data.signups + 1
+        );
+
+      allow delete: if false;
+    }
+
+    match /dailyVisits/{dateId} {
+      allow read: if isAdmin();
+      allow create: if request.resource.data.keys().hasOnly(['count', 'date'])
+                    && request.resource.data.count == 1;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['count'])
+                    && request.resource.data.count == resource.data.count + 1;
+      allow delete: if false;
+    }
+
+    match /aiDailyUsage/{docId} {
+      allow read, write: if false;
+    }
+
+    match /premiumUsageEvents/{docId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /users/{uid} {
+      allow read: if isAdmin() || isOwner(uid);
+
+      allow create: if
+        isOwner(uid)
+        && request.resource.data.keys().hasOnly([
+          'email', 'nickname', 'provider', 'createdAt', 'premium'
+        ])
+        && request.resource.data.premium == false;
+
+      allow update: if
+        isAdmin()
+        ||
+        (
+          isOwner(uid)
+          && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['email', 'nickname', 'provider', 'createdAt'])
+        );
+
+      allow delete: if isAdmin();
+
+      match /sajuProfiles/{profileId} {
+        allow read, create, update, delete: if isOwner(uid);
+      }
+
+      match /aiConversations/{conversationId} {
+        allow read, create, update, delete: if isOwner(uid);
+      }
+    }
+
+    match /paymentOrders/{orderId} {
+      allow create: if
+        signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly([
+          'uid', 'amount', 'product', 'status', 'createdAt'
+        ])
+        && request.resource.data.status == 'pending'
+        && (
+          (request.resource.data.amount == 8900
+            && request.resource.data.product == 'taekilso_premium_30days')
+          ||
+          (request.resource.data.amount == 1900
+            && request.resource.data.product == 'ai_question_pack_5')
+          ||
+          (request.resource.data.amount == 3200
+            && request.resource.data.product == 'ai_question_pack_10')
+        );
+
+      allow read: if isAdmin()
+        || (signedIn() && resource.data.uid == request.auth.uid);
+
+      allow update, delete: if false;
+    }
+
+    match /inquiries/{inquiryId} {
+      allow get: if isAdmin()
+        || (signedIn() && resource.data.ownerUid == request.auth.uid);
+
+      allow list: if isAdmin();
+
+      allow create: if
+        signedIn()
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.firebaseUid == request.auth.uid
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly([
+          'uid', 'ownerUid', 'firebaseUid', 'name',
+          'title', 'message', 'status', 'reply',
+          'createdAt', 'createdAtMs', 'source'
+        ])
+        && request.resource.data.status == '대기'
+        && request.resource.data.reply == ''
+        && request.resource.data.title is string
+        && request.resource.data.message is string
+        && request.resource.data.title.size() <= 120
+        && request.resource.data.message.size() <= 5000;
+
+      allow update: if isAdmin();
+
+      allow delete: if
+        isAdmin()
+        ||
+        (
+          signedIn()
+          && resource.data.ownerUid == request.auth.uid
+          && resource.data.status != '답변완료'
+          && resource.data.title != '프리미엄 결제 환불 요청'
+        );
+    }
+
+    match /debugLogs/{docId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /payappTransactions/{docId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /dailyFunnel/{dateKey} {
+      allow read: if isAdmin();
+
+      allow create: if
+        request.resource.data.keys().hasOnly([
+          'date',
+          'fortuneResults',
+          'aiCtaClicks',
+          'signups',
+          'firstAiAnswers',
+          'freeLimitExhausted',
+          'purchases',
+          'freeReportViews',
+          'freeReportCompleted',
+          'reportCtaClicks',
+          'reportQuestionClicks',
+          'reportSignupStarts',
+          'reportSignups',
+          'reportFirstQuestions'
+        ])
+        && request.resource.data.date == dateKey;
+
+      allow update: if
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'fortuneResults',
+          'aiCtaClicks',
+          'signups',
+          'firstAiAnswers',
+          'freeLimitExhausted',
+          'purchases',
+          'freeReportViews',
+          'freeReportCompleted',
+          'reportCtaClicks',
+          'reportQuestionClicks',
+          'reportSignupStarts',
+          'reportSignups',
+          'reportFirstQuestions'
+        ])
+        && request.resource.data.date == resource.data.date
+        && request.resource.data.date == dateKey;
+    }
+
+    match /dailyTrafficSources/{dateKey} {
+      allow read: if isAdmin();
+
+      allow create: if
+        request.resource.data.keys().hasOnly([
+          'date','total','search','sns','direct','other',
+          'google','naver','otherSearch',
+          'threads','instagram','facebook','kakao','otherSns'
+        ])
+        && request.resource.data.date == dateKey
+        && request.resource.data.total == 1;
+
+      allow update: if
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'total','search','sns','direct','other',
+          'google','naver','otherSearch',
+          'threads','instagram','facebook','kakao','otherSns'
+        ])
+        && request.resource.data.date == resource.data.date
+        && request.resource.data.date == dateKey
+        && request.resource.data.total == resource.data.total + 1;
+      allow delete: if false;
+    }
+
+    match /trafficVisitsV2/{entryId} {
+      allow read: if isAdmin();
+
+      allow create: if entryId.matches('^[a-f0-9]{32}$')
+        && request.resource.data.keys().hasAll([
+          'version','date','channel','source','medium','campaign','content',
+          'referrerHost','referrerPage','landingPath','basis','createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'version','date','channel','source','medium','campaign','content',
+          'referrerHost','referrerPage','landingPath','basis','createdAt'
+        ])
+        && request.resource.data.version == 2
+        && request.resource.data.date is string
+        && request.resource.data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.channel in [
+          'naverBlog','naverCafe','naverSearch','naverOther','google','daum','bing',
+          'tistory','instagram','threads','youtube','facebook','kakao','x','tiktok',
+          'referral','campaign','unknown'
+        ]
+        && request.resource.data.source is string && request.resource.data.source.size() <= 120
+        && request.resource.data.medium is string && request.resource.data.medium.size() <= 120
+        && request.resource.data.campaign is string && request.resource.data.campaign.size() <= 120
+        && request.resource.data.content is string && request.resource.data.content.size() <= 120
+        && request.resource.data.referrerHost is string && request.resource.data.referrerHost.size() <= 253
+        && request.resource.data.referrerPage is string && request.resource.data.referrerPage.size() <= 700
+        && request.resource.data.landingPath is string && request.resource.data.landingPath.size() <= 300
+        && request.resource.data.basis in ['utm','referrer_page','referrer_domain','unknown']
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+  }
+}
