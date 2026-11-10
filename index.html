@@ -10067,6 +10067,9 @@ async function sendAiChatMessage() {
         consultationScope: window.__newyearChatContext ? 'newyear' : undefined,
         /* NEWYEAR_SCOPE_END */
         subjects: window.__aiChatSubjects || [],
+        /* QUALITY_PAYLOAD_START */
+        reportSnapshot: window.__freeReportSnapshot || undefined,
+        /* QUALITY_PAYLOAD_END */
         history: window.__aiChatHistory.slice(-12),
         message
       })
@@ -10104,6 +10107,9 @@ async function sendAiChatMessage() {
     }
 
     const answerEl = appendAiChatMessage('assistant', data.reply, { scroll: 'start' });
+    /* QUALITY_RESPONSE_START */
+    window.dispatchEvent(new CustomEvent('taekilso:consultationEvidence',{detail:{element:answerEl,evidence:data.evidence}}));
+    /* QUALITY_RESPONSE_END */
     window.__aiChatHistory.push({ role: 'assistant', content: data.reply });
 
     if (data.restricted) {
@@ -10549,6 +10555,7 @@ function calculateTodayFortune(){
       </div>
       <p style="color:var(--muted-2);font-size:10.5px;line-height:1.7;margin:12px 2px 0">※ 전통 명리학 기준을 단순화한 참고용 콘텐츠입니다. 중요한 결정은 현실적인 조건을 함께 확인하세요.</p>`;
     /* REPORT_RESULT_EVENT_START */
+    window.__freeReportSnapshot={version:'taekil-basic-1',birthDate:`${birth.getFullYear()}-${String(birth.getMonth()+1).padStart(2,'0')}-${String(birth.getDate()).padStart(2,'0')}`,referenceDate:`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`,day:ganjiHanja(idx),element:oh,relation:rel,score,strength:base.strength,watch:base.watch};
     window.dispatchEvent(new CustomEvent('taekilso:freeReportReady', {detail:{type,profile:{y,m,d,calType,isLeap},strength:base.strength,element:oh}}));
     /* REPORT_RESULT_EVENT_END */
   };
@@ -11392,6 +11399,9 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <link rel="stylesheet" href="navigation-refinement.css?v=20261110-3">
 <script src="navigation-refinement.js?v=20261110-1"></script>
 <script src="profile-picker-controls.js?v=20261110-1"></script>
+<link rel="stylesheet" href="consultation-quality.css?v=20261110-1">
+<script src="support-channels.js?v=20261110-1"></script>
+<script src="consultation-quality.js?v=20261110-1"></script>
 </body>
 </html>
 
