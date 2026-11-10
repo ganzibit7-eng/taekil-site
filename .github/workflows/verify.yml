@@ -18,4 +18,5 @@ jobs:
       - run: node verify-ui-contract.cjs
       - run: node test-admin-analytics.cjs
       - run: node --test test-free-report-handoff.cjs
+      - run: node --test test-visitor-exclusion.cjs
       - run: git diff --check
