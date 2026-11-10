@@ -10,10 +10,12 @@
   const loggedIn=()=>!!((typeof getKakaoUser==='function'&&getKakaoUser())||(typeof firebaseAuthUser!=='undefined'&&firebaseAuthUser&&!firebaseAuthUser.isAnonymous));
   const owner=()=>typeof getCurrentUserKey==='function'?getCurrentUserKey():null;
   async function request(operation,profile){
+    const accountToken=window.accountStore.snapshot();
     const actor=owner(),headers=await getAiRequestHeaders();
-    if(actor!==owner())throw new Error('계정이 변경되었어요. 이용권을 다시 확인해 주세요.');
+    if(actor!==owner()||!window.accountStore.current(accountToken))throw new Error('계정이 변경되었어요. 이용권을 다시 확인해 주세요.');
     const response=await fetch(AI_CHAT_URL,{method:'POST',headers,signal:AbortSignal.timeout(170000),body:JSON.stringify({action:'newyear-report',operation,profile})});
     const data=await response.json();
+    if(actor!==owner()||!window.accountStore.current(accountToken))throw new Error('계정이 변경되었어요. 이용권을 다시 확인해 주세요.');
     if(!response.ok){const error=new Error(data.message||'신년상담을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');error.code=data.error;throw error;}
     return data;
   }
@@ -156,10 +158,12 @@
   window.addEventListener('taekilso:freeReportHandoff',()=>{window.__newyearChatContext=false;pendingChat=false;});
   window.addEventListener('focus',()=>{if(active&&!busy)load();});
   let wasLoggedIn=loggedIn(),previousOwner=owner();
-  const authWatch=setInterval(()=>{
+  function syncAuth(){
     const current=loggedIn();
     const currentOwner=owner();if(current!==wasLoggedIn||currentOwner!==previousOwner){wasLoggedIn=current;previousOwner=currentOwner;draft=null;draftOwner=null;++version;stopProgress();content.replaceChildren();if(active)load();}
-  },1500);
+  }
+  const authWatch=setInterval(syncAuth,1500);
+  window.addEventListener('taekilso:authChanged',syncAuth);
   // Existing payment verification remains authoritative. Only refresh the return screen.
   let returnChecks=0;
   const returnTimer=setInterval(async()=>{

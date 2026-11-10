@@ -19,7 +19,7 @@
   }
   function pending(value,now,uid){
     if(!value||typeof value.id!=='string'||value.id.length>80||!Number.isFinite(value.createdAt)||now-value.createdAt>TTL||value.createdAt>now+60000||!profile(value.profile)||typeof value.question!=='string'||value.question.length>500||!['awaiting-auth','awaiting-access','handed','cancelled'].includes(value.stage))return null;
-    if(value.owner&&uid&&value.owner!==uid)return null;
+    if(value.owner&&value.owner!==uid)return null;
     return {...value,profile:profile(value.profile)};
   }
   const millis=v=>v&&typeof v.toMillis==='function'?v.toMillis():Number(v||0);

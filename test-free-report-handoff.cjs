@@ -52,16 +52,16 @@ test('controller has no AI request and analytics transmits only a fixed source',
  assert(source.includes("trackAiFunnel(name,{source:'free_report'})"));assert(source.includes('sessionStorage.setItem(KEY'));
  assert(!source.includes('localStorage.setItem(KEY'));assert(!source.includes('history.replaceState'));assert.equal(Object.keys(C.events).length,7);
 });
-test('Firestore review rules change only the seven report counters in the existing dailyFunnel whitelist',()=>{
- const rules=fs.readFileSync('firebase/firestore.rules','utf8').replace(/\r\n/g,'\n'),start=rules.indexOf('    match /dailyFunnel/'),end=rules.indexOf('    match /dailyTrafficSources/',start);
- let block=rules.slice(start,end);
- for(const field of Object.values(C.events)){
-  assert.equal((block.match(new RegExp("'"+field+"'",'g'))||[]).length,2);
-  block=block.replace(new RegExp(",\\s*'"+field+"'",'g'),'');
+test('client analytics are server-only and authenticated member records remain owner-scoped',()=>{
+ const rules=fs.readFileSync('firebase/firestore.rules','utf8');
+ for(const path of ['dailyFunnel','dailyVisits','dailyTrafficSources','dailySeoLanding','trafficVisitsV2']){
+  const start=rules.indexOf('match /'+path+'/'),block=rules.slice(start,rules.indexOf('\n    }',start));
+  assert(block.includes('allow write: if false'));assert(block.includes('allow read: if isAdmin()'));
  }
- const restored=rules.slice(0,start)+block+rules.slice(end);
- assert.equal(require('node:crypto').createHash('sha256').update(restored).digest('hex'),'8e921d4f75aa0f78bde7f452a8c8a90d34b90fe5239d97bf259453f90904f848');
+ assert(rules.includes('request.resource.data.uid == request.auth.uid'));
+ assert(rules.includes('validAttribution(request.resource.data.attribution)'));
 });
+
 test('profile X delegates only the selected profile and preserves selection when deletion is cancelled',async()=>{
  const element=()=>({hidden:false,disabled:false,value:'',attrs:{},listeners:{},setAttribute(k,v){this.attrs[k]=v;},addEventListener(k,fn){this.listeners[k]=fn;}});
  const select=element(),button=element(),meta=element();let cancel=true,calls=[];

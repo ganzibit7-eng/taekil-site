@@ -16,36 +16,33 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
+    function validAttribution(a) {
+      return a is map && a.keys().hasAll(['version','source','medium','campaign','content','landingPath','capturedAtMs'])
+        && a.keys().hasOnly(['version','source','medium','campaign','content','landingPath','capturedAtMs'])
+        && a.version == 1
+        && a.source is string && a.source.size() <= 80
+        && a.medium is string && a.medium.size() <= 80
+        && a.campaign is string && a.campaign.size() <= 80
+        && a.content is string && a.content.size() <= 80
+        && a.landingPath is string && a.landingPath.matches('^/[a-zA-Z0-9/_-]{0,159}$')
+        && a.capturedAtMs is number && a.capturedAtMs > 0
+        && a.capturedAtMs <= request.time.toMillis() + 60000
+        && a.capturedAtMs >= request.time.toMillis() - 2592000000;
+    }
+
+    match /dailySeoLanding/{entryId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
     match /stats/counters {
       allow read: if isAdmin();
-
-      allow create: if
-        request.resource.data.keys().hasOnly(['visits', 'signups'])
-        && (!request.resource.data.keys().hasAny(['visits']) || request.resource.data.visits == 1)
-        && (!request.resource.data.keys().hasAny(['signups']) || (signedIn() && request.resource.data.signups == 1));
-
-      allow update: if
-        (
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['visits'])
-          && request.resource.data.visits == resource.data.visits + 1
-        )
-        ||
-        (
-          signedIn()
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['signups'])
-          && request.resource.data.signups == resource.data.signups + 1
-        );
-
-      allow delete: if false;
+      allow write: if false; // Validated and deduplicated by the event server.
     }
 
     match /dailyVisits/{dateId} {
       allow read: if isAdmin();
-      allow create: if request.resource.data.keys().hasOnly(['count', 'date'])
-                    && request.resource.data.count == 1;
-      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['count'])
-                    && request.resource.data.count == resource.data.count + 1;
-      allow delete: if false;
+      allow write: if false; // Validated and deduplicated by the event server.
     }
 
     match /aiDailyUsage/{docId} {
@@ -92,9 +89,11 @@ service cloud.firestore {
         signedIn()
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.keys().hasOnly([
-          'uid', 'amount', 'product', 'status', 'createdAt'
+          'uid', 'amount', 'product', 'status', 'createdAt', 'attribution'
         ])
         && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time
+        && (!request.resource.data.keys().hasAny(['attribution']) || validAttribution(request.resource.data.attribution))
         && (
           (request.resource.data.amount == 8900
             && request.resource.data.product == 'taekilso_premium_30days')
@@ -116,7 +115,8 @@ service cloud.firestore {
       allow get: if isAdmin()
         || (signedIn() && resource.data.ownerUid == request.auth.uid);
 
-      allow list: if isAdmin();
+      allow list: if isAdmin()
+        || (signedIn() && resource.data.ownerUid == request.auth.uid);
 
       allow create: if
         signedIn()
@@ -132,7 +132,9 @@ service cloud.firestore {
         && request.resource.data.reply == ''
         && request.resource.data.title is string
         && request.resource.data.message is string
+        && request.resource.data.title.size() > 0
         && request.resource.data.title.size() <= 120
+        && request.resource.data.message.size() > 0
         && request.resource.data.message.size() <= 5000;
 
       allow update: if isAdmin();
@@ -160,100 +162,17 @@ service cloud.firestore {
 
     match /dailyFunnel/{dateKey} {
       allow read: if isAdmin();
-
-      allow create: if
-        request.resource.data.keys().hasOnly([
-          'date',
-          'fortuneResults',
-          'aiCtaClicks',
-          'signups',
-          'firstAiAnswers',
-          'freeLimitExhausted',
-          'purchases',
-          'freeReportViews',
-          'freeReportCompleted',
-          'reportCtaClicks',
-          'reportQuestionClicks',
-          'reportSignupStarts',
-          'reportSignups',
-          'reportFirstQuestions'
-        ])
-        && request.resource.data.date == dateKey;
-
-      allow update: if
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'fortuneResults',
-          'aiCtaClicks',
-          'signups',
-          'firstAiAnswers',
-          'freeLimitExhausted',
-          'purchases',
-          'freeReportViews',
-          'freeReportCompleted',
-          'reportCtaClicks',
-          'reportQuestionClicks',
-          'reportSignupStarts',
-          'reportSignups',
-          'reportFirstQuestions'
-        ])
-        && request.resource.data.date == resource.data.date
-        && request.resource.data.date == dateKey;
+      allow write: if false; // Validated and deduplicated by the event server.
     }
 
     match /dailyTrafficSources/{dateKey} {
       allow read: if isAdmin();
-
-      allow create: if
-        request.resource.data.keys().hasOnly([
-          'date','total','search','sns','direct','other',
-          'google','naver','otherSearch',
-          'threads','instagram','facebook','kakao','otherSns'
-        ])
-        && request.resource.data.date == dateKey
-        && request.resource.data.total == 1;
-
-      allow update: if
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'total','search','sns','direct','other',
-          'google','naver','otherSearch',
-          'threads','instagram','facebook','kakao','otherSns'
-        ])
-        && request.resource.data.date == resource.data.date
-        && request.resource.data.date == dateKey
-        && request.resource.data.total == resource.data.total + 1;
-      allow delete: if false;
+      allow write: if false; // Validated and deduplicated by the event server.
     }
 
     match /trafficVisitsV2/{entryId} {
       allow read: if isAdmin();
-
-      allow create: if entryId.matches('^[a-f0-9]{32}$')
-        && request.resource.data.keys().hasAll([
-          'version','date','channel','source','medium','campaign','content',
-          'referrerHost','referrerPage','landingPath','basis','createdAt'
-        ])
-        && request.resource.data.keys().hasOnly([
-          'version','date','channel','source','medium','campaign','content',
-          'referrerHost','referrerPage','landingPath','basis','createdAt'
-        ])
-        && request.resource.data.version == 2
-        && request.resource.data.date is string
-        && request.resource.data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
-        && request.resource.data.channel in [
-          'naverBlog','naverCafe','naverSearch','naverOther','google','daum','bing',
-          'tistory','instagram','threads','youtube','facebook','kakao','x','tiktok',
-          'referral','campaign','unknown'
-        ]
-        && request.resource.data.source is string && request.resource.data.source.size() <= 120
-        && request.resource.data.medium is string && request.resource.data.medium.size() <= 120
-        && request.resource.data.campaign is string && request.resource.data.campaign.size() <= 120
-        && request.resource.data.content is string && request.resource.data.content.size() <= 120
-        && request.resource.data.referrerHost is string && request.resource.data.referrerHost.size() <= 253
-        && request.resource.data.referrerPage is string && request.resource.data.referrerPage.size() <= 700
-        && request.resource.data.landingPath is string && request.resource.data.landingPath.size() <= 300
-        && request.resource.data.basis in ['utm','referrer_page','referrer_domain','unknown']
-        && request.resource.data.createdAt == request.time;
-      allow update, delete: if false;
+      allow write: if false; // Validated and deduplicated by the event server.
     }
 
     match /{document=**} {
