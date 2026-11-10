@@ -1,8 +1,9 @@
 const fs=require('node:fs'),cp=require('node:child_process'),assert=require('node:assert/strict');
-const baseline=cp.execFileSync('git',['show','origin/main:index.html'],{encoding:'utf8'}).replace(/\r\n/g,'\n');
+const baselineRef='d7bd53ed709f19d5ffb633b622dcae97158de697';
+const baseline=cp.execFileSync('git',['show',baselineRef+':index.html'],{encoding:'utf8'}).replace(/\r\n/g,'\n');
 const current=fs.readFileSync('index.html','utf8').replace(/\r\n/g,'\n');
 const scripts=html=>[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].map(m=>[m[1],m[2]]);
-const originalScripts=scripts(current).filter(([attrs])=>!attrs.includes('src="premium-motion.js"'));
+const originalScripts=scripts(current).filter(([attrs])=>!['premium-motion.js','admin-analytics-core.js','admin-analytics.js'].some(src=>attrs.includes('src="'+src+'"')));
 assert.deepEqual(originalScripts,scripts(baseline),'Existing inline and external scripts must remain exactly unchanged');
 new Function(fs.readFileSync('premium-motion.js','utf8'));
 const hooks=html=>[...html.matchAll(/\bon(?:click|change|input|keydown|submit)="[^"]*"/g)].map(m=>m[0]);
@@ -32,7 +33,7 @@ console.log('PASS: original scripts/actions, IDs, profile image/name, authentica
 const detailFiles=cp.execFileSync('git',['ls-files','*.html'],{encoding:'utf8'}).trim().split('\n').filter(f=>f.endsWith('/index.html')||f==='404.html');
 const anchors=html=>[...html.matchAll(/<a\b[^>]*\bhref="([^"]*)"/gi)].map(m=>m[1]);
 for(const file of detailFiles){
- const original=cp.execFileSync('git',['show','origin/main:'+file],{encoding:'utf8'}).replace(/\r\n/g,'\n');
+ const original=cp.execFileSync('git',['show',baselineRef+':'+file],{encoding:'utf8'}).replace(/\r\n/g,'\n');
  const updated=fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n');
  assert(updated.includes('href="/premium-detail.css"'),file+': shared detail theme missing');
  assert.deepEqual(scripts(updated),scripts(original),file+': existing script changed');
@@ -53,3 +54,12 @@ actualExamples.examples.forEach((example,i)=>assert.equal(words(textOnly(answers
 for(const name of ['welcome','reading','moonlight'])assert(fs.statSync('assets/yeonwoo-'+name+'.jpg').size>0);
 assert.equal((current.match(/src="premium-motion.js"/g)||[]).length,1);
 console.log('PASS: three actual consultation answers preserve all wording; story assets and presentation-only motion are present.');
+
+for(const file of ['admin-analytics-core.js','admin-analytics.js'])new Function(fs.readFileSync(file,'utf8'));
+assert.equal((current.match(/src="admin-analytics-core.js"/g)||[]).length,1);
+assert.equal((current.match(/src="admin-analytics.js"/g)||[]).length,1);
+assert(current.includes('id="adminAnalytics" hidden'));
+const analytics=fs.readFileSync('admin-analytics.js','utf8');
+assert(!/\.(set|update|delete|add)\(/.test(analytics),'Reporting must not mutate database documents');
+assert(analytics.includes('isAdmin()')&&analytics.includes("get({source:'server'})"));
+console.log('PASS: new administrator analytics scripts compile, mount once behind the existing admin gate, and contain no database write calls.');
