@@ -456,3 +456,7 @@ body:has(#view-home.visible #aiChatSetup[style*="block"]) #homeFaqSection,body:h
 .payment-pack .btn{width:auto;flex-shrink:0}.payment-pack>div{min-width:0}
 @media(max-width:720px){.payment-editorial{width:calc(100% - 40px)}.payment-free .btn{width:100%}}
 @media(max-width:370px){.payment-pack .btn{width:100%}}
+
+/* Supplied celestial emblem: reserve its box to avoid layout shifts. */
+.brand-mark,.taekilso-symbol{width:44px;height:44px}
+.auth-brand .taekilso-symbol{width:48px;height:48px}
