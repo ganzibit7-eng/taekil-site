@@ -36,5 +36,8 @@
     const created=Date.parse(actor?.metadata?.creationTime||'');
     return !!(p&&p.startedLoggedOut===true&&p.stage!=='cancelled'&&Number.isFinite(created)&&created>=p.createdAt-5000&&created<=now+60000&&now-p.createdAt<=TTL);
   }
-  return {TTL,events,profile,questions,pending,availability,signupFromReport};
+  function matchingProfile(list,p){
+    return (Array.isArray(list)?list:[]).find(row=>row&&['y','m','d'].every(k=>Number(row[k])===p[k])&&(row.calType||'solar')===p.calType&&!!row.isLeap===!!p.isLeap&&(row.hourValue||'unknown')==='unknown'&&(row.gender||'unknown')==='unknown'&&(row.relation||'본인')==='본인');
+  }
+  return {TTL,events,profile,questions,pending,availability,signupFromReport,matchingProfile};
 });

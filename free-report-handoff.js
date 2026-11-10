@@ -66,7 +66,8 @@
       window.dispatchEvent(new CustomEvent('taekilso:freeReportHandoff'));
       goTo('home');showAiChatSetupStep();
       const set=(id,value)=>{const n=document.getElementById(id);if(n)n.value=String(value);};
-      set('aiChatSavedProfile','');set('aiChatProfileName','나');set('aiChatRelation','본인');set('aiChatCalType',p.profile.calType);
+      const saved=C.matchingProfile(typeof getSajuVault==='function'?getSajuVault():[],p.profile);
+      set('aiChatSavedProfile',saved?.id||'');set('aiChatProfileName',saved?.name||'나');set('aiChatRelation',saved?.relation||'본인');set('aiChatCalType',p.profile.calType);
       set('aiChatYear',p.profile.y);set('aiChatMonth',p.profile.m);set('aiChatDay',p.profile.d);set('aiChatHour','unknown');set('aiChatGender','unknown');
       const leap=document.getElementById('aiChatLeap');if(leap)leap.checked=p.profile.isLeap;
       ['aiChatCompareProfile','aiChatCompareProfile2'].forEach(id=>set(id,''));

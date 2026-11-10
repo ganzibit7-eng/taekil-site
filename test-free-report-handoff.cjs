@@ -17,6 +17,11 @@ test('question suggestions reuse an existing strength and have safe generic fall
  const q=C.questions({strength:'성장·기획·관계 확장',element:'목'});assert.equal(q.length,3);assert(q[0].text.includes('성장'));
  assert(!C.questions({})[0].text.includes('undefined'));assert(!q.some(x=>/2027|대운|월별|신년/.test(x.text)));
 });
+test('matching saved self profile is reused without replacing a known hour, gender or another person',()=>{
+ const base={...birth,id:'same',relation:'본인',hourValue:'unknown',gender:'unknown'};
+ assert.equal(C.matchingProfile([base],birth).id,'same');
+ for(const change of [{hourValue:'12'},{gender:'female'},{relation:'친구'},{d:2},{calType:'lunar'}])assert.equal(C.matchingProfile([{...base,...change}],birth),undefined);
+});
 test('existing-member sign-in and profile repair are not counted as new registrations from a report',()=>{
  const now=Date.now(),p={createdAt:now,stage:'awaiting-auth',startedLoggedOut:true};
  assert(C.signupFromReport(p,{metadata:{creationTime:new Date(now+100).toISOString()}},now+200));
