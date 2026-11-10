@@ -5,6 +5,10 @@ const current=fs.readFileSync('index.html','utf8').replace(/\r\n/g,'\n');
 const scripts=html=>[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].map(m=>[m[1],m[2]]);
 const originalScripts=scripts(current).filter(([attrs])=>!['premium-motion.js','admin-analytics-core.js','admin-analytics.js','consultation-stage.js','navigation-stability.js','newyear-consultation.js','free-report-handoff-core.js','free-report-handoff.js','navigation-refinement.js','profile-picker-controls.js','consultation-quality.js','support-channels.js'].some(src=>new RegExp('src="'+src.replaceAll('.', '\\.')+'(?:\\?[^"]*)?"').test(attrs)));
 const normalizeReport=source=>source
+.replace(/\/\* VISITOR_POLICY_START \*\/[\s\S]*?\/\* VISITOR_POLICY_END \*\/\n/,'')
+.replace(/  \/\* VISITOR_GUARD_START \*\/[\s\S]*?  \/\* VISITOR_GUARD_END \*\//,'  if (isAdmin()) return;')
+.replace(/  \/\* TRAFFIC_GUARD_START \*\/[\s\S]*?  \/\* TRAFFIC_GUARD_END \*\//,'  if(!db || isAdmin()) return;')
+.replace(/  \/\* SEO_ADMIN_GUARD_START \*\/[\s\S]*?  \/\* SEO_ADMIN_GUARD_END \*\/\n/,'')
 .replace(/        \/\* QUALITY_PAYLOAD_START \*\/[\s\S]*?        \/\* QUALITY_PAYLOAD_END \*\/\n/,'')
 .replace(/    \/\* QUALITY_RESPONSE_START \*\/[\s\S]*?    \/\* QUALITY_RESPONSE_END \*\/\n/,'')
 .replace(/  \/\* REPORT_MANUAL_OPTION_START \*\/[\s\S]*?  \/\* REPORT_MANUAL_OPTION_END \*\/\n/,'')

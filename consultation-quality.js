@@ -17,4 +17,5 @@
  const copy=make('button','검사 결과 복사');copy.type='button';copy.addEventListener('click',()=>navigator.clipboard.writeText(results.value));panel.append(compare,annual,copy,status,results);admin.append(panel);
  }
  new MutationObserver(mount).observe(admin,{attributes:true,attributeFilter:['class']});mount();
+ const authWatch=setInterval(()=>{mount();if(mounted)clearInterval(authWatch);},1500);
 })();

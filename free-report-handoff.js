@@ -60,6 +60,7 @@
       await saveCurrentAiConversation();
       const finalPending=read();if(uid()!==actor.uid||finalPending?.id!==p.id||finalPending?.stage==='cancelled')return;
       payload={...p,owner:actor.uid,stage:'handed',handedAt:Date.now()};persist();
+      window.__freeReportSnapshot=p.reportSnapshot||window.__freeReportSnapshot;
       document.querySelector('.report-resume-question')?.remove();
       closeSajuInsight();closeAuthModal();document.body.classList.remove('report-auth-open');
       window.__newyearChatContext=false;
@@ -97,7 +98,7 @@
     event('yeonwoo_cta_clicked',id);if(preset!=='direct')event('suggested_question_clicked',id);
     if(typeof firebaseAuthReady!=='undefined'&&!firebaseAuthReady&&typeof waitForAuthSettled==='function')await waitForAuthSettled(4000).catch(()=>{});
     if(current?.id!==id)return;
-    payload={id,createdAt:Date.now(),owner:uid(),profile:current.profile,question,preset,stage:'awaiting-auth',startedLoggedOut:!user()&&!(typeof getKakaoUser==='function'&&getKakaoUser())};persist();
+    payload={id,createdAt:Date.now(),owner:uid(),profile:current.profile,reportSnapshot:window.__freeReportSnapshot||null,question,preset,stage:'awaiting-auth',startedLoggedOut:!user()&&!(typeof getKakaoUser==='function'&&getKakaoUser())};persist();
     if(!user()&&typeof getKakaoUser==='function'&&getKakaoUser()){
       try{await ensureKakaoFirebaseSession();}catch(_){}
     }

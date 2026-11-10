@@ -4959,8 +4959,15 @@ function bumpStat(field) {
 }
 /* 방문자 수는 관리자 본인 계정(ADMIN_EMAIL)의 접속은 세지 않고,
    전체 누적(visits)과 오늘 하루치(dailyVisits/오늘 날짜)를 각각 따로 기록합니다. */
+/* VISITOR_POLICY_START */
+function canRecordVisitorAnalytics(){
+  return ['taekilso.com','www.taekilso.com'].includes(location.hostname)&&firebaseAuthReady&&!isAdmin()&&String(firebaseAuthUser?.email||'').trim().toLowerCase()!==ADMIN_EMAIL;
+}
+/* VISITOR_POLICY_END */
 function recordVisit() {
-  if (isAdmin()) return;
+  /* VISITOR_GUARD_START */
+  if (!canRecordVisitorAnalytics()) return;
+  /* VISITOR_GUARD_END */
   bumpStat('visits');
   if (!db) return;
   const todayKey = getKstDateKey();
@@ -4995,7 +5002,9 @@ function detectTrafficSource(){
 }
 
 function recordTrafficSource(dateKey){
-  if(!db || isAdmin()) return;
+  /* TRAFFIC_GUARD_START */
+  if(!db || !canRecordVisitorAnalytics()) return;
+  /* TRAFFIC_GUARD_END */
   const s=detectTrafficSource();
   const inc=firebase.firestore.FieldValue.increment(1);
   db.collection('dailyTrafficSources').doc(dateKey).set({
@@ -9708,6 +9717,10 @@ function captureSeoAttributionFromUrl(){
 }
 function seoSafeSlug(slug){return String(slug||'').toLowerCase().replace(/[^a-z0-9-]/g,'').slice(0,50);}
 function bumpDailySeoLanding(field,slug,once){
+  /* SEO_ADMIN_GUARD_START */
+  if(!firebaseAuthReady){firebaseAuthSettled.then(()=>bumpDailySeoLanding(field,slug,once));return;}
+  if(!canRecordVisitorAnalytics())return;
+  /* SEO_ADMIN_GUARD_END */
   if(!db)return;
   slug=seoSafeSlug(slug); if(!TAEKILSO_SEO_GUIDE_SLUGS.has(slug))return;
   const allowed=new Set(['visits','signups','firstAiAnswers','freeLimitExhausted','purchases']); if(!allowed.has(field))return;
@@ -11395,13 +11408,13 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <script src="newyear-consultation.js?v=20261110-2"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=20261110-1">
 <script src="free-report-handoff-core.js?v=20261110-2"></script>
-<script src="free-report-handoff.js?v=20261110-2"></script>
+<script src="free-report-handoff.js?v=20261111-3"></script>
 <link rel="stylesheet" href="navigation-refinement.css?v=20261110-3">
 <script src="navigation-refinement.js?v=20261110-1"></script>
 <script src="profile-picker-controls.js?v=20261110-1"></script>
-<link rel="stylesheet" href="consultation-quality.css?v=20261110-1">
+<link rel="stylesheet" href="consultation-quality.css?v=20261111-2">
 <script src="support-channels.js?v=20261110-1"></script>
-<script src="consultation-quality.js?v=20261110-1"></script>
+<script src="consultation-quality.js?v=20261111-2"></script>
 </body>
 </html>
 
