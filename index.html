@@ -2349,6 +2349,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <div class="ai-chat-vignette-top"></div>
         <div class="ai-chat-vignette-bottom"></div>
 
+        <button type="button" id="consultationExit" aria-label="상담 화면에서 홈으로 돌아가기">홈으로</button>
         <div class="ai-chat-topbar-overlay">
           <div class="ai-chat-avatar-mini">
             <img src="ai-consultant-poster.jpg" alt="연우">
@@ -2378,6 +2379,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
         <!-- STEP 1: 생년월일 입력 (시작하기 클릭 + 로그인 후에만 보임) -->
         <div id="aiChatSetup" class="ai-chat-setup-overlay" style="display:none;">
+          <div class="consultation-profile-scroll">
           <div class="ai-chat-bubble-npc">상담할 사람을 선택하거나 새 사주를 등록해주세요.<br>저장해두면 다음 상담부터 바로 불러올 수 있어요.</div>
           <div class="ai-chat-profile-picker">
             <label class="ai-chat-setup-label" for="aiChatSavedProfile">저장된 사주</label>
@@ -2418,6 +2420,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
             <select id="aiChatCompareProfile"><option value="">비교하지 않음</option></select>
             <select id="aiChatCompareProfile2" style="margin-top:7px;"><option value="">두 번째 비교 대상 없음</option></select>
           </div>
+          </div>
           <button class="btn btn-primary" style="width:100%;" onclick="startAiChat()">✨ 저장하고 상담 시작하기</button>
         </div>
 
@@ -2437,7 +2440,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           </div>
           <div class="ai-chat-status" id="aiChatStatus"></div>
           <div class="ai-chat-inputrow">
-            <textarea id="aiChatInput" rows="1" placeholder="예: 제 사주에서 돈을 벌 때 강점과 주의점은 뭐예요?" maxlength="500" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiChatMessage();}"></textarea>
+            <textarea id="aiChatInput" rows="1" placeholder="연우에게 물어보세요" maxlength="500" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiChatMessage();}"></textarea>
             <button class="btn btn-primary" id="aiChatSendBtn" onclick="sendAiChatMessage()" aria-label="전송">➤</button>
           </div>
         </div>
@@ -11358,6 +11361,9 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <script src="admin-analytics-core.js"></script>
 <script src="admin-analytics.js?v=20261110-4"></script>
 <script src="premium-motion.js" defer></script>
+<link rel="stylesheet" href="consultation-stage.css?v=20261110-1">
+<script src="consultation-stage.js?v=20261110-1"></script>
+<script src="navigation-stability.js?v=20261110-1"></script>
 </body>
 </html>
 
