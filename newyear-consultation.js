@@ -12,7 +12,7 @@
   async function request(operation,profile){
     const actor=owner(),headers=await getAiRequestHeaders();
     if(actor!==owner())throw new Error('계정이 변경되었어요. 이용권을 다시 확인해 주세요.');
-    const response=await fetch(AI_CHAT_URL,{method:'POST',headers,signal:AbortSignal.timeout(115000),body:JSON.stringify({action:'newyear-report',operation,profile})});
+    const response=await fetch(AI_CHAT_URL,{method:'POST',headers,signal:AbortSignal.timeout(170000),body:JSON.stringify({action:'newyear-report',operation,profile})});
     const data=await response.json();
     if(!response.ok){const error=new Error(data.message||'신년상담을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');error.code=data.error;throw error;}
     return data;
