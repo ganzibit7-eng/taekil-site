@@ -34,6 +34,7 @@ test('CTA availability follows premium expiry, remaining lifetime free uses and 
  assert.equal(C.availability({aiFreeUsed:3,aiQuestionCredits:5}).kind,'credits');
  assert.equal(C.availability({aiFreeUsed:3,premium:true,premiumUntil:1}).kind,'exhausted');
  assert.equal(C.availability({aiFreeUsed:3,premium:true,premiumUntil:Date.now()+10000}).kind,'premium');
+ assert(C.availability({aiFreeUsed:3,premium:true,premiumUntil:Date.now()+10000}).note.includes('하루 10개 질문'));
 });
 test('actual existing chat startup opens the selected profile without sending old paid/category/today questions in report mode',()=>{
  const html=fs.readFileSync('index.html','utf8'),start=html.indexOf('function startAiChat('),source=html.slice(start,html.indexOf('/* 빠른 질문 버튼',start));
