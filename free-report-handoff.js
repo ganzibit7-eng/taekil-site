@@ -5,7 +5,8 @@
   const KEY='taekilso_free_report_handoff_v1',EVENT_KEY='taekilso_report_events_v1';
   const modal=document.getElementById('sajuInsightModal'),result=document.getElementById('sajuInsightResult'),auth=document.getElementById('authOverlay');
   if(!modal||!result||!auth)return;
-  Object.assign(DAILY_FUNNEL_EVENT_MAP,C.events);
+  const liveSite=['taekilso.com','www.taekilso.com'].includes(location.hostname);
+  if(liveSite)Object.assign(DAILY_FUNNEL_EVENT_MAP,C.events);
   let current=null,box=null,primary=null,note=null,payload=null,busy=false,choosing=false,authOpen=false,lastUid='',resuming=false,restoringFlowId=null;
   const seen=new Set();
   const user=()=>typeof firebaseAuthUser!=='undefined'&&firebaseAuthUser&&!firebaseAuthUser.isAnonymous?firebaseAuthUser:null;
@@ -26,7 +27,8 @@
     seen.add(key);
     sent.push(key);try{sessionStorage.setItem(EVENT_KEY,JSON.stringify(sent.slice(-150)));}catch(_){}
     // No dates of birth, questions, profile names or identifiers leave this adapter.
-    trackAiFunnel(name,{source:'free_report'});
+    const emit=()=>{if(typeof isAdmin==='function'&&isAdmin())return;trackAiFunnel(name,{source:'free_report'});};
+    if(liveSite&&typeof firebaseAuthSettled!=='undefined')Promise.resolve(firebaseAuthSettled).then(emit).catch(()=>{});else emit();
   }
   async function member(){
     const actor=user();if(!actor||typeof db==='undefined'||!db)return null;

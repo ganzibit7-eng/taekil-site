@@ -56,3 +56,15 @@ test('Firestore review rules change only the seven report counters in the existi
  const restored=rules.slice(0,start)+block+rules.slice(end);
  assert.equal(require('node:crypto').createHash('sha256').update(restored).digest('hex'),'8e921d4f75aa0f78bde7f452a8c8a90d34b90fe5239d97bf259453f90904f848');
 });
+test('profile X delegates only the selected profile and preserves selection when deletion is cancelled',async()=>{
+ const element=()=>({hidden:false,disabled:false,value:'',attrs:{},listeners:{},setAttribute(k,v){this.attrs[k]=v;},addEventListener(k,fn){this.listeners[k]=fn;}});
+ const select=element(),button=element(),meta=element();let cancel=true,calls=[];
+ let profiles=[{id:'one',name:'나',y:1990,m:1,d:1,calType:'solar'},{id:'two',name:'가족',y:1995,m:2,d:3,calType:'solar'}];
+ const nodes={aiChatSavedProfile:select,aiChatDeleteProfile:button,aiChatSelectedProfileMeta:meta};
+ const context={document:{getElementById:id=>nodes[id]||null},MutationObserver:class{observe(){}},getSajuVault:()=>profiles,deleteSajuProfile:id=>{calls.push(id);if(!cancel)profiles=profiles.filter(p=>p.id!==id);}};
+ vm.createContext(context);vm.runInContext(fs.readFileSync('profile-picker-controls.js','utf8'),context);
+ assert.equal(button.hidden,true);select.value='one';select.listeners.change();assert.equal(button.hidden,false);assert(button.attrs['aria-label'].includes('1990.01.01'));
+ await button.listeners.click();assert.equal(profiles.length,2);assert.equal(select.value,'one');assert.equal(button.disabled,false);
+ cancel=false;await button.listeners.click();assert.deepEqual(profiles.map(p=>p.id),['two']);assert.equal(select.value,'');assert.equal(button.hidden,true);assert.equal(meta.hidden,true);
+ await button.listeners.click();assert.deepEqual(calls,['one','one']);
+});
