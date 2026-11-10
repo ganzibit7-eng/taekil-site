@@ -62,7 +62,13 @@
     calculation.append(el('p',`2027년 정미(丁未) 세운은 입춘 ${data.calculation.annual.startsAt}부터 적용합니다. 1월부터 입춘 전까지는 병오(丙午) 세운입니다. 월별 해석은 양력 달력 기준이며 절기 경계를 함께 반영합니다.`));
     data.calculation.limitations.forEach(t=>calculation.append(el('p',t)));content.append(calculation);
     content.append(el('p','작성된 리포트는 이용기간이 끝나도 이 계정에서 다시 읽을 수 있어요.','newyear-muted'));
-    if(data.access)content.append(button('리포트가 궁금하다면, 연우에게 이어 묻기',()=>{pendingChat=true;goTo('home');showAiChatSetupStep();},true));
+    if(data.access)content.append(button('리포트가 궁금하다면, 연우에게 이어 묻기',()=>{
+      pendingChat=true;
+      const saved=(typeof getSajuVault==='function'?getSajuVault():[]).find(p=>
+        p.calType!=='lunar'&&`${p.y}-${String(p.m).padStart(2,'0')}-${String(p.d).padStart(2,'0')}`===data.profile.date&&String(p.hourValue||'unknown')===data.profile.hourValue&&(p.gender||'unknown')===data.profile.gender);
+      if(saved?.id&&typeof useSajuProfileInChat==='function')useSajuProfileInChat(saved.id);
+      else{goTo('home');showAiChatSetupStep();}
+    },true));
     else content.append(el('p','이어서 대화하려면 30일 상담 이용권을 다시 구매해 주세요. 기존 리포트는 그대로 보관됩니다.'),button('30일 상담 이용권 구매',purchase));
   }
   function render(data){
