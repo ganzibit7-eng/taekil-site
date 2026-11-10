@@ -69,6 +69,9 @@
     }
   });
   function sync(){
+    const adminVisible=document.getElementById('view-admin').classList.contains('visible');
+    document.body.classList.toggle('admin-exclusive-mode',adminVisible);
+    document.documentElement.classList.toggle('admin-exclusive-mode',adminVisible);
     if(typeof window.syncAdminExclusiveMode==='function')window.syncAdminExclusiveMode();
     const visible=!!allowed(),content=document.getElementById('adminContent');
     // A direct #admin load can finish routing before the saved login is restored.
