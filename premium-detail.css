@@ -1,0 +1,64 @@
+@font-face{font-family:'Maru Buri';font-style:normal;font-weight:600;font-display:swap;src:url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-SemiBold.woff2') format('woff2')}
+:root{--bg:#101715;--line:#344139;--text:#F0EBE1;--muted:#B6BDB5;--gold:#C6AA76;--gold2:#C6AA76;--serif:'Maru Buri',serif;--sans:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+html{background:#101715;color-scheme:dark;scroll-padding-top:32px}
+.premium-article{margin:0;background:#101715;color:#F0EBE1;font:400 17px/1.8 var(--sans);letter-spacing:-.015em}
+.premium-article *{box-sizing:border-box;text-shadow:none}
+.premium-article a{color:#C6AA76;text-decoration:none;text-underline-offset:5px}
+.premium-article a:hover{text-decoration:underline}
+.premium-article a:focus-visible,.premium-article summary:focus-visible{outline:2px solid #C6AA76;outline-offset:5px}
+.premium-article :is(h1,h2,h3,.brand,.bottom b,.cta strong){font-family:var(--serif);font-weight:600;word-break:keep-all;color:#F0EBE1;letter-spacing:-.035em}
+.premium-article :is(.wrap,.w){width:min(820px,calc(100% - 48px));max-width:820px;margin-left:auto;margin-right:auto}
+.premium-article .w{padding:36px 0 96px}
+.premium-article .nav{height:auto;min-height:78px;gap:24px;border-bottom:1px solid #344139}
+.premium-article .brand{font-size:24px;letter-spacing:-.05em;line-height:1.5}
+.premium-article .brand{display:inline-flex;align-items:center;gap:10px}.premium-article .taekilso-symbol{display:block;width:32px;height:32px;flex-shrink:0}
+.premium-article .nav a:not(.brand){font-size:15px;font-weight:500;color:#B6BDB5;min-height:44px;display:inline-flex;align-items:center}
+.premium-article .hero{padding:80px 0 60px;text-align:left;background:none}
+.premium-article h1,.premium-article .hero h1{font-family:var(--serif);font-size:clamp(32px,4.5vw,48px);font-weight:600;line-height:1.5;letter-spacing:-.035em;margin:18px 0 26px;max-width:760px}
+.premium-article h2,.premium-article .card h2,.premium-article .faq h2{font-size:27px;line-height:1.6;margin:0 0 18px;font-weight:600}
+.premium-article .w>h2{margin-top:56px}
+.premium-article h3{font-size:22px;line-height:1.65}
+.premium-article p,.premium-article li,.premium-article .hero p{font-size:17px;line-height:1.85;color:#B6BDB5;word-break:normal;overflow-wrap:break-word}
+.premium-article .hero p{max-width:720px;margin:0}
+.premium-article :is(.k,.kicker){font-size:13px;line-height:1.6;letter-spacing:.04em;color:#C6AA76;font-weight:500}
+.premium-article .k{margin-top:56px}
+.premium-article .crumb{font-size:14px;line-height:1.8;color:#B6BDB5;margin:36px 0 24px}
+.premium-article .card{padding:36px 0;margin:0;border:0;border-top:1px solid #344139;border-radius:0;background:none;box-shadow:none}
+.premium-article :is(.box,.points){padding:24px 26px;background:#1B2420;border:0;border-radius:4px;margin:30px 0;box-shadow:none}
+.premium-article .points ul,.premium-article .box ul{margin:0;padding-left:22px}
+.premium-article li+li{margin-top:10px}
+.premium-article .hero>.cta,.premium-article .bottom>.cta,.premium-article .cta>a,.premium-article>.cta{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:13px 22px;margin-top:26px;border:0;border-radius:6px;background:#C6AA76;color:#101715;font-family:var(--sans);font-size:16px;font-weight:600;line-height:1.6;text-align:center;box-shadow:none}
+.premium-article .cta:not(a){display:block;min-height:0;margin-top:56px;padding:30px 0;border:0;border-top:1px solid #344139;border-radius:0;background:none;box-shadow:none;color:#F0EBE1}
+.premium-article .cta strong,.premium-article .bottom b{font-size:26px;line-height:1.6}
+.premium-article .bottom{padding:36px 0;margin-top:40px;text-align:left;border:0;border-top:1px solid #344139;border-radius:0;background:none}
+.premium-article .bottom span{font-size:17px;line-height:1.8;color:#B6BDB5}
+.premium-article :is(.related,.links){display:flex;align-items:center;flex-wrap:wrap;gap:0 22px;margin-top:28px;border-color:#344139}
+.premium-article :is(.related,.links) a{display:inline-flex;align-items:center;min-height:44px;margin:0;padding:8px 0;border:0;border-radius:0;font-size:16px;color:#B6BDB5;line-height:1.7}
+.premium-article .related a:hover,.premium-article .links a:hover{color:#C6AA76}
+.premium-article .grid{gap:0 28px}
+.premium-article .grid>a{padding:25px 0;border:0;border-bottom:1px solid #344139;border-radius:0;background:none;color:#F0EBE1;line-height:1.7}
+.premium-article .grid>a b{font-family:var(--serif);font-weight:600;font-size:21px}
+.premium-article .grid small{font-size:14px;color:#B6BDB5}
+.premium-article .faq{margin-top:52px}
+.premium-article .faq details{padding:0;border-top:1px solid #344139}
+.premium-article summary{padding:22px 0;font-size:17px;font-weight:500;line-height:1.75;cursor:pointer;color:#F0EBE1}
+.premium-article .faq p{margin:0;padding:0 0 26px;font-size:17px;line-height:1.85}
+.premium-article .footer{padding:36px 0 54px;border-top:1px solid #344139;font-size:14px;color:#B6BDB5;line-height:1.8;text-align:left}
+.premium-article main{padding-bottom:64px}
+.premium-article .seo-related{margin-top:48px;padding-top:28px;border-top:1px solid #344139}
+.premium-article .seo-related a{line-height:2.2}
+.premium-article>h1{font-size:42px}.premium-article>p{font-size:16px}.premium-article>a:not(.brand){background:#C6AA76;color:#101715;border-radius:6px;font-size:16px;min-height:48px}
+@media(max-width:640px){
+ .premium-article{font-size:16px;line-height:1.8}
+ .premium-article :is(.wrap,.w){width:calc(100% - 40px)}
+ .premium-article .nav{min-height:72px;gap:12px}.premium-article .nav a:not(.brand){font-size:14px}
+ .premium-article .hero{padding:52px 0 42px}
+ .premium-article h1,.premium-article .hero h1{font-size:32px;line-height:1.55;margin:14px 0 22px}
+ .premium-article h2,.premium-article .card h2,.premium-article .faq h2{font-size:24px;line-height:1.6}
+ .premium-article p,.premium-article li,.premium-article .hero p,.premium-article .bottom span,.premium-article .faq p{font-size:16px;line-height:1.8}
+ .premium-article .card{padding:30px 0}.premium-article :is(.box,.points){padding:22px 20px}
+ .premium-article .cta strong,.premium-article .bottom b{font-size:24px}
+ .premium-article .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 20px}.premium-article .grid>a b{font-size:19px}
+ .premium-article .w{padding-top:28px}.premium-article .k{margin-top:42px}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}

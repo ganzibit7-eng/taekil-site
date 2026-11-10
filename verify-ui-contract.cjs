@@ -1,0 +1,65 @@
+const fs=require('node:fs'),cp=require('node:child_process'),assert=require('node:assert/strict');
+const baselineRef='d7bd53ed709f19d5ffb633b622dcae97158de697';
+const baseline=cp.execFileSync('git',['show',baselineRef+':index.html'],{encoding:'utf8'}).replace(/\r\n/g,'\n');
+const current=fs.readFileSync('index.html','utf8').replace(/\r\n/g,'\n');
+const scripts=html=>[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].map(m=>[m[1],m[2]]);
+const originalScripts=scripts(current).filter(([attrs])=>!['premium-motion.js','admin-analytics-core.js','admin-analytics.js'].some(src=>attrs.includes('src="'+src+'"')));
+assert.deepEqual(originalScripts,scripts(baseline),'Existing inline and external scripts must remain exactly unchanged');
+new Function(fs.readFileSync('premium-motion.js','utf8'));
+const hooks=html=>[...html.matchAll(/\bon(?:click|change|input|keydown|submit)="[^"]*"/g)].map(m=>m[0]);
+// UI controls may move to a new view. Only a leading return-to-home navigation was
+// added to controls that previously lived on home; their original action remains.
+const normalizeHook=hook=>hook.replace(/^onclick="goTo\('home'\);(?=handleHomeCategoryClick|openHomeDailyConsult|document\.querySelector)/,'onclick="');
+const hookCounts=new Map();for(const hook of hooks(current)){const value=normalizeHook(hook);hookCounts.set(value,(hookCounts.get(value)||0)+1);}
+for(const hook of hooks(baseline)){assert((hookCounts.get(hook)||0)>0,'Missing original action: '+hook);hookCounts.set(hook,hookCounts.get(hook)-1);}
+const ids=html=>[...html.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);
+const currentIds=ids(current);
+for(const id of ids(baseline))assert(currentIds.includes(id),'Missing existing element: '+id);
+const segment=(html,start,end)=>html.slice(html.indexOf(start),html.indexOf(end,html.indexOf(start)));
+const stripBrand=html=>html.replace(/<svg\b(?=[^>]*\bdata-brand-symbol\b)[\s\S]*?<\/svg>/g,'');
+assert.equal(stripBrand(segment(current,'<div class="topbar">','<!-- ============ AUTH MODAL')),segment(baseline,'<div class="topbar">','<!-- ============ AUTH MODAL'),'Header actions must remain unchanged apart from the requested logo');
+const profile=html=>segment(html,'<div class="ai-chat-topbar-overlay">','<!-- STEP 0:').replace('<small>당신의 운을 함께 봐드리는 AI예요.</small>','').replace(/^[\t ]+$/gm,'');
+assert.equal(profile(current),profile(baseline),'Original Yeonwoo profile image and name must remain unchanged');
+assert(current.includes('https://lite.payapp.kr/public/api/v2/payapp-lite.js'));
+assert(current.includes('api/ai-chat'));
+for(const [,source]of scripts(current)){if(source.trim()&&!source.trim().startsWith('{'))new Function(source);}
+assert(current.includes('id="view-plans"')&&current.includes('id="view-services"'));
+const homeStart=current.indexOf('<section id="view-home"');const scan=/<section\b[^>]*>|<\/section>/gi;scan.lastIndex=homeStart;let depth=0,match,homeEnd;
+while((match=scan.exec(current))){depth+=match[0].startsWith('</')?-1:1;if(depth===0){homeEnd=scan.lastIndex;break;}}
+const home=current.slice(homeStart,homeEnd);assert(!home.includes('class="pricing-grid premium-plans"'),'Price table must be in its dedicated view');assert(!home.includes('id="home-date-section"'),'Date tools must be in their dedicated view');
+assert(current.indexOf('class="seo-service-hub"')<current.indexOf('<footer>'),'Service guide must precede copyright/footer');
+assert(!home.includes('당신의 운을 함께 봐드리는 AI예요.')&&!home.includes('class="home-conversion-kicker"'),'Requested video labels must be removed');
+console.log('PASS: original scripts/actions, IDs, profile image/name, authentication, API and PG references preserved; home/utility separation and footer order verified.');
+const detailFiles=cp.execFileSync('git',['ls-files','*.html'],{encoding:'utf8'}).trim().split('\n').filter(f=>f.endsWith('/index.html')||f==='404.html');
+const anchors=html=>[...html.matchAll(/<a\b[^>]*\bhref="([^"]*)"/gi)].map(m=>m[1]);
+for(const file of detailFiles){
+ const original=cp.execFileSync('git',['show',baselineRef+':'+file],{encoding:'utf8'}).replace(/\r\n/g,'\n');
+ const updated=fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n');
+ assert(updated.includes('href="/premium-detail.css"'),file+': shared detail theme missing');
+ assert.deepEqual(scripts(updated),scripts(original),file+': existing script changed');
+ assert.deepEqual(anchors(updated),anchors(original),file+': navigation changed');
+ const body=html=>stripBrand(html.slice(html.search(/<body\b/i))).replace(' class="premium-article"','').replace(/\bpremium-article\s*/,'');
+ assert.equal(body(updated),body(original),file+': article content or FAQ markup changed');
+}
+console.log('PASS: '+detailFiles.length+' detail pages retain their original content, links, structured data and scripts.');
+const actualExamples=JSON.parse(fs.readFileSync('content/consultation-examples.json','utf8'));
+assert.equal(actualExamples.examples.length,3);
+assert.deepEqual(actualExamples.birth,{calendar:'solar',year:1990,month:1,day:1,time:'unknown',gender:'unknown'});
+const answers=[...home.matchAll(/<div class="ui-real-answer">([\s\S]*?)<\/div><\/details><\/details>/g)].map(m=>m[1]);
+assert.equal(answers.length,3);
+const entities={'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&#39;':"'",'&nbsp;':' '};
+const textOnly=html=>html.replace(/<[^>]+>/g,' ').replace(/&(amp|lt|gt|quot|#39|nbsp);/g,m=>entities[m]);
+const words=text=>text.replace(/^#+\s*/gm,'').replace(/---/g,'').replace(/\s+/g,'');
+actualExamples.examples.forEach((example,i)=>assert.equal(words(textOnly(answers[i])),words(example.answer),'Actual answer wording changed: '+example.topic));
+for(const name of ['welcome','reading','moonlight'])assert(fs.statSync('assets/yeonwoo-'+name+'.jpg').size>0);
+assert.equal((current.match(/src="premium-motion.js"/g)||[]).length,1);
+console.log('PASS: three actual consultation answers preserve all wording; story assets and presentation-only motion are present.');
+
+for(const file of ['admin-analytics-core.js','admin-analytics.js'])new Function(fs.readFileSync(file,'utf8'));
+assert.equal((current.match(/src="admin-analytics-core.js"/g)||[]).length,1);
+assert.equal((current.match(/src="admin-analytics.js"/g)||[]).length,1);
+assert(current.includes('id="adminAnalytics" hidden'));
+const analytics=fs.readFileSync('admin-analytics.js','utf8');
+assert(!/\.(set|update|delete|add)\(/.test(analytics),'Reporting must not mutate database documents');
+assert(analytics.includes('isAdmin()')&&analytics.includes("get({source:'server'})"));
+console.log('PASS: new administrator analytics scripts compile, mount once behind the existing admin gate, and contain no database write calls.');
