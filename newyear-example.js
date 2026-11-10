@@ -1,7 +1,7 @@
 /* Public, fixed synthetic example. Reading it never calls the consultation API. */
 (()=>{'use strict';const view=document.getElementById('view-newyear');if(!view)return;
  const make=(tag,text,cls)=>{const e=document.createElement(tag);if(text)e.textContent=text;if(cls)e.className=cls;return e;};
- const section=make('section',null,'newyear-example');section.setAttribute('aria-label','신년 리포트 예시');section.append(make('p','신년 리포트 미리보기','newyear-kicker'),make('h2','나의 한 해는, 이렇게 읽습니다.'),make('p','1990년 1월 1일 양력 · 출생시간·성별 미상인 가상 사주로 작성한 예시입니다. 내 리포트의 구성과 답변 깊이를 먼저 살펴보세요.','newyear-example-intro'));
+ const section=make('section',null,'newyear-example');section.setAttribute('aria-label','신년 리포트 예시');section.append(make('p','신년 리포트 미리보기','newyear-kicker'),make('h2','나의 한 해는, 이렇게 읽습니다.'),make('p','1990년 1월 1일 양력 · 출생시간·성별 미상인 가상 사주로 이전 버전에서 실제 작성한 구성 예시입니다. 최신 답변 예시는 생성 검증이 끝난 뒤 교체됩니다.','newyear-example-intro'));
  const details=make('details'),summary=make('summary','1990년생의 2027 신년 리포트 읽기'),body=make('div',null,'newyear-example-body');details.append(summary,body);section.append(details,make('p','고정된 예시를 읽는 동안에는 로그인이나 결제가 필요하지 않고, 상담 횟수도 사용하지 않습니다. 실제 리포트는 입력한 사주에 따라 달라집니다.','newyear-muted'));
  view.querySelector('.newyear-account').before(section);
  const position=()=>{const account=view.querySelector('.newyear-account');if(view.classList.contains('has-report'))account.after(section);else account.before(section);};
