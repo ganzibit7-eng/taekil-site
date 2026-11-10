@@ -19,4 +19,5 @@ jobs:
       - run: node test-admin-analytics.cjs
       - run: node --test test-free-report-handoff.cjs
       - run: node --test test-visitor-exclusion.cjs
+      - run: node --test test-payment-baseline.cjs test-yeonwoo-video.cjs
       - run: git diff --check

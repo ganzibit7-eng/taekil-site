@@ -1,0 +1,9 @@
+.yeonwoo-video-frame{position:relative;overflow:hidden}
+.yeonwoo-story-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 38%;opacity:0;pointer-events:none;transition:opacity .25s ease}
+.yeonwoo-story-video.yeonwoo-playing{opacity:1}
+.ai-chat-bgvideo{opacity:0;object-position:50% 35%}
+.ai-chat-bgvideo.yeonwoo-playing{opacity:1}
+@media(prefers-reduced-motion:reduce){.yeonwoo-story-video,.ai-chat-bgvideo{opacity:0!important;transition:none}}
+
+/* Share the existing responsive video geometry for a reliable static fallback. */
+.home-first-block .yeonwoo-stage-poster{display:block!important;opacity:1!important;pointer-events:none}
