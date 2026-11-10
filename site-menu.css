@@ -1,0 +1,28 @@
+/* A single quiet entry point, with the original account actions inside. */
+.site-menu-ready #navLinks,.site-menu-ready #bottomTabbar{display:none!important}
+body.site-menu-ready{padding-bottom:0!important}
+html.site-menu-open{overflow:hidden!important;scrollbar-gutter:stable}
+.site-menu-trigger,.site-menu-close{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;padding:10px;background:transparent;border:0;border-radius:6px;color:#e6dfd2;cursor:pointer;box-shadow:none}
+.site-menu-trigger svg,.site-menu-close svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round}
+.site-menu-trigger:hover,.site-menu-close:hover{background:#c6aa760c;color:#c6aa76}
+.site-menu{box-sizing:border-box;position:fixed;inset:0 0 0 auto;width:min(420px,100%);height:100dvh;max-height:100dvh;max-width:100%;margin:0;padding:28px 32px max(28px,env(safe-area-inset-bottom));border:0;border-left:1px solid #c6aa7626;background:#121b17;color:#f0ebe1;overflow:auto;overscroll-behavior:contain;font-family:var(--sans);text-align:left;box-shadow:none}
+.site-menu::backdrop{background:#050a08b8;backdrop-filter:blur(4px)}
+.site-menu-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:30px}
+.site-menu-heading h2{font-family:var(--serif,'MaruBuri',serif);font-size:27px;font-weight:600;letter-spacing:-.04em;margin:0}
+.site-menu-account{border-bottom:1px solid #c6aa762c;padding-bottom:26px}
+.site-menu-caption,.site-menu-group h3{display:block;font-size:13px;line-height:1.6;font-weight:500;color:#b5a180;letter-spacing:.03em;margin:0 0 10px}
+.site-menu #authNavBtn{display:inline-block;max-width:100%;padding:0!important;min-height:44px;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#f0ebe1!important;font:500 24px/1.65 var(--sans)!important;white-space:normal;overflow-wrap:anywhere;cursor:pointer;text-decoration:none;text-align:left}
+.site-menu #authNavBtn:after{display:none!important}
+.site-menu-account p{margin:7px 0 0;color:#a9b1a8;font-size:14px;line-height:1.65}
+.site-menu-group{padding-top:26px}
+.site-menu-group button{display:block;width:100%;padding:10px 0;min-height:46px;text-align:left;border:0;background:none;color:#e8e5dc;font:400 18px/1.65 var(--sans);cursor:pointer;letter-spacing:-.02em;border-radius:0;box-shadow:none}
+.site-menu-group button:hover,.site-menu-group button[aria-current=page]{color:#d6bb85}
+.site-menu-dates{display:grid;grid-template-columns:1fr 1fr;column-gap:20px}
+.site-menu-dates button,.site-menu-secondary button{font-size:16px;color:#bbc2b8}
+.site-menu-secondary{border-top:1px solid #c6aa7620;margin-top:22px}
+.site-menu-signature{font-family:var(--serif,'MaruBuri',serif);font-size:14px;line-height:1.8;color:#8c978c;margin:32px 0 0}
+:is(.site-menu,.topbar) :is(button,a):focus-visible{outline:2px solid #c6aa76;outline-offset:4px}
+#homeIntroOverlay #homeStartChatBtn.home-start-chat-btn{gap:10px}
+#homeIntroOverlay #homeStartChatBtn:before{content:"";display:inline-block;position:static;inset:auto;transform:none;flex:none;width:25px;height:25px;background:url('assets/consultation-sparkle.svg') center/contain no-repeat;vertical-align:middle}
+#homeIntroOverlay #homeStartChatBtn:disabled:before{display:none}
+@media(max-width:480px){.site-menu{width:min(360px,calc(100% - 24px));padding:22px 26px max(26px,env(safe-area-inset-bottom))}.site-menu-heading{margin-bottom:24px}.site-menu-group{padding-top:22px}.site-menu-heading h2{font-size:25px}}
