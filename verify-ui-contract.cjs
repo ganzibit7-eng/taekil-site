@@ -3,8 +3,10 @@ const baselineRef='d7bd53ed709f19d5ffb633b622dcae97158de697';
 const baseline=cp.execFileSync('git',['show',baselineRef+':index.html'],{encoding:'utf8'}).replace(/\r\n/g,'\n');
 const current=fs.readFileSync('index.html','utf8').replace(/\r\n/g,'\n');
 const scripts=html=>[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].map(m=>[m[1],m[2]]);
-const originalScripts=scripts(current).filter(([attrs])=>!['premium-motion.js','admin-analytics-core.js','admin-analytics.js','consultation-stage.js','navigation-stability.js','newyear-consultation.js','free-report-handoff-core.js','free-report-handoff.js','navigation-refinement.js','profile-picker-controls.js'].some(src=>new RegExp('src="'+src.replaceAll('.', '\\.')+'(?:\\?[^"]*)?"').test(attrs)));
+const originalScripts=scripts(current).filter(([attrs])=>!['premium-motion.js','admin-analytics-core.js','admin-analytics.js','consultation-stage.js','navigation-stability.js','newyear-consultation.js','free-report-handoff-core.js','free-report-handoff.js','navigation-refinement.js','profile-picker-controls.js','consultation-quality.js','support-channels.js'].some(src=>new RegExp('src="'+src.replaceAll('.', '\\.')+'(?:\\?[^"]*)?"').test(attrs)));
 const normalizeReport=source=>source
+.replace(/        \/\* QUALITY_PAYLOAD_START \*\/[\s\S]*?        \/\* QUALITY_PAYLOAD_END \*\/\n/,'')
+.replace(/    \/\* QUALITY_RESPONSE_START \*\/[\s\S]*?    \/\* QUALITY_RESPONSE_END \*\/\n/,'')
 .replace(/  \/\* REPORT_MANUAL_OPTION_START \*\/[\s\S]*?  \/\* REPORT_MANUAL_OPTION_END \*\/\n/,'')
 .replace(/      \/\* REPORT_SIGNUP_EVENT_START \*\/[\s\S]*?      \/\* REPORT_SIGNUP_EVENT_END \*\/\n/,'')
 .replace(/    \/\* REPORT_QUESTION_EVENT_START \*\/[\s\S]*?    \/\* REPORT_QUESTION_EVENT_END \*\/\n/,'')
