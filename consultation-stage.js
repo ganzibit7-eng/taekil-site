@@ -15,6 +15,16 @@
   const input = document.getElementById('aiChatInput');
   const send = document.getElementById('aiChatSendBtn');
   let suggestedQuestion = '';
+
+  function resizeComposer() {
+    if (!input?.offsetWidth) return;
+    input.style.height = 'auto';
+    const desired = input.scrollHeight;
+    input.style.height = Math.min(112, Math.max(44, desired)) + 'px';
+    input.style.overflowY = desired > 112 ? 'auto' : 'hidden';
+  }
+  input?.addEventListener('input', resizeComposer);
+
   window.resetAiComposer = () => {
     suggestedQuestion = '';
     if (input) input.value = '';
@@ -22,6 +32,7 @@
     const starters = document.getElementById('aiChatQuickActions');
     if (starters) starters.style.display = '';
     document.querySelector('.ai-chat-stage')?.classList.remove('ai-chat-thinking');
+    resizeComposer();
   };
 
   window.prepareAiQuestion = text => {
@@ -83,6 +94,7 @@
   function sync(){
     updateProfileLine();
     updateCompareLabel();
+    resizeComposer();
     const next=home.classList.contains('visible')&&(setup.style.display==='block'||panel.style.display==='flex');
     if(next===opened){if(next)resize();return;}
     opened=next;
@@ -108,8 +120,12 @@
   new MutationObserver(sync).observe(home,{attributes:true,attributeFilter:['class']});
   const observer=new MutationObserver(sync);
   [setup,panel].forEach(element=>observer.observe(element,{attributes:true,attributeFilter:['style']}));
-  if (log) new MutationObserver(updateProfileLine).observe(log, {childList:true});
+  if (log) new MutationObserver(() => {
+    updateProfileLine();
+    resizeComposer();
+  }).observe(log, {childList:true});
   window.addEventListener('resize',resize,{passive:true});
+  window.addEventListener('resize',resizeComposer,{passive:true});
   viewport?.addEventListener('resize',resize,{passive:true});
   viewport?.addEventListener('scroll',resize,{passive:true});
   sync();

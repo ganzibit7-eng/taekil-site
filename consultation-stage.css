@@ -106,6 +106,6 @@ body.consultation-open .consultation-profile-scroll:has(#aiChatCalType option[va
 .consultation-more-questions summary {padding: 9px; background: #101715e0; border-radius: 6px; cursor: pointer; color: #f0ebe1; font-size: 14px}
 .consultation-more-questions > div {display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; padding-top: 7px}
 .consultation-progress-text {margin: 0 0 5px; font-size: 15px; color: #d9dcd2}
-@media (min-width: 500px) {
-  body.consultation-open #aiChatQuickActions:not([style*="none"]) {grid-template-columns: repeat(3, minmax(0, 1fr))}
+body.consultation-open #aiChatQuickActions:not([style*="none"]) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
