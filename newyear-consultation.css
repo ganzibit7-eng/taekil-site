@@ -8,5 +8,26 @@
 .newyear-progress{padding:32px 0 52px;max-width:640px}.newyear-progress h2{font:600 28px/1.5 var(--serif);color:#F0EBE1;margin:24px 0 18px}.newyear-progress p{font:400 17px/1.8 var(--sans);color:#B6BDB5;word-break:keep-all}.newyear-progress-time{color:#C6AA76!important;font-variant-numeric:tabular-nums}.newyear-progress-mark{display:block;width:32px;height:32px;border:1px solid #c6aa7633;border-top-color:#C6AA76;border-radius:50%;animation:newyear-writing 2s linear infinite}.newyear-progress .newyear-muted{font-size:16px}.newyear-account :is(h2,h3){font-family:var(--serif)}
 @keyframes newyear-writing{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.newyear-progress-mark{animation:none}}@media(max-width:600px){.newyear-date-fields{gap:8px}.newyear-extra-fields{gap:12px}.newyear-progress h2{font-size:25px}.newyear-profile-form{gap:20px}}
 .newyear-months p.newyear-month-basis{font-size:15px;line-height:1.8;color:#C6AA76;border-left:1px solid #806448;padding-left:14px;margin-bottom:22px}
+
+.newyear-report-contents {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  padding: 0 0 14px;
+  border-bottom: 1px solid #c6aa7633;
+}
+.newyear-report-contents button {
+  min-height: 44px;
+  padding: 4px 1px;
+  border: 0;
+  background: none;
+  color: #dac6a3;
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+.newyear-report-contents button:hover {text-decoration: underline; text-underline-offset: 4px}
+.newyear-content h2[tabindex="-1"] {scroll-margin-top: 96px}
+.newyear-areas > h2 {margin: 28px 0 0; font: 600 25px/1.5 var(--serif); color: #f0ebe1}
 #view-newyear.is-generating :is(.newyear-heading,.newyear-value,.newyear-example){display:none}#view-newyear.is-generating .newyear-account{padding-top:16px}#view-newyear.has-report :is(.newyear-value,.newyear-example){display:none}#view-newyear.has-report .newyear-heading>:not(.newyear-kicker){display:none}#view-newyear.has-report .newyear-heading{padding:8px 0 20px}#view-newyear.has-report [data-year-refresh]{display:none}
 #view-newyear.has-report .newyear-example{display:block}

@@ -1,7 +1,22 @@
 /* Optional source details and verified-admin synthetic quality comparisons. */
 (()=>{'use strict';
  const make=(tag,text)=>{const e=document.createElement(tag);if(text)e.textContent=text;return e;};
- window.addEventListener('taekilso:consultationEvidence',e=>{const {element,evidence}=e.detail||{};if(!element||!Array.isArray(evidence)||!evidence.length)return;const d=make('details');d.className='consultation-evidence';d.append(make('summary','이렇게 살펴봤어요'));for(const item of evidence){const p=make('p');p.append(make('strong',item.label+' · '),document.createTextNode(item.value),make('small',item.scope));d.append(p);}element.append(d);});
+ window.addEventListener('taekilso:consultationEvidence', event => {
+   const {element, evidence} = event.detail || {};
+   if (!element || !Array.isArray(evidence) || !evidence.length) return;
+   const details = make('details');
+   details.className = 'consultation-evidence';
+   details.append(make('summary', '풀이에 사용한 계산 근거'));
+   const scopes = new Set();
+   for (const item of evidence) {
+     const row = make('p');
+     row.append(make('strong', item.label + ' · '), document.createTextNode(item.value));
+     details.append(row);
+     if (item.scope && item.scope !== '선택한 출생정보의 계산값') scopes.add(item.scope);
+   }
+   for (const scope of scopes) details.append(make('small', scope));
+   element.append(details);
+ });
  const admin=document.getElementById('view-admin');if(!admin)return;let mounted=false;
  function mount(){if(mounted||!admin.classList.contains('visible')||typeof isAdmin!=='function'||!isAdmin())return;mounted=true;const panel=make('details');panel.className='consultation-quality-admin';panel.id='consultationQualityAdmin';panel.append(make('summary','상담 품질 비교 · 관리자 전용'));
  const note=make('p','가상 사주로 실제 API를 호출합니다. 기존 관리자 상담 한도가 적용되며, 실제 이용자의 사주와 저장된 신년 리포트는 바꾸지 않습니다.');panel.append(note);
