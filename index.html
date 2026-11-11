@@ -6642,25 +6642,26 @@ function renderAdminInquiries() {
       card.innerHTML = `
         <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
           <strong style="font-family:var(--serif); font-weight:400; color:var(--gold-hi);">${q.isPaymentConfirmRequest ? '💳 ' : ''}${escapeHtml(q.title || '(제목 없음)')}</strong>
-          <span class="inq-status ${q.status === '답변완료' ? 'answered' : 'waiting'}">${q.status || '대기'}</span>
+          <span class="inq-status ${q.status === '답변완료' ? 'answered' : 'waiting'}">${escapeHtml(q.status || '대기')}</span>
         </div>
         <div style="font-size:11px; color:var(--muted-2); margin-top:4px;">${escapeHtml(q.name || q.uid || '')} · ${escapeHtml(dateStr)}</div>
         <div style="font-size:13.5px; color:#cfcbc1; margin-top:10px; white-space:pre-wrap;">${escapeHtml(q.message || '')}</div>
-        <textarea placeholder="답변을 입력하세요" data-id="${doc.id}">${escapeHtml(q.reply || '')}</textarea>
-        <button class="btn btn-primary" style="margin-top:8px; height:42px; font-size:13px;" data-reply-id="${doc.id}">답변 저장</button>
+        <textarea placeholder="답변을 입력하세요">${escapeHtml(q.reply || '')}</textarea>
+        <button class="btn btn-primary" style="margin-top:8px; height:42px; font-size:13px;">답변 저장</button>
       `;
-      wrap.appendChild(card);
-    });
-    wrap.querySelectorAll('[data-reply-id]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const id = e.target.dataset.replyId;
-        const textarea = wrap.querySelector(`textarea[data-id="${id}"]`);
+      const textarea = card.querySelector('textarea');
+      const button = card.querySelector('button');
+      textarea.dataset.id = doc.id;
+      button.dataset.replyId = doc.id;
+      button.addEventListener('click', () => {
+        if (!accountStore.current(accountToken) || !isAdmin()) return;
         const reply = textarea.value.trim();
         if (!reply) { showToast('답변 내용을 입력해주세요.'); return; }
-        db.collection('inquiries').doc(id).update({ reply, status: '답변완료' })
-          .then(() => { showToast('답변을 저장했어요.'); renderAdminInquiries(); })
-          .catch(err => showToast('저장 실패: ' + err.message));
+        db.collection('inquiries').doc(doc.id).update({ reply, status: '답변완료' })
+          .then(() => { if (accountStore.current(accountToken) && isAdmin()) { showToast('답변을 저장했어요.'); renderAdminInquiries(); } })
+          .catch(err => { if (accountStore.current(accountToken) && isAdmin()) showToast('저장 실패: ' + err.message); });
       });
+      wrap.appendChild(card);
     });
   }).catch(err => { wrap.innerHTML = '<div class="empty-note">문의 목록을 불러오지 못했어요.</div>'; console.error(err); });
 }
@@ -7227,6 +7228,25 @@ async function getAiRequestHeaders() {
   return headers;
 }
 
+function createKakaoLoginState() {
+  const bytes = new Uint8Array(32);
+  window.crypto.getRandomValues(bytes);
+  const state = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+  sessionStorage.setItem('taekilso_kakao_login_state', JSON.stringify({state, createdAt:Date.now()}));
+  return state;
+}
+
+function consumeKakaoLoginState(state) {
+  try {
+    const raw = sessionStorage.getItem('taekilso_kakao_login_state');
+    sessionStorage.removeItem('taekilso_kakao_login_state');
+    const pending = JSON.parse(raw || 'null');
+    const age = Date.now() - Number(pending?.createdAt);
+    return typeof state === 'string' && /^[a-f0-9]{64}$/.test(state)
+      && pending?.state === state && Number.isFinite(age) && age >= 0 && age <= 10 * 60 * 1000;
+  } catch (_) { return false; }
+}
+
 async function loginWithKakao() {
   if (!kakaoReady) {
     showToast('카카오 로그인 설정이 아직 안 됐어요.');
@@ -7235,16 +7255,25 @@ async function loginWithKakao() {
   if (firebaseReady && firebaseAuthUser && !firebaseAuthUser.isAnonymous) {
     try { await firebase.auth().signOut(); } catch (e) {}
   }
-  Kakao.Auth.authorize({ redirectUri: KAKAO_REDIRECT_URI, scope: 'profile_nickname' });
+  try {
+    const state = createKakaoLoginState();
+    Kakao.Auth.authorize({ redirectUri: KAKAO_REDIRECT_URI, scope: 'profile_nickname', state });
+  } catch (_) { showToast('로그인 보안 정보를 저장하지 못했어요. 브라우저 저장 설정을 확인하고 다시 시도해주세요.'); }
 }
 
-async function exchangeKakaoCode(code) {
+async function exchangeKakaoCode(code, state) {
+  const validState = consumeKakaoLoginState(state);
+  const callbackUrl = new URL(window.location.href);
+  for (const key of ['code', 'state', 'error', 'error_description']) callbackUrl.searchParams.delete(key);
+  window.history.replaceState({}, document.title, callbackUrl.toString());
+  if (!validState) { showToast('로그인 요청이 만료되었거나 일치하지 않아요. 카카오 로그인 버튼으로 다시 시작해주세요.'); return; }
   try {
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
       client_id: KAKAO_REST_KEY,
       redirect_uri: KAKAO_REDIRECT_URI,
-      code: code
+      code: code,
+      state: state
     });
 
     const tokenRes = await fetch('https://kauth.kakao.com/oauth/token', {
@@ -7332,8 +7361,16 @@ async function exchangeKakaoCode(code) {
 }
 
 (function checkKakaoRedirect() {
-  const code = new URLSearchParams(window.location.search).get('code');
-  if (code) exchangeKakaoCode(code);
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (code) exchangeKakaoCode(code, params.get('state'));
+  else if (params.has('error') && params.has('state')) {
+    consumeKakaoLoginState(params.get('state'));
+    const url = new URL(window.location.href);
+    for (const key of ['state', 'error', 'error_description']) url.searchParams.delete(key);
+    window.history.replaceState({}, document.title, url.toString());
+    showToast('카카오 로그인을 완료하지 못했어요. 다시 시도해주세요.');
+  }
 })();
 
 function logout() {
@@ -11498,7 +11535,7 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <link rel="stylesheet" href="consultation-quality.css?v=20261111-2">
 <script src="support-channels.js?v=20261111-refund"></script>
 <script src="consultation-quality.js?v=20261111-long-report"></script>
-<link rel="stylesheet" href="site-menu.css?v=20261111-2"><script src="site-menu.js?v=20261111-2"></script>
+<link rel="stylesheet" href="site-menu.css?v=20261111-3"><script src="site-menu.js?v=20261111-3"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=20261111-2">
 <script src="account-session.js?v=20261111-1"></script>
 <script src="campaign-attribution-core.js?v=20261111-1"></script><script src="campaign-attribution.js?v=20261111-1"></script>

@@ -16,14 +16,14 @@
   menu.className = 'site-menu';
   menu.setAttribute('aria-labelledby', 'siteMenuTitle');
   menu.innerHTML = `<div class="site-menu-heading"><h2 id="siteMenuTitle">택일소</h2><button class="site-menu-close" type="button" aria-label="전체 메뉴 닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
-    <div class="site-menu-account">
+    <button type="button" class="site-menu-account" aria-label="내 프로필 보기">
       <img class="site-menu-account-mark" src="/assets/brand-emblem-transparent.png?v=20261111-1" width="46" height="46" alt="">
-      <div class="site-menu-account-copy">
+      <span class="site-menu-account-copy">
         <span class="site-menu-caption">나의 택일소</span>
-        <div data-menu-account></div>
-        <p id="siteMenuAccountNote"></p>
-      </div>
-    </div>
+        <span id="siteMenuAccountNote"></span>
+      </span>
+    </button>
+    <div data-menu-account hidden></div>
     <nav aria-label="전체 메뉴">
       <div class="site-menu-group"><h3>연우와 함께</h3><button data-menu-route="home">홈 · 연우 상담</button><button data-menu-route="tool">사주 · 날짜 찾기</button><button data-menu-route="newyear">2027 신년상담</button><button data-menu-route="history">나의 상담 기록</button></div>
       <div class="site-menu-group"><h3>중요한 날을 위해</h3><div class="site-menu-dates"><button data-menu-route="wedding">결혼식 택일</button><button data-menu-route="moving">이사 택일</button><button data-menu-route="opening">개업 택일</button><button data-menu-route="contract">계약 택일</button></div></div>
@@ -38,7 +38,8 @@
   document.body.classList.add('site-menu-ready');
   const refreshAccount = () => {
     menu.querySelector('#siteMenuAccountNote').textContent = account.classList.contains('logged-in')
-      ? '내 프로필 보기' : '내 상담 기록과 이용권 확인';
+      ? '내 프로필 보기' : '로그인하고 시작하기';
+    menu.querySelector('.site-menu-account').setAttribute('aria-label', account.classList.contains('logged-in') ? '내 프로필 보기' : '로그인하기');
   };
   refreshAccount();
   new MutationObserver(refreshAccount).observe(account, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['class'] });
@@ -68,6 +69,8 @@
     }
   });
   menu.querySelector('.site-menu-close').addEventListener('click', () => close());
+  // One native button makes the whole compact card clickable and keyboard accessible.
+  menu.querySelector('.site-menu-account').addEventListener('click', () => account.click());
   menu.querySelectorAll('[data-menu-route]').forEach(button => button.addEventListener('click', () => {
     close(false);
     goTo(button.dataset.menuRoute);
