@@ -16,7 +16,14 @@
   menu.className = 'site-menu';
   menu.setAttribute('aria-labelledby', 'siteMenuTitle');
   menu.innerHTML = `<div class="site-menu-heading"><h2 id="siteMenuTitle">택일소</h2><button class="site-menu-close" type="button" aria-label="전체 메뉴 닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
-    <div class="site-menu-account"><span class="site-menu-caption">나의 택일소</span><div data-menu-account></div><p data-menu-account-note></p></div>
+    <div class="site-menu-account">
+      <img class="site-menu-account-mark" src="/assets/brand-emblem-transparent.png?v=20261111-1" width="46" height="46" alt="">
+      <div class="site-menu-account-copy">
+        <span class="site-menu-caption">나의 택일소</span>
+        <div data-menu-account></div>
+        <p id="siteMenuAccountNote"></p>
+      </div>
+    </div>
     <nav aria-label="전체 메뉴">
       <div class="site-menu-group"><h3>연우와 함께</h3><button data-menu-route="home">홈 · 연우 상담</button><button data-menu-route="tool">사주 · 날짜 찾기</button><button data-menu-route="newyear">2027 신년상담</button><button data-menu-route="history">나의 상담 기록</button></div>
       <div class="site-menu-group"><h3>중요한 날을 위해</h3><div class="site-menu-dates"><button data-menu-route="wedding">결혼식 택일</button><button data-menu-route="moving">이사 택일</button><button data-menu-route="opening">개업 택일</button><button data-menu-route="contract">계약 택일</button></div></div>
@@ -24,13 +31,14 @@
     </nav><p class="site-menu-signature">나의 때를 살피는 곳, 택일소</p>`;
   menu.querySelector('[data-menu-account]').append(account);
   account.setAttribute('role', 'button');
+  account.setAttribute('aria-describedby', 'siteMenuAccountNote');
   account.tabIndex = 0;
   header.append(trigger);
   document.body.append(menu);
   document.body.classList.add('site-menu-ready');
   const refreshAccount = () => {
-    menu.querySelector('[data-menu-account-note]').textContent = account.classList.contains('logged-in')
-      ? '내 정보와 이용권을 확인하세요.' : '로그인하고 나의 상담을 이어가세요.';
+    menu.querySelector('#siteMenuAccountNote').textContent = account.classList.contains('logged-in')
+      ? '내 프로필 보기' : '내 상담 기록과 이용권 확인';
   };
   refreshAccount();
   new MutationObserver(refreshAccount).observe(account, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['class'] });
@@ -67,6 +75,11 @@
   }));
   // Close before the unchanged account handler opens the login modal/profile.
   account.addEventListener('click', () => close(false), true);
+  account.addEventListener('click', () => {
+    if (document.getElementById('view-profile')?.classList.contains('visible')) {
+      document.getElementById('profileHeading')?.focus({ preventScroll: true });
+    }
+  });
   account.addEventListener('keydown', event => {
     if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); account.click(); }
   });

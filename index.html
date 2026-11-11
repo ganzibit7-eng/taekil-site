@@ -3069,62 +3069,56 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 <!-- ============ PROFILE ============ -->
 <section id="view-profile" class="view">
-  <header class="hero hero-sm">
-    <div class="hero-inner">
-      <div class="eyebrow">내 프로필</div>
-      <h1 style="font-size:clamp(28px,4.6vw,46px);">계정 정보</h1>
+  <div class="pf-shell">
+    <header class="pf-heading">
+      <h1 id="profileHeading" tabindex="-1">내 프로필</h1>
+    </header>
+    <div class="pf-card">
+      <div class="pf-avatar" id="profileAvatar" aria-hidden="true">택</div>
+      <div class="pf-id">
+        <div class="pf-name" id="profileName">이름</div>
+        <div class="pf-meta" id="profileMeta">로그인 방식</div>
+        <div class="pf-badge-row">
+          <span class="pf-badge" id="profileTier">무료 회원</span>
+          <span class="pf-expiry" id="premiumExpiry" style="display:none;"></span>
+        </div>
+        <div class="pf-uid" id="profileUidRow" style="display:none;">
+          <span>회원 UID</span>
+          <code id="profileUid"></code>
+          <button type="button" onclick="copyProfileUid()" aria-label="회원 UID 복사">복사</button>
+        </div>
+      </div>
     </div>
-  </header>
-  <section class="block" style="padding-top:10px;">
-    <div class="container" style="max-width:560px;">
 
-      <div class="pf-card">
-        <div class="pf-avatar" id="profileAvatar">택</div>
-        <div class="pf-id">
-          <div class="pf-name" id="profileName">이름</div>
-          <div class="pf-meta" id="profileMeta">로그인 방식</div>
-          <div id="profileUidRow" style="display:none;align-items:center;gap:7px;margin-top:7px;flex-wrap:wrap;">
-            <span style="color:var(--muted-2);font-size:9.5px;">회원 UID</span>
-            <code id="profileUid" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:9.5px;"></code>
-            <button type="button" onclick="copyProfileUid()" style="border:1px solid rgba(215,180,106,.18);border-radius:8px;padding:3px 7px;background:rgba(215,180,106,.06);color:var(--gold-hi);font:inherit;font-size:9px;cursor:pointer;">복사</button>
-          </div>
-          <div class="pf-badge-row">
-            <span class="pf-badge" id="profileTier">무료 회원</span>
-            <span class="pf-expiry" id="premiumExpiry" style="display:none;"></span>
-          </div>
-        </div>
-      </div>
-
-      <button class="btn newyear-profile-link" data-open-newyear>나의 2027 신년 리포트</button><button class="btn profile-plan-guide" onclick="goTo('plans')">이용권 안내</button><button class="pf-upgrade" id="profileUpgradeBtn" onclick="payPremium()">프리미엄 30일 · 8,900원 구매</button>
-      <div id="profilePremiumPriceNote" style="text-align:center;color:var(--muted-2);font-size:10.5px;line-height:1.6;margin:-4px 0 16px;">8,900원 / 30일 · 자동결제 없음 · AI 상담 하루 10개</div>
-<div class="pf-menu">
-        <div class="pf-menu-item" onclick="goTo('history')">
-          <span class="pf-menu-icon">🕘</span>
-          <span class="pf-menu-label">내 기록 · 사주 보관함</span>
-          <span class="pf-menu-arrow">→</span>
-        </div>
-        <div class="pf-menu-item" onclick="goTo('support')">
-          <span class="pf-menu-icon">💬</span>
-          <span class="pf-menu-label">고객센터 · 1:1 문의</span>
-          <span class="pf-menu-arrow">→</span>
-        </div>
-        <div id="adminEntryWrap" style="display:none;">
-          <div class="pf-menu-item" onclick="goTo('admin')">
-            <span class="pf-menu-icon" style="color:var(--gold-hi);">✦</span>
-            <span class="pf-menu-label" style="color:var(--gold-hi);">관리자 대시보드</span>
-            <span class="pf-menu-arrow">→</span>
+    <div class="pf-panels">
+      <section class="pf-panel pf-plan" aria-labelledby="profilePlanHeading">
+        <h2 id="profilePlanHeading">이용권</h2>
+        <p id="profilePremiumPriceNote">8,900원 / 30일 · 자동결제 없음 · AI 상담 하루 10개</p>
+        <button type="button" class="pf-upgrade" id="profileUpgradeBtn" onclick="payPremium()">프리미엄 30일 · 8,900원 구매</button>
+        <button type="button" class="profile-plan-guide" onclick="goTo('plans')">이용권 안내</button>
+      </section>
+      <section class="pf-panel" aria-labelledby="profileLibraryHeading">
+        <h2 id="profileLibraryHeading">나의 리포트와 기록</h2>
+        <div class="pf-menu">
+          <button type="button" class="pf-menu-item" data-open-newyear>나의 2027 신년 리포트</button>
+          <button type="button" class="pf-menu-item" onclick="goTo('history')">내 기록 · 사주 보관함</button>
+          <button type="button" class="pf-menu-item" onclick="goTo('support')">고객센터 · 1:1 문의</button>
+          <div id="adminEntryWrap" style="display:none;">
+            <button type="button" class="pf-menu-item" onclick="goTo('admin')">관리자 대시보드</button>
           </div>
         </div>
-      </div>
+      </section>
+    </div>
 
-      <div class="pf-danger-note">회원탈퇴 시 동일 계정으로 30일간 재가입할 수 없습니다. 무료 3회 혜택도 재가입 제한 기간이 지난 뒤에만 다시 가입할 수 있어요.</div>
+    <section class="pf-account-actions" aria-labelledby="profileAccountHeading">
+      <h2 id="profileAccountHeading">계정 관리</h2>
+      <p class="pf-danger-note">회원탈퇴 시 동일 계정으로 30일간 재가입할 수 없습니다. 무료 3회 혜택도 재가입 제한 기간이 지난 뒤에만 다시 가입할 수 있어요.</p>
       <div class="pf-danger-row">
-        <span class="text-action" onclick="logout()">로그아웃</span>
-        <span class="text-action" style="color:var(--warn);" onclick="confirmDeleteAccount()">회원탈퇴</span>
+        <button type="button" class="text-action" onclick="logout()">로그아웃</button>
+        <button type="button" class="text-action pf-delete" onclick="confirmDeleteAccount()">회원탈퇴</button>
       </div>
-
-    </div>
-  </section>
+    </section>
+  </div>
 </section>
 
 <!-- ============ SUPPORT (1:1 문의) ============ -->
@@ -11469,7 +11463,7 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261111-1"></script><script src="premium-motion.js" defer></script>
 <link rel="stylesheet" href="consultation-stage.css?v=20261110-2">
 <script src="consultation-stage.js?v=20261110-1"></script>
-<script src="navigation-stability.js?v=20261110-1"></script>
+<script src="navigation-stability.js?v=20261111-2"></script>
 <link rel="stylesheet" href="newyear-consultation.css?v=20261111-3">
 <script src="newyear-consultation.js?v=20261111-operations"></script><script src="newyear-example.js?v=20261111-4"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=20261110-1">
@@ -11481,7 +11475,7 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <link rel="stylesheet" href="consultation-quality.css?v=20261111-2">
 <script src="support-channels.js?v=20261110-1"></script>
 <script src="consultation-quality.js?v=20261111-long-report"></script>
-<link rel="stylesheet" href="site-menu.css?v=20261111-1"><script src="site-menu.js?v=20261111-1"></script>
+<link rel="stylesheet" href="site-menu.css?v=20261111-2"><script src="site-menu.js?v=20261111-2"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=20261111-2">
 <script src="account-session.js?v=20261111-1"></script>
 <script src="campaign-attribution-core.js?v=20261111-1"></script><script src="campaign-attribution.js?v=20261111-1"></script>
