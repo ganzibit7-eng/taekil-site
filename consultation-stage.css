@@ -44,3 +44,68 @@ body.consultation-open #aiChatSendBtn{min-height:44px;min-width:44px}
 body.consultation-open .bottom-tabbar,body.consultation-open footer,body.consultation-open #backToTop,body.consultation-open .home-ai-arrow-only{display:none!important}
 @media(max-width:380px){body.consultation-open .home-first-block #aiChatSetup,body.consultation-open .home-first-block #aiChatPanel{padding-left:16px!important;padding-right:16px!important}body.consultation-open #aiChatSetup .ai-chat-setup-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){body.consultation-open .home-first-block .ai-chat-stage:before{position:absolute;inset:0;width:100%;height:100%;border-radius:0;background:url('ai-consultant-poster.jpg') 52% 25%/cover}body.consultation-open #aiChatWindow{scroll-behavior:auto}}
+
+.brand-story-prologue .home-report-entry {
+  display: inline-grid;
+  gap: 4px;
+  margin-top: 26px;
+  padding: 12px 19px;
+  border: 1px solid #c6aa7660;
+  border-radius: 8px;
+  background: #1b2420;
+  color: #f0ebe1;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.home-report-entry strong {font-size: 16px; font-weight: 600}
+.home-report-entry span {font-size: 14px; line-height: 1.5; color: #b6bdb5}
+.home-report-entry:hover {border-color: #c6aa76}
+.consultation-setup-heading {
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  background: #101715dd;
+  border-radius: 8px;
+}
+.consultation-setup-heading h2 {margin: 0 0 5px; font: 600 23px/1.45 var(--serif); color: #f0ebe1}
+.consultation-setup-heading p {margin: 0; font-size: 15px; line-height: 1.6; color: #b6bdb5}
+body.consultation-open .consultation-profile-scroll > .consultation-lunar-option {display: none; margin: 0 2px 8px}
+body.consultation-open .consultation-profile-scroll:has(#aiChatCalType option[value=lunar]:checked) > .consultation-lunar-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.consultation-compare {
+  margin: 8px 0;
+  padding: 0 12px;
+  background: #101715dd;
+  border: 1px solid #c6aa7640;
+  border-radius: 8px;
+}
+.consultation-compare summary {padding: 12px 0; min-height: 44px; cursor: pointer; font-size: 15px}
+.consultation-compare summary span {float: right; color: #c6aa76; font-size: 13px}
+.consultation-compare select {width: 100%; margin-bottom: 10px}
+.consultation-current-profile {
+  flex: 0 0 auto;
+  margin: 0 0 5px;
+  padding: 7px 10px;
+  background: #101715e8;
+  border-left: 2px solid #c6aa7680;
+  border-radius: 0 5px 5px 0;
+  color: #f0ebe1;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.consultation-current-profile[hidden], body.ai-keyboard-open .consultation-current-profile {display: none}
+.consultation-starter-note, .consultation-more-questions {grid-column: 1 / -1}
+.consultation-starter-note {margin: 0; padding: 6px 9px; background: #101715db; border-radius: 6px; font-size: 14px; color: #f0ebe1}
+.consultation-more-questions summary {padding: 9px; background: #101715e0; border-radius: 6px; cursor: pointer; color: #f0ebe1; font-size: 14px}
+.consultation-more-questions > div {display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; padding-top: 7px}
+.consultation-progress-text {margin: 0 0 5px; font-size: 15px; color: #d9dcd2}
+@media (min-width: 500px) {
+  body.consultation-open #aiChatQuickActions:not([style*="none"]) {grid-template-columns: repeat(3, minmax(0, 1fr))}
+}

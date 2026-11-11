@@ -115,9 +115,25 @@
     const wasGenerating=view.classList.contains('is-generating');stopProgress();view.classList.add('has-report');content.style.minHeight='';if(wasGenerating)window.scrollTo({top:0,behavior:'instant'});
     content.replaceChildren();const r=data.report;
     content.append(el('p',`${data.profile.name} 님 · ${data.profile.date} · ${data.profile.hourValue==='unknown'?'출생시간 미상':data.profile.hourValue+'시'}`,'newyear-report-owner'));
-    content.append(section('한 해의 큰 흐름',r.overview),section('나의 사주와 2027년',r.foundation));
-    const areas=el('div',null,'newyear-areas');r.areas.forEach(a=>{const s=section(a.title,a.reading);s.append(el('p',a.action,'newyear-action'));areas.append(s);});content.append(areas);
+    const overview=section('한 해의 큰 흐름',r.overview);
+    const areas=el('section',null,'newyear-areas');
+    areas.append(el('h2','분야별 풀이'));
+    r.areas.forEach(a=>{const s=section(a.title,a.reading);s.append(el('p',a.action,'newyear-action'));areas.append(s);});
     const months=el('section',null,'newyear-months');months.append(el('h2','열두 달, 나의 흐름'));
+    const contents=el('nav',null,'newyear-report-contents');
+    contents.setAttribute('aria-label','신년 리포트 목차');
+    for (const [label, target] of [['한 해의 흐름', overview], ['분야별 풀이', areas], ['월별 풀이', months]]) {
+      const heading=target.querySelector('h2');
+      heading.tabIndex=-1;
+      const jump=el('button',label);
+      jump.type='button';
+      jump.addEventListener('click',()=>{
+        heading.focus({preventScroll:true});
+        heading.scrollIntoView({block:'start',behavior:'instant'});
+      });
+      contents.append(jump);
+    }
+    content.append(contents,overview,section('나의 사주와 2027년',r.foundation),areas);
     r.months.forEach(m=>{const d=el('details'),summary=el('summary');summary.append(el('span',String(m.month).padStart(2,'0')+'월'),el('strong',m.theme));d.append(summary);if(m.calculationNote)d.append(el('p',m.calculationNote,'newyear-month-basis'));d.append(el('p',m.reading),el('p',m.action,'newyear-action'));months.append(d);});content.append(months);
     content.append(section('기회를 살리는 방법',r.opportunities),section('조금 더 신중할 때',r.cautions),section('연우가 전하는 말',r.closing));
     const calculation=el('details',null,'newyear-calculation');calculation.append(el('summary','계산 기준과 해석 범위'));
