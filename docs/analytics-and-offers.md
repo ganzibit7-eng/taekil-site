@@ -32,6 +32,10 @@
 
 페이앱이 제공하는 외부 결제창 자체는 변경하지 않았습니다. 실제 결제를 발생시키는 검증은 수행하지 않습니다.
 
+### 신규 결제 일시 중단 및 재개
+
+운영 Firebase의 Firestore 문서 `siteSettings/checkout`에서 불리언 `enabled`를 `true`로 저장하면 프리미엄과 질문권 판매가 재개됩니다. `false`이거나 문서가 없으면 주문 생성이 차단됩니다. 운영 Firebase 콘솔에서 설정만 바꾸면 됩니다. 기존 주문 조회와 페이앱 승인 처리에는 이 설정을 적용하지 않습니다.
+
 ## 관리자 화면 참고 자료
 
 - [Shopify Analytics](https://help.shopify.com/en/manual/reports-and-analytics/shopify-reports/overview-dashboard/index): 기간 필터와 동일 기간 비교, 핵심 지표를 우선하는 구성.
