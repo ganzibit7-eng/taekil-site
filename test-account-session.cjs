@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
 const C=require('./account-session-core');
-const html=fs.readFileSync('index.html','utf8');
+const html=fs.readFileSync('index.html','utf8').replace(/\r\n/g,'\n');
 const source=name=>{const found=html.match(new RegExp('(?:async )?function '+name+'\\([^]*?\\n}'));assert(found,name+' source');return found[0];};
 const memory=()=>{const m=new Map();return {getItem:k=>m.get(k)||null,setItem:(k,v)=>m.set(k,v),removeItem:k=>m.delete(k)};};
 function fixture(){let uid='A';const local=memory(),session=memory(),store=C.createStore(local,session,()=>uid);return {local,session,store,as:id=>uid=id};}
@@ -76,7 +76,7 @@ test('home entry starts at the top after browser scroll restoration, including a
 test('integration loads owner store before legacy scripts and removes only hidden animation loops',()=>{
  assert(html.indexOf('src="account-session-core.js')<html.indexOf('const BIRTH_LOCK_KEY'));
  assert(!html.includes('requestAnimationFrame(draw)'));assert(!html.includes('requestAnimationFrame(move)'));
- const rules=fs.readFileSync('firebase/firestore.rules','utf8').split('match /inquiries/')[1].split('match /debugLogs/')[0];assert(rules.includes('allow list: if isAdmin()\n        || (signedIn() && resource.data.ownerUid == request.auth.uid)'));
+ const rules=fs.readFileSync('firebase/firestore.rules','utf8').replace(/\r\n/g,'\n').split('match /inquiries/')[1].split('match /debugLogs/')[0];assert(rules.includes('allow list: if isAdmin()\n        || (signedIn() && resource.data.ownerUid == request.auth.uid)'));
  const adapter=fs.readFileSync('account-session.js','utf8');assert(adapter.includes("where('ownerUid','==',token.owner)"));assert(adapter.includes('!store.current(token)||request!==inquiryRequest'));assert(adapter.includes("e.key==='Escape'"));assert(adapter.includes("e.key!=='Tab'"));
 });
 test('each approved legacy change has exactly its recorded scope',()=>{

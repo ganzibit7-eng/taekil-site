@@ -84,9 +84,15 @@ service cloud.firestore {
       }
     }
 
+    match /siteSettings/checkout {
+      allow get: if true;
+      allow list, write: if false;
+    }
+
     match /paymentOrders/{orderId} {
       allow create: if
         signedIn()
+        && get(/databases/$(database)/documents/siteSettings/checkout).data.enabled == true
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.keys().hasOnly([
           'uid', 'amount', 'product', 'status', 'createdAt', 'attribution'

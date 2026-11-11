@@ -38,9 +38,20 @@
     document.getElementById('aiChatWindow')?.append(box);
   };
   function purchase(){
+    if (!window.TaekilCheckout?.requireOpen()) return;
     if(!loggedIn()){openAuthModal();return;}
     sessionStorage.setItem('taekilso_newyear_return','1');
     payPremium();
+  }
+  function purchaseButton(text, primary = false) {
+    const action = button(text, purchase, primary);
+    action.setAttribute('data-checkout-action', '');
+    return action;
+  }
+  function pausedNotice() {
+    const note = el('p', '신규 결제를 잠시 중단했습니다.', 'checkout-pause-note');
+    note.setAttribute('data-checkout-paused', '');
+    return note;
   }
   function selectProfile(){
     view.classList.remove('has-report');
@@ -123,7 +134,7 @@
       for(const [id,value]of Object.entries(values)){const input=document.getElementById(id);if(input)input.value=String(value);}
       document.getElementById('aiChatLeap').checked=!!p.isLeap;startAiChat({source:'newyear-report'});
     },true));
-    else content.append(el('p','이어서 대화하려면 30일 상담 이용권을 다시 구매해 주세요. 기존 리포트는 그대로 보관됩니다.'),button('30일 상담 이용권 구매',purchase));
+    else content.append(purchaseButton('30일 상담 이용권 구매'), pausedNotice());
   }
   function render(data){
     clearTimeout(timer);
@@ -131,8 +142,18 @@
     if(!data.access){
       stopProgress();view.classList.remove('has-report');content.style.minHeight='';
       if(loggedIn()&&(data.paymentCheckRequired||(typeof isPremium==='function'&&isPremium()))){message('이용권 연결 상태를 확인해 주세요. 추가 결제부터 하실 필요는 없습니다.');content.replaceChildren(el('h2','구매하셨다면, 이용권을 다시 확인해 주세요.'),el('p','결제 직후에는 승인 기록이 계정에 연결되는 데 잠시 걸릴 수 있어요. 구매한 계정으로 로그인되어 있는지 확인해 주세요.','newyear-muted'),button('이용권 연결 다시 확인',load,true),button('문의하기',()=>goTo('support')));return;}
-      message('신년상담 이용권을 구매하면 나만의 리포트를 작성할 수 있어요.');content.replaceChildren();
-      content.append(button(loggedIn()?'8,900원 · 신년상담 시작하기':'로그인하고 신년상담 시작하기',purchase,true),el('p','기존 프리미엄 30일 이용 중이라면 추가 결제 없이 포함됩니다. 추가 질문권에는 신년운세가 포함되지 않습니다.','newyear-muted'));return;
+      message('나의 2027 신년상담');
+      content.replaceChildren(
+        purchaseButton(loggedIn() ? '8,900원 · 신년상담 시작하기' : '로그인하고 신년상담 시작하기', true),
+        pausedNotice(),
+        el('p', '기존 프리미엄 30일 이용 중이라면 추가 결제 없이 포함됩니다. 추가 질문권에는 신년운세가 포함되지 않습니다.', 'newyear-muted')
+      );
+      if (!loggedIn()) {
+        const signIn = button('로그인하고 내 리포트 확인하기', openAuthModal);
+        signIn.setAttribute('data-checkout-paused', '');
+        content.append(signIn);
+      }
+      return;
     }
     if(data.status==='pending'){
       message('신년 리포트를 작성하고 있습니다.');showProgress(data.startedAt);
