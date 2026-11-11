@@ -266,7 +266,8 @@ body:has(#view-home.visible) .topbar{max-width:760px;margin-left:auto;margin-rig
 .home-first-block .ai-chat-stage{min-height:0}
 .home-first-block .ai-chat-bgvideo{width:100%;height:700px;border-radius:0;object-position:52% 28%}
 .home-first-block .ai-chat-vignette-top{width:100%;height:140px;border-radius:0}
-.home-first-block .ai-chat-vignette-bottom{display:block;width:100%;height:400px;top:300px;bottom:auto;background:linear-gradient(180deg,transparent,#101715 94%)}
+/* Extend the solid end of the fade past the video and poster edge. */
+.home-first-block .ai-chat-vignette-bottom{display:block;width:100%;height:408px;top:300px;bottom:auto;background:linear-gradient(180deg,transparent,#101715 92%)}
 .home-first-block .ai-chat-setup-overlay,.home-first-block .ai-chat-panel-overlay{width:100%;margin-left:0;margin-top:0;padding:0 24px 28px}
 #homeIntroOverlay .home-conversion-kicker{padding-top:390px;margin:0 0 18px;text-align:center;font-size:13px;color:#C6AA76}
 #homeIntroOverlay .home-conversion-kicker{display:block}
@@ -292,7 +293,7 @@ body:has(#view-home.visible #homeIntroOverlay:not([style*="display:none"]):not([
 .home-first-block .ai-chat-stage:has(#aiChatSetup[style*="block"]) #aiChatPanel{display:none!important}
 @media(max-width:820px){
  .home-first-block .ai-chat-bgvideo{height:630px}
- .home-first-block .ai-chat-vignette-bottom{top:250px;height:380px}
+ .home-first-block .ai-chat-vignette-bottom{top:250px;height:388px}
  #homeIntroOverlay .home-conversion-kicker{padding-top:330px}
  #homeIntroOverlay .home-conversion-bubble{min-height:260px}
  #homeIntroOverlay .home-conversion-bubble strong{font-size:35px;line-height:1.65;margin-bottom:22px}
