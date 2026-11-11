@@ -10,15 +10,21 @@ html.site-menu-open{overflow:hidden!important;scrollbar-gutter:stable}
 .site-menu-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:30px}
 .site-menu-heading h2{font-family:var(--serif,'MaruBuri',serif);font-size:27px;font-weight:600;letter-spacing:-.04em;margin:0}
 .site-menu-account{
+  width:100%;
+  box-sizing:border-box;
+  text-align:left;
+  font:inherit;
+  cursor:pointer;
+  color:inherit;
   position:relative;
   display:grid;
   grid-template-columns:50px minmax(0,1fr);
   align-items:center;
   gap:16px;
-  padding:20px;
+  padding:16px 18px;
   border:1px solid #746343;
   border-radius:10px;
-  background:linear-gradient(120deg,#252b21,#1a251e 74%);
+  background:#1b2420;
   transition:border-color .18s ease,background-color .18s ease;
 }
 .site-menu-account:hover,.site-menu-account:focus-within{border-color:#bda575;background:#263026}
@@ -46,7 +52,8 @@ html.site-menu-open{overflow:hidden!important;scrollbar-gutter:stable}
 .site-menu #authNavBtn::before{content:"";position:absolute;inset:0;border-radius:10px}
 .site-menu #authNavBtn:focus-visible::before{outline:2px solid #c6aa76;outline-offset:3px}
 .site-menu #authNavBtn:after{display:none!important}
-.site-menu-account p{margin:4px 0 0;color:#d5c7ac;font-size:14px;line-height:1.65}
+.site-menu-account #siteMenuAccountNote{display:block;margin:2px 0 0;color:#e4d9c4;font-size:16px;line-height:1.6}
+.site-menu [data-menu-account][hidden]{display:none!important}
 .site-menu-group{padding-top:26px}
 .site-menu-group button{display:block;width:100%;padding:10px 0;min-height:46px;text-align:left;border:0;background:none;color:#e8e5dc;font:400 18px/1.65 var(--sans);cursor:pointer;letter-spacing:-.02em;border-radius:0;box-shadow:none}
 .site-menu-group button:hover,.site-menu-group button[aria-current=page]{color:#d6bb85}

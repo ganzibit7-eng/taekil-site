@@ -38,7 +38,8 @@ const hooks=html=>[...html.matchAll(/\bon(?:click|change|input|keydown|submit)="
 const normalizeHook=hook=>hook.replace(/^onclick="goTo\('home'\);(?=handleHomeCategoryClick|openHomeDailyConsult|document\.querySelector)/,'onclick="');
 const hookCounts=new Map();for(const hook of hooks(current)){const value=normalizeHook(hook);hookCounts.set(value,(hookCounts.get(value)||0)+1);}
 for(const hook of hooks(baseline)){assert((hookCounts.get(hook)||0)>0,'Missing original action: '+hook);hookCounts.set(hook,hookCounts.get(hook)-1);}
-const ids=html=>[...html.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);
+// Match actual id attributes, not data-id/data-reply-id in dynamic templates.
+const ids=html=>[...html.matchAll(/\sid="([^"]+)"/g)].map(m=>m[1]);
 const currentIds=ids(current);
 for(const id of ids(baseline))assert(currentIds.includes(id),'Missing existing element: '+id);
 const segment=(html,start,end)=>html.slice(html.indexOf(start),html.indexOf(end,html.indexOf(start)));
