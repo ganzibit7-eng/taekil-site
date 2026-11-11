@@ -50,6 +50,29 @@ test('navigation pushes a new route and browser back does not create new history
  const classes={remove(){},add(){},toggle(){}},node={classList:classes};let pushes=0;const location={href:'https://fixture.invalid/',pathname:'/',search:'',hash:''};
  const ctx={adminStatsUnsub:null,adminDailyVisitsUnsub:null,adminFunnelUnsub:null,adminDailyVisitsMidnightTimer:null,homeFreeScrollMode:false,document:{querySelectorAll:()=>[],getElementById:()=>node,querySelector:()=>null,documentElement:{classList:classes}},window:{scrollTo(){}},history:{replaceState(){},pushState(_a,_b,url){pushes++;location.hash=url.includes('#')?'#'+url.split('#')[1]:'';}},location,URL};vm.createContext(ctx);vm.runInContext(source('goTo'),ctx);ctx.goTo('plans');assert.equal(pushes,1);ctx.goTo('plans');assert.equal(pushes,1);location.hash='';ctx.goTo('home',undefined,{skipHistory:true});assert.equal(pushes,1);
 });
+test('home entry starts at the top after browser scroll restoration, including a search query',()=>{
+ const navigation=fs.readFileSync('navigation-stability.js','utf8');
+ for(const hash of ['', '#newyear']){
+  const home={id:'view-home',classList:{contains:()=>hash===''}};
+  const events={},frames=[];
+  let scrollY=63;
+  const context={
+   location:new URL('https://fixture.invalid/?utm_source=search'+hash),
+   history:{scrollRestoration:'auto'},
+   document:{querySelectorAll:()=>[home],getElementById:()=>home},
+   window:{scrollTo:({top})=>{scrollY=top;},addEventListener:(name,handler)=>{events[name]=handler;}},
+   requestAnimationFrame:callback=>frames.push(callback),
+   MutationObserver:class{observe(){}}
+  };
+  vm.runInNewContext(navigation,context);
+  assert.equal(context.history.scrollRestoration,hash?'auto':'manual');
+  assert.equal(scrollY,hash?63:0);
+  events.pageshow();
+  scrollY=63;
+  frames.forEach(callback=>callback());
+  assert.equal(scrollY,hash?63:0);
+ }
+});
 test('integration loads owner store before legacy scripts and removes only hidden animation loops',()=>{
  assert(html.indexOf('src="account-session-core.js')<html.indexOf('const BIRTH_LOCK_KEY'));
  assert(!html.includes('requestAnimationFrame(draw)'));assert(!html.includes('requestAnimationFrame(move)'));
