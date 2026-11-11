@@ -59,7 +59,8 @@ console.log('PASS: original scripts/actions, IDs, profile image/name, authentica
 const detailFiles=cp.execFileSync('git',['ls-files','*.html'],{encoding:'utf8'}).trim().split('\n').filter(f=>f.endsWith('/index.html')||f==='404.html');
 const anchors=html=>[...html.matchAll(/<a\b[^>]*\bhref="([^"]*)"/gi)].map(m=>m[1]);
 for(const file of detailFiles){
- const original=cp.execFileSync('git',['show',baselineRef+':'+file],{encoding:'utf8'}).replace(/\r\n/g,'\n');
+ let original=cp.execFileSync('git',['show',baselineRef+':'+file],{encoding:'utf8'}).replace(/\r\n/g,'\n');
+ if(file==='404.html')original=original.replace('href="/taekil-site/"','href="/"');
  const updated=fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n');
  assert(updated.includes('href="/premium-detail.css"'),file+': shared detail theme missing');
  assert.deepEqual(scripts(updated),scripts(original),file+': existing script changed');

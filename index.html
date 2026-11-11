@@ -6977,36 +6977,32 @@ async function requestRefund() {
   // 이 값은 본인이 늘릴 수만 있고(그것도 한 번에 1씩만) 줄이거나 마음대로 바꿀 수 없게
   // Firestore 규칙으로 막아뒀기 때문에, 실제로 이용한 횟수를 신뢰할 수 있습니다.
   const uid = getCurrentUserKey();
-  let usedCount = 0;
+  let usedCount = null;
   if (db && uid) {
     try {
       const snap = await db.collection('users').doc(uid).get({ source: 'server' });
-      usedCount = (snap.exists && typeof snap.data().premiumUsageCount === 'number') ? snap.data().premiumUsageCount : 0;
+      usedCount = (snap.exists && typeof snap.data().premiumUsageCount === 'number') ? snap.data().premiumUsageCount : null;
     } catch (e) {
       console.error('이용 횟수 확인 실패', e);
     }
   }
 
   if (!accountStore.current(accountToken)) return;
-  const usageNotice = usedCount === 0
-    ? '\n\n✓ 결제 이후 프리미엄 기능을 한 번도 이용하지 않으신 것으로 확인돼요. 이 경우 환불이 가능해요.'
-    : `\n\n참고로, 결제 이후 프리미엄 기능(365일 검색 · TOP20 · 상세 리포트 등)을 이미 ${usedCount}회 이용하신 기록이 있어요. 서비스를 정상적으로 이용하신 이후의 환불 요청은 제한될 수 있는 점 양해 부탁드려요.`;
-
-  if (!confirm('프리미엄 결제(8,900원)에 대한 환불을 요청할까요?' + usageNotice + '\n\n확인을 누르면 문의가 등록되고, 순차적으로 확인 후 안내드릴게요.')) return;
-
   goTo('support');
+  document.dispatchEvent(new CustomEvent('taekilso:openWebInquiry'));
   setTimeout(() => {
     if (!accountStore.current(accountToken)) return;
     document.getElementById('supportTitle').value = '프리미엄 결제 환불 요청';
     document.getElementById('supportMessage').value =
       '프리미엄(8,900원) 결제에 대한 환불을 요청합니다.\n\n' +
       '환불 사유: \n(자세한 사유를 여기에 적어주세요)\n\n' +
-      '── 자동 기록 (서버 확인값, 조작 불가) ──\n' +
+      '── 문의 확인을 위한 참고 정보 ──\n' +
       `주문번호: ${orderId}\n` +
       `결제(활성화) 시각: ${purchasedAtStr}\n` +
       `이용 만료 예정일: ${until ? new Date(until).toLocaleString('ko-KR') : '(기록 없음)'}\n` +
-      `결제 후 서비스 이용 횟수: ${usedCount}회`;
-    submitInquiry(true);
+      `기록된 프리미엄 기능 이용 횟수: ${usedCount == null ? '확인 필요' : usedCount + '회'}\n실제 결제와 상담·리포트 이용 내역은 접수 후 확인해 주세요.`;
+    document.getElementById('supportMessage').focus({ preventScroll: true });
+    showToast('환불 사유를 작성한 뒤 문의 등록을 눌러 주세요.');
   }, 100);
 }
 
@@ -11500,7 +11496,7 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <script src="navigation-refinement.js?v=20261110-1"></script>
 <script src="profile-picker-controls.js?v=20261110-1"></script>
 <link rel="stylesheet" href="consultation-quality.css?v=20261111-2">
-<script src="support-channels.js?v=20261110-1"></script>
+<script src="support-channels.js?v=20261111-refund"></script>
 <script src="consultation-quality.js?v=20261111-long-report"></script>
 <link rel="stylesheet" href="site-menu.css?v=20261111-2"><script src="site-menu.js?v=20261111-2"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=20261111-2">

@@ -14,6 +14,6 @@
  }
  for(const panel of [mail,web]){const back=document.createElement('button');back.type='button';back.className='support-channel-back';back.textContent='← 문의 방식 선택';back.addEventListener('click',()=>{show(null);chooser.querySelector('button').focus({preventScroll:true});});panel.prepend(back);}
  container.append(chooser,mail,web);show(null);let visible=view.classList.contains('visible'),nextWeb=false;
- document.addEventListener('click',e=>{if(e.target.closest('[onclick*="requestRefund"]')){nextWeb=true;if(view.classList.contains('visible'))show('web');}},true);
+ document.addEventListener('taekilso:openWebInquiry',()=>{if(view.classList.contains('visible')){show('web');nextWeb=false;}else nextWeb=true;});
  new MutationObserver(()=>{const next=view.classList.contains('visible');if(next&&!visible){show(nextWeb?'web':null);nextWeb=false;}visible=next;}).observe(view,{attributes:true,attributeFilter:['class']});
 })();
