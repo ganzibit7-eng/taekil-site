@@ -3283,17 +3283,13 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 </div>
 
         <div id="adminTrafficMenuAnchor" style="scroll-margin-top:150px"></div>
-        <button id="adminTrafficSourceCard" type="button" onclick="toggleAdminTrafficSources()" aria-expanded="false"
-          style="width:100%;margin:0 0 24px;padding:15px 16px;text-align:left;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.09);border-radius:16px;color:inherit;font:inherit;cursor:pointer;">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-            <div>
-              <div class="section-kicker" style="margin-bottom:4px;">TODAY TRAFFIC · KST</div>
-              <div style="font-size:15px;font-weight:800;">오늘 유입 경로 <span id="trafficSourceTotal" style="color:var(--gold);">0명</span></div>
-            </div>
-            <span id="trafficSourceChevron" style="font-size:18px;color:var(--muted-2);transition:transform .2s ease;">⌄</span>
-          </div>
-          <div id="trafficSourceSummary" style="margin-top:8px;color:var(--muted-2);font-size:11px;line-height:1.6;">검색 0 · SNS 0 · 직접 0 · 기타 0</div>
-          <div id="trafficSourceDetails" style="display:none;margin-top:13px;padding-top:13px;border-top:1px solid rgba(255,255,255,.08);"></div>
+        <button id="adminTrafficSourceCard" class="admin-traffic-card" type="button" onclick="toggleAdminTrafficSources()" aria-expanded="false" aria-controls="trafficSourceDetails">
+          <span class="admin-traffic-heading">
+            <span class="admin-fold-title"><small>TODAY TRAFFIC · KST</small><b>오늘 유입 경로 <span id="trafficSourceTotal">0명</span></b></span>
+            <span id="trafficSourceChevron" class="admin-fold-chevron" aria-hidden="true">⌄</span>
+          </span>
+          <span id="trafficSourceSummary">검색 0 · SNS 0 · 직접 0 · 기타 0</span>
+          <span id="trafficSourceDetails" style="display:none;"></span>
         </button>
 
 <div class="admin-fold" id="adminFoldMembers">
@@ -11419,7 +11415,7 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 
 <!-- UI-only overrides follow the legacy style blocks. -->
 <link rel="stylesheet" href="premium-ui.css?v=20261111-hero-edge">
-<link rel="stylesheet" href="admin-analytics.css?v=20261110-4">
+<link rel="stylesheet" href="admin-analytics.css?v=20261113-alignment-1">
 <script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=20261111-operations"></script>
 <script src="admin-analytics.js?v=20261111-operations"></script>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261113-library-1"></script><script src="premium-motion.js" defer></script>

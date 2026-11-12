@@ -27,8 +27,26 @@ body.admin-exclusive-mode .admin-fold,body.admin-exclusive-mode #adminTrafficSou
 body.admin-exclusive-mode .admin-menu-overview button{border-radius:5px!important}
 body.admin-exclusive-mode .admin-fold-toggle{padding:22px 0;background:none}.admin-fold-title b{font-size:19px;color:#F0EBE1}.admin-fold-title small{font-size:11px;color:#9EAB9F}
 body.admin-exclusive-mode .admin-stat{background:none;border:0;border-bottom:1px solid #344139;border-radius:0;padding:24px 16px;text-align:left}.admin-stat small{font-size:14px;color:#B6BDB5}.admin-stat b{font-family:var(--sans);font-size:30px;color:#F0EBE1;font-variant-numeric:tabular-nums}
-#view-admin #adminTrafficSourceCard{background:none!important;border:0!important;border-block:1px solid #344139!important;border-radius:0!important;padding:24px 0!important}#view-admin #trafficSourceSummary,#view-admin #trafficSourceDetails>div{font-size:15px!important;line-height:1.8!important}
 @media(max-width:960px){.aa-kpis{grid-template-columns:1fr 1fr}.aa-kpi{border-bottom:1px solid #344139}.aa-kpi:nth-child(3){padding-left:0;border-left:0}.aa-two{grid-template-columns:1fr;gap:0}.aa-kpi strong{font-size:30px}}
 @media(max-width:640px){body.admin-exclusive-mode #view-admin>.block>.container{width:calc(100% - 40px)}body.admin-exclusive-mode #view-admin .hero{padding-top:32px}.aa-heading{align-items:flex-start;gap:12px}.aa-heading h2{font-size:25px}.aa-heading>.aa-btn{padding:10px;white-space:nowrap}.aa-heading p{font-size:16px}.aa-toolbar{display:block}.aa-toolbar>.aa-btn{margin-top:15px}.aa-period button{font-size:14px;padding:10px}.aa-kpi{padding-right:12px}.aa-kpi+.aa-kpi{padding-left:14px}.aa-kpi:nth-child(3){padding-left:0}.aa-kpi strong{font-size:27px}.aa-kpi h3{font-size:14px}.aa-baseline{padding:18px}.aa-panel-head{display:block}.aa-panel-head .aa-period{margin-top:18px}.aa-chart-axis{font-size:11px}.aa-chart-axis span:nth-child(2){text-align:center}.aa-panel p{font-size:16px}body.admin-exclusive-mode .admin-menu-overview{grid-template-columns:1fr 1fr}body.admin-exclusive-mode .admin-stats{grid-template-columns:1fr 1fr!important}.aa-table-wrap th,.aa-table-wrap td{padding:12px 8px}}
 
 @media(max-width:640px){body.admin-exclusive-mode .admin-menu-overview{grid-template-columns:1fr 1fr!important}}
+
+/* One shared accordion rhythm, including the realtime traffic panel. */
+body.admin-exclusive-mode #view-admin .admin-fold{margin:0!important;border:0;border-top:1px solid #344139;background:none}
+body.admin-exclusive-mode #view-admin .admin-fold-toggle,
+body.admin-exclusive-mode #view-admin #adminTrafficSourceCard{box-sizing:border-box;min-height:104px!important;padding:24px 18px!important;margin:0!important;border-radius:0!important;background:none;color:#F0EBE1;text-align:left;font:inherit;cursor:pointer}
+body.admin-exclusive-mode #view-admin #adminTrafficSourceCard{display:block;width:100%;border:0!important;border-top:1px solid #344139!important}
+#view-admin .admin-traffic-heading{display:flex;align-items:center;justify-content:space-between;gap:24px}
+#view-admin .admin-fold-title{gap:6px;min-width:0}
+#view-admin .admin-fold-title small{font:600 11px/1.5 var(--sans);letter-spacing:.13em;color:#9EAB9F}
+#view-admin .admin-fold-title b{font:600 22px/1.5 var(--serif);letter-spacing:-.025em;color:#F0EBE1}
+#view-admin #trafficSourceTotal{display:inline-block;margin-left:8px;font:500 15px/1.5 var(--sans);letter-spacing:0;color:#C6AA76;font-variant-numeric:tabular-nums;white-space:nowrap}
+#view-admin .admin-fold-chevron{flex:0 0 20px;text-align:center;font:400 19px/1 var(--sans);color:#B6BDB5}
+#view-admin #trafficSourceSummary{display:none;margin-top:18px;color:#B6BDB5;font:400 15px/1.8 var(--sans);word-break:keep-all}
+#view-admin #adminTrafficSourceCard[aria-expanded="true"] #trafficSourceSummary{display:block}
+#view-admin #trafficSourceDetails{margin-top:16px;padding-top:14px;border-top:1px solid #344139}
+#view-admin #trafficSourceDetails>div{padding:10px 0!important;font:400 15px/1.7 var(--sans)!important;color:#B6BDB5!important;font-variant-numeric:tabular-nums}
+#view-admin .admin-fold-toggle:hover,#view-admin #adminTrafficSourceCard:hover{background:rgba(198,170,118,.035)}
+#view-admin #adminTrafficSourceCard:focus-visible{outline:2px solid #C6AA76;outline-offset:-3px}
+@media(max-width:640px){body.admin-exclusive-mode #view-admin .admin-fold-toggle,body.admin-exclusive-mode #view-admin #adminTrafficSourceCard{min-height:92px!important;padding:20px 14px!important}#view-admin .admin-fold-title b{font-size:21px}#view-admin #trafficSourceTotal{font-size:14px;margin-left:6px}#view-admin #trafficSourceSummary,#view-admin #trafficSourceDetails>div{font-size:16px!important}}
