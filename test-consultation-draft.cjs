@@ -30,3 +30,18 @@ test('draft strings and step are bounded and unknown fields excluded', () => {
   assert.equal(result.values.ProfileName.length,20);assert.equal(result.question.length,200);
   assert.equal(result.step,5);assert.equal(result.values.token,undefined);
 });
+test('numeric birthday input accepts compact or separated dates without inventing missing digits', () => {
+  assert.deepEqual(C.birth('19900101'),{text:'1990.01.01',complete:true,y:'1990',m:'1',d:'1'});
+  assert.deepEqual(C.birth('1990-01-01'),C.birth('19900101'));
+  assert.equal(C.birth('19900').complete,false);
+  assert.equal(C.birth('19900').m,'');
+  assert.equal(C.birth('20000229').d,'29');
+  assert.equal(C.birth('20000230').d,'30'); // Calendar validation must reject, never silently roll forward.
+  assert.equal(C.birth('1990010199').text,'1990.01.01');
+});
+test('partial birthday text survives a tab reload and follows the same account and expiry rules', () => {
+  const draft={...sample(),birthText:'1990.0',step:1};
+  assert.equal(C.read(JSON.stringify(draft),2000,'').birthText,'1990.0');
+  assert.equal(C.read({...draft,owner:'member-a'},2000,'member-b'),null);
+  assert.equal(C.read(draft,1000+C.ttl+1,''),null);
+});
