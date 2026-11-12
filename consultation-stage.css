@@ -178,6 +178,53 @@ body.consultation-open .ai-chat-stage:has(.consultation-guided-entry[style*="blo
 
 /* Immersive entry: one question at a time, with the same uninterrupted film. */
 .consultation-entry-nav {display:none}
+.consultation-concern-choices {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.consultation-concern-choices button {min-height:44px;padding:8px 4px;border:1px solid #c6aa764d;border-radius:7px;background:#10171580;color:#e5d3ae;font:500 14px/1.5 var(--sans);cursor:pointer}
+.consultation-concern-choices button:focus-visible {outline:2px solid #c6aa76;outline-offset:2px}
+.consultation-concern-choices + .entry-field-hint {margin:10px 0 14px}
+
+/* Reading and composing share the quiet surfaces of the topic chooser. */
+body.consultation-open #aiChatWindow {gap:18px;padding:8px 0 20px!important;scroll-padding:16px}
+body.consultation-open .ai-chat-msg {box-sizing:border-box;overflow-wrap:anywhere;word-break:normal;letter-spacing:-.015em}
+body.consultation-open .ai-chat-msg.assistant {
+  max-width:100%;width:100%;padding:20px;
+  background:rgba(15,23,19,.95);border:1px solid #f0ebe117;border-radius:10px;
+  color:#e5e8df;font:400 17px/1.85 var(--sans);backdrop-filter:blur(12px);box-shadow:none;
+}
+body.consultation-open .ai-chat-msg.assistant::before {content:'연우';display:block;margin:0 0 14px;color:#cbb386;font:600 15px/1.5 var(--serif);letter-spacing:0}
+body.consultation-open .ai-chat-msg.assistant .ai-chat-heading {font:600 18px/1.65 var(--serif);color:#eee5d3;margin:8px 0 6px}
+body.consultation-open .ai-chat-msg.assistant .ai-chat-strong {font-weight:600;color:#f1eadc}
+body.consultation-open .ai-chat-msg.assistant .ai-chat-bullet {padding-left:15px}
+body.consultation-open .ai-chat-msg.assistant .ai-chat-bullet::before {color:#bda579}
+body.consultation-open .ai-chat-msg.assistant .ai-chat-divider {border:0;border-top:1px solid #f0ebe122;margin:24px 0;height:0}
+body.consultation-open .ai-chat-msg.user {
+  max-width:88%;padding:14px 17px;background:rgba(42,55,44,.96);
+  color:#f0eee5;border:1px solid #c6aa7626;border-radius:10px 10px 3px 10px;
+  font:400 16px/1.75 var(--sans);box-shadow:none;
+}
+body.consultation-open .ai-chat-msg.system-note {
+  max-width:100%;padding:10px 14px;background:#101715cc;border:0;border-radius:7px;
+  font:400 14px/1.7 var(--sans);color:#c3cbbf;
+}
+body.consultation-open .consultation-evidence {margin-top:22px;padding-top:16px;border-top-color:#f0ebe11c;font:400 15px/1.75 var(--sans)}
+body.consultation-open .consultation-evidence summary {color:#cebd97;font-size:14px;min-height:44px}
+body.consultation-open .ai-chat-inputrow,body.consultation-open.ai-keyboard-open .ai-chat-inputrow {
+  align-items:flex-end;gap:10px;background:rgba(15,23,19,.97)!important;
+  border:1px solid #c6aa7647!important;border-radius:10px;padding:8px 8px 8px 16px!important;
+  backdrop-filter:blur(12px);box-shadow:none!important;
+}
+body.consultation-open .ai-chat-inputrow:focus-within {border-color:#c6aa76aa!important;outline:1px solid #c6aa7626;outline-offset:2px}
+body.consultation-open #aiChatInput {min-width:0;color:#eef0e7!important;font:400 16px/1.7 var(--sans)!important;padding:9px 0!important;caret-color:#dcc18e}
+body.consultation-open #aiChatInput::placeholder {color:#aeb9ac;opacity:1}
+body.consultation-open #aiChatSendBtn {
+  flex:0 0 52px;width:52px;height:44px;min-height:44px;border-radius:7px;
+  background:#c6aa76;color:#111a14;border:0;font:600 14px/1.5 var(--sans);box-shadow:none;
+}
+body.consultation-open #aiChatSendBtn:disabled {opacity:.45;cursor:wait}
+body.consultation-open #aiChatSendBtn:focus-visible {outline:2px solid #f0ebe1;outline-offset:3px}
+.consultation-compose-meta {display:flex;justify-content:space-between;gap:12px;flex:0 0 auto;padding:7px 3px 0;color:#b6bfb1;font:400 11px/1.5 var(--sans);text-shadow:0 1px 3px #080e0b}
+@media(hover:none),(max-width:600px) {.consultation-compose-hint {display:none}}
+@media(max-width:380px) {body.consultation-open .ai-chat-msg.assistant {padding:16px;font-size:16px;line-height:1.85}}
 .home-first-block .ai-chat-bgvideo.ai-chat-entry-media {display:none!important}
 body.consultation-open .ai-chat-stage:has(#aiChatSetup[style*="block"]) .ai-chat-bgvideo:not(.ai-chat-entry-media) {display:none!important}
 body.consultation-open .ai-chat-stage:has(#aiChatSetup[style*="block"]) .ai-chat-bgvideo.ai-chat-entry-media {display:block!important;object-position:50% 32%}

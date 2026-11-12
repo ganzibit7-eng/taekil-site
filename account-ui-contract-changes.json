@@ -563,5 +563,10 @@
     "before": "function continueHomeChatAfterLogin() {",
     "after": "function continueHomeChatAfterLogin() {\n  if (window.resumeGuidedConsultation?.()) return;",
     "count": 1
+  },
+  {
+    "before": "  html = html.replace(/\\n\\n+/g,'<br><br>').replace(/\\n/g,'<br>');\n  return html;",
+    "after": "  html = html.replace(/^[ \\t]*-{3,}[ \\t]*$/gm,'<hr class=\"ai-chat-divider\">');\n  html = html.replace(/\\n\\n+/g,'<br><br>').replace(/\\n/g,'<br>');\n  html = html.replace(/(?:<br>)*<hr class=\"ai-chat-divider\">(?:<br>)*/g,'<hr class=\"ai-chat-divider\">');\n  return html;",
+    "count": 1
   }
 ]
