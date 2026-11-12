@@ -178,6 +178,9 @@ body.consultation-open .ai-chat-stage:has(.consultation-guided-entry[style*="blo
 
 /* Immersive entry: one question at a time, with the same uninterrupted film. */
 .consultation-entry-nav {display:none}
+.home-first-block .ai-chat-bgvideo.ai-chat-entry-media {display:none!important}
+body.consultation-open .ai-chat-stage:has(#aiChatSetup[style*="block"]) .ai-chat-bgvideo:not(.ai-chat-entry-media) {display:none!important}
+body.consultation-open .ai-chat-stage:has(#aiChatSetup[style*="block"]) .ai-chat-bgvideo.ai-chat-entry-media {display:block!important;object-position:50% 32%}
 body.consultation-open:has(#aiChatSetup[style*="block"]) .topbar {display:none!important}
 body.consultation-open:has(#aiChatSetup[style*="block"]) #view-home {
   top:var(--consult-offset,0px)!important;height:var(--consult-height,100dvh)!important;
@@ -231,6 +234,65 @@ body.consultation-open #aiChatSetup.consultation-guided-entry #aiChatRelation {m
 .consultation-entry-actions .entry-next,.consultation-entry-actions .btn {background:#c6aa76;color:#101715;border-color:#c6aa76;font-weight:600}
 .consultation-entry-actions button {min-height:56px}
 .consultation-entry-actions button:disabled {opacity:.38;cursor:not-allowed}
+
+/* One quiet surface for the question chooser, with clear typographic hierarchy. */
+body.consultation-open #aiChatQuickActions:not([style*="none"]) {
+  gap:10px 8px;
+  padding:16px;
+  margin:8px 0 0;
+  max-height:min(48%,280px);
+  background:rgba(14,21,18,.88);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(240,235,225,.1);
+  border-radius:10px;
+  scrollbar-width:thin;
+}
+body.consultation-open #aiChatQuickActions .consultation-starter-note {
+  padding:0 0 4px;
+  margin:0;
+  border-radius:0;
+  background:none;
+  color:#e9e6dc;
+  font:500 15px/1.65 var(--sans);
+  letter-spacing:-.02em;
+}
+body.consultation-open #aiChatQuickActions > button {
+  min-height:48px;
+  padding:10px 3px;
+  background:rgba(240,235,225,.035);
+  border:1px solid rgba(198,170,118,.3);
+  border-radius:7px;
+  color:#e5d3ae;
+  font:500 15px/1.5 var(--sans);
+  letter-spacing:-.035em;
+  white-space:nowrap;
+  box-shadow:none;
+}
+body.consultation-open #aiChatQuickActions > button:hover {background:rgba(198,170,118,.12);border-color:#c6aa7680}
+body.consultation-open #aiChatQuickActions button:focus-visible,
+body.consultation-open #aiChatQuickActions summary:focus-visible {outline:2px solid #c6aa76;outline-offset:2px}
+body.consultation-open #aiChatQuickActions .consultation-more-questions {border-top:1px solid #f0ebe117;padding-top:3px}
+body.consultation-open #aiChatQuickActions .consultation-more-questions summary {
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  min-height:44px;box-sizing:border-box;padding:9px 0 2px;
+  background:none;border:0;border-radius:0;list-style:none;
+  color:#bfc6bc;font:400 14px/1.6 var(--sans);letter-spacing:-.01em;
+}
+body.consultation-open #aiChatQuickActions summary::-webkit-details-marker {display:none}
+body.consultation-open #aiChatQuickActions summary::marker {content:''}
+body.consultation-open #aiChatQuickActions summary::after {content:'+';font:300 22px/1 var(--sans);color:#b7a47e}
+body.consultation-open #aiChatQuickActions details[open] summary::after {content:'−'}
+body.consultation-open #aiChatQuickActions .consultation-more-questions > div {gap:8px;padding:10px 0 2px}
+body.consultation-open #aiChatQuickActions .consultation-more-questions button {font-size:14px;background:#f0ebe108;border-color:#f0ebe11c;color:#e1e5dc}
+body.consultation-open .ai-chat-status {
+  padding:9px 4px 5px;margin:0 0 6px;text-align:right;
+  font:400 12px/1.6 var(--sans);letter-spacing:.01em;color:#c5ccbf;
+  text-shadow:0 1px 4px #080e0b;
+}
+@media(max-width:360px) {
+  body.consultation-open #aiChatQuickActions:not([style*="none"]) {padding:12px;gap:8px 6px}
+  body.consultation-open #aiChatQuickActions > button {font-size:14px}
+}
 .consultation-entry-review {background:none;padding:12px 0 18px;border-radius:0;border-top:1px solid #f0ebe126;border-bottom:1px solid #f0ebe126;gap:10px 12px;font-size:15px}
 body.consultation-open .ai-chat-stage:has(.consultation-guided-entry[style*="block"]) .ai-chat-vignette-bottom {
   background:linear-gradient(180deg,rgba(8,12,10,.02) 20%,rgba(8,12,10,.24) 40%,rgba(8,12,10,.85) 66%,#0b100e 100%);
