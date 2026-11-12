@@ -340,6 +340,8 @@
       input.value = question.value.trim(); input.dispatchEvent(new Event('input', {bubbles:true}));
       window.__pendingCategoryQuestion = '';
       sessionStorage.removeItem(key); awaitingAuth = false;
+    } catch (_) {
+      error.textContent = '상담 연결을 확인하지 못했어요. 입력 내용은 유지됩니다. 잠시 후 다시 시도해 주세요.';
     } finally { submit.disabled = false; }
   }, true);
   window.resumeGuidedConsultation = () => {
