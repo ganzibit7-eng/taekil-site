@@ -141,12 +141,12 @@
   const field = id => document.getElementById('aiChat' + id);
   const saved = field('SavedProfile');
   const steps = [
-    ['성별을 알려주시겠어요?', '선택하지 않고도 상담을 이어갈 수 있어요.'],
-    ['태어난 날을 알려주세요.', '양력과 음력을 한 번 더 확인해 주세요.'],
-    ['태어난 시간도 알고 계신가요?', '정확히 모르셔도 괜찮아요. 아는 정보부터 살펴볼게요.'],
-    ['어떻게 불러드릴까요?', '나의 이야기든, 소중한 사람의 이야기든 좋아요.'],
-    ['지금 어떤 고민이 있으신가요?', '선택 사항이에요. 상담창에서 천천히 적으셔도 좋아요.'],
-    ['이제, 연우와 이야기 나눠요.', '입력한 내용을 확인하고 상담으로 이어가세요.']
+    ['성별을 알려주시겠어요?', '반가워요. 당신의 이야기를 들려주세요.'],
+    ['언제 태어나셨나요?', '당신의 사주가 시작된 날을 알려주세요.'],
+    ['태어난 시간도 아시나요?', '모르셔도 괜찮아요. 아는 정보부터 살펴볼게요.'],
+    ['어떻게 불러드릴까요?', '대화하는 동안 불러드릴 이름이에요.'],
+    ['마음에 남은 고민이 있나요?', '선택 사항이에요. 천천히 들려주셔도 좋아요.'],
+    ['이제, 이야기를 시작해요.', '입력하신 정보는 로그인 후에도 이어집니다.']
   ];
   const panes = steps.map((_, i) => {
     const pane = document.createElement('section');
@@ -169,6 +169,7 @@
       field('Gender').value = option.value;
       field('Gender').dispatchEvent(new Event('change',{bubbles:true}));
       syncChoices();
+      render(1, true);
     });
     genderChoices.append(choice);
   }
@@ -184,8 +185,50 @@
   new MutationObserver(syncChoices).observe(saved,{childList:true});
   move(scroll.querySelector('.ai-chat-setup-row'), 1);
   move(scroll.querySelector('.consultation-lunar-option'), 1);
+  const birthInput = document.createElement('input');
+  birthInput.id = 'consultationEntryBirth'; birthInput.type = 'text'; birthInput.inputMode = 'numeric';
+  birthInput.autocomplete = 'bday'; birthInput.placeholder = 'YYYY.MM.DD'; birthInput.maxLength = 10;
+  birthInput.setAttribute('aria-label','생년월일 8자리'); birthInput.setAttribute('aria-describedby','consultationBirthHint');
+  const birthHint = document.createElement('p'); birthHint.id = 'consultationBirthHint'; birthHint.className = 'entry-field-hint';
+  birthHint.textContent = '예: 19900101 · 연도, 월, 일 순서로 입력해 주세요.';
+  const birthLine = document.createElement('div'); birthLine.className = 'entry-birth-line';
+  const calendar = document.createElement('div'); calendar.className = 'entry-calendar-choices';
+  calendar.setAttribute('role','group'); calendar.setAttribute('aria-label','달력 종류');
+  for (const [value, label] of [['solar','양력'],['lunar','음력']]) {
+    const btn = document.createElement('button'); btn.type = 'button'; btn.textContent = label; btn.dataset.value = value;
+    btn.addEventListener('click', () => { field('CalType').value = value; field('CalType').dispatchEvent(new Event('change',{bubbles:true})); syncCalendar(); });
+    calendar.append(btn);
+  }
+  birthLine.append(birthInput,calendar);
+  panes[1].prepend(birthLine,birthHint);
+  panes[1].querySelector('.ai-chat-setup-row').hidden = true;
+  function syncCalendar() {
+    for (const btn of calendar.children) btn.setAttribute('aria-pressed',String(btn.dataset.value === field('CalType').value));
+  }
+  function birthFromFields() {
+    birthInput.value = field('Year').value && field('Month').value && field('Day').value
+      ? `${field('Year').value}.${field('Month').value.padStart(2,'0')}.${field('Day').value.padStart(2,'0')}` : '';
+  }
+  birthInput.addEventListener('input', () => {
+    const parsed = core.birth(birthInput.value);
+    const caret = birthInput.selectionStart;
+    const atEnd = caret === birthInput.value.length;
+    birthInput.value = parsed.text;
+    if (!atEnd) birthInput.setSelectionRange(caret,caret);
+    field('Year').value = parsed.y; field('Month').value = parsed.m; field('Day').value = parsed.d;
+    error.textContent = ''; birthInput.removeAttribute('aria-invalid');
+    next.disabled = !parsed.complete;
+  });
+  birthInput.addEventListener('keydown', event => {
+    if (event.key === 'Enter') { event.preventDefault(); if (validateDate()) render(2,true); }
+  });
   move(field('Hour').parentElement, 2);
   move(scroll.querySelector('.ai-chat-profile-note'), 2);
+  const unknownTime = document.createElement('button'); unknownTime.type = 'button'; unknownTime.className = 'entry-time-unknown'; unknownTime.textContent = '시간 모름';
+  unknownTime.addEventListener('click', () => { field('Hour').value = 'unknown'; field('Hour').dispatchEvent(new Event('change',{bubbles:true})); render(3,true); });
+  field('Hour').parentElement.classList.add('entry-time-line');
+  field('Hour').parentElement.append(unknownTime);
+  field('Hour').previousElementSibling.textContent = '출생시간 · 시 단위';
   scroll.querySelector('.ai-chat-birth-extra')?.remove();
   const review = document.createElement('dl');
   review.className = 'consultation-entry-review';
@@ -198,8 +241,10 @@
   const count = document.createElement('p'); count.className = 'consultation-entry-count';
   const draftNote = document.createElement('p'); draftNote.className = 'consultation-entry-draft-note';
   draftNote.textContent = '입력 내용은 이 탭에 최대 30분간 임시 보관돼요. 로그인 후 그대로 이어갈 수 있어요.';
+  const signupNote = document.createElement('p'); signupNote.className = 'entry-signup-note';
+  signupNote.textContent = 'Google·카카오로 간편가입 · 첫 질문 3개 무료';
   panes[4].append(question, count);
-  panes[5].append(draftNote);
+  panes[5].append(signupNote,draftNote);
   const progress = document.createElement('p');
   progress.className = 'consultation-entry-progress';
   heading.prepend(progress);
@@ -225,16 +270,27 @@
   actions.append(submit);
   setup.append(actions);
   setup.classList.add('consultation-guided-entry');
+  const stage = setup.closest('.ai-chat-stage');
+  const entryNav = document.createElement('div'); entryNav.className = 'consultation-entry-nav';
+  const entryBack = document.createElement('button'); entryBack.type = 'button'; entryBack.setAttribute('aria-label','이전 단계 또는 홈으로');
+  entryBack.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true"><path d="m14 5-7 7 7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  entryBack.addEventListener('click', () => { if(step) render(step-1,true); else document.getElementById('consultationExit').click(); });
+  const entryTitle = document.createElement('span'); entryTitle.textContent = '연우와의 첫 대화';
+  const entryCount = document.createElement('span'); entryCount.className = 'entry-nav-count';
+  entryNav.append(entryBack,entryTitle,entryCount); stage.append(entryNav);
 
   function validateDate() {
     const y = +field('Year').value, m = +field('Month').value, d = +field('Day').value;
     if (!y || !m || !d) {
-      error.textContent = '태어난 연도, 월, 일을 모두 선택해 주세요.';
-      ['Year', 'Month', 'Day'].map(field).find(el => !+el.value)?.focus({preventScroll:true});
+      const years = [...field('Year').options].map(option => Number(option.value)).filter(Boolean);
+      error.textContent = `생년월일 8자리를 확인해 주세요. ${Math.min(...years)}~${Math.max(...years)}년을 입력할 수 있어요.`;
+      birthInput.setAttribute('aria-invalid','true');
+      birthInput.focus({preventScroll:true});
       return false;
     }
     const date = resolveBirthDate(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`, field('CalType').value, field('CalType').value === 'lunar' && field('Leap').checked);
     error.textContent = date ? '' : '달력에 없는 날짜예요. 생일과 달력 종류를 확인해 주세요.';
+    birthInput.setAttribute('aria-invalid',String(!date));
     return !!date;
   }
   function updateReview() {
@@ -256,20 +312,33 @@
     panes.forEach((pane, i) => { pane.hidden = i !== step; });
     progress.textContent = `${step + 1} / ${steps.length} · 연우와 만나는 준비`;
     syncChoices();
+    syncCalendar();
+    signupNote.hidden = !!member();
+    entryCount.textContent = `${step + 1} / ${steps.length}`;
+    setup.dataset.entryStep = String(step);
     heading.querySelector('h2').textContent = steps[step][0];
     heading.querySelector('p:not(.consultation-entry-progress)').textContent = steps[step][1];
     back.hidden = step === 0;
     next.hidden = step === 5;
+    next.disabled = step === 1 && !core.birth(birthInput.value).complete;
     submit.hidden = step !== 5;
-    submit.textContent = member() ? '사주 저장하고 상담 시작하기' : '로그인 · 회원가입하고 이어가기';
+    submit.textContent = member() ? '연우와 상담 시작하기' : '로그인하고 상담 이어가기';
     error.textContent = '';
     count.textContent = `${question.value.length} / 200`;
     if (step === 5) updateReview();
     scroll.scrollTop = 0;
-    if (focus) heading.querySelector('h2').focus({preventScroll:true});
+    if (focus) {
+      document.activeElement?.blur();
+      heading.querySelector('h2').focus({preventScroll:true});
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches && scroll.animate) {
+        scroll.getAnimations().forEach(animation => animation.cancel());
+        scroll.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration:240,easing:'ease-out'});
+      }
+    }
     if (focus) persist();
   }
   saved.addEventListener('change', () => {
+    birthFromFields();
     if (saved.value && validateDate()) render(5, true);
     else render(0);
   });
@@ -293,7 +362,7 @@
     core.fields.forEach(id => { values[id] = field(id).value; });
     try {
       const selections = Object.fromEntries(['SavedProfile','CompareProfile','CompareProfile2'].map(id => [id, owner() ? field(id).value : '']));
-      sessionStorage.setItem(key, JSON.stringify({version:1,at:Date.now(),owner:owner(),awaitingAuth,step,values,selections,leap:field('Leap').checked,question:question.value}));
+      sessionStorage.setItem(key, JSON.stringify({version:1,at:Date.now(),owner:owner(),awaitingAuth,step,values,selections,leap:field('Leap').checked,question:question.value,birthText:birthInput.value}));
       return true;
     } catch (_) { return false; }
   }
@@ -311,6 +380,7 @@
     ['SavedProfile','CompareProfile','CompareProfile2'].forEach(id => { field(id).value = draft.selections[id]; });
     core.fields.forEach(id => { field(id).value = draft.values[id]; });
     field('Leap').checked = draft.leap; question.value = draft.question;
+    birthFromFields(); if (draft.birthText) birthInput.value = draft.birthText;
     awaitingAuth = draft.awaitingAuth;
     render(draft.step);
     return true;
@@ -357,8 +427,8 @@
     const changed = lastOwner !== owner(); lastOwner = owner();
     if (!window.resumeGuidedConsultation()) {
       read();
-      if (changed) { question.value = ''; awaitingAuth = false; }
-      submit.textContent = member() ? '사주 저장하고 상담 시작하기' : '로그인 · 회원가입하고 이어가기';
+      if (changed) { question.value = ''; birthInput.value = ''; awaitingAuth = false; }
+      submit.textContent = member() ? '연우와 상담 시작하기' : '로그인하고 상담 이어가기';
     }
     syncChoices();
   });

@@ -175,3 +175,75 @@ body.consultation-open .ai-chat-stage:has(.consultation-guided-entry[style*="blo
   body.consultation-open .consultation-guided-entry .consultation-profile-scroll {padding-top:16px}
   .consultation-guided-entry .consultation-setup-heading h2 {font-size:24px}
 }
+
+/* Immersive entry: one question at a time, with the same uninterrupted film. */
+.consultation-entry-nav {display:none}
+body.consultation-open:has(#aiChatSetup[style*="block"]) .topbar {display:none!important}
+body.consultation-open:has(#aiChatSetup[style*="block"]) #view-home {
+  top:var(--consult-offset,0px)!important;height:var(--consult-height,100dvh)!important;
+}
+body.consultation-open:has(#aiChatSetup[style*="block"]) .ai-chat-topbar-overlay,
+body.consultation-open:has(#aiChatSetup[style*="block"]) #consultationExit {display:none!important}
+body.consultation-open:has(#aiChatSetup[style*="block"]) .consultation-entry-nav {
+  display:grid;grid-template-columns:44px 1fr 44px;align-items:center;
+  position:absolute;top:max(16px,env(safe-area-inset-top));left:16px;right:16px;z-index:5;
+  color:#f0ebe1;text-align:center;font:600 16px/1.5 var(--serif);
+}
+.consultation-entry-nav button {display:grid;place-items:center;min-width:44px;min-height:44px;background:none;border:0;color:#f0ebe1;cursor:pointer}
+.consultation-entry-nav button:focus-visible {outline:2px solid #c6aa76;outline-offset:2px;border-radius:4px}
+.entry-nav-count {font:400 12px/1.5 var(--sans);color:#d1d6cc}
+body.consultation-open .home-first-block #aiChatSetup.consultation-guided-entry {
+  inset:76px 0 0!important;padding:0 24px max(24px,env(safe-area-inset-bottom))!important;
+}
+body.consultation-open .consultation-guided-entry .consultation-profile-scroll {padding-top:60px;padding-bottom:10px}
+body.consultation-open .consultation-guided-entry .consultation-setup-heading {display:flex;flex-direction:column;gap:8px;margin-bottom:28px}
+.consultation-guided-entry .consultation-setup-heading .consultation-entry-progress {display:none}
+.consultation-guided-entry .consultation-setup-heading p:not(.consultation-entry-progress) {order:-1;font-size:15px;line-height:1.6;color:#b6bdb5}
+.consultation-guided-entry .consultation-setup-heading h2 {margin:0;font-size:clamp(26px,6.5vw,32px);line-height:1.5;letter-spacing:-.04em}
+body.consultation-open #aiChatSetup .ai-chat-setup-row[hidden] {display:none!important}
+.consultation-gender-choices {grid-template-columns:1fr;gap:10px}
+.consultation-gender-choices button {min-height:62px;border-radius:8px;background:#10171566;font-size:18px}
+.consultation-gender-choices button:first-child {grid-row:3;min-height:42px;border-color:transparent;background:transparent;font-size:14px;color:#bcc3b9}
+body.consultation-open #aiChatSetup.consultation-guided-entry #consultationEntryBirth,
+body.consultation-open #aiChatSetup.consultation-guided-entry #aiChatProfileName {
+  display:block;min-width:0;width:100%;border:0;border-bottom:1px solid #f0ebe136;
+  border-radius:0;background:transparent;padding:12px 0 16px;min-height:64px;
+  color:#f0ebe1;font:400 26px/1.4 var(--sans);letter-spacing:.02em;box-sizing:border-box;
+}
+#consultationEntryBirth::placeholder,#aiChatProfileName::placeholder {color:#a9b1a8;opacity:1}
+body.consultation-open #aiChatSetup.consultation-guided-entry :is(#consultationEntryBirth,#aiChatProfileName):focus-visible {outline:none;border-bottom-color:#c6aa76;box-shadow:0 1px 0 #c6aa76}
+.entry-birth-line {display:flex;align-items:center;gap:12px}
+.entry-birth-line #consultationEntryBirth {flex:1}
+.entry-calendar-choices {display:flex;flex:0 0 auto;gap:6px}
+.entry-calendar-choices button {min-height:46px;min-width:48px;padding:8px;border:1px solid transparent;border-radius:7px;background:#f0ebe111;color:#b6bdb5;font:500 15px/1.5 var(--sans);cursor:pointer}
+.entry-calendar-choices button[aria-pressed=true] {color:#e9d4a6;background:#c6aa7626;border-color:#c6aa7670}
+.entry-calendar-choices button:focus-visible,.entry-time-unknown:focus-visible {outline:2px solid #f0ebe1;outline-offset:3px}
+.entry-field-hint {font-size:12px;line-height:1.7;color:#b6bdb5;margin:10px 0 0}
+.entry-signup-note {font-size:14px;line-height:1.65;color:#dcc79b;margin:16px 0 0}
+.entry-time-line {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;align-items:center}
+.entry-time-line label {grid-column:1/-1;font-size:13px!important;color:#b6bdb5!important}
+body.consultation-open #aiChatSetup.consultation-guided-entry #aiChatHour {border:0;border-bottom:1px solid #f0ebe136;background:transparent;border-radius:0;font-size:24px;min-height:64px;padding:10px 0}
+.entry-time-unknown {min-height:46px;padding:8px 14px;background:#f0ebe115;border:1px solid #f0ebe120;border-radius:7px;color:#d8ddd4;font:500 15px/1.5 var(--sans);cursor:pointer}
+body.consultation-open #aiChatSetup.consultation-guided-entry .ai-chat-profile-note {background:transparent;padding:0;margin-top:14px;font-size:13px;color:#b6bdb5}
+.consultation-guided-entry .ai-chat-profile-fields {display:flex;flex-direction:column;gap:14px;margin:0}
+body.consultation-open #aiChatSetup.consultation-guided-entry #aiChatRelation {min-height:44px;font-size:14px;background:#10171566;border-color:#f0ebe11a}
+.consultation-entry-actions {margin-top:10px}
+.consultation-entry-actions .entry-next,.consultation-entry-actions .btn {background:#c6aa76;color:#101715;border-color:#c6aa76;font-weight:600}
+.consultation-entry-actions button {min-height:56px}
+.consultation-entry-actions button:disabled {opacity:.38;cursor:not-allowed}
+.consultation-entry-review {background:none;padding:12px 0 18px;border-radius:0;border-top:1px solid #f0ebe126;border-bottom:1px solid #f0ebe126;gap:10px 12px;font-size:15px}
+body.consultation-open .ai-chat-stage:has(.consultation-guided-entry[style*="block"]) .ai-chat-vignette-bottom {
+  background:linear-gradient(180deg,rgba(8,12,10,.02) 20%,rgba(8,12,10,.24) 40%,rgba(8,12,10,.85) 66%,#0b100e 100%);
+}
+body.consultation-open .ai-chat-stage:has(.consultation-guided-entry[style*="block"]) .ai-chat-bgvideo {filter:saturate(.8) brightness(.85);object-position:52% 25%}
+@media(max-width:360px) {
+  body.consultation-open #aiChatSetup.consultation-guided-entry #consultationEntryBirth {font-size:23px}
+  .entry-birth-line {gap:8px}
+  .entry-calendar-choices button {min-width:44px;padding:6px}
+}
+@media(max-height:650px) {
+  body.consultation-open .consultation-guided-entry .consultation-profile-scroll {padding-top:12px}
+  body.consultation-open .consultation-guided-entry .consultation-setup-heading {margin-bottom:16px}
+  .consultation-guided-entry .consultation-setup-heading h2 {font-size:25px}
+  .consultation-gender-choices button {min-height:52px}
+}
