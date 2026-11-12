@@ -9464,28 +9464,7 @@ async function updateHomeGuestHint() {
 }
 
 async function handleHomeChatStart(btn) {
-  // 카카오로 로그인된 상태면 firebaseAuthReady와 무관하게 바로 진행할 수 있습니다.
-  if (getKakaoUser()) { showAiChatSetupStep(); return; }
-
-  // 구글 로그인 상태 확인이 아직 끝나지 않았을 수 있어서(특히 접속 직후), 그 확인이
-  // 끝날 때까지 살짝 기다렸다가 판단합니다. 이걸 안 하면 실제로는 로그인돼 있는데도
-  // "로그인 안 됨"으로 착각해서 버튼이 안 먹히는 것처럼 보일 수 있습니다.
-  if (!firebaseAuthReady) {
-    const originalText = btn ? btn.textContent : '';
-    if (btn) { btn.disabled = true; btn.textContent = '확인 중…'; }
-    await Promise.race([
-      firebaseAuthSettled,
-      new Promise((r) => setTimeout(r, 4000)) // 너무 오래 걸리면 그냥 진행합니다.
-    ]);
-    if (btn) { btn.disabled = false; btn.textContent = originalText; }
-  }
-
-  const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
-  if (!loggedIn) {
-    localStorage.setItem('taekilso_pending_chat_start', '1');
-    openAuthModal();
-    return;
-  }
+  // Collect the onboarding draft first. Authentication remains required at handoff.
   showAiChatSetupStep();
 }
 
@@ -9507,6 +9486,7 @@ function showAiChatSetupStep() {
    생년월일 입력 단계를 바로 보여줍니다. 카카오는 전체 페이지가 새로
    불러와지므로, 그 경우에도 이어지도록 localStorage로 표시해둡니다. */
 function continueHomeChatAfterLogin() {
+  if (window.resumeGuidedConsultation?.()) return;
   if (localStorage.getItem('taekilso_pending_chat_start') !== '1') return;
   localStorage.removeItem('taekilso_pending_chat_start');
 
@@ -11569,8 +11549,9 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=20261111-operations"></script>
 <script src="admin-analytics.js?v=20261111-operations"></script>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261111-1"></script><script src="premium-motion.js" defer></script>
-<link rel="stylesheet" href="consultation-stage.css?v=20261111-experience-2">
-<script src="consultation-stage.js?v=20261111-experience-2"></script>
+<link rel="stylesheet" href="consultation-stage.css?v=20261112-guided-1">
+<script src="consultation-draft-core.js?v=20261112-guided-1"></script>
+<script src="consultation-stage.js?v=20261112-guided-1"></script>
 <script src="navigation-stability.js?v=20261111-2"></script>
 <link rel="stylesheet" href="newyear-consultation.css?v=20261111-experience">
 <script src="newyear-consultation.js?v=20261111-experience"></script><script src="newyear-example.js?v=20261111-4"></script>
