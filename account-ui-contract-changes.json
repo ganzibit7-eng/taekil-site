@@ -553,5 +553,15 @@
     "before": "  window.fillInsightDateSelects=function(){\n    const y=document.getElementById('insightYear'),m=document.getElementById('insightMonth'),d=document.getElementById('insightDay');\n    if(!y||!m||!d||y.options.length)return;\n    const now=new Date();\n    for(let yy=1940;yy<=now.getFullYear();yy++){const o=document.createElement('option');o.value=yy;o.textContent=yy+'년';y.appendChild(o)}\n    for(let mm=1;mm<=12;mm++){const o=document.createElement('option');o.value=mm;o.textContent=mm+'월';m.appendChild(o)}\n    for(let dd=1;dd<=31;dd++){const o=document.createElement('option');o.value=dd;o.textContent=dd+'일';d.appendChild(o)}\n    y.value=1995;m.value=1;d.value=1;\n  };",
     "after": "  window.fillInsightDateSelects=function(){\n    const y=document.getElementById('insightYear'),m=document.getElementById('insightMonth'),d=document.getElementById('insightDay');\n    if(!y||!m||!d||y.options.length)return;\n    for (const [select, label] of [[y,'출생 연도'], [m,'월'], [d,'일']]) {\n      const placeholder = document.createElement('option');\n      placeholder.value = '';\n      placeholder.textContent = label;\n      select.appendChild(placeholder);\n    }\n    const now=new Date();\n    for(let yy=1940;yy<=now.getFullYear();yy++){const o=document.createElement('option');o.value=yy;o.textContent=yy+'년';y.appendChild(o)}\n    for(let mm=1;mm<=12;mm++){const o=document.createElement('option');o.value=mm;o.textContent=mm+'월';m.appendChild(o)}\n    for(let dd=1;dd<=31;dd++){const o=document.createElement('option');o.value=dd;o.textContent=dd+'일';d.appendChild(o)}\n    y.value = m.value = d.value = '';\n  };",
     "count": 1
+  },
+  {
+    "before": "async function handleHomeChatStart(btn) {\n  // 카카오로 로그인된 상태면 firebaseAuthReady와 무관하게 바로 진행할 수 있습니다.\n  if (getKakaoUser()) { showAiChatSetupStep(); return; }\n\n  // 구글 로그인 상태 확인이 아직 끝나지 않았을 수 있어서(특히 접속 직후), 그 확인이\n  // 끝날 때까지 살짝 기다렸다가 판단합니다. 이걸 안 하면 실제로는 로그인돼 있는데도\n  // \"로그인 안 됨\"으로 착각해서 버튼이 안 먹히는 것처럼 보일 수 있습니다.\n  if (!firebaseAuthReady) {\n    const originalText = btn ? btn.textContent : '';\n    if (btn) { btn.disabled = true; btn.textContent = '확인 중…'; }\n    await Promise.race([\n      firebaseAuthSettled,\n      new Promise((r) => setTimeout(r, 4000)) // 너무 오래 걸리면 그냥 진행합니다.\n    ]);\n    if (btn) { btn.disabled = false; btn.textContent = originalText; }\n  }\n\n  const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);\n  if (!loggedIn) {\n    localStorage.setItem('taekilso_pending_chat_start', '1');\n    openAuthModal();\n    return;\n  }\n  showAiChatSetupStep();\n}\n",
+    "after": "async function handleHomeChatStart(btn) {\n  // Collect the onboarding draft first. Authentication remains required at handoff.\n  showAiChatSetupStep();\n}\n",
+    "count": 1
+  },
+  {
+    "before": "function continueHomeChatAfterLogin() {",
+    "after": "function continueHomeChatAfterLogin() {\n  if (window.resumeGuidedConsultation?.()) return;",
+    "count": 1
   }
 ]
