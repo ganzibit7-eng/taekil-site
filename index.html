@@ -8787,6 +8787,7 @@ async function deleteAiConversation(id){
   const active = getActiveAiSession();
   if (active && active.id === id) setActiveAiSession(null);
   setAiConversationStore(getAiConversationStore().filter(x => x.id !== id));
+  window.TaekilExperience?.removeConversation(id);
   renderAiConversationHistory();
 
   const authUser = firebaseReady && firebase.auth ? firebase.auth().currentUser : null;
@@ -9181,6 +9182,7 @@ function appendAiChatMessage(role, text, opts) {
   if (role === 'assistant') div.innerHTML = formatAiReply(text);
   else div.textContent = text;
   win.appendChild(div);
+  if(role==='assistant'&&text){window.TaekilExperience?.decorate(div,text);if((window.__aiChatHistory||[]).some(m=>m.role==='assistant'&&m.content===text))window.TaekilExperience?.saveControl(div,text);}
   const scrollMode = (opts && opts.scroll) || 'bottom'; // 'bottom' | 'start' | 'none'
   if (scrollMode === 'bottom') scrollAiChatToBottom(win);
   else if (scrollMode === 'start') scrollAiChatToMessageStart(win, div);
@@ -9565,141 +9567,7 @@ function getUsedAiFollowupState(){
 }
 
 function aiFollowupSet(question, reply, used){
-  const topic = getAiFollowupTopic(question) !== 'general'
-    ? getAiFollowupTopic(question)
-    : getAiFollowupTopic(`${question||''} ${reply||''}`);
-
-  const pool = {
-    money: [
-      '내 재물운의 좋은 점은?',
-      '돈이 새기 쉬운 부분은?',
-      '돈을 모으려면 뭘 바꿔야 해?',
-      '나한테 맞는 돈 버는 방식은?',
-      '내 강점을 돈으로 연결하려면?',
-      '현실적으로 돈 관리를 어떻게 해야 해?',
-      '직업운과 재물운을 같이 봐줘',
-      '사업과 직장 중 어떤 방식이 더 맞아?',
-      '내 사주의 다른 재물 특징도 봐줘',
-      '재물에서 가장 중요한 핵심은?',
-      '재물운에 참고할 색·환경은?',
-      '돈 관리할 때 잘 맞는 공간이나 분위기는?',
-      '재물운에서 숫자·방향은 어떻게 참고해?'
-    ],
-    love: [
-      '내 연애의 좋은 점은?',
-      '내가 조심할 관계 패턴은?',
-      '어떤 사람이 잘 맞아?',
-      '내 연애 성향을 더 봐줘',
-      '내가 바꾸면 좋은 점은?',
-      '결혼 관계에서는 어떤 편이야?',
-      '관계를 오래 유지하려면 어떻게 해야 해?',
-      '궁합에서 가장 중요한 건 뭐야?',
-      '내 사주의 다른 관계 특징도 봐줘',
-      '연애에서 내가 기억할 핵심은?',
-      '연애할 때 잘 맞는 색·분위기는?',
-      '관계운에 참고할 공간이나 환경은?',
-      '연애운에서 숫자·방향은 어떻게 참고해?'
-    ],
-    career: [
-      '내 직업적 강점은?',
-      '일할 때 뭘 조심해야 해?',
-      '어떤 업무 환경이 잘 맞아?',
-      '사업 성향도 있어?',
-      '강점을 일에서 어떻게 살리면 돼?',
-      '이직할 때 뭘 중요하게 봐야 해?',
-      '돈과 직업을 같이 봐줘',
-      '직장과 사업 중 어떤 방식이 맞아?',
-      '나한테 맞는 역할은?',
-      '직업에서 가장 중요한 핵심은?',
-      '일할 때 잘 맞는 색·환경은?',
-      '집중이 잘 되는 공간이나 분위기는?',
-      '직업운에서 숫자·방향은 어떻게 참고해?'
-    ],
-    traits: [
-      '나한테 좋은 건 더 뭐야?',
-      '뭘 조심해야 해?',
-      '생활에서 어떻게 활용해?',
-      '다른 특징도 알려줘',
-      '내 강점은 뭐야?',
-      '나한테 맞는 환경은?',
-      '관계에도 영향이 있어?',
-      '내 사주의 핵심 특징은 뭐야?',
-      '현실에서 가장 활용할 점은?',
-      '나한테 잘 맞는 색은?',
-      '나한테 잘 맞는 공간·분위기는?',
-      '숫자·방향은 어떻게 참고하면 돼?',
-      '잘 맞는 활동이나 취미는?'
-    ],
-    general: [
-      '내 강점은 뭐야?',
-      '뭘 조심해야 해?',
-      '현실적으로 어떻게 활용하면 돼?',
-      '다른 특징도 알려줘',
-      '그중 가장 중요한 건?',
-      '직업에서는 어떻게 나타나?',
-      '연애에서는 어떻게 나타나?',
-      '재물에서는 어떻게 나타나?',
-      '나한테 맞는 환경은?',
-      '내가 기억할 핵심은?',
-      '나한테 잘 맞는 색은?',
-      '나한테 잘 맞는 공간·분위기는?',
-      '숫자·방향은 어떻게 참고하면 돼?',
-      '잘 맞는 활동이나 취미는?'
-    ]
-  };
-
-  const { usedTexts, usedIntents } = getUsedAiFollowupState();
-  const currentIntent = aiFollowupIntent(question);
-  const currentText = normalizeAiFollowupText(question);
-
-  const result = [];
-  for (const label of pool[topic]) {
-    if (result.length >= 3) break; // 네 번째 자리는 '다른 주제도 볼래'로 고정
-    const normalized = normalizeAiFollowupText(label);
-    const intent = aiFollowupIntent(label);
-
-    // 1) 방금 질문과 같은 문장/의미면 무조건 제외
-    if (normalized === currentText) continue;
-    if (intent === currentIntent) continue;
-
-    // 2) 이 상담에서 이미 물어본 문장/의미면 무조건 제외
-    if (usedTexts.has(normalized)) continue;
-    if (usedIntents.has(intent)) continue;
-
-    // 3) 현재 화면 안에서도 같은 의미끼리 중복 금지
-    if (result.some(x => aiFollowupIntent(x) === intent)) continue;
-
-    result.push(label);
-  }
-
-  // 같은 주제 안에서 3개를 못 채우면, 아직 한 번도 안 물어본 '다른 의미'만 보충합니다.
-  const fallback = [
-    '내 강점은 뭐야?',
-    '현실적으로 어떻게 활용하면 돼?',
-    '나한테 맞는 환경은?',
-    '나한테 잘 맞는 색은?',
-    '숫자·방향은 어떻게 참고하면 돼?',
-    '잘 맞는 활동이나 취미는?',
-    '내가 기억할 핵심은?',
-    '다른 특징도 알려줘',
-    '직업에서는 어떻게 나타나?',
-    '연애에서는 어떻게 나타나?',
-    '재물에서는 어떻게 나타나?'
-  ];
-
-  for (const label of fallback) {
-    if (result.length >= 3) break;
-    const normalized = normalizeAiFollowupText(label);
-    const intent = aiFollowupIntent(label);
-    if (normalized === currentText) continue;
-    if (intent === currentIntent) continue;
-    if (usedTexts.has(normalized)) continue;
-    if (usedIntents.has(intent)) continue;
-    if (result.some(x => aiFollowupIntent(x) === intent)) continue;
-    result.push(label);
-  }
-
-  return result.slice(0,3);
+  return window.TaekilExperienceCore.followups(question, reply, window.__aiChatHistory || []);
 }
 
 function showAiOtherSajuTopics(locked){
@@ -9740,7 +9608,7 @@ function showAiOtherSajuTopics(locked){
     b.onclick = () => {
       trackAiFunnel('topic_switch_click',{topic:item.key,question:item.q});
       clearAiFollowupSuggestions();
-      quickAskAiChat(item.q);
+      prepareAiQuestion(item.q);
     };
     wrap.appendChild(b);
   });
@@ -9757,6 +9625,7 @@ function showAiFollowups(question, reply, used, limit, locked){
   wrap.className='ai-chat-followups';
 
   const list=aiFollowupSet(question,reply,used);
+  if(!locked){const hint=document.createElement('p');hint.className='ai-chat-followup-note';hint.textContent='이어서 물어보기 · 선택 후 내용을 확인하고 전송해 주세요.';wrap.append(hint);}
 
   if(locked){
     const note=document.createElement('div');
@@ -9774,7 +9643,7 @@ function showAiFollowups(question, reply, used, limit, locked){
       if(locked){ openAiFollowupPurchase(label); return; }
       trackAiFunnel('followup_click',{question:label});
       clearAiFollowupSuggestions();
-      quickAskAiChat(label);
+      prepareAiQuestion(label);
     };
     wrap.appendChild(b);
   });
@@ -10176,6 +10045,8 @@ async function sendAiChatMessage() {
   if (!conversationId || sendBtn.disabled) return;
   input.value = '';
   sendBtn.disabled = true;
+  input.dispatchEvent(new Event('input', {bubbles:true}));
+  window.TaekilExperience?.clearFailure();
   clearAiFollowupSuggestions();
 
   // 대화가 시작되면 하단에 항상 떠 있던 추천 질문 6개 버튼을 숨겨서
@@ -10252,10 +10123,8 @@ async function sendAiChatMessage() {
         appendQuestionPackOffers();
       } else if (data.error === 'DAILY_LIMIT_REACHED') {
         appendAiChatMessage('system-note', data.message || '오늘 상담 가능 횟수를 모두 사용하셨어요.');
-      } else if (data.error === 'AI_TIMEOUT') {
-        appendAiChatMessage('system-note', data.message || '답변 생성 시간이 길어졌어요. 같은 질문을 다시 보내주세요.');
       } else {
-        appendAiChatMessage('system-note', typeof data.message === 'string' ? data.message.slice(0, 300) : '답변을 받아오지 못했어요. 잠시 후 다시 시도해주세요.');
+        (window.TaekilExperience?.failure || ((text) => appendAiChatMessage('system-note',text)))(typeof data.message === 'string' ? data.message.slice(0, 300) : '답변을 받아오지 못했어요. 잠시 후 다시 시도해주세요.', message);
       }
       return;
     }
@@ -10278,6 +10147,7 @@ async function sendAiChatMessage() {
 
     window.__aiChatHistory.push({ role: 'user', content: message }, { role: 'assistant', content: data.reply });
     saveCurrentAiConversation();
+    window.TaekilExperience?.saveControl(answerEl,data.reply);
 
     // 첫 AI 답변을 실제 activation으로 집계합니다.
     // 질문/답변 내용은 저장하지 않고, 해당 계정의 첫 성공 답변일 때만 숫자 +1.
@@ -10335,7 +10205,7 @@ async function sendAiChatMessage() {
     typingEl.remove();
     if (!receivedAnswer) {
       restoreQuestion();
-      appendAiChatMessage('system-note', '연결이 끊겨 답변을 확인하지 못했어요. 잠시 후 다시 시도해주세요.');
+      (window.TaekilExperience?.failure || ((text) => appendAiChatMessage('system-note',text)))('연결이 끊겨 답변을 확인하지 못했어요. 사용 내역을 확인한 뒤 다시 시도해 주세요.', message);
     }
     console.error('AI 상담 오류', err);
   } finally {
@@ -11552,13 +11422,17 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <link rel="stylesheet" href="admin-analytics.css?v=20261110-4">
 <script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=20261111-operations"></script>
 <script src="admin-analytics.js?v=20261111-operations"></script>
-<link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261112-entry-1"></script><script src="premium-motion.js" defer></script>
+<link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261113-library-1"></script><script src="premium-motion.js" defer></script>
 <link rel="stylesheet" href="consultation-stage.css?v=20261113-reading-1">
 <script src="consultation-draft-core.js?v=20261112-guided-2"></script>
 <script src="consultation-stage.js?v=20261113-reading-1"></script>
+<link rel="stylesheet" href="consultation-experience.css?v=20261113-library-1">
+<script src="consultation-experience-core.js?v=20261113-library-1"></script>
+<script src="consultation-experience.js?v=20261113-library-1"></script>
+
 <script src="navigation-stability.js?v=20261111-2"></script>
 <link rel="stylesheet" href="newyear-consultation.css?v=20261111-experience">
-<script src="newyear-consultation.js?v=20261111-experience"></script><script src="newyear-example.js?v=20261111-4"></script>
+<script src="newyear-consultation.js?v=20261113-library-1"></script><script src="newyear-example.js?v=20261111-4"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=20261110-1">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
 <script src="free-report-handoff.js?v=20261111-operations"></script>
@@ -11570,7 +11444,7 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <script src="consultation-quality.js?v=20261111-experience"></script>
 <link rel="stylesheet" href="site-menu.css?v=20261111-3"><script src="site-menu.js?v=20261111-experience"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=20261111-2">
-<script src="account-session.js?v=20261111-1"></script>
+<script src="account-session.js?v=20261113-library-1"></script>
 <script src="campaign-attribution-core.js?v=20261111-1"></script><script src="campaign-attribution.js?v=20261111-1"></script>
 </body>
 </html>

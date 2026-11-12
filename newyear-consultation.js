@@ -4,7 +4,7 @@
   const view=document.getElementById('view-newyear');
   if(!view)return;
   const status=view.querySelector('[data-year-status]'),content=view.querySelector('[data-year-content]');
-  let active=false,busy=false,timer=0,version=0,pendingChat=false,profiles=[],progressClock=0,progressStarted=0,draft=null,draftOwner=null;
+  let active=false,busy=false,timer=0,version=0,pendingChat=false,pendingQuestion='',profiles=[],progressClock=0,progressStarted=0,draft=null,draftOwner=null;
   const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
   const button=(text,action,primary=false)=>{const b=el('button',text,'btn'+(primary?' btn-primary':''));b.type='button';b.addEventListener('click',action);return b;};
   const loggedIn=()=>!!((typeof getKakaoUser==='function'&&getKakaoUser())||(typeof firebaseAuthUser!=='undefined'&&firebaseAuthUser&&!firebaseAuthUser.isAnonymous));
@@ -140,7 +140,8 @@
     calculation.append(el('p',`2027년 정미(丁未) 세운은 입춘 ${data.calculation.annual.startsAt}부터 적용합니다. 1월부터 입춘 전까지는 병오(丙午) 세운입니다. 월별 해석은 양력 달력 기준이며 절기 경계를 함께 반영합니다.`));
     data.calculation.limitations.forEach(t=>calculation.append(el('p',t)));content.append(calculation);
     content.append(el('p','작성된 리포트는 이용기간이 끝나도 이 계정에서 다시 읽을 수 있어요.','newyear-muted'));
-    if(data.access)content.append(button('리포트가 궁금하다면, 연우에게 이어 묻기',()=>{
+    const askReport=(question='신년 리포트 내용을 제 상황에 어떻게 적용하면 좋을까요?')=>{
+      pendingQuestion=question;
       pendingChat=true;
       const saved=(typeof getSajuVault==='function'?getSajuVault():[]).find(p=>
         p.calType!=='lunar'&&`${p.y}-${String(p.m).padStart(2,'0')}-${String(p.d).padStart(2,'0')}`===data.profile.date&&String(p.hourValue||'unknown')===data.profile.hourValue&&(p.gender||'unknown')===data.profile.gender);
@@ -149,8 +150,10 @@
       const values={aiChatSavedProfile:saved?.id||'',aiChatProfileName:p.name,aiChatRelation:p.relation||'본인',aiChatYear:p.y,aiChatMonth:p.m,aiChatDay:p.d,aiChatCalType:p.calType||'solar',aiChatHour:p.hourValue||'unknown',aiChatGender:p.gender||'unknown',aiChatCompareProfile:'',aiChatCompareProfile2:''};
       for(const [id,value]of Object.entries(values)){const input=document.getElementById(id);if(input)input.value=String(value);}
       document.getElementById('aiChatLeap').checked=!!p.isLeap;startAiChat({source:'newyear-report'});
-    },true));
+    };
+    if(data.access)content.append(button('리포트가 궁금하다면, 연우에게 이어 묻기',()=>askReport(),true));
     else content.append(purchaseButton('30일 상담 이용권 구매'), pausedNotice());
+    window.TaekilExperience?.report(content,data,askReport);
   }
   function render(data){
     clearTimeout(timer);
@@ -188,7 +191,7 @@
   const observe=new MutationObserver(()=>{const next=view.classList.contains('visible');if(next!==active){active=next;if(active)load();else{++version;clearTimeout(timer);clearInterval(progressClock);}}});observe.observe(view,{attributes:true,attributeFilter:['class']});
   const panel=document.getElementById('aiChatPanel'),intro=document.getElementById('homeIntroOverlay');
   new MutationObserver(()=>{
-    if(panel.style.display==='flex'&&pendingChat){window.__newyearChatContext=true;pendingChat=false;}
+    if(panel.style.display==='flex'&&pendingChat){window.__newyearChatContext=true;pendingChat=false;window.prepareAiQuestion?.(pendingQuestion);pendingQuestion='';}
     if(intro.style.display!=='none'){window.__newyearChatContext=false;pendingChat=false;}
   }).observe(document.getElementById('view-home'),{subtree:true,attributes:true,attributeFilter:['style']});
   document.getElementById('consultationExit')?.addEventListener('click',()=>{window.__newyearChatContext=false;pendingChat=false;});

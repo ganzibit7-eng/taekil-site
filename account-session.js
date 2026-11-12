@@ -51,7 +51,7 @@
   window.logout=function(){store.beginSignOut();clearPrivateView();return originalLogout.apply(this,arguments);};
   window.clearDeletedAccountCache=function(uid){
     if(!uid)return;
-    store.removeOwner(['taekilso_locked_birth','taekilso_history','taekilso_my_inquiries','taekilso_ai_conversations_v1','taekilso_ai_active_session_v1','taekilso_pending_paid_ai_question_v1','taekilso_pending_today_fortune_question_v1','taekilso_last_order_id','taekilso_last_purchase_at'],uid);
+    store.removeOwner(['taekilso_reading_library_v1','taekilso_locked_birth','taekilso_history','taekilso_my_inquiries','taekilso_ai_conversations_v1','taekilso_ai_active_session_v1','taekilso_pending_paid_ai_question_v1','taekilso_pending_today_fortune_question_v1','taekilso_last_order_id','taekilso_last_purchase_at'],uid);
     try{localStorage.removeItem('taekilso_saju_vault_'+uid);}catch(_){}
     if(uid===store.owner())clearPrivateView();
   };
