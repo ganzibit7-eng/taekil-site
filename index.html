@@ -2455,7 +2455,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <div class="ai-chat-status" id="aiChatStatus"></div>
           <div class="ai-chat-inputrow">
             <textarea id="aiChatInput" rows="1" placeholder="연우에게 물어보세요" maxlength="500" aria-label="연우에게 보낼 질문" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiChatMessage();}"></textarea>
-            <button class="btn btn-primary" id="aiChatSendBtn" onclick="sendAiChatMessage()" aria-label="전송">➤</button>
+            <button class="btn btn-primary" id="aiChatSendBtn" onclick="sendAiChatMessage()" aria-label="전송">전송</button>
           </div>
         </div>
       </div>
@@ -9144,7 +9144,9 @@ function formatAiReply(text){
   html = html.replace(/^##\s*(.+)$/gm,'<div class="ai-chat-heading">$1</div>');
   html = html.replace(/\*\*(.+?)\*\*/g,'<span class="ai-chat-strong">$1</span>');
   html = html.replace(/^[-•]\s+(.+)$/gm,'<span class="ai-chat-bullet">$1</span>');
+  html = html.replace(/^[ \t]*-{3,}[ \t]*$/gm,'<hr class="ai-chat-divider">');
   html = html.replace(/\n\n+/g,'<br><br>').replace(/\n/g,'<br>');
+  html = html.replace(/(?:<br>)*<hr class="ai-chat-divider">(?:<br>)*/g,'<hr class="ai-chat-divider">');
   return html;
 }
 
@@ -11551,9 +11553,9 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=20261111-operations"></script>
 <script src="admin-analytics.js?v=20261111-operations"></script>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261112-entry-1"></script><script src="premium-motion.js" defer></script>
-<link rel="stylesheet" href="consultation-stage.css?v=20261112-topics-1">
+<link rel="stylesheet" href="consultation-stage.css?v=20261113-reading-1">
 <script src="consultation-draft-core.js?v=20261112-guided-2"></script>
-<script src="consultation-stage.js?v=20261112-guided-2"></script>
+<script src="consultation-stage.js?v=20261113-reading-1"></script>
 <script src="navigation-stability.js?v=20261111-2"></script>
 <link rel="stylesheet" href="newyear-consultation.css?v=20261111-experience">
 <script src="newyear-consultation.js?v=20261111-experience"></script><script src="newyear-example.js?v=20261111-4"></script>

@@ -15,8 +15,22 @@
   const input = document.getElementById('aiChatInput');
   const send = document.getElementById('aiChatSendBtn');
   let suggestedQuestion = '';
+  const composer = input?.closest('.ai-chat-inputrow');
+  const composeMeta = document.createElement('div');
+  composeMeta.className = 'consultation-compose-meta';
+  const composeCount = document.createElement('span');
+  const composeHint = document.createElement('span');
+  composeHint.className = 'consultation-compose-hint';
+  composeHint.textContent = 'Shift + Enter로 줄바꿈';
+  composeMeta.append(composeCount, composeHint);
+  composer?.after(composeMeta);
+  input?.addEventListener('keydown', event => {
+    // Committing a Korean syllable with Enter must not send an unfinished question.
+    if (event.key === 'Enter' && (event.isComposing || event.keyCode === 229)) event.stopImmediatePropagation();
+  }, true);
 
   function resizeComposer() {
+    composeCount.textContent = `${input?.value.length || 0} / ${input?.maxLength || 500}`;
     if (!input?.offsetWidth) return;
     input.style.height = 'auto';
     const desired = input.scrollHeight;
@@ -244,6 +258,31 @@
   const signupNote = document.createElement('p'); signupNote.className = 'entry-signup-note';
   signupNote.textContent = 'Google·카카오로 간편가입 · 첫 질문 3개 무료';
   panes[4].append(question, count);
+  const concernChoices = document.createElement('div');
+  concernChoices.className = 'consultation-concern-choices';
+  concernChoices.setAttribute('role','group'); concernChoices.setAttribute('aria-label','고민 작성 예시');
+  const examples = [
+    ['연애·관계', '관계에서 비슷한 어려움이 반복돼요. 제 상황을 돌아보고 어떤 소통부터 바꿔보면 좋을까요?'],
+    ['직업·진로', '지금 하는 일을 계속할지 새로운 방향을 찾을지 고민이에요. 어떤 기준으로 비교하면 좋을까요?'],
+    ['돈·생활', '돈이 잘 모이지 않아 고민이에요. 제 소비와 저축 습관에서 무엇부터 점검하면 좋을까요?']
+  ];
+  let lastConcern = '';
+  for (const [label,text] of examples) {
+    const choice = document.createElement('button'); choice.type = 'button'; choice.textContent = label;
+    choice.addEventListener('click', () => {
+      if (question.value.trim() && question.value !== lastConcern) {
+        showToast('작성 중인 고민이 있어요. 입력창에서 이어서 적어 주세요.');
+        question.focus({preventScroll:true}); return;
+      }
+      lastConcern = text; question.value = text;
+      question.dispatchEvent(new Event('input',{bubbles:true}));
+      question.focus({preventScroll:true}); question.setSelectionRange(text.length,text.length);
+    });
+    concernChoices.append(choice);
+  }
+  const concernHint = document.createElement('p'); concernHint.className = 'entry-field-hint';
+  concernHint.textContent = '주제를 고르면 예시를 채워드려요. 내 상황에 맞게 고쳐주세요.';
+  panes[4].prepend(concernChoices,concernHint);
   panes[5].append(signupNote,draftNote);
   const progress = document.createElement('p');
   progress.className = 'consultation-entry-progress';
