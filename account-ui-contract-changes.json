@@ -628,5 +628,65 @@
     "before": "  setAiConversationStore(getAiConversationStore().filter(x => x.id !== id));\n  renderAiConversationHistory();",
     "after": "  setAiConversationStore(getAiConversationStore().filter(x => x.id !== id));\n  window.TaekilExperience?.removeConversation(id);\n  renderAiConversationHistory();",
     "count": 1
+  },
+  {
+    "before": "  const adminToken = accountStore.snapshot();\n  const denied",
+    "after": "  const adminToken = accountStore.snapshot();\n  let adminViewActive = true;\n  const adminCurrent = () => adminViewActive && accountStore.current(adminToken) && isAdmin();\n  window.__adminViewToken = adminToken;\n  const denied",
+    "count": 1
+  },
+  {
+    "before": "  if (!db) return;\n\n  // 실시간 반영: 관리자가",
+    "after": "  if (!db) return;\n  const pendingAdminSections = new Set(['adminStatsStatus', 'adminMembersStatus']);\n  function adminSectionStatus(id, message, retry = false) {\n    if (!adminCurrent()) return;\n    const el = document.getElementById(id);\n    if (!el) return;\n    el.replaceChildren(document.createTextNode(message));\n    if (retry) {\n      const button = document.createElement('button');\n      button.type = 'button'; button.className = 'aa-btn'; button.textContent = '다시 불러오기';\n      button.addEventListener('click', renderAdmin); el.appendChild(button);\n    }\n  }\n  adminSectionStatus('adminStatsStatus', '운영 통계를 불러오고 있습니다…');\n  adminSectionStatus('adminMembersStatus', '회원 정보를 불러오고 있습니다…');\n  document.getElementById('adminUserList').setAttribute('aria-busy', 'true');\n  const adminLoadingTimer = setTimeout(() => {\n    pendingAdminSections.forEach(id => adminSectionStatus(id, '조회가 지연되고 있습니다. 연결 상태를 확인한 뒤 다시 시도해 주세요.', true));\n  }, 15000);\n\n  // 실시간 반영: 관리자가",
+    "count": 1
+  },
+  {
+    "before": "  adminStatsUnsub = db.collection('stats').doc('counters').onSnapshot((snap) => {\n    const d",
+    "after": "  adminStatsUnsub = db.collection('stats').doc('counters').onSnapshot((snap) => {\n    if (!adminCurrent()) return;\n    pendingAdminSections.delete('adminStatsStatus');\n    adminSectionStatus('adminStatsStatus', '운영 통계 · 실시간 반영');\n    const d",
+    "count": 1
+  },
+  {
+    "before": "  }, (err) => console.error('통계 실시간 조회 실패', err));",
+    "after": "  }, (err) => {\n    console.error('통계 실시간 조회 실패', err);\n    pendingAdminSections.delete('adminStatsStatus');\n    adminSectionStatus('adminStatsStatus', '운영 통계를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.', true);\n  });",
+    "count": 1
+  },
+  {
+    "before": "  if (adminUsersUnsub) adminUsersUnsub();\n  adminUsersUnsub = db.collection('users').onSnapshot(async (qs) => {\n    if (!accountStore.current(adminToken) || !isAdmin()) return;",
+    "after": "  let recentInquiryByUid = new Map();\n  let latestAdminUsers = null;\n  // Optional inquiry badges must not block member rows or membership counters.\n  db.collection('inquiries').limit(500).get().then(inquiryQs => {\n    if (!adminCurrent()) return;\n    recentInquiryByUid = buildAdminRecentInquiryMap(inquiryQs);\n    if (latestAdminUsers) renderAdminUsers(latestAdminUsers);\n  }).catch(err => console.warn('회원 최근 문의 요약 조회 실패', err));\n  function renderAdminUsers(qs) {\n    if (!adminCurrent()) return;\n    latestAdminUsers = qs;\n    pendingAdminSections.delete('adminMembersStatus');\n    adminSectionStatus('adminMembersStatus', qs.empty ? '등록된 회원이 없습니다.' : '회원 정보 · 실시간 반영');\n    document.getElementById('adminUserList').setAttribute('aria-busy', 'false');",
+    "count": 1
+  },
+  {
+    "before": "    // 회원 카드에 \"최근 문의\" 표시를 붙이기 위해 문의를 한 번에 조회합니다.\n    // 회원별 개별 쿼리를 하지 않아 N+1 읽기 문제를 피합니다.\n    let recentInquiryByUid = new Map();\n    try {\n      const inquiryQs = await db.collection('inquiries').limit(500).get();\n      recentInquiryByUid = buildAdminRecentInquiryMap(inquiryQs);\n    } catch (err) {\n      console.warn('회원 최근 문의 요약 조회 실패', err);\n    }\n    if (!accountStore.current(adminToken) || !isAdmin()) return;\n\n",
+    "after": "    // Member rows render without waiting for optional inquiry badges.\n",
+    "count": 1
+  },
+  {
+    "before": "      if (active7dEl) active7dEl.textContent = '0';\n      return;",
+    "after": "      if (active7dEl) active7dEl.textContent = '0';\n      const premiumEl = document.getElementById('statActivePremium');\n      if (premiumEl) premiumEl.textContent = '0';\n      return;",
+    "count": 1
+  },
+  {
+    "before": "  }, (err) => {\n    console.error('회원 목록 실시간 조회 실패', err);",
+    "after": "  }\n  if (adminUsersUnsub) adminUsersUnsub();\n  adminUsersUnsub = db.collection('users').onSnapshot(renderAdminUsers, (err) => {\n    if (!adminCurrent()) return;\n    latestAdminUsers = null;\n    pendingAdminSections.delete('adminMembersStatus');\n    adminSectionStatus('adminMembersStatus', '회원 정보를 불러오지 못했습니다.', true);\n    document.getElementById('adminUserList').setAttribute('aria-busy', 'false');\n    console.error('회원 목록 실시간 조회 실패', err);",
+    "count": 1
+  },
+  {
+    "before": "  window.__cleanupLegacyAdminViews = () => {\n    if (adminUsersUnsub)",
+    "after": "  window.__cleanupLegacyAdminViews = () => {\n    adminViewActive = false;\n    window.__adminViewToken = null;\n    clearTimeout(adminLoadingTimer);\n    if (adminStatsUnsub) { adminStatsUnsub(); adminStatsUnsub=null; }\n    if (adminUsersUnsub)",
+    "count": 1
+  },
+  {
+    "before": "    box.classList.remove('open');\n    const btn=box.querySelector('.admin-fold-toggle');\n    if(btn) btn.setAttribute('aria-expanded','false');\n    try{sessionStorage.setItem('taekilso_'+box.id,'0');}catch(e){}",
+    "after": "    let open = box.id === 'adminFoldStats' || box.id === 'adminFoldMembers';\n    try { const saved=sessionStorage.getItem('taekilso_admin_fold_v2_'+box.id); if(saved!==null) open=saved==='1'; } catch(e) {}\n    box.classList.toggle('open',open);\n    const btn=box.querySelector('.admin-fold-toggle');\n    if(btn) btn.setAttribute('aria-expanded',String(open));",
+    "count": 1
+  },
+  {
+    "before": "sessionStorage.setItem('taekilso_'+id,willOpen?'1':'0')",
+    "after": "sessionStorage.setItem('taekilso_admin_fold_v2_'+id,willOpen?'1':'0')",
+    "count": 1
+  },
+  {
+    "before": "sessionStorage.setItem('taekilso_'+box.id,open?'1':'0')",
+    "after": "sessionStorage.setItem('taekilso_admin_fold_v2_'+box.id,open?'1':'0')",
+    "count": 1
   }
 ]

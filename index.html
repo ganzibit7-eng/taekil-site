@@ -3215,6 +3215,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <span class="admin-fold-chevron">⌄</span>
   </button>
   <div class="admin-fold-body">
+        <div id="adminStatsStatus" class="admin-data-status" role="status" aria-live="polite"></div>
         <div class="admin-stats">
           <div class="admin-stat"><small>누적 방문수</small><b id="statVisits">–</b></div>
           <div class="admin-stat"><small>오늘 방문수 · 00시 초기화</small><b id="statTodayVisits">–</b></div>
@@ -3315,6 +3316,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           </select>
         </div>
         <div class="price-note" style="margin-top:0; margin-bottom:14px;">⚠ 자가확인(대조 필요) — 서버 검증 없이 손님이 직접 "결제했다"고 눌러서 켜진 프리미엄이에요. 페이앱 결제현황에서 시간·금액이 실제로 맞는지 한 번 대조해보시는 걸 권해요. 표시가 없으면(서버 검증 또는 관리자 직접 지급) 대조하지 않으셔도 돼요.</div>
+        <div id="adminMembersStatus" class="admin-data-status" role="status" aria-live="polite"></div>
         <div id="adminUserList" class="usecase-list"></div>
         <div class="price-note" style="margin-top:20px;">※ 최근 접속시간은 이 버전 배포 후 로그인/재접속한 회원부터 기록됩니다. 문의 이력이 있으면 최근 문의가 표시됩니다. 프리미엄 회원 정보가 일부 누락되어도 서버의 결제 완료 기록(paymentOrders)을 기준으로 자동 복구하며, 관리자 회수 이력이 더 최신인 경우에는 복구하지 않습니다.</div>
 
@@ -6135,6 +6137,9 @@ function sortAdminUserListDom() {
 function renderAdmin() {
   window.__cleanupLegacyAdminViews?.();
   const adminToken = accountStore.snapshot();
+  let adminViewActive = true;
+  const adminCurrent = () => adminViewActive && accountStore.current(adminToken) && isAdmin();
+  window.__adminViewToken = adminToken;
   const denied = document.getElementById('adminDenied');
   const content = document.getElementById('adminContent');
   if (!isAdmin()) {
@@ -6149,12 +6154,33 @@ function renderAdmin() {
   if (sortSelect) sortSelect.value = adminMemberSortMode;
 
   if (!db) return;
+  const pendingAdminSections = new Set(['adminStatsStatus', 'adminMembersStatus']);
+  function adminSectionStatus(id, message, retry = false) {
+    if (!adminCurrent()) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.replaceChildren(document.createTextNode(message));
+    if (retry) {
+      const button = document.createElement('button');
+      button.type = 'button'; button.className = 'aa-btn'; button.textContent = '다시 불러오기';
+      button.addEventListener('click', renderAdmin); el.appendChild(button);
+    }
+  }
+  adminSectionStatus('adminStatsStatus', '운영 통계를 불러오고 있습니다…');
+  adminSectionStatus('adminMembersStatus', '회원 정보를 불러오고 있습니다…');
+  document.getElementById('adminUserList').setAttribute('aria-busy', 'true');
+  const adminLoadingTimer = setTimeout(() => {
+    pendingAdminSections.forEach(id => adminSectionStatus(id, '조회가 지연되고 있습니다. 연결 상태를 확인한 뒤 다시 시도해 주세요.', true));
+  }, 15000);
 
   // 실시간 반영: 관리자가 이 화면을 보고 있는 동안 방문/가입/구매 수가 바뀌면
   // 새로고침 없이 바로 업데이트되도록 한 번 조회하는 대신 계속 지켜보는(onSnapshot)
   // 방식으로 바꿨습니다. 화면을 다시 열 때마다 이전 감시를 정리하고 새로 시작합니다.
   if (adminStatsUnsub) adminStatsUnsub();
   adminStatsUnsub = db.collection('stats').doc('counters').onSnapshot((snap) => {
+    if (!adminCurrent()) return;
+    pendingAdminSections.delete('adminStatsStatus');
+    adminSectionStatus('adminStatsStatus', '운영 통계 · 실시간 반영');
     const d = snap.exists ? snap.data() : {};
     document.getElementById('statVisits').textContent = d.visits || 0;
     // 총 가입자수는 아래 users 실제 문서 조회 결과로 표시합니다. stats.signups는 레거시 참고값만 유지합니다.
@@ -6171,7 +6197,11 @@ function renderAdmin() {
     const qpEl = document.getElementById('statPurchasesQuestionPacks');
     if (premiumEl) premiumEl.textContent = premiumCount;
     if (qpEl) qpEl.textContent = qpCount;
-  }, (err) => console.error('통계 실시간 조회 실패', err));
+  }, (err) => {
+    console.error('통계 실시간 조회 실패', err);
+    pendingAdminSections.delete('adminStatsStatus');
+    adminSectionStatus('adminStatsStatus', '운영 통계를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.', true);
+  });
 
   function watchTodayVisitsKst() {
     const todayKey = getKstDateKey();
@@ -6310,9 +6340,20 @@ function renderAdmin() {
   const refreshLegacyFunnel = () => { if (accountStore.current(adminToken) && isAdmin()) renderTodayFunnel(lastTodayFunnelData); };
   window.addEventListener('taekilso:todayVisitsUpdated', refreshLegacyFunnel);
 
-  if (adminUsersUnsub) adminUsersUnsub();
-  adminUsersUnsub = db.collection('users').onSnapshot(async (qs) => {
-    if (!accountStore.current(adminToken) || !isAdmin()) return;
+  let recentInquiryByUid = new Map();
+  let latestAdminUsers = null;
+  // Optional inquiry badges must not block member rows or membership counters.
+  db.collection('inquiries').limit(500).get().then(inquiryQs => {
+    if (!adminCurrent()) return;
+    recentInquiryByUid = buildAdminRecentInquiryMap(inquiryQs);
+    if (latestAdminUsers) renderAdminUsers(latestAdminUsers);
+  }).catch(err => console.warn('회원 최근 문의 요약 조회 실패', err));
+  function renderAdminUsers(qs) {
+    if (!adminCurrent()) return;
+    latestAdminUsers = qs;
+    pendingAdminSections.delete('adminMembersStatus');
+    adminSectionStatus('adminMembersStatus', qs.empty ? '등록된 회원이 없습니다.' : '회원 정보 · 실시간 반영');
+    document.getElementById('adminUserList').setAttribute('aria-busy', 'false');
     const list = document.getElementById('adminUserList');
     if (qs.empty) {
       list.innerHTML = '<div class="empty-note">아직 가입한 회원이 없어요.</div>';
@@ -6324,20 +6365,12 @@ function renderAdmin() {
       const active7dEl = document.getElementById('statActive7d');
       if (activeTodayEl) activeTodayEl.textContent = '0';
       if (active7dEl) active7dEl.textContent = '0';
+      const premiumEl = document.getElementById('statActivePremium');
+      if (premiumEl) premiumEl.textContent = '0';
       return;
     }
 
-    // 회원 카드에 "최근 문의" 표시를 붙이기 위해 문의를 한 번에 조회합니다.
-    // 회원별 개별 쿼리를 하지 않아 N+1 읽기 문제를 피합니다.
-    let recentInquiryByUid = new Map();
-    try {
-      const inquiryQs = await db.collection('inquiries').limit(500).get();
-      recentInquiryByUid = buildAdminRecentInquiryMap(inquiryQs);
-    } catch (err) {
-      console.warn('회원 최근 문의 요약 조회 실패', err);
-    }
-    if (!accountStore.current(adminToken) || !isAdmin()) return;
-
+    // Member rows render without waiting for optional inquiry badges.
     list.innerHTML = '';
     // createdAt이 없는 회원(예: Firestore가 꺼져있던 시기에 만들어진 기록)도 빠짐없이 보여주기 위해
     // orderBy 대신 가져온 뒤 이 자리에서 정렬합니다. createdAt이 없으면 맨 뒤로 보냅니다.
@@ -6537,7 +6570,14 @@ function renderAdmin() {
         openAdminPermissionModal(el.dataset.permRevokeUid, el.dataset.permLabel || '', 'revoke');
       });
     });
-  }, (err) => {
+  }
+  if (adminUsersUnsub) adminUsersUnsub();
+  adminUsersUnsub = db.collection('users').onSnapshot(renderAdminUsers, (err) => {
+    if (!adminCurrent()) return;
+    latestAdminUsers = null;
+    pendingAdminSections.delete('adminMembersStatus');
+    adminSectionStatus('adminMembersStatus', '회원 정보를 불러오지 못했습니다.', true);
+    document.getElementById('adminUserList').setAttribute('aria-busy', 'false');
     console.error('회원 목록 실시간 조회 실패', err);
     const list = document.getElementById('adminUserList');
     if (list) {
@@ -6546,6 +6586,10 @@ function renderAdmin() {
   });
 
   window.__cleanupLegacyAdminViews = () => {
+    adminViewActive = false;
+    window.__adminViewToken = null;
+    clearTimeout(adminLoadingTimer);
+    if (adminStatsUnsub) { adminStatsUnsub(); adminStatsUnsub=null; }
     if (adminUsersUnsub) { adminUsersUnsub(); adminUsersUnsub=null; }
     if (adminSeoUnsub) { adminSeoUnsub(); adminSeoUnsub=null; }
     if (adminTrafficSourceUnsub) { adminTrafficSourceUnsub(); adminTrafficSourceUnsub=null; }
@@ -11025,14 +11069,15 @@ function toggleAdminFold(id){
   box.classList.toggle('open',willOpen);
   const btn=box.querySelector('.admin-fold-toggle');
   if(btn) btn.setAttribute('aria-expanded',willOpen?'true':'false');
-  try{sessionStorage.setItem('taekilso_'+id,willOpen?'1':'0');}catch(e){}
+  try{sessionStorage.setItem('taekilso_admin_fold_v2_'+id,willOpen?'1':'0');}catch(e){}
 }
 function restoreAdminFolds(){
   document.querySelectorAll('.admin-fold').forEach(box=>{
-    box.classList.remove('open');
+    let open = box.id === 'adminFoldStats' || box.id === 'adminFoldMembers';
+    try { const saved=sessionStorage.getItem('taekilso_admin_fold_v2_'+box.id); if(saved!==null) open=saved==='1'; } catch(e) {}
+    box.classList.toggle('open',open);
     const btn=box.querySelector('.admin-fold-toggle');
-    if(btn) btn.setAttribute('aria-expanded','false');
-    try{sessionStorage.setItem('taekilso_'+box.id,'0');}catch(e){}
+    if(btn) btn.setAttribute('aria-expanded',String(open));
   });
 }
 document.addEventListener('DOMContentLoaded',restoreAdminFolds);
@@ -11045,7 +11090,7 @@ function setAdminFoldState(box,open){
   box.classList.toggle('open',!!open);
   const btn=box.querySelector('.admin-fold-toggle');
   if(btn) btn.setAttribute('aria-expanded',open?'true':'false');
-  try{sessionStorage.setItem('taekilso_'+box.id,open?'1':'0');}catch(e){}
+  try{sessionStorage.setItem('taekilso_admin_fold_v2_'+box.id,open?'1':'0');}catch(e){}
 }
 function setAllAdminFolds(open){
   document.querySelectorAll('.admin-fold').forEach(box=>setAdminFoldState(box,open));
@@ -11415,9 +11460,9 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 
 <!-- UI-only overrides follow the legacy style blocks. -->
 <link rel="stylesheet" href="premium-ui.css?v=20261111-hero-edge">
-<link rel="stylesheet" href="admin-analytics.css?v=20261113-alignment-1">
+<link rel="stylesheet" href="admin-analytics.css?v=20261113-recovery-1">
 <script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=20261111-operations"></script>
-<script src="admin-analytics.js?v=20261111-operations"></script>
+<script src="admin-analytics.js?v=20261113-recovery-1"></script>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261113-library-1"></script><script src="premium-motion.js" defer></script>
 <link rel="stylesheet" href="consultation-stage.css?v=20261113-reading-1">
 <script src="consultation-draft-core.js?v=20261112-guided-2"></script>
