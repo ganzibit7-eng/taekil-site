@@ -65,12 +65,15 @@
     };
     const jobs=[['visits','방문',()=>daily('dailyVisits')],['funnel','행동',()=>daily('dailyFunnel')],['traffic','유입',()=>daily('dailyTrafficSources')],['seo','검색 가이드',seoReport],['orders','주문',()=>db.collection('paymentOrders').orderBy('createdAt','desc').limit(1001).get({source:'server'})],['counters','누적',()=>db.collection('stats').doc('counters').get({source:'server'})]];
     try{
-      const results=await Promise.allSettled(jobs.map(([, ,run])=>Promise.resolve().then(run)));
+      const results=await Promise.allSettled(jobs.map(([, ,run])=>new Promise((resolve,reject)=>{
+        const timer=setTimeout(()=>reject(Object.assign(new Error('REPORT_TIMEOUT'),{code:'unavailable'})),20000);
+        Promise.resolve().then(run).then(resolve,reject).finally(()=>clearTimeout(timer));
+      })));
       if(token!==request||!allowed())return;
       const next={ok:{},errors:[],orders:[],visits:[],funnel:[],traffic:[],seo:[],counters:{}};
       results.forEach((result,i)=>{const [key,label]=jobs[i];next.ok[key]=result.status==='fulfilled';if(result.status==='rejected'){const reason={'permission-denied':'조회 권한 확인 필요','failed-precondition':'조회 인덱스 확인 필요','unavailable':'연결 상태 확인 필요'}[result.reason?.code]||'조회 오류';next.errors.push(label+' · '+reason);return;}const snap=result.value;if(key==='counters')next.counters=snap.exists?snap.data():{};else next[key]=snap.docs.map(doc=>({...doc.data(),id:doc.id}));if(key==='seo')next.seoCapped=!!snap.capped;});
       next.capped=next.orders.length>1000;next.orders=next.orders.slice(0,1000).filter(window.TaekilPaymentBaseline.isProductionOrder);data=next;asOf=Date.now();render();
-    }catch(e){if(allowed())status('통계를 불러오지 못했습니다. 새로고침으로 다시 시도해 주세요.');}
+    }catch(e){if(token===request&&allowed())status('통계를 불러오지 못했습니다. 새로고침으로 다시 시도해 주세요.');}
     finally{if(token===request){busy=false;button.disabled=false;}}
   }
   root.addEventListener('click',event=>{
@@ -92,7 +95,7 @@
     const visible=!!allowed(),content=document.getElementById('adminContent');
     // A direct #admin load can finish routing before the saved login is restored.
     // Re-render the existing admin view after its navigation reflects the settled login.
-    if(visible&&content.style.display==='none'&&typeof renderAdmin==='function')renderAdmin();
+    if(visible&&(content.style.display==='none'||!window.accountStore.current(window.__adminViewToken))&&typeof renderAdmin==='function')renderAdmin();
     if(!visible&&active&&document.getElementById('view-admin').classList.contains('visible')&&typeof renderAdmin==='function')renderAdmin();
     root.hidden=!visible;if(visible&&!active){active=true;load();}if(!visible&&active){active=false;busy=false;++request;data=null;root.querySelector('#aaReport').replaceChildren();root.querySelector('[data-aa-export]').disabled=true;}
   }

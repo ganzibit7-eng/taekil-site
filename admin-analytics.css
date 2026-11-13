@@ -50,3 +50,9 @@ body.admin-exclusive-mode #view-admin #adminTrafficSourceCard{display:block;widt
 #view-admin .admin-fold-toggle:hover,#view-admin #adminTrafficSourceCard:hover{background:rgba(198,170,118,.035)}
 #view-admin #adminTrafficSourceCard:focus-visible{outline:2px solid #C6AA76;outline-offset:-3px}
 @media(max-width:640px){body.admin-exclusive-mode #view-admin .admin-fold-toggle,body.admin-exclusive-mode #view-admin #adminTrafficSourceCard{min-height:92px!important;padding:20px 14px!important}#view-admin .admin-fold-title b{font-size:21px}#view-admin #trafficSourceTotal{font-size:14px;margin-left:6px}#view-admin #trafficSourceSummary,#view-admin #trafficSourceDetails>div{font-size:16px!important}}
+
+/* Keep loading and recovery visible beside the section they describe. */
+#view-admin .admin-data-status{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:4px 0 18px;color:#B6BDB5;font-size:14px;line-height:1.6}
+#view-admin .admin-data-status:empty{display:none}
+#view-admin .admin-data-status .aa-btn{font-size:14px;padding:8px 12px}
+#view-admin .admin-fold{scroll-margin-top:100px}
