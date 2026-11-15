@@ -16,7 +16,7 @@
   menu.className = 'site-menu';
   menu.setAttribute('aria-labelledby', 'siteMenuTitle');
   menu.innerHTML = `<div class="site-menu-heading">
-      <h2 id="siteMenuTitle">택일소</h2>
+      <h2 id="siteMenuTitle"><a href="/" data-site-home class="site-menu-brand" aria-label="택일소 홈">택일소</a></h2>
       <button class="site-menu-close" type="button" aria-label="전체 메뉴 닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
     </div>
     <button type="button" class="site-menu-account" aria-label="내 프로필 보기">
@@ -28,9 +28,6 @@
     </button>
     <div data-menu-account hidden></div>
     <nav class="site-menu-navigation" aria-label="전체 메뉴">
-      <a href="/" data-site-home class="site-menu-home">
-        <strong>택일소 홈</strong><span>고민에 맞는 상담사와 주제 둘러보기</span>
-      </a>
       <section class="site-menu-group" aria-labelledby="siteMenuReadings">
         <h3 id="siteMenuReadings">사주·상담</h3>
         <button type="button" data-menu-basic-report>무료 사주 리포트</button>

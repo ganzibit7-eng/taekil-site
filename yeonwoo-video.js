@@ -16,7 +16,7 @@
  ].filter(({video})=>video?.previousElementSibling).map(media=>({
   ...media, image:media.video.previousElementSibling, defaultSource:media.video.dataset.videoSrc
  }));
- videos.push(...document.querySelectorAll('[data-home-directory-video]'));
+ videos.push(...document.querySelectorAll('[data-home-directory-video], [data-year-progress-video]'));
  const allowed=()=>!reduced.matches&&!connection?.saveData&&!document.hidden;
  const visible=v=>{const s=states.get(v),r=v.getBoundingClientRect();return s.visible&&r.width>0&&r.height>0&&r.bottom>0&&r.top<innerHeight;};
  const canPlay=v=>allowed()&&visible(v)&&!(v.classList.contains('ai-chat-bgvideo')&&v.closest('.reading-focus'));
@@ -52,6 +52,7 @@
  for(const v of videos){v.muted=true;v.defaultMuted=true;v.loop=true;v.playsInline=true;v.autoplay=false;v.preload='none';v.setAttribute('muted','');v.setAttribute('playsinline','');v.setAttribute('aria-hidden','true');states.set(v,{visible:false,failed:false,pending:false});v.addEventListener('error',()=>{states.get(v).failed=true;pause(v);});v.addEventListener('playing',()=>{if(canPlay(v))v.classList.add('yeonwoo-playing');else pause(v);});observer?.observe(v);}
  document.addEventListener('visibilitychange',all);reduced.addEventListener('change',all);connection?.addEventListener?.('change',all);
  const home=document.getElementById('view-home');if(home)new MutationObserver(all).observe(home,{attributes:true,attributeFilter:['class']});
+ const newyear=document.getElementById('view-newyear');if(newyear)new MutationObserver(all).observe(newyear,{attributes:true,attributeFilter:['class']});
  if(setup)new MutationObserver(all).observe(setup,{attributes:true,attributeFilter:['style','data-entry-topic']});
  if(stageContainer)new MutationObserver(all).observe(stageContainer,{attributes:true,attributeFilter:['data-chat-consultant']});
  // Browsers without visibility observation retain the original posters.

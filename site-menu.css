@@ -22,6 +22,9 @@ html.site-menu-open{overflow:hidden!important;scrollbar-gutter:stable}
   background:#111916;border-bottom:1px solid var(--menu-line);
 }
 .site-menu-heading h2{font:600 27px/1.4 var(--serif);letter-spacing:-.045em;margin:0}
+.site-menu-brand{display:inline-flex;align-items:center;min-height:44px;color:inherit;text-decoration:none}
+.site-menu-brand:hover{color:#dfc69c}
+.site-menu-brand:focus-visible{outline:2px solid #dfc69c;outline-offset:4px}
 .site-menu-account{
   width:100%;
   box-sizing:border-box;
@@ -46,13 +49,6 @@ html.site-menu-open{overflow:hidden!important;scrollbar-gutter:stable}
 .site-menu-account #siteMenuAccountNote{display:block;color:#f0ebe1;font:500 16px/1.5 var(--sans)}
 .site-menu [data-menu-account][hidden]{display:none!important}
 .site-menu-navigation{display:grid;gap:19px;margin-top:17px}
-.site-menu-home{
-  display:grid;gap:2px;padding:11px 13px;border:1px solid var(--menu-line);border-radius:8px;
-  color:#f0ebe1;background:#f0ebe106;text-decoration:none;white-space:normal;
-}
-.site-menu-home strong{font:600 19px/1.45 var(--serif);letter-spacing:-.035em}
-.site-menu-home span{color:#bfc6bb;font:400 13px/1.5 var(--sans)}
-.site-menu-home:hover,.site-menu-home[aria-current=page]{border-color:#c6aa7650;background:#c6aa760a}
 .site-menu-group{border-top:1px solid var(--menu-line);padding-top:13px}
 .site-menu-group h3{margin:0 0 5px;color:#d5c8b3;font:600 15px/1.5 var(--serif);letter-spacing:-.02em}
 .site-menu-group button{
