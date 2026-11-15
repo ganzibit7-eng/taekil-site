@@ -26,6 +26,34 @@
           ['지금 직장', '기획부터 실행까지 내가 맡아요.', '다음 분기부터 역할이 넓어질 수 있어요.'],
           ['새 팀의 제안', '해보고 싶던 프로젝트에 합류해요.', '어디까지 결정할 수 있을지는 아직 몰라요.']
         ],
+        chapters: [
+          {
+            label: '답장 전날',
+            title: '제안서에 적힌 일과 실제로 하게 될 일',
+            paragraphs: [
+              '오전 회의가 끝나자 팀장이 다음 분기 프로젝트를 맡아보겠냐고 묻습니다. 지금 팀에서는 고객을 만나 문제를 정리하고 실행 순서까지 직접 정해왔어요. 다만 다음 역할이 언제 시작될지는 아직 모릅니다.',
+              '퇴근 후에는 새 회사의 제안서를 다시 펼칩니다. 오래 해보고 싶었던 사업이지만, 면접에서 들은 “다 같이 결정하는 팀”이라는 말이 마음에 걸려요. 입사 후 첫 일주일에 내가 어떤 일을 맡고 어디까지 정할 수 있을지 적어보니, 두 자리에서 묻고 싶은 것이 달라집니다.'
+            ]
+          },
+          {
+            label: '무진과 살펴볼 근거',
+            title: '어떤 일을 했을 때 내 판단이 빛났나요',
+            paragraphs: [
+              '무진은 먼저 일이 잘 풀렸던 하루를 물어요. 흩어진 요청을 정리할 때였는지, 계획을 실제 결과로 바꿀 때였는지, 의견이 다른 사람들 사이에서 기준을 잡을 때였는지요.',
+              '명식에서는 일간과 주변 십성처럼 일의 방식에 연결해 볼 수 있는 요소를 살핍니다. 풀이에서 드러난 강점을 실제로 해낸 일에 대입해 보고, 새 자리에서도 그 일을 해볼 권한과 지원이 있는지 확인할 질문으로 바꿉니다.'
+            ],
+            quote: '제가 입사하면 첫 석 달 동안 어떤 결과를 맡고, 어떤 결정까지 직접 내릴 수 있나요?',
+            caption: '새 팀에 물어볼 질문 예시'
+          },
+          {
+            label: '금요일에 남길 메모',
+            title: '놓치고 싶지 않은 조건부터 정해 보세요',
+            paragraphs: [
+              '일하는 순서를 내가 정할 수 있는 게 중요하다면, 두 팀의 승인 과정부터 비교해요. 역할을 넓히는 게 목표라면 직함 옆에 업무 범위와 결정권을 나란히 써봅니다. 평가가 가장 걱정된다면 누가 무엇을 보고 첫 석 달을 평가하는지 물어보세요.',
+              '지금 팀에서도 같은 기준으로 답을 받아두면 마음이 흔들리는 이유가 또렷해집니다. 아직 확인할 조건이 있다면 답변 기한을 하루 더 요청할 수도 있어요.'
+            ]
+          }
+        ],
         questionTitle: '두 자리 사이에서 무엇이 가장 고민인가요?',
         choices: [
           ['일하는 방식', '지금은 업무 방식과 일정을 제가 정하는 편이에요. 새 팀에서도 자율성이 중요할지 제 사주에서 업무 강점을 보고, 면접에서 확인할 질문을 알려주세요.'],
@@ -49,6 +77,34 @@
         media: 'ijun',
         heading: '보내지 않은 메시지',
         message: '잘 지내? 그때 내가 왜 그렇게 말했는지, 괜찮다면 한 번 이야기하고 싶어.',
+        chapters: [
+          {
+            label: '메시지를 쓴 밤',
+            title: '안부 한 줄을 쓰는데 지난 대화가 떠올랐어요',
+            paragraphs: [
+              '마지막 다툼에서 상대는 대화를 잠시 멈추고 싶다고 했습니다. 그 말을 듣고 마음이 멀어졌다고 생각해 답을 재촉했고, 상대는 더 조용해졌어요. 한 달이 지난 오늘은 같은 장면을 떠올리며 그때 내가 정말 듣고 싶었던 말이 무엇이었는지 처음 생각해 봅니다.',
+              '처음에는 “나도 많이 힘들었어”라고 쓰려다 지웠어요. 미안하다는 말을 건네고 싶은 건지, 다시 만나자는 답을 받고 싶은 건지 스스로에게 먼저 물었습니다. 두 마음이 다 있다는 걸 알아차리고 나니, 어디까지를 이번 연락에 담을지 조금 선명해집니다.'
+            ],
+            quote: '답장이 늦거나 오지 않아도, 이 한 문장을 보낸 마음을 스스로 받아들일 수 있을까요?',
+            caption: '보내기 전에 스스로에게 물어볼 말'
+          },
+          {
+            label: '이준과 살펴볼 근거',
+            title: '예전에 같은 말로 돌아간 순간부터',
+            paragraphs: [
+              '이준은 그리웠던 날과 관계에서 긴장했던 날을 짧게 나눠 들여다봅니다. 연락 간격이 조금만 길어져도 이유를 묻게 됐는지, 서운한 말을 참다가 한 번에 전했는지처럼 구체적인 장면이 풀이의 출발점이 돼요.',
+              '예시 답변에서는 월지 지장간에 계산된 정관을 책임과 기준의 관점으로 풉니다. 그 해석을 실제 갈등에 대입해 내가 기대했던 약속이 무엇이고, 그 약속을 어떻게 이야기해 볼 수 있는지 정리합니다.'
+            ]
+          },
+          {
+            label: '메시지를 보내기 전',
+            title: '연락한 뒤에도 지킬 수 있는 기준이 있나요',
+            paragraphs: [
+              '지금 연락하고 싶다면 전하고 싶은 말 하나를 남겨보세요. 대화할 의향을 한 번 묻고, 답을 줄 시간도 상대에게 남겨두는 방식입니다. 상대가 이미 연락을 원하지 않는다고 말했다면 그 의사를 존중해 주세요.',
+              '조금 더 기다리고 싶다면 시간이 얼마나 흘렀는지와 함께 달라진 행동을 살펴보세요. 비슷하게 불안한 상황에서 내 마음을 어떻게 말해봤는지, 예전과 달리 서로가 지킬 수 있는 약속이 생겼는지가 기준이 될 수 있어요.'
+            ]
+          }
+        ],
         questionTitle: '지금 어떤 마음에 더 가까운가요?',
         choices: [
           ['지금 연락하고 싶어요', '헤어진 사람에게 사과하고 싶어 안부를 써뒀어요. 제 사주에서 갈등 뒤 반복하기 쉬운 대화 방식을 짚고, 연락하기 전에 확인할 변화와 지킬 경계를 알려주세요.'],
@@ -84,6 +140,34 @@
         media: 'daon',
         heading: '야근한 주의 영수증',
         receipts: [['늦은 저녁 배달', '18,500원'], ['배달비', '3,500원'], ['퇴근길 소액 주문', '8,900원'], ['합계', '30,900원']],
+        chapters: [
+          {
+            label: '금요일 퇴근길',
+            title: '8,900원을 결제한 뒤 저축 알림을 미뤘어요',
+            paragraphs: [
+              '물건을 주문할 때는 이번 한 번쯤 괜찮겠다고 생각했어요. 며칠 전 야근 뒤에는 지하철에서 배달을 주문하면서 배달비까지 눌렀고요. 그런데 저축할 날이 되자 같은 주에 있었던 결제가 한꺼번에 떠올랐습니다.',
+              '영수증 옆에 결제 이유를 적어 봅니다. 배달 메뉴는 고민을 멈추고 빨리 쉬고 싶어서, 소액 주문은 할인 표시를 놓치기 싫어서였어요. 같은 주에 쓴 돈이어도 버튼을 누르게 만든 이유는 달랐습니다.'
+            ]
+          },
+          {
+            label: '다온과 살펴볼 근거',
+            title: '장부에 금액 대신 한 줄을 더 적는다면',
+            paragraphs: [
+              '다온은 자주 돈을 쓰는 곳과 소비 기준이 흔들리는 순간을 나눠 묻습니다. 바쁜 날에는 시간을 사는 데 돈을 쓰고, 여유로운 날에는 할인 품목을 오래 보는 사람이라면 같은 규칙을 두 상황에 적용하기 어렵기 때문이에요.',
+              '상담에서는 재물과 관련해 확인된 명식의 근거를 평소 선택과 함께 살펴봅니다. 풀이에서 나온 가설은 사용자가 떠올린 결제 장면과 대조하고, 다음에 비슷한 상황이 왔을 때 써볼 한 가지 행동으로 이어갑니다.'
+            ],
+            quote: '그날 장바구니에서 가장 급했던 건 끼니였나요, 쉬는 시간이었나요?',
+            caption: '결제 직전의 상황을 돌아보는 질문 예시'
+          },
+          {
+            label: '다음 주에 해볼 작은 실험',
+            title: '세 가지를 한꺼번에 바꾸지 않아도 돼요',
+            paragraphs: [
+              '야근 뒤 배달이 반복된다면 배달비까지 포함해 편하게 낼 금액을 퇴근 전에 정해볼 수 있어요. 소액 주문이 고민이라면 물건 하나를 장바구니에 남겼다가 다음 날에도 필요한지 보는 방법이 있습니다.',
+              '저축을 미루는 날이 반복된다면 급여가 들어오는 날에 부담 없는 금액부터 옮기고, 남은 생활비로 한 주를 보내보세요. 어느 순간이 가장 자주 돌아오는지 고르면 다온과 그 상황부터 이야기할 수 있어요.'
+            ]
+          }
+        ],
         questionTitle: '내 소비에서 먼저 보고 싶은 건 무엇인가요?',
         choices: [
           ['야근 뒤 배달', '야근하고 돌아오면 예산을 정해도 배달비까지 결제해요. 제 사주에서 피곤한 날 소비 기준이 흔들리는 패턴을 살피고, 다음 야근 날 적용할 기준을 알려주세요.'],
@@ -134,9 +218,37 @@
     return scene;
   }
 
+  function makeChapter(chapter, portrait) {
+    const section = make('section', '', 'consultation-story-chapter');
+    const prose = make('div');
+    prose.append(
+      make('p', chapter.label, 'consultation-story-label'),
+      make('h2', chapter.title),
+      ...chapter.paragraphs.map(paragraph => make('p', paragraph, 'consultation-story-prose'))
+    );
+    if (chapter.quote) {
+      const figure = make('figure', '', 'consultation-story-aside');
+      figure.append(make('blockquote', chapter.quote), make('figcaption', chapter.caption));
+      prose.append(figure);
+    }
+    section.append(prose);
+    if (portrait) {
+      section.classList.add('consultation-story-chapter-portrait');
+      const image = make('img');
+      image.src = portrait;
+      image.alt = '';
+      image.loading = 'lazy';
+      image.decoding = 'async';
+      section.append(image);
+    }
+    return section;
+  }
+
   function addChoices(entry, feature, key, question, start) {
     const choices = make('fieldset', '', 'consultation-story-choices');
-    choices.append(make('legend', feature.questionTitle));
+    const legend = make('legend', feature.questionTitle);
+    legend.tabIndex = -1;
+    choices.append(legend);
     feature.choices.forEach(([label, text], index) => {
       const option = make('label', '', 'consultation-story-choice');
       const input = make('input');
@@ -157,6 +269,7 @@
     });
     question.setAttribute('aria-live', 'polite');
     entry.append(choices, make('p', '상담 첫 질문으로 이어지는 문장', 'consultation-story-question-label'), question, start);
+    return legend;
   }
 
   for (const card of document.querySelectorAll('#homeDirectory [data-story-topic]')) {
@@ -197,7 +310,8 @@
 
     const body = make('div', '', 'consultation-story-body');
     if (feature) {
-      body.append(makeScene(feature));
+      const [opening, reading] = feature.chapters;
+      body.append(makeScene(feature), makeChapter(opening), makeChapter(reading, advisor.portrait));
     } else {
       const scope = make('section', '', 'consultation-story-scope');
       const points = make('ul');
@@ -206,18 +320,11 @@
       body.append(scope);
     }
 
-    let exampleSection;
     const sample = story.example && document.getElementById(story.example)?.querySelector('figure');
     if (sample) {
       const quote = make('section', '', 'consultation-story-example');
-      const heading = '가상 사주로 받은 실제 답변';
-      if (feature) {
-        const details = make('details');
-        details.append(make('summary', heading), sample.cloneNode(true));
-        quote.append(details);
-      } else quote.append(make('h2', heading), sample.cloneNode(true));
-      if (feature) exampleSection = quote;
-      else body.append(quote);
+      quote.append(make('h2', '가상 사주로 받은 실제 답변'), sample.cloneNode(true));
+      body.append(quote);
     }
 
     const entry = make('section', '', 'consultation-story-entry');
@@ -226,10 +333,19 @@
     start.type = 'button';
     start.dataset.storyStart = key;
     start.setAttribute('data-home-consultation', '');
-    if (feature) addChoices(entry, feature, key, question, start);
-    else entry.append(make('h2', '이 질문으로 시작할 수 있어요'), question, start);
+    if (feature) {
+      body.append(makeChapter(feature.chapters.at(-1)));
+      const legend = addChoices(entry, feature, key, question, start);
+      const jump = make('button', '내 상황 먼저 고르기', 'consultation-story-jump');
+      jump.type = 'button';
+      jump.addEventListener('click', () => {
+        const behavior = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth';
+        legend.focus({preventScroll:true});
+        entry.scrollIntoView({block:'start', behavior});
+      });
+      intro.append(jump);
+    } else entry.append(make('h2', '이 질문으로 시작할 수 있어요'), question, start);
     body.append(entry);
-    if (exampleSection) body.append(exampleSection);
     view.replaceChildren(hero, body);
     const focusTitle = () => { if (view.classList.contains('visible')) title.focus({preventScroll:true}); };
     new MutationObserver(focusTitle).observe(view, {attributes:true,attributeFilter:['class']});
