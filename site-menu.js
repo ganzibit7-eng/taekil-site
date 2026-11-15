@@ -25,7 +25,7 @@
     </button>
     <div data-menu-account hidden></div>
     <nav aria-label="전체 메뉴">
-      <div class="site-menu-group"><h3>연우와 함께</h3><button data-menu-route="home">홈 · 연우 상담</button><button data-menu-basic-report type="button">무료 사주 리포트</button><button data-menu-route="tool">사주 · 날짜 찾기</button><button data-menu-route="newyear">2027 신년상담</button><button data-menu-route="history">나의 상담 기록</button></div>
+      <div class="site-menu-group"><h3>연우와 함께</h3><button data-menu-route="home">택일소 홈</button><button data-menu-basic-report type="button">무료 사주 리포트</button><button data-menu-route="tool">사주 · 날짜 찾기</button><button data-menu-route="newyear">2027 신년상담</button><button data-menu-route="history">나의 상담 기록</button></div>
       <div class="site-menu-group"><h3>중요한 날을 위해</h3><div class="site-menu-dates"><button data-menu-route="wedding">결혼식 택일</button><button data-menu-route="moving">이사 택일</button><button data-menu-route="opening">개업 택일</button><button data-menu-route="contract">계약 택일</button></div></div>
       <div class="site-menu-group site-menu-secondary"><h3>이용 안내</h3><button data-menu-route="plans">이용권 안내</button><button data-menu-route="services">서비스 안내</button><button data-menu-route="support">1:1 문의</button></div>
     </nav><p class="site-menu-signature">나의 때를 살피는 곳, 택일소</p>`;
@@ -77,6 +77,10 @@
   });
   menu.querySelectorAll('[data-menu-route]').forEach(button => button.addEventListener('click', () => {
     close(false);
+    if (button.dataset.menuRoute === 'home' && document.documentElement.dataset.homeLayout === 'consultation') {
+      location.assign('/');
+      return;
+    }
     goTo(button.dataset.menuRoute);
     trigger.focus({ preventScroll: true });
   }));

@@ -8,6 +8,7 @@
  }
  const stage=document.querySelector('video.ai-chat-bgvideo');if(stage)videos.push(stage);
  const entry=document.querySelector('video.ai-chat-entry-media');if(entry)videos.push(entry);
+ const directory=document.querySelector('[data-home-directory-video]');if(directory)videos.push(directory);
  const allowed=()=>!reduced.matches&&!connection?.saveData&&!document.hidden;
  const visible=v=>{const s=states.get(v),r=v.getBoundingClientRect();return s.visible&&r.width>0&&r.height>0&&r.bottom>0&&r.top<innerHeight;};
  const canPlay=v=>allowed()&&visible(v)&&!(v.classList.contains('ai-chat-bgvideo')&&v.closest('.reading-focus'));
