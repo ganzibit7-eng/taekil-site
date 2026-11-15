@@ -14,6 +14,7 @@ function fixture({ storage = new Map(), send, hostname = 'taekilso.com' } = {}) 
   const events = [];
   const timers = new Map();
   const listeners = new Map();
+  const excerpts = Array.from({ length: 3 }, () => ({hidden:false,closest(){return this.hidden ? this : null;}}));
   const window = {
     TaekilCampaign: { emitPreview: async field => {
       events.push(field);
@@ -24,7 +25,7 @@ function fixture({ storage = new Map(), send, hostname = 'taekilso.com' } = {}) 
   };
   const document = {
     hidden: false,
-    querySelector: () => ({}),
+    querySelectorAll: () => excerpts,
     addEventListener: (name, fn) => listeners.set(name, fn),
   };
   class FakeDate extends Date {
@@ -42,8 +43,8 @@ function fixture({ storage = new Map(), send, hostname = 'taekilso.com' } = {}) 
     clearTimeout: id => timers.delete(id),
   });
   return {
-    window, document, events, storage,
-    intersect: ratio => intersect([{ isIntersecting: ratio > 0, intersectionRatio: ratio }]),
+    window, document, events, storage, excerpts,
+    intersect: (ratio,index=0) => intersect([{ target:excerpts[index], isIntersecting: ratio > 0, intersectionRatio: ratio }]),
     dispatch: event => listeners.get(event)?.(),
     tick: () => { for(const [id,fn] of [...timers]) { timers.delete(id); fn(); } },
     advance: ms => { time += ms; },
@@ -66,6 +67,20 @@ test('brief and hidden visits do not count, and a confirmed view is sent once', 
   await settle();
   f.intersect(0);
   f.intersect(.9);
+  f.tick();
+  assert.deepEqual(f.events,['previewViews']);
+});
+
+test('switching to another example can qualify without counting hidden panels', async () => {
+  const f = fixture();
+  f.intersect(.8);
+  f.excerpts[0].hidden = true;
+  f.tick();
+  assert.deepEqual(f.events,[]);
+  f.intersect(.9,1);
+  f.tick();
+  await settle();
+  f.intersect(.9,2);
   f.tick();
   assert.deepEqual(f.events,['previewViews']);
 });

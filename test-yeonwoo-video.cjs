@@ -8,7 +8,7 @@ function harness({reduced=false,saveData=false,reject=false,observer=true}={}){
  const video={dataset:{videoSrc:'assets/yeonwoo-listening.mp4'},paused:true,loads:0,plays:0,attrs:{},classList:{add:c=>classes.add(c),remove:c=>classes.delete(c),contains:c=>c==='ai-chat-bgvideo'||classes.has(c)},closest:()=>classes.has('reading-focus')?{}:null,getAttribute(k){return this.attrs[k]||null},setAttribute(k,v){this.attrs[k]=v},set src(v){this.attrs.src=v},getBoundingClientRect:()=>({width:390,height:630,top:0,bottom:630}),load(){this.loads++},play(){this.plays++;if(reject)return Promise.reject(new Error('blocked'));this.paused=false;return Promise.resolve()},pause(){this.paused=true},addEventListener:(k,v)=>items[k]=v};
  const media={matches:reduced,addEventListener:(k,v)=>mediaEvents[k]=v};
  const connection={saveData,addEventListener:(k,v)=>connectionEvents[k]=v};
- const document={hidden:false,querySelector:s=>s==='video.ai-chat-bgvideo'?video:null,getElementById:()=>null,addEventListener:(k,v)=>events[k]=v};
+ const document={hidden:false,querySelector:s=>s==='video.ai-chat-bgvideo'?video:null,querySelectorAll:()=>[],getElementById:()=>null,addEventListener:(k,v)=>events[k]=v};
  const context={document,navigator:{connection},matchMedia:()=>media,innerHeight:850,window:{...(observer?{IntersectionObserver:true}:{}),addEventListener:(k,v)=>events[k]=v},IntersectionObserver:class{constructor(cb){intersect=cb}observe(){}},Promise};
  vm.runInNewContext(fs.readFileSync(__dirname+'/yeonwoo-video.js','utf8'),context);
  const tick=()=>new Promise(resolve=>setImmediate(resolve));
