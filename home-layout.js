@@ -27,12 +27,13 @@
         let next = null;
         if (rail.clientWidth && rail.scrollWidth - rail.clientWidth > 1) {
           const bounds = rail.getBoundingClientRect();
-          let widest = 0;
+          const center = (bounds.left + bounds.right) / 2;
+          let nearest = Infinity;
           for (const card of rail.children) {
             const box = card.getBoundingClientRect();
-            const visible = Math.min(bounds.right, box.right) - Math.max(bounds.left, box.left);
-            if (visible > widest) {
-              widest = visible;
+            const distance = Math.abs((box.left + box.right) / 2 - center);
+            if (distance < nearest) {
+              nearest = distance;
               next = card;
             }
           }

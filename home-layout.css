@@ -478,27 +478,35 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
 @media (max-width: 979px) {
   .directory-characters,
   .directory-cards {
-    grid-template-columns: none;
-    grid-auto-flow: column;
-    grid-auto-columns: min(66%, 264px);
-    gap: 12px;
+    --rail-card: min(66%, 264px);
+    --rail-gap: 12px;
+    display: flex;
+    gap: var(--rail-gap);
     margin-inline: -5px;
-    padding: 5px 5px 9px;
+    padding: 5px 0 9px;
     overflow-x: auto;
     overscroll-behavior-inline: contain;
-    scroll-snap-type: x proximity;
-    scroll-padding-inline: 5px;
+    scroll-snap-type: x mandatory;
     scrollbar-width: thin;
     scrollbar-color: #7c7561 transparent;
   }
-  .directory-characters > *,
-  .directory-cards > * { scroll-snap-align: start; }
+  :is(.directory-characters, .directory-cards)::before,
+  :is(.directory-characters, .directory-cards)::after {
+    content: '';
+    flex: 0 0 max(0px, calc((100% - var(--rail-card)) / 2 - var(--rail-gap)));
+  }
+  :is(.directory-characters, .directory-cards) > * {
+    flex: 0 0 var(--rail-card);
+    min-width: 0;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
   .home-directory :is(.directory-character, .directory-card)[data-rail-current] {
     border-color: #c6aa768c;
   }
   @media (prefers-reduced-motion: no-preference) {
     .home-directory :is(.directory-character, .directory-card)[data-rail-current] img {
-      transform: scale(1.025);
+      transform: scale(1.035);
       filter: brightness(1.045) saturate(1.035);
     }
   }
