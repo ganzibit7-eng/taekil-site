@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="/home-layout.js?v=20261115-rail-start"></script>
-<link rel="stylesheet" href="/home-layout.css?v=20261115-year-directory">
+<script src="/home-layout.js?v=20261115-faq-page"></script>
+<link rel="stylesheet" href="/home-layout.css?v=20261115-faq-page">
 <title>택일소 | AI 사주 상담 · 오늘의 운세 · 결혼·이사·개업 택일</title>
 <meta name="description" content="AI 사주 상담가 연우에게 오늘의 운세, 연애운, 재물운, 궁합을 묻고 결혼·이사·개업·계약 날짜까지 비교해보세요. 첫 질문 3개 무료.">
 <meta name="keywords" content="사주, 사주풀이, 무료사주, 사주궁합, 오늘의운세, 신년운세, 택일, 결혼택일, 이사택일, 개업택일, 손없는날, 만세력">
@@ -2238,7 +2238,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <div class="topbar">
   <div class="container">
     <div class="nav">
-      <div class="brand" onclick="goTo('home')"><span class="brand-mark"><svg class="taekilso-symbol" data-brand-symbol viewBox="0 0 40 40" fill="none" aria-hidden="true" focusable="false"><image href="/assets/brand-emblem-transparent.png?v=20261111-1" width="40" height="40"/></svg></span>택일소</div>
+      <a class="brand" href="/" data-site-home aria-label="택일소 홈"><span class="brand-mark"><svg class="taekilso-symbol" data-brand-symbol viewBox="0 0 40 40" fill="none" aria-hidden="true" focusable="false"><image href="/assets/brand-emblem-transparent.png?v=20261111-1" width="40" height="40"/></svg></span>택일소</a>
       <div class="nav-right">
         <div class="nav-links" id="navLinks">
           <a data-route="home" onclick="goTo('home')" style="color:var(--gold-hi); font-weight:700;">✨ AI사주</a>
@@ -2483,6 +2483,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <nav class="directory-utility" aria-label="택일소 서비스 안내">
       <a href="#services" onclick="goTo('services');return false;">서비스 안내</a>
       <a href="#plans" onclick="goTo('plans');return false;">이용권 안내</a>
+      <a href="#faq">자주 묻는 질문</a>
     </nav>
   </div>
   <div class="block home-first-block" style="padding-bottom:8px;">
@@ -2634,7 +2635,16 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <div class="container" style="max-width:760px;">
       <details id="homeFaqFold" class="home-faq-fold">
       <summary><h2 class="section-title">자주 묻는 질문</h2></summary>
-      <div class="faq-list">
+      <div class="faq-list" data-home-faq-list></div>
+      </details>
+    </div>
+  </section>
+</section>
+
+<section id="view-faq" class="view" aria-labelledby="faqPageTitle">
+  <div class="faq-page">
+    <h1 id="faqPageTitle">자주 묻는 질문</h1>
+    <div id="faqViewList" class="faq-list">
         <details class="faq-item"><summary>결과는 얼마나 정확한가요?</summary><p>전통 명리학의 오행 상생상극 원리를 단순화해 참고용으로 제공하는 도구예요. 실제 중요한 결정은 여러 정보를 함께 고려하시길 권합니다.</p></details>
         <details class="faq-item"><summary>태어난 시간을 몰라도 되나요?</summary><p>네, 이용할 수 있어요. 출생시간을 모르면 년·월·일주 등 확인 가능한 범위로 분석하고, 출생시간을 입력하면 시주까지 포함해 AI 상담의 해석 범위가 더 넓어집니다. 출생시간이 필요한 일부 해석은 제공 범위가 달라질 수 있어요.</p></details>
         <details class="faq-item"><summary>AI 상담도 회원가입 없이 가능한가요?</summary><p>AI 사주 상담은 로그인 후 이용할 수 있으며, 처음 가입하면 3회 무료입니다. 카드등록이나 결제 없이 시작할 수 있어요. 기본 택일 기능은 회원가입 없이도 이용할 수 있습니다.</p></details>
@@ -2643,10 +2653,12 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <details class="faq-item"><summary>AI가 사주를 대신 봐주나요?</summary><p>택일소의 날짜 추천은 정해진 오행·일진 기준으로 계산됩니다. 생성형 AI가 임의로 운세를 만들어내는 방식과 달리, 계산 기준을 먼저 고정하고 결과를 설명하는 방향을 우선합니다.</p></details>
         <details class="faq-item"><summary>유료 결제하면 무엇이 달라지나요?</summary><p>무료에서는 AI 상담 평생 3개와 최대 30일·TOP 5 중심으로 확인하고, 프리미엄에서는 <b>AI 상담 하루 10개</b>와 최대 365일 후보·TOP 20·월별 베스트·두 사람 궁합 택일·상세 리포트와 전체 캘린더, 정밀사주·궁합·재물 심층 분석을 <b>30일간</b> 이용할 수 있습니다.</p></details>
         <details class="faq-item"><summary>결과를 저장하거나 출력할 수 있나요?</summary><p>추천 결과는 브라우저 인쇄 기능으로 PDF 저장이 가능해요. 로그인 상태에서는 사주 보관함을 계정과 동기화해 다른 기기에서도 다시 불러올 수 있도록 구성했습니다.</p></details>
-      </div>
-      </details>
     </div>
-  </section>
+    <div class="faq-page-support">
+      <p>찾는 답이 없으신가요?</p>
+      <a href="#support">1:1 문의</a>
+    </div>
+  </div>
 </section>
 
 <section id="view-services" class="view premium-services-view"><header class="hero hero-sm"><div class="hero-inner"><div class="eyebrow">택일소의 서비스</div><h1>지금 필요한 이야기를<br>골라보세요.</h1><p class="hero-copy">사주와 궁합, 오늘의 흐름부터 중요한 날짜까지.<br>궁금한 주제에 맞춰 이어갈 수 있어요.</p><div class="hero-actions"><button class="btn" onclick="goTo('plans')">이용권 안내</button><button class="btn" onclick="goTo('home')">연우에게 돌아가기</button></div></div></header><section class="block"><div class="container service-topics"><div class="home-conversion-question">오늘 가장 궁금한 건 무엇인가요?</div>
@@ -11622,7 +11634,7 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=20261111-operations"></script>
 <script src="admin-analytics.js?v=20261113-recovery-1"></script>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261115-topic-motion"></script><script src="premium-motion.js" defer></script>
-<link rel="stylesheet" href="consultation-stage.css?v=20261115-portrait-room">
+<link rel="stylesheet" href="consultation-stage.css?v=20261115-translucent-chat">
 <script src="consultation-personas.js?v=20261115-representative-motion"></script>
 <script src="consultation-draft-core.js?v=20261115-personas"></script>
 <script src="consultation-stage.js?v=20261115-portrait-room"></script>
@@ -11642,7 +11654,7 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <link rel="stylesheet" href="consultation-quality.css?v=20261111-2">
 <script src="support-channels.js?v=20261111-refund"></script>
 <script src="consultation-quality.js?v=20261111-experience"></script>
-<link rel="stylesheet" href="site-menu.css?v=20261111-3"><script src="site-menu.js?v=20261115-directory-1"></script>
+<link rel="stylesheet" href="site-menu.css?v=20261115-home-menu"><script src="site-menu.js?v=20261115-home-menu"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=20261111-2">
 <script src="account-session.js?v=20261115-personas"></script>
 <script src="campaign-attribution-core.js?v=20261111-1"></script><script src="campaign-attribution.js?v=20261111-1"></script>

@@ -15,20 +15,46 @@
   menu.id = 'siteMenu';
   menu.className = 'site-menu';
   menu.setAttribute('aria-labelledby', 'siteMenuTitle');
-  menu.innerHTML = `<div class="site-menu-heading"><h2 id="siteMenuTitle">택일소</h2><button class="site-menu-close" type="button" aria-label="전체 메뉴 닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+  menu.innerHTML = `<div class="site-menu-heading">
+      <h2 id="siteMenuTitle">택일소</h2>
+      <button class="site-menu-close" type="button" aria-label="전체 메뉴 닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    </div>
     <button type="button" class="site-menu-account" aria-label="내 프로필 보기">
-      <img class="site-menu-account-mark" src="/assets/brand-emblem-transparent.png?v=20261111-1" width="46" height="46" alt="">
+      <img class="site-menu-account-mark" src="/assets/brand-emblem-transparent.png?v=20261111-1" width="40" height="40" alt="">
       <span class="site-menu-account-copy">
         <span class="site-menu-caption">나의 택일소</span>
         <span id="siteMenuAccountNote"></span>
       </span>
     </button>
     <div data-menu-account hidden></div>
-    <nav aria-label="전체 메뉴">
-      <div class="site-menu-group"><h3>연우와 함께</h3><button data-menu-route="home">택일소 홈</button><button data-menu-basic-report type="button">무료 사주 리포트</button><button data-menu-route="tool">사주 · 날짜 찾기</button><button data-menu-route="newyear">2027 신년상담</button><button data-menu-route="history">나의 상담 기록</button></div>
-      <div class="site-menu-group"><h3>중요한 날을 위해</h3><div class="site-menu-dates"><button data-menu-route="wedding">결혼식 택일</button><button data-menu-route="moving">이사 택일</button><button data-menu-route="opening">개업 택일</button><button data-menu-route="contract">계약 택일</button></div></div>
-      <div class="site-menu-group site-menu-secondary"><h3>이용 안내</h3><button data-menu-route="plans">이용권 안내</button><button data-menu-route="services">서비스 안내</button><button data-menu-route="support">1:1 문의</button></div>
-    </nav><p class="site-menu-signature">나의 때를 살피는 곳, 택일소</p>`;
+    <nav class="site-menu-navigation" aria-label="전체 메뉴">
+      <a href="/" data-site-home class="site-menu-home">
+        <strong>택일소 홈</strong><span>고민에 맞는 상담사와 주제 둘러보기</span>
+      </a>
+      <section class="site-menu-group" aria-labelledby="siteMenuReadings">
+        <h3 id="siteMenuReadings">사주·상담</h3>
+        <button type="button" data-menu-basic-report>무료 사주 리포트</button>
+        <button type="button" data-menu-route="newyear">2027년 신년상담</button>
+        <button type="button" data-menu-route="history">나의 상담 기록</button>
+      </section>
+      <section class="site-menu-group" aria-labelledby="siteMenuDates">
+        <h3 id="siteMenuDates">중요한 날짜</h3>
+        <button type="button" data-menu-route="tool">좋은 날짜 찾기</button>
+        <div class="site-menu-dates">
+          <button type="button" data-menu-route="wedding">결혼식 택일</button>
+          <button type="button" data-menu-route="moving">이사 택일</button>
+          <button type="button" data-menu-route="opening">개업 택일</button>
+          <button type="button" data-menu-route="contract">계약 택일</button>
+        </div>
+      </section>
+      <section class="site-menu-group site-menu-secondary" aria-labelledby="siteMenuHelp">
+        <h3 id="siteMenuHelp">이용 안내</h3>
+        <button type="button" data-menu-route="plans">이용권 안내</button>
+        <button type="button" data-menu-route="services">서비스 안내</button>
+        <button type="button" data-menu-route="faq">자주 묻는 질문</button>
+        <button type="button" data-menu-route="support">1:1 문의</button>
+      </section>
+    </nav>`;
   menu.querySelector('[data-menu-account]').append(account);
   account.setAttribute('role', 'button');
   account.setAttribute('aria-describedby', 'siteMenuAccountNote');
@@ -51,6 +77,11 @@
     if (restoreFocus) trigger.focus({ preventScroll: true });
   };
   trigger.addEventListener('click', () => {
+    const homeLink = menu.querySelector('[data-site-home]');
+    const onDirectory = document.documentElement.dataset.homeLayout === 'directory' &&
+      document.getElementById('view-home')?.classList.contains('visible');
+    if (onDirectory) homeLink.setAttribute('aria-current', 'page');
+    else homeLink.removeAttribute('aria-current');
     menu.querySelectorAll('[data-menu-route]').forEach(button => {
       const active = document.getElementById('view-' + button.dataset.menuRoute)?.classList.contains('visible');
       if (active) button.setAttribute('aria-current', 'page');
@@ -75,12 +106,19 @@
     close();
     openSajuInsight('profile');
   });
+  document.querySelectorAll('a[data-site-home]').forEach(link => link.addEventListener('click', event => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    // The ad landing uses its query string (or #ai-chat) to select a different home surface.
+    // Let the real link open the directory whenever the current surface is the landing.
+    if (document.documentElement.dataset.homeLayout !== 'directory' || location.pathname !== '/') return;
+    event.preventDefault();
+    const fromMenu = menu.contains(link);
+    close(false);
+    goTo('home');
+    if (fromMenu) trigger.focus({ preventScroll: true });
+  }));
   menu.querySelectorAll('[data-menu-route]').forEach(button => button.addEventListener('click', () => {
     close(false);
-    if (button.dataset.menuRoute === 'home' && document.documentElement.dataset.homeLayout === 'consultation') {
-      location.assign('/');
-      return;
-    }
     goTo(button.dataset.menuRoute);
     trigger.focus({ preventScroll: true });
   }));

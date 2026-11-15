@@ -15,12 +15,7 @@ html[data-home-layout="directory"] body:has(#view-home.visible) footer {
 html[data-home-layout="directory"] body:has(#view-home.visible) footer {
   padding-bottom: max(32px, env(safe-area-inset-bottom));
 }
-html[data-home-layout="directory"] #view-home > #homeFaqSection > .container {
-  max-width: 760px !important;
-}
-html[data-home-layout="directory"] #view-home > #homeFaqSection {
-  padding-block: clamp(24px, 4vw, 44px);
-}
+html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 .home-faq-fold > summary {
   display: flex;
   align-items: center;
@@ -43,14 +38,8 @@ html[data-home-layout="directory"] #view-home > #homeFaqSection {
 }
 .home-faq-fold[open] > summary::after { transform: rotate(225deg); }
 .home-faq-fold > summary:focus-visible { outline: 2px solid #dfc69c; outline-offset: 3px; }
-html[data-home-layout="directory"] .home-faq-fold { border-block: 1px solid #38453d; }
-html[data-home-layout="directory"] .home-faq-fold > summary { margin: 0; padding: 8px 2px; }
-html[data-home-layout="directory"] .home-faq-fold h2 { font-size: clamp(18px, 2.8vw, 22px); }
-html[data-home-layout="directory"] .home-faq-fold > .faq-list { padding-bottom: 12px; }
 /* Keep directory links readable and keyboard-visible before the scroll observer fires. */
-#homeDirectory .reveal,
-html[data-home-layout="directory"] #homeFaqSection.reveal,
-html[data-home-layout="directory"] #homeFaqSection .reveal {
+#homeDirectory .reveal {
   opacity: 1;
   transform: none;
   transition: none;
@@ -371,6 +360,40 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
   color: var(--directory-muted);
   font: 500 15px/1.5 var(--sans);
 }
+
+#view-faq .faq-page {
+  width:min(720px,calc(100% - 40px));margin-inline:auto;
+  padding:clamp(36px,7vw,82px) 0 clamp(40px,7vw,72px);
+}
+.faq-page h1 {
+  margin:0 0 clamp(22px,4vw,36px);
+  font:600 clamp(30px,5vw,45px)/1.4 var(--serif);
+  letter-spacing:-.05em;color:#f0ebe1;
+}
+#view-faq .faq-list {gap:0;border-top:1px solid #3a473e}
+#view-faq .faq-item {
+  padding:0;border:0;border-bottom:1px solid #3a473e;border-radius:0;
+  background:transparent;opacity:1;transform:none;box-shadow:none;
+}
+#view-faq .faq-item summary {
+  min-height:58px;padding:15px 2px;
+  font:550 clamp(16px,2vw,18px)/1.6 var(--sans);color:#f0ebe1;word-break:keep-all;
+}
+#view-faq .faq-item[open] summary {color:#e2c896}
+#view-faq .faq-item p {
+  max-width:63ch;margin:0;padding:0 26px 18px 2px;
+  font:400 16px/1.75 var(--sans);color:#c3c9c0;word-break:keep-all;
+}
+.faq-page-support {
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  gap:8px 16px;margin-top:24px;color:#c3c9c0;font:400 15px/1.65 var(--sans);
+}
+.faq-page-support p {margin:0}
+.faq-page-support a {
+  display:inline-flex;align-items:center;min-height:44px;padding:6px 14px;
+  border:1px solid #c6aa7654;border-radius:7px;color:#e2c896;
+}
+.faq-page :is(summary,a):focus-visible {outline:2px solid #c6aa76;outline-offset:3px}
 
 #view-wedding.view > .hero.wedding-guide {
   position: relative;

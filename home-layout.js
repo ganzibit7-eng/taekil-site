@@ -9,7 +9,15 @@
   document.addEventListener('DOMContentLoaded', () => {
     if (consultationLanding) {
       const faq = document.getElementById('homeFaqFold');
-      if (faq) faq.open = true;
+      if (faq) {
+        const target = faq.querySelector('[data-home-faq-list]');
+        const source = document.getElementById('faqViewList');
+        if (target && source) {
+          target.replaceChildren(...Array.from(source.children, item => item.cloneNode(true)));
+          target.querySelectorAll('.reveal').forEach(item => item.classList.remove('reveal'));
+        }
+        faq.open = true;
+      }
       return;
     }
     for (const button of document.querySelectorAll('#homeDirectory [data-directory-jump]')) {
