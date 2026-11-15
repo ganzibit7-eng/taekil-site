@@ -59,21 +59,29 @@ test('directory shortcuts focus and scroll to their headings without changing th
   assert.equal(location.href, 'https://taekilso.com/?utm_source=search');
 });
 
-test('the home FAQ starts folded in the directory and stays expanded on the ad landing', () => {
+test('the FAQ has a dedicated home link and the ad landing still opens the shared answers inline', () => {
   const html = readFileSync(__dirname + '/index.html', 'utf8');
   const openingTag = html.match(/<details[^>]*\bid="homeFaqFold"[^>]*>/)?.[0];
   assert.ok(openingTag);
   assert.doesNotMatch(openingTag, /\bopen\b/);
+  assert.match(html, /<a href="#faq">자주 묻는 질문<\/a>/);
+  const faqPage = html.match(/<section id="view-faq"[\s\S]+?<\/section>/)?.[0];
+  assert.ok(faqPage);
+  assert.equal([...faqPage.matchAll(/class="faq-item"/g)].length,8);
   for (const path of ['/', '/?landing=yeonwoo']) {
-    const faq = {open:false};
+    const copied = [];
+    const inlineList = {replaceChildren(...items) { copied.push(...items); }, querySelectorAll() { return []; }};
+    const faq = {open:false,querySelector() {return inlineList;}};
+    const canonical = {children:[{cloneNode() {return 'answer';}}]};
     const document = {
       documentElement: {dataset:{}},
       addEventListener(type, handle) { assert.equal(type, 'DOMContentLoaded'); handle(); },
       querySelectorAll() { return []; },
-      getElementById(id) { assert.equal(id, 'homeFaqFold'); return faq; }
+      getElementById(id) { return id === 'homeFaqFold' ? faq : canonical; }
     };
     runInNewContext(entry, {URLSearchParams, location:new URL(path, 'https://taekilso.com'), document});
     assert.equal(faq.open, path.includes('landing=yeonwoo'));
+    assert.equal(copied.length,faq.open ? 1 : 0);
   }
 });
 
