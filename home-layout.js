@@ -18,6 +18,10 @@
         }
         faq.open = true;
       }
+      if (location.hash === '#uiDemoTitle') {
+        // Let initial view routing finish before jumping into the existing story.
+        setTimeout(() => document.getElementById('uiDemoTitle')?.scrollIntoView({block:'start', behavior:'instant'}), 0);
+      }
       return;
     }
     for (const button of document.querySelectorAll('#homeDirectory [data-directory-jump]')) {

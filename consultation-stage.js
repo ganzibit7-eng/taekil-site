@@ -226,7 +226,7 @@
     ['태어난 시간도 아시나요?', '모르셔도 괜찮아요. 아는 정보부터 살펴볼게요.'],
     ['어떻게 불러드릴까요?', '대화하는 동안 불러드릴 이름이에요.'],
     ['마음에 남은 고민이 있나요?', '선택 사항이에요. 천천히 들려주셔도 좋아요.'],
-    ['이제, 이야기를 시작해요.', '입력하신 정보는 로그인 후에도 이어집니다.']
+    ['상담을 시작할 준비가 됐어요.', '상담에 사용할 사주를 확인해 주세요.']
   ];
   const panes = steps.map((_, i) => {
     const pane = document.createElement('section');
@@ -320,9 +320,9 @@
   question.placeholder = '예: 이직을 고민하고 있어요. 지금 직장과 새로운 기회 사이에서 어떤 점을 살펴보면 좋을까요?';
   const count = document.createElement('p'); count.className = 'consultation-entry-count';
   const draftNote = document.createElement('p'); draftNote.className = 'consultation-entry-draft-note';
-  draftNote.textContent = '입력 내용은 이 탭에 최대 30분간 임시 보관돼요. 로그인 후 그대로 이어갈 수 있어요.';
+  draftNote.textContent = '로그인 전 입력 내용은 이 탭에 최대 30분간 보관돼요.';
   const signupNote = document.createElement('p'); signupNote.className = 'entry-signup-note';
-  signupNote.textContent = 'Google·카카오로 간편가입 · 첫 질문 3개 무료';
+  signupNote.textContent = 'Google·카카오로 가입하면 첫 질문 3개를 무료로 이용할 수 있어요.';
   panes[4].append(question, count);
   const concernChoices = document.createElement('div');
   concernChoices.className = 'consultation-concern-choices';
@@ -332,19 +332,30 @@
     ['직업·진로', '지금 하는 일을 계속할지 새로운 방향을 찾을지 고민이에요. 어떤 기준으로 비교하면 좋을까요?'],
     ['돈·생활', '돈이 잘 모이지 않아 고민이에요. 제 소비와 저축 습관에서 무엇부터 점검하면 좋을까요?']
   ];
-  let lastConcern = '';
-  for (const [label,text] of examples) {
-    const choice = document.createElement('button'); choice.type = 'button'; choice.textContent = label;
-    choice.addEventListener('click', () => {
-      if (question.value.trim() && question.value !== lastConcern) {
-        showToast('작성 중인 고민이 있어요. 입력창에서 이어서 적어 주세요.');
-        question.focus({preventScroll:true}); return;
-      }
-      lastConcern = text; question.value = text;
-      question.dispatchEvent(new Event('input',{bubbles:true}));
-      question.focus({preventScroll:true}); question.setSelectionRange(text.length,text.length);
-    });
-    concernChoices.append(choice);
+  function syncConcernChoices() {
+    for (const choice of concernChoices.children) {
+      choice.setAttribute('aria-pressed', String(question.value === choice.value));
+    }
+  }
+  function renderConcernChoices() {
+    const choices = personas.forTopic(selectedTopic).questions || examples;
+    concernChoices.replaceChildren(...choices.map(([label, text]) => {
+      const choice = document.createElement('button');
+      choice.type = 'button';
+      choice.textContent = label;
+      choice.value = text;
+      choice.addEventListener('click', () => {
+        if (question.value.trim() && !suggestedConcerns.has(question.value)) {
+          showToast('작성 중인 고민이 있어요. 입력창에서 이어서 적어 주세요.');
+          question.focus({preventScroll:true});
+          return;
+        }
+        question.value = text;
+        question.dispatchEvent(new Event('input', {bubbles:true}));
+      });
+      return choice;
+    }));
+    syncConcernChoices();
   }
   const concernHint = document.createElement('p'); concernHint.className = 'entry-field-hint';
   panes[4].prepend(concernChoices,concernHint);
@@ -417,11 +428,22 @@
       ['생일', `${field('Year').value}.${field('Month').value}.${field('Day').value} · ${selected('CalType')}${field('CalType').value === 'lunar' && field('Leap').checked ? ' 윤달' : ''}`],
       ['출생시간', selected('Hour')]
     ];
+    if (question.value.trim()) entries.push(['첫 질문', question.value.trim()]);
     review.replaceChildren();
     entries.forEach(([label, value]) => {
       const dt = document.createElement('dt'), dd = document.createElement('dd');
       dt.textContent = label; dd.textContent = value; review.append(dt, dd);
     });
+  }
+  function updateHandoff() {
+    const signedIn = Boolean(member());
+    signupNote.hidden = signedIn;
+    draftNote.hidden = signedIn;
+    submit.textContent = signedIn ? personas.forTopic(selectedTopic).name + ' 상담 시작하기' : '로그인하고 상담 이어가기';
+    if (step === 5) {
+      heading.querySelector('p:not(.consultation-entry-progress)').textContent = signedIn
+        ? steps[5][1] : '로그인하면 입력한 사주와 질문으로 이어갈 수 있어요.';
+    }
   }
   function render(index, focus = false) {
     step = Math.max(0, Math.min(steps.length - 1, index));
@@ -430,22 +452,19 @@
     progress.textContent = `${step + 1} / ${steps.length} · ${consultant} 상담 준비`;
     syncChoices();
     syncCalendar();
-    signupNote.hidden = !!member();
     entryCount.textContent = `${step + 1} / ${steps.length}`;
     setup.dataset.entryStep = String(step);
     heading.querySelector('h2').textContent = step === 4 && selectedTopic
       ? '이 질문으로 시작할까요?' : steps[step][0];
     heading.querySelector('p:not(.consultation-entry-progress)').textContent = step === 0 && selectedTopic
       ? consultant + ' 상담에 사용할 사주 정보를 알려주세요.' : steps[step][1];
-    concernChoices.hidden = Boolean(selectedTopic);
-    concernHint.textContent = selectedTopic
-      ? '내 상황을 덧붙이거나 궁금한 점으로 바꿔도 좋아요.'
-      : '주제를 고르면 예시를 채워드려요. 내 상황에 맞게 고쳐주세요.';
+    if (step === 4) renderConcernChoices();
+    concernHint.textContent = '예시를 골라 내 상황을 덧붙이거나 직접 작성해 보세요.';
     back.hidden = step === 0;
     next.hidden = step === 5;
     next.disabled = step === 1 && !core.birth(birthInput.value).complete;
     submit.hidden = step !== 5;
-    submit.textContent = member() ? consultant + ' 상담 시작하기' : '로그인하고 상담 이어가기';
+    updateHandoff();
     error.textContent = '';
     count.textContent = `${question.value.length} / 200`;
     if (step === 5) updateReview();
@@ -472,18 +491,27 @@
   document.addEventListener('click', event => {
     if (event.target.closest('#homeStartChatBtn,.brand-story-start')) requestedTopic = '';
   }, true);
+  function startTopic(button, key) {
+    requestedTopic = key;
+    handleHomeChatStart(button);
+  }
   for (const button of document.querySelectorAll('[data-consultation-topic][data-consultation-question]')) {
     const key = core.normalizeTopic(button.dataset.consultationTopic);
     if (!key) continue;
     const name = personas.forTopic(key).name;
     const title = button.querySelector(':is(.directory-character-copy, .directory-card-copy) > strong')?.textContent;
     topics.set(key, { title: [name, title].filter(Boolean).join(' · '), question: button.dataset.consultationQuestion });
-    button.addEventListener('click', () => {
-      requestedTopic = key;
-      handleHomeChatStart(button);
-    });
+    button.addEventListener('click', () => startTopic(button, key));
   }
-  const topicQuestions = new Set([...topics.values()].map(topic => topic.question));
+  for (const button of document.querySelectorAll('#homeDirectory [data-consultation-example]')) {
+    const key = core.normalizeTopic(button.dataset.consultationExample);
+    if (topics.has(key)) button.addEventListener('click', () => startTopic(button, key));
+  }
+  const suggestedConcerns = new Set(examples.map(([, text]) => text));
+  for (const [key, topic] of topics) {
+    suggestedConcerns.add(topic.question);
+    for (const [, text] of personas.forTopic(key).questions || []) suggestedConcerns.add(text);
+  }
   new MutationObserver(() => {
     const nextVisible = setup.style.display === 'block';
     if (nextVisible && !visible) {
@@ -493,8 +521,9 @@
       }
       if (requestedTopic !== null) {
         const questionText = topics.get(requestedTopic)?.question || '';
+        const topicChanged = requestedTopic !== selectedTopic;
         showTopic(requestedTopic);
-        if (!question.value.trim() || topicQuestions.has(question.value)) question.value = questionText;
+        if (!question.value.trim() || (topicChanged && suggestedConcerns.has(question.value))) question.value = questionText;
         render(step);
         persist();
       }
@@ -538,7 +567,11 @@
     render(draft.step);
     return true;
   }
-  setup.addEventListener('input', () => { count.textContent = `${question.value.length} / 200`; persist(); });
+  setup.addEventListener('input', () => {
+    count.textContent = `${question.value.length} / 200`;
+    syncConcernChoices();
+    persist();
+  });
   setup.addEventListener('change', () => persist());
   submit.addEventListener('click', async event => {
     // Capture the existing inline action so no guest can save/start before sign-in.
@@ -581,7 +614,7 @@
     if (!window.resumeGuidedConsultation()) {
       read();
       if (changed) { question.value = ''; birthInput.value = ''; awaitingAuth = false; showTopic(''); }
-      submit.textContent = member() ? personas.forTopic(selectedTopic).name + ' 상담 시작하기' : '로그인하고 상담 이어가기';
+      updateHandoff();
     }
     syncChoices();
   });

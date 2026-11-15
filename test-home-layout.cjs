@@ -99,6 +99,19 @@ test('the directory has a separate new-year section leading to the existing Yeon
   assert.match(html.slice(adStart), /<button class="btn newyear-home-entry" data-open-newyear>2027 신년상담 알아보기<\/button>/);
 });
 
+test('the public preview quotes the existing demonstration and opens the existing career topic', () => {
+  const html = readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  const preview = html.match(/<section class="directory-section directory-preview"[\s\S]+?<\/section>/)?.[0];
+  assert.ok(preview);
+  const excerpt = preview.match(/<blockquote>([^<]+)<\/blockquote>/)?.[1];
+  assert.ok(excerpt);
+  assert.ok(html.includes('<div class="ui-real-lead"><p>' + excerpt + '</p>'));
+  assert.match(preview, /data-consultation-example="career"/);
+  assert.equal([...html.matchAll(/data-consultation-topic="career"/g)].length, 1);
+  assert.match(preview, /href="\/\?landing=yeonwoo#uiDemoTitle"/);
+  assert.match(html, /id="uiDemoTitle"/);
+});
+
 test('the public home uses a separate image for every displayed hero, portrait and topic', () => {
   const html = readFileSync(path.join(__dirname, 'index.html'), 'utf8');
   const start = html.indexOf('id="homeDirectory"');

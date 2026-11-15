@@ -190,6 +190,60 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   font: 400 15px/1.6 var(--sans);
   word-break: keep-all;
 }
+.directory-preview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.8fr);
+  gap: 24px clamp(24px, 6vw, 80px);
+  padding-block: clamp(26px, 4vw, 42px);
+  border-block: 1px solid var(--directory-line);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+.directory-preview-intro h2 { margin-bottom: 10px; line-height: 1.4; }
+.directory-preview-intro p {
+  max-width: 26ch;
+  margin: 0;
+  color: var(--directory-muted);
+  font: 400 16px/1.65 var(--sans);
+}
+.directory-preview .directory-text-link { margin-top: 4px; }
+.directory-preview-reading {
+  padding: clamp(18px, 3vw, 28px);
+  border-radius: 8px;
+  background: #1b2420;
+}
+.directory-preview-label, .directory-preview-reading figcaption {
+  color: #dfc69c;
+  font: 500 14px/1.5 var(--sans);
+}
+.directory-preview-reading h3 {
+  margin: 7px 0 16px;
+  color: #f0ebe1;
+  font: 600 clamp(18px, 2vw, 23px)/1.45 var(--serif);
+}
+.directory-preview-reading figure {
+  margin: 0 0 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--directory-line);
+}
+.directory-preview-reading blockquote {
+  margin: 6px 0 0;
+  color: #e2e4dc;
+  font: 400 16px/1.7 var(--sans);
+}
+.directory-preview-reading button {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid #c6aa7677;
+  border-radius: 6px;
+  background: #c6aa760b;
+  color: #ecdbb8;
+  font: 600 15px/1.45 var(--sans);
+}
+#uiDemoTitle { scroll-margin-top: 86px; }
+@media (hover: hover) {
+  .directory-preview-reading button:hover { background: #c6aa7622; border-color: #c6aa76; }
+}
 .directory-features {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -530,6 +584,9 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   .home-directory .directory-sections button { padding-inline: 5px; font-size: 14px; }
   .directory-sections + .directory-section { margin-top: 20px; }
   .directory-character-copy strong { font-size: 23px; }
+  .directory-preview { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .directory-preview-intro h2 br { display: none; }
+  .directory-preview-intro p { max-width: none; }
   .directory-features { grid-template-columns: 1fr; gap: 32px; }
   .home-directory .directory-feature { min-height: 184px; }
   .directory-feature-copy { width: 64%; }
