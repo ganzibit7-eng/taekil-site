@@ -4,7 +4,7 @@
   const view=document.getElementById('view-newyear');
   if(!view)return;
   const status=view.querySelector('[data-year-status]'),content=view.querySelector('[data-year-content]');
-  let active=false,busy=false,timer=0,version=0,pendingChat=false,pendingQuestion='',profiles=[],progressClock=0,progressStarted=0,draft=null,draftOwner=null;
+  let active=false,busy=false,timer=0,version=0,pendingChat=false,pendingQuestion='',profiles=[],progressClock=0,progressStarted=0,progressElapsed=null,draft=null,draftOwner=null;
   const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
   const button=(text,action,primary=false)=>{const b=el('button',text,'btn'+(primary?' btn-primary':''));b.type='button';b.addEventListener('click',action);return b;};
   const loggedIn=()=>!!((typeof getKakaoUser==='function'&&getKakaoUser())||(typeof firebaseAuthUser!=='undefined'&&firebaseAuthUser&&!firebaseAuthUser.isAnonymous));
@@ -20,15 +20,23 @@
     return data;
   }
   function message(text){status.textContent=text;status.setAttribute('role','status');}
-  function stopProgress(){clearInterval(progressClock);progressClock=0;progressStarted=0;content.removeAttribute('aria-busy');view.classList.remove('is-generating');}
+  function stopProgress(){clearInterval(progressClock);progressClock=0;progressStarted=0;progressElapsed=null;content.removeAttribute('aria-busy');view.classList.remove('is-generating');}
+  function updateProgressTime(){
+    if(!active||!progressElapsed?.isConnected)return;
+    const seconds=Math.max(0,Math.floor((Date.now()-progressStarted)/1000));
+    progressElapsed.textContent='작성 경과 '+Math.floor(seconds/60)+'분 '+String(seconds%60).padStart(2,'0')+'초';
+  }
   function showProgress(startedAt){
     const entering=!view.classList.contains('is-generating');view.classList.remove('has-report');view.classList.add('is-generating');if(entering)window.scrollTo({top:0,behavior:'instant'});
-    clearInterval(progressClock);progressStarted=Number(startedAt)||progressStarted||Date.now();content.setAttribute('aria-busy','true');
-    const box=el('section',null,'newyear-progress'),mark=el('span',null,'newyear-progress-mark');mark.setAttribute('aria-hidden','true');
-    const elapsed=el('p',null,'newyear-progress-time');
-    box.append(mark,el('h2','연우가 리포트를 작성하고 있어요'),el('p','나의 사주와 한 해의 흐름, 분야별 이야기와 열두 달의 기록을 차분히 정리하고 있습니다.'),elapsed,el('p','보통 1~2분 정도 걸릴 수 있어요. 완성된 리포트는 계정에 보관되며, 다시 확인할 때 추가 결제나 질문 차감은 없습니다.','newyear-muted'));
-    const update=()=>{const seconds=Math.max(0,Math.floor((Date.now()-progressStarted)/1000));elapsed.textContent='작성 경과 '+Math.floor(seconds/60)+'분 '+String(seconds%60).padStart(2,'0')+'초';};update();
-    content.replaceChildren(box);progressClock=setInterval(()=>{if(active&&elapsed.isConnected)update();},1000);
+    progressStarted=Number(startedAt)||progressStarted||Date.now();content.setAttribute('aria-busy','true');
+    if(!progressElapsed?.isConnected){
+      const box=el('section',null,'newyear-progress');
+      progressElapsed=el('p',null,'newyear-progress-time');
+      box.append(el('h2','연우가 리포트를 작성하고 있어요'),el('p','사주를 바탕으로 한 해의 흐름과 월별 기록을 정리하고 있어요.'),progressElapsed,el('p','보통 1~2분 정도 걸려요. 완성된 리포트는 이 계정에서 다시 열 수 있어요.','newyear-muted'));
+      content.replaceChildren(box);
+    }
+    updateProgressTime();
+    if(!progressClock)progressClock=setInterval(updateProgressTime,1000);
   }
   function openYear(){goTo('newyear');}
   window.openNewyearConsultation=openYear;
@@ -95,7 +103,7 @@
         if(p.calType==='lunar'){const back=Lunar.fromYmd(Number(p.y),p.isLeap?-Number(p.m):Number(p.m),Number(p.d)).getSolar().getLunar();if(back.getYear()!==Number(p.y)||back.getMonth()!==(p.isLeap?-Number(p.m):Number(p.m))||back.getDay()!==Number(p.d))throw Error('음력 날짜와 윤달 여부를 다시 확인해 주세요.');}
       }catch(e){error.textContent=e.message;check.checked=false;generate.disabled=true;return;}
       const actor=owner(),requestVersion=++version;if(select.value==='new'){draft={...profile};draftOwner=actor;}busy=true;generate.disabled=true;select.disabled=true;check.disabled=true;
-      content.style.minHeight=content.getBoundingClientRect().height+'px';message('선택한 사주로 신년 리포트를 작성하고 있습니다.');showProgress(Date.now());
+      message('선택한 사주로 신년 리포트를 작성하고 있습니다.');showProgress(Date.now());
       try{const data=await request('generate',profile);if(actor===owner()&&requestVersion===version&&active)render(data);}
       catch(e){
         if(actor!==owner()||requestVersion!==version||!active)return;
@@ -112,7 +120,7 @@
 
   function section(title,text){const s=el('section',null,'newyear-report-section');s.append(el('h2',title),el('p',text));return s;}
   function showReport(data){
-    const wasGenerating=view.classList.contains('is-generating');stopProgress();view.classList.add('has-report');content.style.minHeight='';if(wasGenerating)window.scrollTo({top:0,behavior:'instant'});
+    const wasGenerating=view.classList.contains('is-generating');stopProgress();view.classList.add('has-report');content.style.minHeight='';
     content.replaceChildren();const r=data.report;
     content.append(el('p',`${data.profile.name} 님 · ${data.profile.date} · ${data.profile.hourValue==='unknown'?'출생시간 미상':data.profile.hourValue+'시'}`,'newyear-report-owner'));
     const overview=section('한 해의 큰 흐름',r.overview);
@@ -134,7 +142,23 @@
       contents.append(jump);
     }
     content.append(contents,overview,section('나의 사주와 2027년',r.foundation),areas);
-    r.months.forEach(m=>{const d=el('details'),summary=el('summary');summary.append(el('span',String(m.month).padStart(2,'0')+'월'),el('strong',m.theme));d.append(summary);if(m.calculationNote)d.append(el('p',m.calculationNote,'newyear-month-basis'));d.append(el('p',m.reading),el('p',m.action,'newyear-action'));months.append(d);});content.append(months);
+    const monthIndex=el('nav',null,'newyear-month-index');
+    monthIndex.setAttribute('aria-label','월별 풀이 바로가기');
+    months.append(monthIndex);
+    for(const m of r.months){
+      const d=el('details'),summary=el('summary');
+      summary.append(el('span',String(m.month).padStart(2,'0')+'월'),el('strong',m.theme));
+      d.append(summary);
+      if(m.calculationNote)d.append(el('p',m.calculationNote,'newyear-month-basis'));
+      d.append(el('p',m.reading),el('p',m.action,'newyear-action'));
+      months.append(d);
+      monthIndex.append(button(m.month+'월',()=>{
+        d.open=true;
+        summary.focus({preventScroll:true});
+        summary.scrollIntoView({block:'start',behavior:'instant'});
+      }));
+    }
+    content.append(months);
     content.append(section('기회를 살리는 방법',r.opportunities),section('조금 더 신중할 때',r.cautions),section('연우가 전하는 말',r.closing));
     const calculation=el('details',null,'newyear-calculation');calculation.append(el('summary','계산 기준과 해석 범위'));
     calculation.append(el('p',`2027년 정미(丁未) 세운은 입춘 ${data.calculation.annual.startsAt}부터 적용합니다. 1월부터 입춘 전까지는 병오(丙午) 세운입니다. 월별 해석은 양력 달력 기준이며 절기 경계를 함께 반영합니다.`));
@@ -154,6 +178,11 @@
     if(data.access)content.append(button('리포트가 궁금하다면, 연우에게 이어 묻기',()=>askReport(),true));
     else content.append(purchaseButton('30일 상담 이용권 구매'), pausedNotice());
     window.TaekilExperience?.report(content,data,askReport);
+    if(wasGenerating)requestAnimationFrame(()=>{
+      if(!active||!overview.isConnected)return;
+      overview.querySelector('h2').focus({preventScroll:true});
+      content.querySelector('.newyear-report-contents')?.scrollIntoView({block:'start',behavior:'instant'});
+    });
   }
   function render(data){
     clearTimeout(timer);
@@ -182,13 +211,22 @@
   }
   async function load(){
     const token=++version;if(typeof waitForAuthSettled==='function')await waitForAuthSettled(4000).catch(()=>{});if(token!==version||!active)return;if(!loggedIn()){render({access:false,status:'none'});return;}
-    message('나의 신년상담을 확인하고 있어요.');
+    if(!view.classList.contains('is-generating'))message('나의 신년상담을 확인하고 있어요.');
     try{const data=await request('status');if(token===version&&active)render(data);}
-    catch(e){if(token!==version)return;message(e.message);content.replaceChildren(button('다시 확인하기',load));}
+    catch(e){
+      if(token!==version||!active)return;
+      if(view.classList.contains('is-generating')){
+        message('작성 상태를 다시 확인하고 있어요.');
+        clearTimeout(timer);
+        timer=setTimeout(load,5000);
+        return;
+      }
+      message(e.message);content.replaceChildren(button('다시 확인하기',load));
+    }
   }
   view.querySelector('[data-year-refresh]').addEventListener('click',load);
   document.querySelectorAll('[data-open-newyear]').forEach(b=>b.addEventListener('click',openYear));
-  const observe=new MutationObserver(()=>{const next=view.classList.contains('visible');if(next!==active){active=next;if(active)load();else{++version;clearTimeout(timer);clearInterval(progressClock);}}});observe.observe(view,{attributes:true,attributeFilter:['class']});
+  const observe=new MutationObserver(()=>{const next=view.classList.contains('visible');if(next!==active){active=next;if(active)load();else{++version;clearTimeout(timer);clearInterval(progressClock);progressClock=0;}}});observe.observe(view,{attributes:true,attributeFilter:['class']});
   const panel=document.getElementById('aiChatPanel'),intro=document.getElementById('homeIntroOverlay');
   new MutationObserver(()=>{
     if(panel.style.display==='flex'&&pendingChat){window.__newyearChatContext=true;pendingChat=false;window.prepareAiQuestion?.(pendingQuestion);pendingQuestion='';}
