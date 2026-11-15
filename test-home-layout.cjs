@@ -161,11 +161,15 @@ test('character cards open introductory views before the existing consultation o
     assert.doesNotMatch(card, /data-home-consultation/);
     assert.ok(html.includes('id="view-topic-' + route + '" class="view consultation-story-view"'));
   }
-  assert.match(html, /<a href="#wedding" class="directory-character character-wedding">/);
+  const weddingCard = html.match(/<a href="#wedding" class="directory-character character-wedding"[^>]*>/)?.[0];
+  assert.ok(weddingCard);
+  assert.match(weddingCard, /data-story-topic="wedding"/);
+  assert.match(weddingCard, /data-consultation-topic="wedding"/);
+  assert.doesNotMatch(weddingCard, /data-home-consultation/);
   const wedding = html.slice(html.indexOf('id="view-wedding"'), html.indexOf('id="view-moving"'));
+  assert.match(wedding, /id="weddingStoryIntro"/);
   assert.match(wedding, /data-wedding-preview-video/);
   assert.match(wedding, /data-open-date-comparison/);
-  assert.match(wedding, /data-consultation-topic="wedding"/);
 });
 
 test('the public home uses a separate image for every displayed hero, portrait and topic', () => {
