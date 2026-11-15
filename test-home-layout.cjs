@@ -136,7 +136,7 @@ test('the displayed wedding example matches the existing couple scoring and cale
   const score=runInNewContext(
     part('const CHEONGAN =','renderTodayGanji();') +
     part('function scoreDate','const dowNames') +
-    part('function buildAiInlineCandidate','function getAiInlineTaekilTop') +
+    part('function buildTaekilCandidate','function getAiInlineTaekilTop') +
     part('function to100','/* ---------- RESULT CARDS') +
     `function getAiChatPrimaryOhaeng(){return ohaengOf(dayGanjiIndex(new Date(1990,0,1)))}
      function getAiChatPartnerOhaeng(){return ohaengOf(dayGanjiIndex(new Date(1992,3,18)))}
@@ -150,6 +150,22 @@ test('the displayed wedding example matches the existing couple scoring and cale
     const [value,ganji,hanja]=score(day);
     assert.match(example,new RegExp('datetime="2027-05-'+day+'"[^<]*>[^<]*</time><strong>'+value+'점</strong></dt><dd>'+ganji+'\\('+hanja+'\\)'));
   }
+});
+
+test('character cards open introductory views before the existing consultation or date form', () => {
+  const html = readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  const storyCards = [...html.matchAll(/<a href="#topic-([a-z-]+)"[^>]*data-story-topic="([a-z-]+)"[^>]*>/g)];
+  assert.equal(storyCards.length, 10);
+  for (const [card, route, topic] of storyCards) {
+    assert.equal(route, topic);
+    assert.doesNotMatch(card, /data-home-consultation/);
+    assert.ok(html.includes('id="view-topic-' + route + '" class="view consultation-story-view"'));
+  }
+  assert.match(html, /<a href="#wedding" class="directory-character character-wedding">/);
+  const wedding = html.slice(html.indexOf('id="view-wedding"'), html.indexOf('id="view-moving"'));
+  assert.match(wedding, /data-wedding-preview-video/);
+  assert.match(wedding, /data-open-date-comparison/);
+  assert.match(wedding, /data-consultation-topic="wedding"/);
 });
 
 test('the public home uses a separate image for every displayed hero, portrait and topic', () => {
