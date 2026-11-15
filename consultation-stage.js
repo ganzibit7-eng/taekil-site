@@ -20,11 +20,6 @@
   const chatName = chatStage.querySelector('.ai-chat-name-block strong');
   const specialty = document.createElement('small');
   chatName.after(specialty);
-  const chatPortrait = document.createElement('img');
-  chatPortrait.className = 'ai-chat-bgvideo ai-chat-consultant-portrait';
-  chatPortrait.alt = '';
-  chatPortrait.setAttribute('aria-hidden', 'true');
-  chatStage.prepend(chatPortrait);
   const starters = document.getElementById('aiChatQuickActions');
   const defaultStarters = starters.querySelectorAll(':scope > button');
   const specialistStarters = Array.from({length:defaultStarters.length}, (_, index) => {
@@ -53,10 +48,8 @@
     specialty.hidden = !isSpecialist;
     if (isSpecialist) {
       chatStage.dataset.chatConsultant = persona.id;
-      chatPortrait.src = persona.portrait;
     } else {
       delete chatStage.dataset.chatConsultant;
-      chatPortrait.removeAttribute('src');
     }
     input.placeholder = persona.name + '에게 물어보세요';
     input.setAttribute('aria-label', persona.name + '에게 보낼 질문');
@@ -380,25 +373,16 @@
   const entryTitle = document.createElement('span'); entryTitle.textContent = '연우와의 첫 대화';
   const entryCount = document.createElement('span'); entryCount.className = 'entry-nav-count';
   entryNav.append(entryBack,entryTitle,entryCount); stage.append(entryNav);
-  const topicPortrait = document.createElement('img');
-  topicPortrait.className = 'ai-chat-bgvideo ai-chat-topic-portrait';
-  topicPortrait.alt = '';
-  topicPortrait.setAttribute('aria-hidden', 'true');
-  topicPortrait.decoding = 'async';
-  stage.prepend(topicPortrait);
   let selectedTopic = '';
   const topics = new Map();
   function showTopic(topic) {
     selectedTopic = core.normalizeTopic(topic);
     const card = topics.get(selectedTopic);
-    const persona = personas.forTopic(selectedTopic);
     entryTitle.textContent = card?.title || '연우와의 첫 대화';
     if (card) {
-      if (topicPortrait.getAttribute('src') !== persona.portrait) topicPortrait.src = persona.portrait;
       setup.dataset.entryTopic = selectedTopic;
     } else {
       delete setup.dataset.entryTopic;
-      topicPortrait.removeAttribute('src');
     }
   }
 
