@@ -27,17 +27,12 @@
 .consultation-story-body { max-width: 720px; padding-top: clamp(20px,4vw,44px); word-break: keep-all; overflow-wrap: anywhere; }
 .consultation-story-body > section { padding-block: clamp(22px,4vw,34px); border-bottom: 1px solid #38453d; }
 .consultation-story-body h2 { margin: 0 0 14px; font: 600 clamp(22px,3vw,30px)/1.45 var(--serif); color: #f0ebe1; }
-.consultation-story-scope ul { margin: 0; padding-inline-start: 20px; color: #c6cdc3; font: 400 16px/1.75 var(--sans); }
-.consultation-story-scope li + li { margin-top: 6px; }
-.consultation-story-scope li::marker { color: var(--story-tone); }
 .consultation-story-body blockquote { margin: 0; color: #dedfd6; font: 400 16px/1.75 var(--sans); }
 .consultation-story-example figure { margin: 0; padding: 18px 20px; border-radius: 7px; background: #1b2420; }
 .consultation-story-example figcaption { margin-bottom: 8px; color: var(--story-tone); font: 500 15px/1.6 var(--sans); }
 .consultation-story-example blockquote p { margin: 0 0 10px; }
 .consultation-story-example blockquote p:last-child { margin-bottom: 0; }
 .consultation-story-entry blockquote { border-left: 2px solid var(--story-tone); padding-left: 14px; }
-.consultation-story-entry .btn { margin-top: 20px; min-height: 46px; white-space: normal; }
-.consultation-story-entry .btn:focus-visible { outline: 2px solid #f0ebe1; outline-offset: 4px; }
 .consultation-story-view[data-story-feature] {
   --story-rule: color-mix(in srgb, var(--story-tone) 24%, #101715);
 }
@@ -71,7 +66,11 @@
 }
 .consultation-story-receipt div { display: flex; justify-content: space-between; gap: 14px; padding-block: 9px; }
 .consultation-story-receipt dd { margin: 0; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.consultation-story-receipt div:last-child { border-top: 1px dashed var(--story-rule); color: var(--story-tone); font-weight: 700; }
+[data-story-feature="saving"] .consultation-story-receipt div:last-child { border-top: 1px dashed var(--story-rule); color: var(--story-tone); font-weight: 700; }
+.consultation-story-notes { margin: 0; font: 400 16px/1.65 var(--sans); }
+.consultation-story-notes > div { display: grid; gap: 4px 18px; grid-template-columns: minmax(0,145px) minmax(0,1fr); padding: 12px 0; border-top: 1px solid var(--story-rule); }
+.consultation-story-notes dt { color: var(--story-tone); font-weight: 600; }
+.consultation-story-notes dd { margin: 0; color: #d8ddd4; }
 .consultation-story-offers { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; }
 .consultation-story-offers > div { border-top: 1px solid var(--story-rule); padding-top: 12px; }
 .consultation-story-offers h3 { margin: 0 0 6px; color: var(--story-tone); font: 700 16px/1.5 var(--sans); }
@@ -108,6 +107,7 @@
 }
 .consultation-story-jump:hover { border-color: var(--story-tone); }
 .consultation-story-jump:focus-visible { outline: 2px solid #f0ebe1; outline-offset: 3px; }
+.consultation-story-jump + .consultation-story-jump { margin-inline-start: 8px; }
 [data-story-feature] .consultation-story-body > section { padding-block: clamp(30px,6vw,62px); }
 .consultation-story-chapter .consultation-story-label { margin-bottom: 9px; }
 .consultation-story-chapter-film {
@@ -129,11 +129,60 @@
 .consultation-story-aside figcaption { margin-top: 8px; color: var(--story-tone); font: 500 14px/1.5 var(--sans); }
 [data-story-feature] .consultation-story-entry { scroll-margin-top: 76px; }
 .consultation-story-choices legend:focus { outline: none; }
+#weddingStoryComparison { scroll-margin-top: 68px; }
+#weddingStoryComparison h3:focus { outline: none; }
+html:has(:is(.view[data-story-feature],#view-wedding).visible) {
+  --story-dock-clearance: calc(80px + env(safe-area-inset-bottom, 0px));
+  scroll-padding-bottom: var(--story-dock-clearance);
+}
+html:has(:is(.view[data-story-feature],#view-wedding).visible) footer { margin-bottom: var(--story-dock-clearance); }
+html:has(:is(.view[data-story-feature],#view-wedding).visible) #tmTop { bottom: calc(var(--story-dock-clearance) + 12px); }
+.consultation-story-dock {
+  position: fixed;
+  z-index: 94;
+  inset: auto 0 0;
+  padding: 10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  border-top: 1px solid var(--story-rule);
+  background: #101715;
+}
+.consultation-story-dock-inner {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) minmax(0,270px);
+  align-items: center;
+  gap: 6px 18px;
+  width: min(100%,720px);
+  margin-inline: auto;
+}
+.consultation-story-dock-context {
+  margin: 0;
+  overflow: hidden;
+  color: #c6cdc3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 500 14px/1.5 var(--sans);
+}
+.consultation-story-dock-context span { color: #f0ebe1; font-weight: 600; }
+.consultation-story-dock .btn {
+  justify-content: center;
+  min-height: 48px;
+  width: 100%;
+  margin: 0;
+  border: 1px solid var(--story-tone);
+  border-radius: 8px;
+  box-shadow: none;
+  color: #101715;
+  background: var(--story-tone);
+  font: 700 16px/1.3 var(--sans);
+}
+.consultation-story-dock .btn:hover { transform: none; filter: brightness(1.08); }
+.consultation-story-dock .btn:focus-visible { outline: 2px solid #f0ebe1; outline-offset: 3px; }
 @media (max-width: 700px) {
   .consultation-story-hero { grid-template-columns: minmax(0,1fr); gap: 20px; }
   .consultation-story-film { aspect-ratio: 1 / 1; }
   .consultation-story-intro h1 { margin-bottom: 12px; }
-  .consultation-story-entry .btn { width: 100%; }
+  html:has(:is(.view[data-story-feature],#view-wedding).visible) { --story-dock-clearance: calc(101px + env(safe-area-inset-bottom,0px)); }
+  .consultation-story-dock-inner { grid-template-columns: minmax(0,1fr); }
+  .consultation-story-notes > div { grid-template-columns: minmax(0,1fr); }
   [data-story-feature] .consultation-story-hero { grid-template-columns: minmax(0,1fr); gap: 16px; }
   [data-story-feature] .consultation-story-intro { grid-area: 1 / 1; }
   [data-story-feature] .consultation-story-film { grid-area: 2 / 1; max-width: 360px; aspect-ratio: 4 / 5; }
