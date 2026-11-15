@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-home-layout="directory">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="/home-layout.js?v=20261115-1"></script>
+<link rel="stylesheet" href="/home-layout.css?v=20261115-portraits">
 <title>택일소 | AI 사주 상담 · 오늘의 운세 · 결혼·이사·개업 택일</title>
 <meta name="description" content="AI 사주 상담가 연우에게 오늘의 운세, 연애운, 재물운, 궁합을 묻고 결혼·이사·개업·계약 날짜까지 비교해보세요. 첫 질문 3개 무료.">
 <meta name="keywords" content="사주, 사주풀이, 무료사주, 사주궁합, 오늘의운세, 신년운세, 택일, 결혼택일, 이사택일, 개업택일, 손없는날, 만세력">
@@ -2346,6 +2348,80 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 <!-- ============ HOME ============ -->
 <section id="view-home" class="view">
+  <div class="home-directory" id="homeDirectory">
+    <section class="directory-hero" aria-labelledby="directoryHeroTitle">
+      <div class="directory-hero-media" aria-hidden="true">
+        <img src="assets/yeonwoo-welcome.jpg" width="1122" height="1402" alt="" decoding="async">
+        <video class="yeonwoo-story-video" data-home-directory-video muted loop playsinline preload="none" data-video-src="assets/yeonwoo-welcome.mp4" poster="assets/yeonwoo-welcome.jpg"></video>
+      </div>
+      <div class="directory-hero-copy">
+        <p class="directory-label">연우의 AI 사주 상담</p>
+        <h1 id="directoryHeroTitle">내 사주로 풀어보는<br>지금의 고민</h1>
+        <p class="directory-intro">연애와 일, 돈과 관계. 연우에게 지금 가장 궁금한 이야기를 들려주세요.</p>
+        <button type="button" class="directory-primary" data-home-consultation onclick="handleHomeChatStart(this)">연우와 상담 시작하기</button>
+        <p class="directory-trial">처음 가입하면 질문 3개 무료</p>
+      </div>
+    </section>
+
+    <section class="directory-section" aria-labelledby="directoryTopicsTitle">
+      <h2 id="directoryTopicsTitle">고민별 사주·택일</h2>
+      <div class="directory-characters">
+        <button type="button" class="directory-character character-love" data-home-consultation data-consultation-question="제 사주로 볼 때 연애와 관계에서 어떤 패턴이 반복되나요? 제가 먼저 바꿔볼 점을 알려주세요.">
+          <img src="assets/portrait-love.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
+          <span class="directory-character-copy"><span>서화</span><strong>연애 · 관계</strong><small>내 관계에서 반복되는 일</small></span>
+        </button>
+        <button type="button" class="directory-character character-wealth" data-home-consultation data-consultation-question="제 사주에서 돈을 벌 때의 강점과 돈을 관리할 때 주의할 점을 알려주세요.">
+          <img src="assets/portrait-wealth.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
+          <span class="directory-character-copy"><span>도겸</span><strong>재물운</strong><small>돈을 벌고 모으는 방식</small></span>
+        </button>
+        <button type="button" class="directory-character character-career" data-home-consultation data-consultation-question="이직을 고민 중이에요. 제 사주에서 어떤 업무 환경이 잘 맞는지 알려주세요.">
+          <img src="assets/portrait-career.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
+          <span class="directory-character-copy"><span>무진</span><strong>직업 · 이직</strong><small>내가 잘 맞는 일과 환경</small></span>
+        </button>
+        <a class="directory-character character-wedding" href="#wedding" onclick="goTo('wedding');return false;">
+          <img src="assets/portrait-wedding.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
+          <span class="directory-character-copy"><span>소담</span><strong>결혼 택일</strong><small>함께할 날 고르기</small></span>
+        </a>
+      </div>
+      <div class="directory-topic-links">
+        <p>연애·재물·직업은 연우 상담에서 이어서 물어볼 수 있어요.</p>
+        <a class="directory-text-link" href="/?landing=yeonwoo">연우 소개와 실제 답변 보기</a>
+      </div>
+    </section>
+
+    <section class="directory-section" aria-labelledby="directoryFeaturedTitle">
+      <h2 id="directoryFeaturedTitle">사주 리포트</h2>
+      <div class="directory-features">
+        <button type="button" class="directory-feature" data-open-basic-report>
+          <span class="directory-feature-copy"><strong>무료 사주 리포트</strong><span>내 오행과 기본 성향</span><small>로그인 없이 보기</small></span>
+          <img src="assets/yeonwoo-reading.jpg" width="1122" height="1402" alt="" loading="lazy" decoding="async">
+        </button>
+        <button type="button" class="directory-feature directory-feature-year" data-open-newyear>
+          <span class="directory-feature-copy"><strong>2027 신년상담</strong><span>한 해의 흐름과 월별 운세</span><small>리포트 알아보기</small></span>
+          <img src="assets/yeonwoo-moonlight.jpg" width="1122" height="1402" alt="" loading="lazy" decoding="async">
+        </button>
+      </div>
+    </section>
+
+    <section class="directory-section" aria-labelledby="directoryDatesTitle">
+      <h2 id="directoryDatesTitle">오늘과 중요한 날</h2>
+      <div class="directory-tools">
+        <button type="button" onclick="openFortuneModal()"><strong>오늘의 운세</strong><span>생년월일로 보는 오늘의 흐름</span></button>
+        <a href="#tool" onclick="goTo('tool');return false;"><strong>좋은 날짜 찾기</strong><span>내 사주로 중요한 날 비교하기</span></a>
+      </div>
+      <nav class="directory-date-links" aria-label="목적별 택일">
+        <a href="#wedding" onclick="goTo('wedding');return false;">결혼</a>
+        <a href="#moving" onclick="goTo('moving');return false;">이사</a>
+        <a href="#opening" onclick="goTo('opening');return false;">개업</a>
+        <a href="#contract" onclick="goTo('contract');return false;">계약</a>
+      </nav>
+    </section>
+
+    <nav class="directory-utility" aria-label="택일소 서비스 안내">
+      <a href="#services" onclick="goTo('services');return false;">서비스 안내</a>
+      <a href="#plans" onclick="goTo('plans');return false;">이용권 안내</a>
+    </nav>
+  </div>
   <div class="block home-first-block" style="padding-bottom:8px;">
     <div class="container" style="max-width:480px;">
       <div class="ai-chat-stage">
@@ -11463,10 +11539,10 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <link rel="stylesheet" href="admin-analytics.css?v=20261113-recovery-1">
 <script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=20261111-operations"></script>
 <script src="admin-analytics.js?v=20261113-recovery-1"></script>
-<link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261113-library-1"></script><script src="premium-motion.js" defer></script>
+<link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261115-directory-1"></script><script src="premium-motion.js" defer></script>
 <link rel="stylesheet" href="consultation-stage.css?v=20261113-reading-1">
 <script src="consultation-draft-core.js?v=20261112-guided-2"></script>
-<script src="consultation-stage.js?v=20261113-reading-1"></script>
+<script src="consultation-stage.js?v=20261115-directory-1"></script>
 <link rel="stylesheet" href="consultation-experience.css?v=20261113-library-1">
 <script src="consultation-experience-core.js?v=20261113-library-1"></script>
 <script src="consultation-experience.js?v=20261113-library-1"></script>
@@ -11483,7 +11559,7 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <link rel="stylesheet" href="consultation-quality.css?v=20261111-2">
 <script src="support-channels.js?v=20261111-refund"></script>
 <script src="consultation-quality.js?v=20261111-experience"></script>
-<link rel="stylesheet" href="site-menu.css?v=20261111-3"><script src="site-menu.js?v=20261111-experience"></script>
+<link rel="stylesheet" href="site-menu.css?v=20261111-3"><script src="site-menu.js?v=20261115-directory-1"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=20261111-2">
 <script src="account-session.js?v=20261113-library-1"></script>
 <script src="campaign-attribution-core.js?v=20261111-1"></script><script src="campaign-attribution.js?v=20261111-1"></script>

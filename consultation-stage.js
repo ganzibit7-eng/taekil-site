@@ -92,7 +92,7 @@
   }
   compareFields.forEach(field => field?.addEventListener('change', updateCompareLabel));
   savedProfile?.addEventListener('change', updateCompareLabel);
-  let opened=false,returnY=0,frame=0;
+  let opened=false,returnY=0,frame=0,returnTrigger=null;
   const viewport=window.visualViewport;
   function size(){
     frame=0;if(!opened)return;
@@ -114,7 +114,12 @@
     opened=next;
     document.documentElement.classList.toggle('consultation-open',opened);
     document.body.classList.toggle('consultation-open',opened);
-    if(opened){size();window.scrollTo({top:0,left:0,behavior:'instant'});}
+    if(opened){
+      size();window.scrollTo({top:0,left:0,behavior:'instant'});
+      if (returnTrigger?.hasAttribute('data-home-consultation')) {
+        setup.querySelector('.consultation-setup-heading h2')?.focus({preventScroll:true});
+      }
+    }
     else{
       const input=document.getElementById('aiChatInput');if(document.activeElement===input)input.blur();
       ['--consult-height','--consult-offset','--consult-nav'].forEach(key=>document.documentElement.style.removeProperty(key));
@@ -123,11 +128,16 @@
   }
   function close(){
     setup.style.display='none';panel.style.display='none';intro.style.display='block';
-    sync();document.getElementById('homeStartChatBtn')?.focus({preventScroll:true});
+    sync();
+    const defaultTrigger = document.documentElement.dataset.homeLayout === 'directory'
+      ? document.querySelector('.directory-primary') : document.getElementById('homeStartChatBtn');
+    const trigger = returnTrigger?.getClientRects().length ? returnTrigger : defaultTrigger;
+    trigger?.focus({preventScroll:true});
+    returnTrigger = null;
   }
   document.addEventListener('click',event=>{
-    const trigger=event.target.closest('#homeStartChatBtn,.brand-story-start');
-    if(trigger&&!opened)returnY=window.scrollY;
+    const trigger=event.target.closest('#homeStartChatBtn,.brand-story-start,[data-home-consultation]');
+    if(trigger&&!opened){returnY=window.scrollY;returnTrigger=trigger;}
     if(opened&&event.target.closest('.topbar .brand'))close();
   },true);
   exit.addEventListener('click',close);
@@ -383,9 +393,24 @@
   });
   // Keep external report/profile handoffs intact; reset only on a new visible entry.
   let visible = false;
+  let topicQuestion = '';
+  const topicButtons = [...document.querySelectorAll('[data-consultation-question]')];
+  const topicQuestions = new Set(topicButtons.map(button => button.dataset.consultationQuestion));
+  topicButtons.forEach(button => button.addEventListener('click', () => {
+    topicQuestion = button.dataset.consultationQuestion;
+    handleHomeChatStart(button);
+  }));
   new MutationObserver(() => {
     const nextVisible = setup.style.display === 'block';
-    if (nextVisible && !visible && !restore()) render(0);
+    if (nextVisible && !visible) {
+      if (!restore()) render(0);
+      if (topicQuestion && (!question.value.trim() || topicQuestions.has(question.value))) {
+        question.value = topicQuestion;
+        count.textContent = `${question.value.length} / 200`;
+        persist();
+      }
+      topicQuestion = '';
+    }
     visible = nextVisible;
   }).observe(setup, {attributes:true, attributeFilter:['style']});
   const core = window.TaekilConsultationDraft;
