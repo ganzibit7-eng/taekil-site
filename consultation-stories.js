@@ -21,6 +21,7 @@
       scene: '금요일까지 이직 제안에 답해야 합니다. 지금 팀은 익숙하고, 새 팀은 해보고 싶던 일을 맡긴다고 해요. 무진과 두 자리에서 실제로 일하는 모습을 비교해 보세요.',
       feature: {
         media: 'mujin',
+        illustrationAlt: '새벽빛이 드는 서재에서 문서를 펼쳐 살펴보는 무진',
         heading: '두 직장에서 보낼 하루',
         offers: [
           ['지금 직장', '기획부터 실행까지 내가 맡아요.', '다음 분기부터 역할이 넓어질 수 있어요.'],
@@ -75,6 +76,7 @@
       scene: '한 달 전 헤어진 사람에게 안부를 쓰고, 아직 보내지 않았습니다. 그리운 마음과 같은 일로 다시 다툴까 걱정되는 마음을 이준과 함께 들여다봅니다.',
       feature: {
         media: 'ijun',
+        illustrationAlt: '비 내리는 창가에 내려놓은 자주색 끈으로 묶인 편지',
         heading: '보내지 않은 메시지',
         message: '잘 지내? 그때 내가 왜 그렇게 말했는지, 괜찮다면 한 번 이야기하고 싶어.',
         chapters: [
@@ -138,6 +140,7 @@
       scene: '야근한 저녁에는 배달, 집에 가는 길에는 소액 주문. 한 건씩 보면 작지만 모아 보니 이번 주 저축을 미룰 정도입니다. 다온과 결제 직전의 상황을 되짚어 보세요.',
       feature: {
         media: 'daon',
+        illustrationAlt: '등잔불 아래 펼친 영수증과 장부, 종이를 정리하는 다온의 손',
         heading: '야근한 주의 영수증',
         receipts: [['늦은 저녁 배달', '18,500원'], ['배달비', '3,500원'], ['퇴근길 소액 주문', '8,900원'], ['합계', '30,900원']],
         chapters: [
@@ -218,28 +221,24 @@
     return scene;
   }
 
-  function makeChapter(chapter, portrait) {
+  function makeChapter(chapter, feature) {
     const section = make('section', '', 'consultation-story-chapter');
-    const prose = make('div');
-    prose.append(
-      make('p', chapter.label, 'consultation-story-label'),
-      make('h2', chapter.title),
-      ...chapter.paragraphs.map(paragraph => make('p', paragraph, 'consultation-story-prose'))
-    );
-    if (chapter.quote) {
-      const figure = make('figure', '', 'consultation-story-aside');
-      figure.append(make('blockquote', chapter.quote), make('figcaption', chapter.caption));
-      prose.append(figure);
-    }
-    section.append(prose);
-    if (portrait) {
-      section.classList.add('consultation-story-chapter-portrait');
-      const image = make('img');
-      image.src = portrait;
-      image.alt = '';
+    section.append(make('p', chapter.label, 'consultation-story-label'), make('h2', chapter.title));
+    if (feature) {
+      const image = make('img', '', 'consultation-story-illustration');
+      image.src = 'assets/consultant-' + feature.media + '-chapter.webp';
+      image.alt = feature.illustrationAlt;
+      image.width = 960;
+      image.height = 640;
       image.loading = 'lazy';
       image.decoding = 'async';
       section.append(image);
+    }
+    section.append(...chapter.paragraphs.map(paragraph => make('p', paragraph, 'consultation-story-prose')));
+    if (chapter.quote) {
+      const figure = make('figure', '', 'consultation-story-aside');
+      figure.append(make('blockquote', chapter.quote), make('figcaption', chapter.caption));
+      section.append(figure);
     }
     return section;
   }
@@ -311,7 +310,7 @@
     const body = make('div', '', 'consultation-story-body');
     if (feature) {
       const [opening, reading] = feature.chapters;
-      body.append(makeScene(feature), makeChapter(opening), makeChapter(reading, advisor.portrait));
+      body.append(makeScene(feature), makeChapter(opening), makeChapter(reading, feature));
     } else {
       const scope = make('section', '', 'consultation-story-scope');
       const points = make('ul');
