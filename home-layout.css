@@ -478,19 +478,19 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
 @media (max-width: 979px) {
   .directory-characters,
   .directory-cards {
-    --rail-card: min(66%, 264px);
+    --rail-card: max(33.333%, min(66%, 264px));
     --rail-gap: 12px;
     display: flex;
     gap: var(--rail-gap);
     margin-inline: -5px;
-    padding: 5px 0 9px;
+    padding: 5px 5px 9px;
     overflow-x: auto;
     overscroll-behavior-inline: contain;
     scroll-snap-type: x mandatory;
+    scroll-padding-inline: 5px;
     scrollbar-width: thin;
     scrollbar-color: #7c7561 transparent;
   }
-  :is(.directory-characters, .directory-cards)::before,
   :is(.directory-characters, .directory-cards)::after {
     content: '';
     flex: 0 0 max(0px, calc((100% - var(--rail-card)) / 2 - var(--rail-gap)));
@@ -500,6 +500,9 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
     min-width: 0;
     scroll-snap-align: center;
     scroll-snap-stop: always;
+  }
+  :is(.directory-characters, .directory-cards) > :first-child {
+    scroll-snap-align: start;
   }
   .home-directory :is(.directory-character, .directory-card)[data-rail-current] {
     border-color: #c6aa768c;
