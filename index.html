@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="/home-layout.js?v=20261115-1"></script>
-<link rel="stylesheet" href="/home-layout.css?v=20261115-1">
+<link rel="stylesheet" href="/home-layout.css?v=20261115-portraits">
 <title>택일소 | AI 사주 상담 · 오늘의 운세 · 결혼·이사·개업 택일</title>
 <meta name="description" content="AI 사주 상담가 연우에게 오늘의 운세, 연애운, 재물운, 궁합을 묻고 결혼·이사·개업·계약 날짜까지 비교해보세요. 첫 질문 3개 무료.">
 <meta name="keywords" content="사주, 사주풀이, 무료사주, 사주궁합, 오늘의운세, 신년운세, 택일, 결혼택일, 이사택일, 개업택일, 손없는날, 만세력">
@@ -2363,6 +2363,32 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       </div>
     </section>
 
+    <section class="directory-section" aria-labelledby="directoryTopicsTitle">
+      <h2 id="directoryTopicsTitle">고민별 사주·택일</h2>
+      <div class="directory-characters">
+        <button type="button" class="directory-character character-love" data-home-consultation data-consultation-question="제 사주로 볼 때 연애와 관계에서 어떤 패턴이 반복되나요? 제가 먼저 바꿔볼 점을 알려주세요.">
+          <img src="assets/portrait-love.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
+          <span class="directory-character-copy"><span>서화</span><strong>연애 · 관계</strong><small>내 관계에서 반복되는 일</small></span>
+        </button>
+        <button type="button" class="directory-character character-wealth" data-home-consultation data-consultation-question="제 사주에서 돈을 벌 때의 강점과 돈을 관리할 때 주의할 점을 알려주세요.">
+          <img src="assets/portrait-wealth.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
+          <span class="directory-character-copy"><span>도겸</span><strong>재물운</strong><small>돈을 벌고 모으는 방식</small></span>
+        </button>
+        <button type="button" class="directory-character character-career" data-home-consultation data-consultation-question="이직을 고민 중이에요. 제 사주에서 어떤 업무 환경이 잘 맞는지 알려주세요.">
+          <img src="assets/portrait-career.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
+          <span class="directory-character-copy"><span>무진</span><strong>직업 · 이직</strong><small>내가 잘 맞는 일과 환경</small></span>
+        </button>
+        <a class="directory-character character-wedding" href="#wedding" onclick="goTo('wedding');return false;">
+          <img src="assets/portrait-wedding.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
+          <span class="directory-character-copy"><span>소담</span><strong>결혼 택일</strong><small>함께할 날 고르기</small></span>
+        </a>
+      </div>
+      <div class="directory-topic-links">
+        <p>연애·재물·직업은 연우 상담에서 이어서 물어볼 수 있어요.</p>
+        <a class="directory-text-link" href="/?landing=yeonwoo">연우 소개와 실제 답변 보기</a>
+      </div>
+    </section>
+
     <section class="directory-section" aria-labelledby="directoryFeaturedTitle">
       <h2 id="directoryFeaturedTitle">사주 리포트</h2>
       <div class="directory-features">
@@ -2375,16 +2401,6 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <img src="assets/yeonwoo-moonlight.jpg" width="1122" height="1402" alt="" loading="lazy" decoding="async">
         </button>
       </div>
-    </section>
-
-    <section class="directory-section" aria-labelledby="directoryTopicsTitle">
-      <h2 id="directoryTopicsTitle">어떤 고민이 있으세요?</h2>
-      <div class="directory-topics">
-        <button type="button" data-home-consultation data-consultation-question="제 사주에서 연애와 관계에서 자주 겪는 어려움과 제가 먼저 바꿔볼 점을 알려주세요."><strong>연애 · 관계</strong><span>내가 반복하는 관계의 패턴</span></button>
-        <button type="button" data-home-consultation data-consultation-question="제 사주에서 돈을 벌 때의 강점과 돈을 관리할 때 주의할 점을 알려주세요."><strong>돈 · 재물</strong><span>돈을 모으고 관리하는 방식</span></button>
-        <button type="button" data-home-consultation data-consultation-question="이직을 고민 중이에요. 제 사주에서 어떤 업무 환경이 잘 맞는지 알려주세요."><strong>직업 · 이직</strong><span>내게 잘 맞는 일과 환경</span></button>
-      </div>
-      <a class="directory-text-link" href="/?landing=yeonwoo">연우 소개와 실제 답변 보기</a>
     </section>
 
     <section class="directory-section" aria-labelledby="directoryDatesTitle">
