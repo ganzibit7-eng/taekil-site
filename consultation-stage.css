@@ -176,30 +176,10 @@ body.consultation-open .ai-chat-stage:has(.consultation-guided-entry[style*="blo
   .consultation-guided-entry .consultation-setup-heading h2 {font-size:24px}
 }
 
-/* Topic covers and specialist portraits use the same stage as Yeonwoo. */
-.home-first-block .ai-chat-bgvideo.ai-chat-topic-portrait { display: none !important; }
-.home-first-block .ai-chat-bgvideo.ai-chat-consultant-portrait { display: none !important; }
-body.consultation-open .home-first-block .ai-chat-stage[data-chat-consultant] > .ai-chat-bgvideo:not(.ai-chat-consultant-portrait) {
-  display: none !important;
-}
-body.consultation-open .home-first-block .ai-chat-stage[data-chat-consultant]:not(.reading-focus) > .ai-chat-consultant-portrait[src] {
-  display: block !important;
-  opacity: 1 !important;
-  object-position: 50% 24%;
-}
 .ai-chat-name-block small[hidden],
 #aiChatQuickActions > button[hidden] { display: none !important; }
 .ai-history-consultant,
 .reading-consultant { color: #dfc69c; font-weight: 600; }
-body.consultation-open .ai-chat-stage:has(#aiChatSetup[data-entry-topic][style*="block"]) .ai-chat-bgvideo.ai-chat-entry-media {
-  display: none !important;
-}
-body.consultation-open .ai-chat-stage:has(#aiChatSetup[data-entry-topic][style*="block"]) .ai-chat-topic-portrait[src] {
-  display: block !important;
-  opacity: 1 !important;
-  object-position: 50% 24%;
-  filter: saturate(.83) brightness(.84);
-}
 .consultation-entry-nav > span:not(.entry-nav-count) {
   min-width: 0;
   overflow-wrap: anywhere;
@@ -257,6 +237,7 @@ body.consultation-open #aiChatSendBtn:focus-visible {outline:2px solid #f0ebe1;o
 .home-first-block .ai-chat-bgvideo.ai-chat-entry-media {display:none!important}
 body.consultation-open .ai-chat-stage:has(#aiChatSetup[style*="block"]) .ai-chat-bgvideo:not(.ai-chat-entry-media) {display:none!important}
 body.consultation-open .ai-chat-stage:has(#aiChatSetup[style*="block"]) .ai-chat-bgvideo.ai-chat-entry-media {display:block!important;object-position:50% 32%}
+body.consultation-open .home-first-block .ai-chat-stage:has(#aiChatSetup[style*="block"]) > img.yeonwoo-stage-poster:not(.ai-chat-entry-media) {display:none!important}
 body.consultation-open:has(#aiChatSetup[style*="block"]) .topbar {display:none!important}
 body.consultation-open:has(#aiChatSetup[style*="block"]) #view-home {
   top:var(--consult-offset,0px)!important;height:var(--consult-height,100dvh)!important;
