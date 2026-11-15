@@ -18,6 +18,14 @@ html[data-home-layout="directory"] body:has(#view-home.visible) footer {
 html[data-home-layout="directory"] #view-home > #homeFaqSection > .container {
   max-width: 760px !important;
 }
+/* Keep directory links readable and keyboard-visible before the scroll observer fires. */
+#homeDirectory .reveal,
+html[data-home-layout="directory"] #homeFaqSection.reveal,
+html[data-home-layout="directory"] #homeFaqSection .reveal {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
 
 .home-directory {
   width: min(1040px, calc(100% - 40px));
@@ -58,7 +66,7 @@ html[data-home-layout="directory"] #view-home > #homeFaqSection > .container {
 }
 .directory-hero-copy {
   width: min(53%, 480px);
-  padding: clamp(28px, 5vw, 64px);
+  padding: clamp(26px, 3.5vw, 46px) clamp(28px, 5vw, 64px);
   box-sizing: content-box;
 }
 .directory-label {
@@ -106,6 +114,7 @@ html[data-home-layout="directory"] #view-home > #homeFaqSection > .container {
   font: 400 14px/1.5 var(--sans);
 }
 .directory-section { margin-top: clamp(32px, 5vw, 58px); }
+.directory-hero + .directory-section { margin-top: 38px; }
 .directory-section h2 {
   margin: 0 0 16px;
   color: #f0ebe1;
@@ -125,6 +134,7 @@ html[data-home-layout="directory"] #view-home > #homeFaqSection > .container {
   align-items: end;
   width: 100%;
   min-height: 188px;
+  max-height: 272px;
   aspect-ratio: 4 / 5;
   overflow: hidden;
   padding: clamp(13px, 2vw, 20px);
@@ -308,6 +318,56 @@ html[data-home-layout="directory"] #view-home > #homeFaqSection > .container {
   color: var(--directory-muted);
   font: 500 15px/1.5 var(--sans);
 }
+
+#view-wedding.view > .hero.wedding-guide {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: min(1040px, calc(100% - 40px));
+  min-height: 380px;
+  margin: 20px auto 0;
+  padding: clamp(28px, 5vw, 58px);
+  overflow: hidden;
+  border-radius: 10px;
+  background: #241c19;
+}
+#view-wedding > .wedding-guide::before,
+#view-wedding > .wedding-guide .hero-inner::before,
+#view-wedding > .wedding-guide .eyebrow::before,
+#view-wedding > .wedding-guide .eyebrow::after { display: none; }
+#view-wedding > .wedding-guide::after {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  z-index: -1;
+  background: linear-gradient(90deg, #241c19 34%, #241c19dc 49%, transparent 76%);
+  pointer-events: none;
+}
+.wedding-guide-portrait {
+  position: absolute;
+  inset: 0 0 0 auto;
+  z-index: -2;
+  width: 61%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 56% 30%;
+}
+#view-wedding .wedding-guide .hero-inner {
+  width: min(410px, 51%);
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+#view-wedding .wedding-guide .hero-inner > * { animation: none; }
+#view-wedding .wedding-guide .eyebrow { margin: 0 0 12px; }
+#view-wedding .wedding-guide .hero-copy { margin-inline: 0; color: #e0d9cf; }
+#view-wedding .wedding-guide .hero-actions { justify-content: flex-start; margin-top: 22px; }
+
 @media (hover: hover) {
   .home-directory .directory-primary:hover { background: #ddc598; }
   .home-directory :is(.directory-feature, .directory-character):hover { border-color: #c6aa76; }
@@ -317,7 +377,7 @@ html[data-home-layout="directory"] #view-home > #homeFaqSection > .container {
 @media (max-width: 660px) {
   .home-directory { width: calc(100% - 28px); margin-top: 13px; }
   .directory-hero {
-    min-height: clamp(380px, 107vw, 450px);
+    min-height: clamp(355px, 100vw, 420px);
     align-items: end;
   }
   .directory-hero-media { inset: 0; }
@@ -330,13 +390,54 @@ html[data-home-layout="directory"] #view-home > #homeFaqSection > .container {
   .directory-hero h1 { font-size: clamp(28px, 7.4vw, 38px); }
   .directory-intro { margin: 10px 0 16px; font-size: 16px; }
   .directory-trial { margin-top: 8px; }
-  .directory-characters { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .directory-hero + .directory-section { margin-top: 24px; }
+  .directory-characters {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: clamp(126px, 40%, 168px);
+    gap: 10px;
+    margin-inline: -5px;
+    padding: 5px 5px 9px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 5px;
+    scrollbar-width: thin;
+    scrollbar-color: #7c7561 transparent;
+  }
+  .home-directory .directory-character {
+    min-height: 166px;
+    max-height: 208px;
+    scroll-snap-align: start;
+  }
+  .directory-character-copy strong { font-size: 18px; }
+  .directory-character-copy small { font-size: 13px; }
   .directory-features { gap: 9px; }
-  .home-directory .directory-feature { padding: 12px; min-height: 155px; }
+  .home-directory .directory-feature { padding: 12px; min-height: 140px; }
   .directory-feature img { width: 100%; object-position: 54% 31%; }
   .directory-feature::after { background: linear-gradient(180deg, #191d170a, #191d17db 50%, #191d17 91%); }
   .directory-feature-year::after { background: linear-gradient(180deg, #141f200a, #141f20db 50%, #141f20 91%); }
   .directory-feature-copy span { font-size: 15px; }
   .directory-feature-copy small { font-size: 13px; margin-top: 3px; }
   .home-directory .directory-tools > * { padding: 14px 8px; }
+  #view-wedding.view > .hero.wedding-guide {
+    display: block;
+    width: calc(100% - 28px);
+    min-height: 0;
+    margin-top: 13px;
+    padding: 0 !important;
+  }
+  .wedding-guide-portrait {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: clamp(206px, 58vw, 280px);
+    object-position: center 18%;
+  }
+  #view-wedding > .wedding-guide::after {
+    height: clamp(206px, 58vw, 280px);
+    background: linear-gradient(180deg, transparent 58%, #241c19);
+  }
+  #view-wedding .wedding-guide .hero-inner { width: 100%; padding: 6px 22px 24px; }
+  #view-wedding .wedding-guide .hero-copy { margin-top: 10px; margin-bottom: 0; }
 }

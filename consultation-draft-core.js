@@ -6,6 +6,7 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function() {
   const ttl = 30 * 60 * 1000;
   const fields = ['ProfileName','Relation','Gender','CalType','Year','Month','Day','Hour'];
+  const normalizeTopic = value => ['love', 'wealth', 'career'].includes(value) ? value : '';
   function birth(raw) {
     const digits = String(raw || '').replace(/\D/g,'').slice(0,8);
     const text = [digits.slice(0,4),digits.slice(4,6),digits.slice(6,8)].filter(Boolean).join('.');
@@ -25,8 +26,9 @@
       return {version:1,at:data.at,owner:String(data.owner || ''),awaitingAuth:data.awaitingAuth === true,
         step:Math.min(5,Math.max(0,Number.isInteger(data.step) ? data.step : 0)),values,
         leap:data.leap === true,question:String(data.question || '').slice(0,200),birthText:birth(data.birthText).text,
+        topic:normalizeTopic(data.topic),
         selections: Object.fromEntries(['SavedProfile','CompareProfile','CompareProfile2'].map(key => [key, data.owner ? String(data.selections?.[key] || '').slice(0,100) : '']))};
     } catch (_) { return null; }
   }
-  return {read, fields, ttl, birth};
+  return {read, fields, ttl, birth, normalizeTopic};
 });
