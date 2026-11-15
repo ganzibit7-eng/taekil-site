@@ -44,5 +44,9 @@
     "showToast('상담 답변을 복사했어요.');",
     "showToast('연우 답변을 복사했어요.');",
     2
+  ],
+  [
+    "function buildTaekilCandidate(date,eventType,userOhaeng,partnerOhaeng){\n  if(!userOhaeng) return null;\n  const idx=dayGanjiIndex(date), oh=ohaengOf(idx);\n  const ur=scoreDate(userOhaeng,oh,eventType);\n  let score=ur.score, reasons=ur.reasons.slice();\n  if(partnerOhaeng){\n    const pr=scoreDate(partnerOhaeng,oh,eventType);\n    score=(score+pr.score)/2;\n    reasons=reasons.concat(pr.reasons.map(r=>'상대방: '+r));\n  }\n  const lunarInfo=getLunarInfo(date);\n  if(lunarInfo&&lunarInfo.isSonEomneun){score+=(eventType==='이사'?2:.8);reasons.push('손없는 날');}\n  const tiebreak=((idx*7+date.getDay()*3)%11)/11*.3-.15;\n  score+=tiebreak;\n  return {date:new Date(date),ganjiIdx:idx,ganji:ganjiName(idx),ganjiHanja:ganjiHanja(idx),ohaeng:oh,score,reasons,lunarInfo};\n}\nfunction buildAiInlineCandidate(date,eventType){\n  const userOhaeng=getAiChatPrimaryOhaeng();\n  if(!userOhaeng)return null;\n  return buildTaekilCandidate(date,eventType,userOhaeng,getAiChatPartnerOhaeng());\n}\n",
+    "function buildAiInlineCandidate(date,eventType){\n  const userOhaeng=getAiChatPrimaryOhaeng();\n  if(!userOhaeng) return null;\n  const idx=dayGanjiIndex(date), oh=ohaengOf(idx);\n  const ur=scoreDate(userOhaeng,oh,eventType);\n  let score=ur.score, reasons=ur.reasons.slice();\n  const partnerOhaeng=getAiChatPartnerOhaeng();\n  if(partnerOhaeng){\n    const pr=scoreDate(partnerOhaeng,oh,eventType);\n    score=(score+pr.score)/2;\n    reasons=reasons.concat(pr.reasons.map(r=>'상대방: '+r));\n  }\n  const lunarInfo=getLunarInfo(date);\n  if(lunarInfo&&lunarInfo.isSonEomneun){score+=(eventType==='이사'?2:.8);reasons.push('손없는 날');}\n  const tiebreak=((idx*7+date.getDay()*3)%11)/11*.3-.15;\n  score+=tiebreak;\n  return {date:new Date(date),ganjiIdx:idx,ganji:ganjiName(idx),ganjiHanja:ganjiHanja(idx),ohaeng:oh,score,reasons,lunarInfo};\n}\n"
   ]
 ]

@@ -2539,7 +2539,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           </dl>
           <p>두 날짜 모두 화 기운과 상생하고, 15일에는 손없는 날 가점이 붙어요. 예식장 비용과 하객 이동 시간도 함께 비교해 보세요.</p>
           <details class="directory-date-basis"><summary>예시에 사용한 사주</summary><p>양력 1990년 1월 1일(화)과 1992년 4월 18일(목). 두 사람 모두 출생시간 미상으로 설정했습니다.</p></details>
-          <a class="directory-preview-action" href="#tool" onclick="goTo('tool','결혼식');return false;">내 예식 날짜 비교하기</a>
+          <a class="directory-preview-action" href="#tool" data-open-date-comparison onclick="goTo('tool','결혼식');return false;">내 예식 날짜 비교하기</a>
         </div>
       </article>
     </section>
@@ -3028,6 +3028,18 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <div class="container" style="max-width:720px;">
       <div class="tool-shell">
         <p class="lead" id="toolSelectedLabel">생년월일과 가능한 기간만 알려주세요. 좋은 후보부터 비교해서 보여드릴게요.</p>
+        <div class="tool-date-mode" role="group" aria-label="택일 방식">
+          <button type="button" aria-pressed="true" data-date-mode="range">기간으로 찾기</button>
+          <button type="button" aria-pressed="false" data-date-mode="exact">두 날짜 비교</button>
+        </div>
+        <div class="tool-exact-dates" hidden>
+          <h2 tabindex="-1" id="toolExactTitle">후보 날짜 비교</h2>
+          <p>후보일 두 개는 양력 날짜로 고르고, 아래에 생년월일을 입력해 주세요.</p>
+          <div class="form-grid">
+            <div class="field"><label for="exactDateFirst">첫 번째 후보일</label><input type="date" id="exactDateFirst"></div>
+            <div class="field"><label for="exactDateSecond">두 번째 후보일</label><input type="date" id="exactDateSecond"></div>
+          </div>
+        </div>
 
         <div class="event-opts" id="eventPicker" style="display:none;">
           <div class="event-opt active" data-val="결혼식">결혼식</div>
@@ -3051,9 +3063,9 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         <div class="field full" style="margin-top:16px;">
           <label>생년월일</label>
           <div class="ymd-row">
-            <select id="birthYear" class="ymd-select"></select>
-            <select id="birthMonth" class="ymd-select"></select>
-            <select id="birthDay" class="ymd-select"></select>
+            <select id="birthYear" class="ymd-select" aria-label="본인 출생연도"></select>
+            <select id="birthMonth" class="ymd-select" aria-label="본인 출생월"></select>
+            <select id="birthDay" class="ymd-select" aria-label="본인 출생일"></select>
           </div>
         </div>
         <div class="field full">
@@ -3082,9 +3094,9 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <div class="field full">
             <label>상대방 생년월일</label>
             <div class="ymd-row">
-              <select id="partnerYear" class="ymd-select"></select>
-              <select id="partnerMonth" class="ymd-select"></select>
-              <select id="partnerDay" class="ymd-select"></select>
+              <select id="partnerYear" class="ymd-select" aria-label="상대방 출생연도"></select>
+              <select id="partnerMonth" class="ymd-select" aria-label="상대방 출생월"></select>
+              <select id="partnerDay" class="ymd-select" aria-label="상대방 출생일"></select>
             </div>
           </div>
           <div class="field full">
@@ -3102,12 +3114,17 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           윤달이에요
         </label>
 
-        <div class="form-grid">
+        <div class="form-grid tool-range-dates">
           <div class="field"><label>찾아볼 기간 시작</label><input type="date" id="rangeStart"></div>
           <div class="field"><label>찾아볼 기간 끝</label><input type="date" id="rangeEnd"></div>
         </div>
 
         <button class="btn btn-primary form-submit" id="submitBtn">좋은 날짜 찾아보기</button>
+        <div class="tool-exact-output" hidden>
+          <p class="tool-exact-error" role="alert"></p>
+          <button type="button" class="btn btn-primary form-submit" id="compareExactDates">선택한 두 날짜 비교하기</button>
+          <section class="tool-exact-results" aria-labelledby="toolExactResultTitle" hidden></section>
+        </div>
         <div id="loadingLine" class="loading-line" style="display:none;"><span class="spinner"></span>사주와 일진을 대조하는 중입니다…</div>
 
         <div id="results">
@@ -9179,13 +9196,11 @@ function getAiChatPartnerOhaeng(){
     return birth ? ohaengOf(dayGanjiIndex(birth)) : null;
   }catch(e){return null;}
 }
-function buildAiInlineCandidate(date,eventType){
-  const userOhaeng=getAiChatPrimaryOhaeng();
+function buildTaekilCandidate(date,eventType,userOhaeng,partnerOhaeng){
   if(!userOhaeng) return null;
   const idx=dayGanjiIndex(date), oh=ohaengOf(idx);
   const ur=scoreDate(userOhaeng,oh,eventType);
   let score=ur.score, reasons=ur.reasons.slice();
-  const partnerOhaeng=getAiChatPartnerOhaeng();
   if(partnerOhaeng){
     const pr=scoreDate(partnerOhaeng,oh,eventType);
     score=(score+pr.score)/2;
@@ -9196,6 +9211,11 @@ function buildAiInlineCandidate(date,eventType){
   const tiebreak=((idx*7+date.getDay()*3)%11)/11*.3-.15;
   score+=tiebreak;
   return {date:new Date(date),ganjiIdx:idx,ganji:ganjiName(idx),ganjiHanja:ganjiHanja(idx),ohaeng:oh,score,reasons,lunarInfo};
+}
+function buildAiInlineCandidate(date,eventType){
+  const userOhaeng=getAiChatPrimaryOhaeng();
+  if(!userOhaeng)return null;
+  return buildTaekilCandidate(date,eventType,userOhaeng,getAiChatPartnerOhaeng());
 }
 function getAiInlineTaekilTop(eventType,startDate,endDate,limit=3){
   const arr=[]; let cur=new Date(startDate); cur.setHours(0,0,0,0);
@@ -11723,6 +11743,8 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <script src="account-session.js?v=20261115-personas"></script>
 <script src="campaign-attribution-core.js?v=20261111-1"></script><script src="campaign-attribution.js?v=20261115-preview-conversion"></script>
 <script src="preview-funnel.js?v=20261115-preview-topics"></script>
+<link rel="stylesheet" href="date-comparison.css?v=20261116-1">
+<script src="date-comparison.js?v=20261116-1"></script>
 </body>
 </html>
 

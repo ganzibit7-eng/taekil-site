@@ -136,7 +136,7 @@ test('the displayed wedding example matches the existing couple scoring and cale
   const score=runInNewContext(
     part('const CHEONGAN =','renderTodayGanji();') +
     part('function scoreDate','const dowNames') +
-    part('function buildAiInlineCandidate','function getAiInlineTaekilTop') +
+    part('function buildTaekilCandidate','function getAiInlineTaekilTop') +
     part('function to100','/* ---------- RESULT CARDS') +
     `function getAiChatPrimaryOhaeng(){return ohaengOf(dayGanjiIndex(new Date(1990,0,1)))}
      function getAiChatPartnerOhaeng(){return ohaengOf(dayGanjiIndex(new Date(1992,3,18)))}
