@@ -1,5 +1,7 @@
 const assert = require('node:assert/strict');
 const { readFileSync } = require('node:fs');
+const { createHash } = require('node:crypto');
+const path = require('node:path');
 const { test } = require('node:test');
 const { runInNewContext } = require('node:vm');
 
@@ -73,4 +75,15 @@ test('the home FAQ starts folded in the directory and stays expanded on the ad l
     runInNewContext(entry, {URLSearchParams, location:new URL(path, 'https://taekilso.com'), document});
     assert.equal(faq.open, path.includes('landing=yeonwoo'));
   }
+});
+
+test('the public home uses a separate image for every displayed hero, portrait and topic', () => {
+  const html = readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  const start = html.indexOf('id="homeDirectory"');
+  const end = html.indexOf('<div class="block home-first-block"', start);
+  const images = [...html.slice(start, end).matchAll(/<img\b[^>]*\bsrc="([^"]+)"/g)].map(([, src]) => src);
+  assert.ok(images.length >= 19);
+  assert.equal(new Set(images).size, images.length);
+  const hashes = images.map(src => createHash('sha256').update(readFileSync(path.join(__dirname, src))).digest('hex'));
+  assert.equal(new Set(hashes).size, images.length);
 });
