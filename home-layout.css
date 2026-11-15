@@ -42,7 +42,7 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
   min-height: 380px;
   overflow: hidden;
   border-radius: 10px;
-  background: #1b2420;
+  background: var(--bg, #101715);
 }
 .directory-hero-media {
   position: absolute;
@@ -62,7 +62,7 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, #1b2420, #1b2420c9 18%, #1b242000 58%);
+  background: linear-gradient(90deg, var(--bg, #101715), #101715c9 18%, #10171500 58%);
 }
 .directory-hero-copy {
   width: min(53%, 480px);
@@ -383,7 +383,7 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
   .directory-hero-media { inset: 0; }
   .directory-hero-media :is(img, video) { object-position: 56% 28%; }
   .directory-hero-media::after {
-    background: linear-gradient(180deg, transparent 20%, #10171513 32%, #141b17e8 68%, #141b17 95%);
+    background: linear-gradient(180deg, transparent 20%, #10171513 32%, #101715e8 68%, var(--bg, #101715) 95%);
   }
   .directory-hero-copy { width: 100%; padding: 20px; box-sizing: border-box; }
   .directory-label { margin-bottom: 8px; font-size: 14px; }
