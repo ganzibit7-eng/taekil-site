@@ -114,7 +114,22 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
   font: 400 14px/1.5 var(--sans);
 }
 .directory-section { margin-top: clamp(32px, 5vw, 58px); }
-.directory-hero + .directory-section { margin-top: 38px; }
+.directory-sections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px clamp(10px, 2vw, 25px);
+  margin-top: 12px;
+  border-bottom: 1px solid var(--directory-line);
+}
+.home-directory .directory-sections button {
+  min-height: 46px;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  color: var(--directory-muted);
+  font: 550 15px/1.4 var(--sans);
+}
+.directory-sections + .directory-section { margin-top: 26px; }
 .directory-section h2 {
   margin: 0 0 16px;
   color: #f0ebe1;
@@ -122,6 +137,7 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
   letter-spacing: -.045em;
   word-break: keep-all;
 }
+.directory-section h2[tabindex] { scroll-margin-top: 94px; }
 .directory-characters {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -259,6 +275,56 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
   color: #e0c695;
   font: 550 14px/1.5 var(--sans);
 }
+.directory-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.home-directory .directory-card {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #f0ebe12a;
+  border-radius: 8px;
+  background: #1b2420;
+  color: #f0ebe1;
+  text-align: left;
+  text-decoration: none;
+}
+.directory-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: center 24%;
+  border-bottom: 1px solid #f0ebe121;
+}
+.directory-card-reunion img { object-position: center 39%; }
+.directory-card-copy {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 4px;
+  padding: clamp(11px, 1.65vw, 17px);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.directory-card-copy strong {
+  font: 600 clamp(18px, 2.1vw, 23px)/1.4 var(--serif);
+  letter-spacing: -.045em;
+}
+.directory-card-copy small {
+  color: var(--directory-muted);
+  font: 400 15px/1.55 var(--sans);
+}
+.directory-card-copy > span {
+  margin-top: 3px;
+  color: #e0c695;
+  font: 550 14px/1.45 var(--sans);
+}
+.directory-date-cards { margin-top: 14px; }
 .directory-tools {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -298,20 +364,17 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
   text-decoration: underline;
   text-underline-offset: 4px;
 }
-.directory-date-links, .directory-utility {
+.directory-utility {
   display: flex;
   flex-wrap: wrap;
   column-gap: clamp(16px, 4vw, 32px);
   align-items: center;
-}
-.directory-date-links { margin-top: 7px; }
-.directory-utility {
   margin-top: 28px;
   padding-block: 6px;
   border-top: 1px solid var(--directory-line);
   border-bottom: 1px solid var(--directory-line);
 }
-.home-directory :is(.directory-date-links, .directory-utility) a {
+.home-directory .directory-utility a {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
@@ -370,9 +433,9 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
 
 @media (hover: hover) {
   .home-directory .directory-primary:hover { background: #ddc598; }
-  .home-directory :is(.directory-feature, .directory-character):hover { border-color: #c6aa76; }
+  .home-directory :is(.directory-feature, .directory-character, .directory-card):hover { border-color: #c6aa76; }
   .home-directory .directory-tools > *:hover { background: #ffffff07; }
-  .home-directory :is(.directory-date-links, .directory-utility) a:hover { color: #f0ebe1; }
+  .home-directory :is(.directory-sections button, .directory-utility a):hover { color: #f0ebe1; }
 }
 @media (max-width: 660px) {
   .home-directory { width: calc(100% - 28px); margin-top: 13px; }
@@ -390,7 +453,9 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
   .directory-hero h1 { font-size: clamp(28px, 7.4vw, 38px); }
   .directory-intro { margin: 10px 0 16px; font-size: 16px; }
   .directory-trial { margin-top: 8px; }
-  .directory-hero + .directory-section { margin-top: 24px; }
+  .directory-sections { justify-content: space-between; gap: 2px; }
+  .home-directory .directory-sections button { padding-inline: 5px; font-size: 14px; }
+  .directory-sections + .directory-section { margin-top: 20px; }
   .directory-characters {
     grid-template-columns: none;
     grid-auto-flow: column;
@@ -419,6 +484,7 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
   .directory-feature-year::after { background: linear-gradient(180deg, #141f200a, #141f20db 50%, #141f20 91%); }
   .directory-feature-copy span { font-size: 15px; }
   .directory-feature-copy small { font-size: 13px; margin-top: 3px; }
+  .directory-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .home-directory .directory-tools > * { padding: 14px 8px; }
   #view-wedding.view > .hero.wedding-guide {
     display: block;

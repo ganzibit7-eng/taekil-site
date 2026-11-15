@@ -8,7 +8,7 @@ const layoutAt = path => {
   const location = new URL(path, 'https://taekilso.com/');
   const originalUrl = location.href;
   const dataset = {};
-  runInNewContext(entry, { URLSearchParams, location, document: { documentElement: { dataset } } });
+  runInNewContext(entry, { URLSearchParams, location, document: { documentElement: { dataset }, addEventListener() {} } });
   assert.equal(location.href, originalUrl);
   return dataset.homeLayout;
 };
@@ -32,4 +32,27 @@ test('the explicit ad URL, legacy Naver ad links and guide links open the origin
   ]) {
     assert.equal(layoutAt(path), 'consultation', path);
   }
+});
+
+test('directory shortcuts focus and scroll to their headings without changing the home URL', () => {
+  const location = new URL('https://taekilso.com/?utm_source=search');
+  const headingId = 'directoryRelationshipsTitle';
+  const calls = [];
+  const heading = {
+    focus(options) { calls.push(['focus', options.preventScroll]); },
+    scrollIntoView(options) { calls.push(['scroll', options.block, options.behavior]); }
+  };
+  const button = {
+    dataset: { directoryJump: headingId },
+    addEventListener(type, handle) { assert.equal(type, 'click'); handle(); }
+  };
+  const document = {
+    documentElement: { dataset: {} },
+    addEventListener(type, handle) { assert.equal(type, 'DOMContentLoaded'); handle(); },
+    querySelectorAll() { return [button]; },
+    getElementById(id) { assert.equal(id, headingId); return heading; }
+  };
+  runInNewContext(entry, { URLSearchParams, location, document });
+  assert.deepEqual(calls, [['focus', true], ['scroll', 'start', 'instant']]);
+  assert.equal(location.href, 'https://taekilso.com/?utm_source=search');
 });
