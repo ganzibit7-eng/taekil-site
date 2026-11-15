@@ -98,49 +98,11 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
   padding: clamp(26px, 3.5vw, 46px) clamp(28px, 5vw, 64px);
   box-sizing: content-box;
 }
-.directory-label {
-  margin: 0 0 16px;
-  color: #dfc69c;
-  font: 500 15px/1.5 var(--sans);
-}
 .directory-hero h1 {
   margin: 0;
   font: 600 clamp(31px, 4.3vw, 50px)/1.35 var(--serif);
   letter-spacing: -.055em;
   word-break: keep-all;
-}
-.directory-intro {
-  max-width: 33ch;
-  margin: 18px 0 24px;
-  color: #e0dfd6;
-  font: 400 17px/1.65 var(--sans);
-  word-break: keep-all;
-}
-.home-directory .directory-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  min-height: 48px;
-  padding: 11px 18px;
-  border: 1px solid #e0c695;
-  border-radius: 7px;
-  background: #c6aa76;
-  color: #101715;
-  font: 650 16px/1.45 var(--sans);
-  text-align: center;
-}
-.directory-primary::before {
-  content: "";
-  flex: 0 0 19px;
-  height: 19px;
-  background: url('assets/consultation-sparkle.svg') center / contain no-repeat;
-  filter: brightness(.36) saturate(.4);
-}
-.directory-trial {
-  margin: 11px 0 0;
-  color: #d0d4ca;
-  font: 400 14px/1.5 var(--sans);
 }
 .directory-section { margin-top: clamp(32px, 5vw, 58px); }
 .directory-sections {
@@ -243,7 +205,9 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+  margin-top: clamp(32px, 5vw, 58px);
 }
+.directory-features > .directory-section {min-width:0;margin:0}
 .home-directory :is(button, a) { cursor: pointer; }
 .home-directory :is(button, a):focus-visible {
   outline: 2px solid #dfc69c;
@@ -262,6 +226,7 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
   border-radius: 8px;
   background: #20251e;
   color: #f0ebe1;
+  text-decoration: none;
   text-align: left;
 }
 .home-directory .directory-feature-year { background: #1a2728; }
@@ -457,7 +422,6 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
 #view-wedding .wedding-guide .hero-actions { justify-content: flex-start; margin-top: 22px; }
 
 @media (hover: hover) {
-  .home-directory .directory-primary:hover { background: #ddc598; }
   .home-directory :is(.directory-feature, .directory-character, .directory-card):hover { border-color: #c6aa76; }
   .home-directory :is(.directory-character, .directory-card):hover img { filter: brightness(1.08) saturate(1.05); }
   .home-directory .directory-tools > *:hover { background: #ffffff07; }
@@ -538,15 +502,12 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
     background: linear-gradient(180deg, transparent 20%, #10171513 32%, #101715e8 68%, var(--bg, #101715) 95%);
   }
   .directory-hero-copy { width: 100%; padding: 20px; box-sizing: border-box; }
-  .directory-label { margin-bottom: 8px; font-size: 14px; }
   .directory-hero h1 { font-size: clamp(28px, 7.4vw, 38px); }
-  .directory-intro { margin: 10px 0 16px; font-size: 16px; }
-  .directory-trial { margin-top: 8px; }
   .directory-sections { justify-content: space-between; gap: 2px; }
   .home-directory .directory-sections button { padding-inline: 5px; font-size: 14px; }
   .directory-sections + .directory-section { margin-top: 20px; }
   .directory-character-copy strong { font-size: 23px; }
-  .directory-features { grid-template-columns: 1fr; gap: 12px; }
+  .directory-features { grid-template-columns: 1fr; gap: 32px; }
   .home-directory .directory-feature { min-height: 184px; }
   .directory-feature-copy { width: 64%; }
   .directory-feature-copy strong { font-size: 22px; }
