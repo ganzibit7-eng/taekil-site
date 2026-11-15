@@ -2893,15 +2893,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 <!-- ============ WEDDING ============ -->
 <section id="view-wedding" class="view">
-  <header class="hero hero-sm wedding-guide">
-    <img class="wedding-guide-portrait" src="assets/portrait-wedding.jpg" width="600" height="750" alt="" decoding="async" loading="lazy">
-    <div class="hero-inner">
-      <div class="eyebrow">소담 · 결혼 택일</div>
-      <h1 style="font-size:clamp(30px,5vw,54px);">두 사람의 기운이<br>만나는 날</h1>
-      <p class="hero-copy">두 분의 생년월일을 바탕으로 가능한 예식 날짜를 비교해 보세요.</p>
-    </div>
-  </header>
-  <section class="block wedding-comparison-section" aria-label="소담의 날짜 비교 예시">
+  <section id="weddingStoryIntro" class="consultation-story-view"></section>
+  <section id="weddingStoryComparison" class="block wedding-comparison-section" aria-label="소담의 날짜 비교 예시">
     <div class="container">
       <article class="directory-date-example" aria-labelledby="directoryWeddingExampleTitle">
         <div class="directory-date-visual yeonwoo-video-frame" aria-hidden="true">
@@ -2910,7 +2903,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         </div>
         <div class="directory-date-copy">
           <span class="directory-preview-label">소담 · 결혼 택일 예시</span>
-          <h3 id="directoryWeddingExampleTitle">예식장이 두 날짜를 제안했다면</h3>
+          <h3 id="directoryWeddingExampleTitle" tabindex="-1">예식장이 두 날짜를 제안했다면</h3>
           <p>가상의 두 사람을 기준으로 택일소에서 계산한 2027년 5월 예식 후보예요.</p>
           <dl class="directory-date-scores">
             <div><dt><time datetime="2027-05-15">5월 15일 토요일</time><strong>93점</strong></dt><dd>갑오(甲午) · 목 · 손없는 날</dd></div>
@@ -11738,8 +11731,8 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 
 <link rel="stylesheet" href="consultation-stage.css?v=20261115-consultation-preview">
 <script src="consultation-personas.js?v=20261115-representative-motion"></script>
-<link rel="stylesheet" href="consultation-stories.css?v=20261116-chapter-films">
-<script src="consultation-stories.js?v=20261116-chapter-films"></script>
+<link rel="stylesheet" href="consultation-stories.css?v=20261116-advisor-stories">
+<script src="consultation-stories.js?v=20261116-advisor-stories"></script>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261116-stories"></script><script src="premium-motion.js" defer></script>
 <script src="consultation-draft-core.js?v=20261115-personas"></script>
 <script src="consultation-stage.js?v=20261116-featured-stories"></script>
