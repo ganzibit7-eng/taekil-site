@@ -26,15 +26,19 @@
         frame = 0;
         let next = null;
         if (rail.clientWidth && rail.scrollWidth - rail.clientWidth > 1) {
-          const bounds = rail.getBoundingClientRect();
-          const center = (bounds.left + bounds.right) / 2;
-          let nearest = Infinity;
-          for (const card of rail.children) {
-            const box = card.getBoundingClientRect();
-            const distance = Math.abs((box.left + box.right) / 2 - center);
-            if (distance < nearest) {
-              nearest = distance;
-              next = card;
+          if (rail.scrollLeft <= 1) {
+            next = rail.firstElementChild;
+          } else {
+            const bounds = rail.getBoundingClientRect();
+            const center = (bounds.left + bounds.right) / 2;
+            let nearest = Infinity;
+            for (const card of rail.children) {
+              const box = card.getBoundingClientRect();
+              const distance = Math.abs((box.left + box.right) / 2 - center);
+              if (distance < nearest) {
+                nearest = distance;
+                next = card;
+              }
             }
           }
         }

@@ -48,15 +48,15 @@ test('the conversation and its rendered record carry the advisor and legacy reco
   assert.equal(context.window.__aiConsultantId,'dogyeom');
 });
 
-test('the seven topic advisors have separate local MP4 clips for entry and chat', () => {
-  const topics = ['first-date','reunion','marriage','career-start','side-job','saving','career-growth'];
+test('every card advisor has separate local MP4 clips for entry and chat', () => {
+  const topics = [...html.matchAll(/data-consultation-topic="([^"]+)"/g)].map(m=>m[1]);
   const sources = topics.flatMap(topic => {
     const {id, motion} = personas.forTopic(topic);
     assert.equal(motion.entry, 'assets/consultant-'+id+'-entry.mp4');
     assert.equal(motion.chat, 'assets/consultant-'+id+'-chat.mp4');
     return [motion.entry, motion.chat];
   });
-  assert.equal(new Set(sources).size, 14);
+  assert.equal(new Set(sources).size, 22);
   for (const src of sources) {
     assert.equal(readFileSync(src).subarray(4, 8).toString('ascii'), 'ftyp');
   }
