@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="/home-layout.js?v=20261115-1"></script>
-<link rel="stylesheet" href="/home-layout.css?v=20261115-portraits">
+<link rel="stylesheet" href="/home-layout.css?v=20261115-entry">
 <title>택일소 | AI 사주 상담 · 오늘의 운세 · 결혼·이사·개업 택일</title>
 <meta name="description" content="AI 사주 상담가 연우에게 오늘의 운세, 연애운, 재물운, 궁합을 묻고 결혼·이사·개업·계약 날짜까지 비교해보세요. 첫 질문 3개 무료.">
 <meta name="keywords" content="사주, 사주풀이, 무료사주, 사주궁합, 오늘의운세, 신년운세, 택일, 결혼택일, 이사택일, 개업택일, 손없는날, 만세력">
@@ -2365,16 +2365,16 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
     <section class="directory-section" aria-labelledby="directoryTopicsTitle">
       <h2 id="directoryTopicsTitle">고민별 사주·택일</h2>
-      <div class="directory-characters">
-        <button type="button" class="directory-character character-love" data-home-consultation data-consultation-question="제 사주로 볼 때 연애와 관계에서 어떤 패턴이 반복되나요? 제가 먼저 바꿔볼 점을 알려주세요.">
+      <div class="directory-characters" role="group" aria-label="고민별 캐릭터 선택">
+        <button type="button" class="directory-character character-love" data-home-consultation data-consultation-topic="love" data-consultation-question="제 사주로 볼 때 연애와 관계에서 어떤 패턴이 반복되나요? 제가 먼저 바꿔볼 점을 알려주세요.">
           <img src="assets/portrait-love.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
           <span class="directory-character-copy"><span>서화</span><strong>연애 · 관계</strong><small>내 관계에서 반복되는 일</small></span>
         </button>
-        <button type="button" class="directory-character character-wealth" data-home-consultation data-consultation-question="제 사주에서 돈을 벌 때의 강점과 돈을 관리할 때 주의할 점을 알려주세요.">
+        <button type="button" class="directory-character character-wealth" data-home-consultation data-consultation-topic="wealth" data-consultation-question="제 사주에서 돈을 벌 때의 강점과 돈을 관리할 때 주의할 점을 알려주세요.">
           <img src="assets/portrait-wealth.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
           <span class="directory-character-copy"><span>도겸</span><strong>재물운</strong><small>돈을 벌고 모으는 방식</small></span>
         </button>
-        <button type="button" class="directory-character character-career" data-home-consultation data-consultation-question="이직을 고민 중이에요. 제 사주에서 어떤 업무 환경이 잘 맞는지 알려주세요.">
+        <button type="button" class="directory-character character-career" data-home-consultation data-consultation-topic="career" data-consultation-question="이직을 고민 중이에요. 제 사주에서 어떤 업무 환경이 잘 맞는지 알려주세요.">
           <img src="assets/portrait-career.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
           <span class="directory-character-copy"><span>무진</span><strong>직업 · 이직</strong><small>내가 잘 맞는 일과 환경</small></span>
         </button>
@@ -2755,11 +2755,12 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <p class="payment-reference">사주와 택일은 전통 명리학을 바탕으로 한 참고 정보입니다. 중요한 선택에는 현실적인 일정과 조건을 함께 고려하세요.</p></div></section></section>
 <!-- ============ WEDDING ============ -->
 <section id="view-wedding" class="view">
-  <header class="hero hero-sm">
+  <header class="hero hero-sm wedding-guide">
+    <img class="wedding-guide-portrait" src="assets/portrait-wedding.jpg" width="600" height="750" alt="" decoding="async" loading="lazy">
     <div class="hero-inner">
-      <div class="eyebrow">결혼식 날짜</div>
+      <div class="eyebrow">소담 · 결혼 택일</div>
       <h1 style="font-size:clamp(30px,5vw,54px);">두 사람의 기운이<br>만나는 날</h1>
-      <p class="hero-copy">예식 날짜는 웨딩홀 예약보다 먼저 정해지는 경우가 많습니다. 두 분의 생년월일을 각각 넣어보면 서로에게 무난한 날을 찾는 데 참고가 됩니다.</p>
+      <p class="hero-copy">두 분의 생년월일을 바탕으로 가능한 예식 날짜를 비교해 보세요.</p>
       <div class="hero-actions"><button class="btn btn-primary" onclick="goTo('tool','결혼식')">결혼식 날짜 찾기</button></div>
     </div>
   </header>
@@ -11540,9 +11541,9 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=20261111-operations"></script>
 <script src="admin-analytics.js?v=20261113-recovery-1"></script>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261115-directory-1"></script><script src="premium-motion.js" defer></script>
-<link rel="stylesheet" href="consultation-stage.css?v=20261113-reading-1">
-<script src="consultation-draft-core.js?v=20261112-guided-2"></script>
-<script src="consultation-stage.js?v=20261115-directory-1"></script>
+<link rel="stylesheet" href="consultation-stage.css?v=20261115-entry">
+<script src="consultation-draft-core.js?v=20261115-entry"></script>
+<script src="consultation-stage.js?v=20261115-entry"></script>
 <link rel="stylesheet" href="consultation-experience.css?v=20261113-library-1">
 <script src="consultation-experience-core.js?v=20261113-library-1"></script>
 <script src="consultation-experience.js?v=20261113-library-1"></script>

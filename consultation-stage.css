@@ -176,6 +176,22 @@ body.consultation-open .ai-chat-stage:has(.consultation-guided-entry[style*="blo
   .consultation-guided-entry .consultation-setup-heading h2 {font-size:24px}
 }
 
+/* A topic cover introduces the form. The chat continues with Yeonwoo's usual media. */
+.home-first-block .ai-chat-bgvideo.ai-chat-topic-portrait { display: none !important; }
+body.consultation-open .ai-chat-stage:has(#aiChatSetup[data-entry-topic][style*="block"]) .ai-chat-bgvideo.ai-chat-entry-media {
+  display: none !important;
+}
+body.consultation-open .ai-chat-stage:has(#aiChatSetup[data-entry-topic][style*="block"]) .ai-chat-topic-portrait[src] {
+  display: block !important;
+  opacity: 1 !important;
+  object-position: 50% 24%;
+  filter: saturate(.83) brightness(.84);
+}
+.consultation-entry-nav > span:not(.entry-nav-count) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 /* Immersive entry: one question at a time, with the same uninterrupted film. */
 .consultation-entry-nav {display:none}
 .consultation-concern-choices {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}

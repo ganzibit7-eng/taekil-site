@@ -327,6 +327,26 @@
   const entryTitle = document.createElement('span'); entryTitle.textContent = '연우와의 첫 대화';
   const entryCount = document.createElement('span'); entryCount.className = 'entry-nav-count';
   entryNav.append(entryBack,entryTitle,entryCount); stage.append(entryNav);
+  const topicPortrait = document.createElement('img');
+  topicPortrait.className = 'ai-chat-bgvideo ai-chat-topic-portrait';
+  topicPortrait.alt = '';
+  topicPortrait.setAttribute('aria-hidden', 'true');
+  topicPortrait.decoding = 'async';
+  stage.prepend(topicPortrait);
+  let selectedTopic = '';
+  const topics = new Map();
+  function showTopic(topic) {
+    selectedTopic = core.normalizeTopic(topic);
+    const card = topics.get(selectedTopic);
+    entryTitle.textContent = card?.title || '연우와의 첫 대화';
+    if (card?.image) {
+      if (topicPortrait.getAttribute('src') !== card.image) topicPortrait.src = card.image;
+      setup.dataset.entryTopic = selectedTopic;
+    } else {
+      delete setup.dataset.entryTopic;
+      topicPortrait.removeAttribute('src');
+    }
+  }
 
   function validateDate() {
     const y = +field('Year').value, m = +field('Month').value, d = +field('Day').value;
@@ -366,7 +386,8 @@
     entryCount.textContent = `${step + 1} / ${steps.length}`;
     setup.dataset.entryStep = String(step);
     heading.querySelector('h2').textContent = steps[step][0];
-    heading.querySelector('p:not(.consultation-entry-progress)').textContent = steps[step][1];
+    heading.querySelector('p:not(.consultation-entry-progress)').textContent = step === 0 && selectedTopic
+      ? '연우 상담에 사용할 사주 정보를 알려주세요.' : steps[step][1];
     back.hidden = step === 0;
     next.hidden = step === 5;
     next.disabled = step === 1 && !core.birth(birthInput.value).complete;
@@ -393,27 +414,39 @@
   });
   // Keep external report/profile handoffs intact; reset only on a new visible entry.
   let visible = false;
-  let topicQuestion = '';
-  const topicButtons = [...document.querySelectorAll('[data-consultation-question]')];
-  const topicQuestions = new Set(topicButtons.map(button => button.dataset.consultationQuestion));
-  topicButtons.forEach(button => button.addEventListener('click', () => {
-    topicQuestion = button.dataset.consultationQuestion;
-    handleHomeChatStart(button);
-  }));
+  let requestedTopic = '';
+  const core = window.TaekilConsultationDraft;
+  for (const button of document.querySelectorAll('[data-consultation-topic][data-consultation-question]')) {
+    const key = core.normalizeTopic(button.dataset.consultationTopic);
+    if (!key) continue;
+    const name = button.querySelector('.directory-character-copy > span')?.textContent;
+    const title = button.querySelector('.directory-character-copy > strong')?.textContent;
+    topics.set(key, { title: [name, title].filter(Boolean).join(' · '),
+      image: button.querySelector('img')?.getAttribute('src'), question: button.dataset.consultationQuestion });
+    button.addEventListener('click', () => {
+      requestedTopic = key;
+      handleHomeChatStart(button);
+    });
+  }
+  const topicQuestions = new Set([...topics.values()].map(topic => topic.question));
   new MutationObserver(() => {
     const nextVisible = setup.style.display === 'block';
     if (nextVisible && !visible) {
-      if (!restore()) render(0);
-      if (topicQuestion && (!question.value.trim() || topicQuestions.has(question.value))) {
-        question.value = topicQuestion;
-        count.textContent = `${question.value.length} / 200`;
+      if (!restore()) {
+        showTopic('');
+        render(0);
+      }
+      if (requestedTopic) {
+        const questionText = topics.get(requestedTopic).question;
+        showTopic(requestedTopic);
+        if (!question.value.trim() || topicQuestions.has(question.value)) question.value = questionText;
+        render(step);
         persist();
       }
-      topicQuestion = '';
+      requestedTopic = '';
     }
     visible = nextVisible;
   }).observe(setup, {attributes:true, attributeFilter:['style']});
-  const core = window.TaekilConsultationDraft;
   const key = 'taekilso_consultation_entry_v1';
   let awaitingAuth = false;
   let lastOwner = owner();
@@ -426,7 +459,7 @@
     core.fields.forEach(id => { values[id] = field(id).value; });
     try {
       const selections = Object.fromEntries(['SavedProfile','CompareProfile','CompareProfile2'].map(id => [id, owner() ? field(id).value : '']));
-      sessionStorage.setItem(key, JSON.stringify({version:1,at:Date.now(),owner:owner(),awaitingAuth,step,values,selections,leap:field('Leap').checked,question:question.value,birthText:birthInput.value}));
+      sessionStorage.setItem(key, JSON.stringify({version:1,at:Date.now(),owner:owner(),awaitingAuth,step,values,selections,leap:field('Leap').checked,question:question.value,birthText:birthInput.value,topic:selectedTopic}));
       return true;
     } catch (_) { return false; }
   }
@@ -444,6 +477,7 @@
     ['SavedProfile','CompareProfile','CompareProfile2'].forEach(id => { field(id).value = draft.selections[id]; });
     core.fields.forEach(id => { field(id).value = draft.values[id]; });
     field('Leap').checked = draft.leap; question.value = draft.question;
+    showTopic(draft.topic);
     birthFromFields(); if (draft.birthText) birthInput.value = draft.birthText;
     awaitingAuth = draft.awaitingAuth;
     render(draft.step);
@@ -491,7 +525,7 @@
     const changed = lastOwner !== owner(); lastOwner = owner();
     if (!window.resumeGuidedConsultation()) {
       read();
-      if (changed) { question.value = ''; birthInput.value = ''; awaitingAuth = false; }
+      if (changed) { question.value = ''; birthInput.value = ''; awaitingAuth = false; showTopic(''); }
       submit.textContent = member() ? '연우와 상담 시작하기' : '로그인하고 상담 이어가기';
     }
     syncChoices();
