@@ -110,14 +110,13 @@
 .consultation-story-jump:focus-visible { outline: 2px solid #f0ebe1; outline-offset: 3px; }
 [data-story-feature] .consultation-story-body > section { padding-block: clamp(30px,6vw,62px); }
 .consultation-story-chapter .consultation-story-label { margin-bottom: 9px; }
-.consultation-story-illustration {
-  display: block;
-  width: 100%;
-  height: auto;
+.consultation-story-chapter-film {
   margin: clamp(16px,3vw,24px) 0;
+  aspect-ratio: 16 / 9;
   border-radius: 6px;
   background: #1b2420;
 }
+.consultation-story-chapter-film :is(img,video) { display: block; width: 100%; height: 100%; object-fit: cover; }
 .consultation-story-prose { margin: 0; color: #c6cdc3; font: 400 17px/1.85 var(--sans); }
 .consultation-story-prose + .consultation-story-prose { margin-top: 12px; }
 .consultation-story-aside {
