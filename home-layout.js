@@ -6,7 +6,12 @@
     params.has('seo_landing') || location.hash === '#ai-chat' || naverAd;
   document.documentElement.dataset.homeLayout = consultationLanding ? 'consultation' : 'directory';
 
-  if (!consultationLanding) document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', () => {
+    if (consultationLanding) {
+      const faq = document.getElementById('homeFaqFold');
+      if (faq) faq.open = true;
+      return;
+    }
     for (const button of document.querySelectorAll('#homeDirectory [data-directory-jump]')) {
       button.addEventListener('click', () => {
         const heading = document.getElementById(button.dataset.directoryJump);
