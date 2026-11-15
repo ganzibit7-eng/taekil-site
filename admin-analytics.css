@@ -56,3 +56,7 @@ body.admin-exclusive-mode #view-admin #adminTrafficSourceCard{display:block;widt
 #view-admin .admin-data-status:empty{display:none}
 #view-admin .admin-data-status .aa-btn{font-size:14px;padding:8px 12px}
 #view-admin .admin-fold{scroll-margin-top:100px}
+.aa-preview-panel .aa-table-wrap tbody th { word-break: keep-all; overflow-wrap: normal; }
+@media(max-width:380px) {
+  .aa-preview-panel .aa-table-wrap :is(th,td) { padding-inline: 5px; }
+}

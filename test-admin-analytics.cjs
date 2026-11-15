@@ -25,6 +25,14 @@ assert.equal(r.reportInstrumented,false);
 const reportData=A.aggregate({...data,funnel:[{id:'2026-11-10',freeReportViews:12,freeReportCompleted:8,reportCtaClicks:5,reportQuestionClicks:3,reportSignupStarts:3,reportSignups:2,reportFirstQuestions:1}]},'2026-11-10','2026-11-10');
 assert.equal(reportData.reportInstrumented,true);assert.deepEqual(reportData.reportEvents.map(x=>x.value),[12,8,5,3,3,2,1]);assert.equal(reportData.revenue,r.revenue);
 console.log('PASS: dedicated report steps preserve existing payment totals and distinguish absent instrumentation.');
+const preview=A.aggregate({...data,funnel:[
+ {id:'2026-11-09',previewViews:80,previewStarts:30,previewSignups:20},
+ {id:'2026-11-10',previewViews:9,previewStarts:3,previewSignups:1}
+]},'2026-11-10','2026-11-10');
+assert.deepEqual(preview.previewEvents.map(x=>[x.value,x.fromPrevious,x.fromPreview]),[[9,null,100],[3,33.3,33.3],[1,33.3,11.1]]);
+assert.deepEqual(r.previewEvents.map(x=>[x.value,x.fromPrevious,x.fromPreview]),[[0,null,null],[0,null,null],[0,null,null]]);
+assert.equal(preview.revenue,r.revenue);
+console.log('PASS: preview cohort totals exclude other dates and distinguish step and overall conversion.');
 
 for(const state of [8,32,9,64,70,71]){
  assert.equal(A.settledPaid({status:'paid',pay_state:state}),false);

@@ -171,6 +171,9 @@
     document.body.classList.toggle('consultation-open',opened);
     if(opened){
       size();window.scrollTo({top:0,left:0,behavior:'instant'});
+      if (setup.style.display === 'block') {
+        window.TaekilPreviewFunnel?.consultationOpened(returnTrigger?.hasAttribute('data-consultation-example'));
+      }
       if (returnTrigger?.hasAttribute('data-home-consultation')) {
         setup.querySelector('.consultation-setup-heading h2')?.focus({preventScroll:true});
       }

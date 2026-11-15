@@ -22,6 +22,19 @@
   function status(text){root.querySelector('#aaStatus').textContent=text;}
   function bars(rows){const max=Math.max(...rows.map(r=>r.value),1);return rows.map(r=>`<div class="aa-bar-row"><span>${esc(r.name)}</span><strong>${fmt(r.value)}</strong><div class="aa-track"><i style="width:${Math.min(100,r.value/max*100)}%"></i></div></div>`).join('');}
   function table(headers,rows,empty){return `<div class="aa-table-wrap"><table><thead><tr>${headers.map(t=>`<th scope="col">${esc(t)}</th>`).join('')}</tr></thead><tbody>${rows.length?rows.map(row=>`<tr>${row.map((x,i)=>i===0?`<th scope="row">${esc(x)}</th>`:`<td>${esc(x)}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${headers.length}" class="aa-empty">${esc(empty)}</td></tr>`}</tbody></table></div>`;}
+  function previewConversions(rows,available){
+    const rate=n=>n==null?'—':fmt(n)+'%';
+    const stats=!available?'<p class="aa-empty">미리보기 통계를 불러오지 못했습니다.</p>':
+      !rows[0].value?'<p class="aa-empty">선택한 기간에 수집된 미리보기 기록이 없습니다.</p>':
+        table(['단계','인원','직전 대비','미리보기 대비'],
+          rows.map(row=>[row.name,fmt(row.value)+'명',rate(row.fromPrevious),rate(row.fromPreview)]),'');
+    return `<section class="aa-panel aa-preview-panel" aria-labelledby="aaPreviewTitle"><h3 id="aaPreviewTitle">홈 상담 답변 미리보기</h3>
+      <p>미리보기를 확인한 뒤 같은 탭에서 30분 안에 상담을 준비하고 신규 가입한 흐름입니다. 첫 미리보기를 확인한 날짜에 모든 단계를 집계합니다.</p>
+      ${stats}
+      <details class="aa-definitions"><summary>미리보기 집계 기준</summary>
+        <p>답변 본문이 절반 이상 1초간 보이거나 미리보기의 상담 버튼을 누르면 확인으로 기록합니다. 하루에 탭별로 한 번 집계하며, 다른 탭과 기기의 이용자는 합치지 않습니다. 상담 준비 화면 진입부터 집계하고, 회원가입은 신규 계정당 한 번만 집계합니다. 관리자 계정의 활동과 수집 시작 전 기록은 제외합니다.</p></details>
+    </section>`;
+  }
   function chart(series){
     const key=metric,max=Math.max(...series.map(r=>r[key]),1),w=880,h=170,p=14,step=(w-p*2)/Math.max(series.length-1,1);
     const points=series.map((r,i)=>[p+i*step,h-p-r[key]/max*(h-p*2)]);const line=points.map(x=>x.join(',')).join(' ');
@@ -46,6 +59,7 @@
     <section class="aa-panel"><div class="aa-panel-head"><div><h3>일별 흐름</h3><p>같은 축의 일별 기록으로 변화를 확인하세요.</p></div><div class="aa-period" role="group" aria-label="추이 지표"><button type="button" data-aa-metric="visits" aria-pressed="${metric==='visits'}">방문</button><button type="button" data-aa-metric="revenue" aria-pressed="${metric==='revenue'}">주문 저장 금액</button></div></div>${data.ok[metric==='visits'?'visits':'orders']?chart(r.series):'<p class="aa-empty">이 지표를 불러오지 못했습니다.</p>'}<details class="aa-daily"><summary>일별 수치 표 보기</summary>${table(['날짜','방문 기록','완료 주문','주문 저장 금액'],r.series.slice().reverse().map(x=>[x.date,visitsOK?fmt(x.visits):'—',paidOK?fmt(x.orders):'—',paidOK?fmt(x.revenue)+'원':'—']),'해당 기간 기록이 없습니다.')}</details></section>
     <div class="aa-two"><section class="aa-panel"><h3>상품별 결제</h3><p>결제 완료 주문 기준 · 테스트 제외</p>${paidOK?table(['상품','주문','금액'],r.products.map(x=>[x.name,fmt(x.count)+'건',fmt(x.revenue)+'원']),'완료된 주문이 없습니다.'):'<p class="aa-empty">주문 원장을 불러오지 못했습니다.</p>'}</section><section class="aa-panel"><h3>유입 경로</h3><p>검색·SNS·직접·기타 유입의 집계 기록</p>${data.ok.traffic?bars(r.traffic):'<p class="aa-empty">유입 기록을 불러오지 못했습니다.</p>'}</section></div>
     <section class="aa-panel"><h3>주문에 기록된 유입 출처</h3><p>출처 수집 이후 완료된 주문 기준 · 테스트·취소·부분환불 제외. 기록 없는 주문은 따로 표시합니다. 광고비를 연결하지 않아 광고 수익률이나 고객획득비용은 산출하지 않습니다.</p>${paidOK?table(['출처','매체','캠페인','주문','완료 주문 금액'],r.campaigns.map(x=>[x.source,x.medium,x.campaign,fmt(x.count)+'건',fmt(x.revenue)+'원']),'선택한 기간의 완료 주문이 없습니다.'):'<p class="aa-empty">주문 원장을 불러오지 못했습니다.</p>'}</section>
+    ${previewConversions(r.previewEvents,funnelOK)}
     <section class="aa-panel"><h3>상담과 구매로 이어지는 주요 행동</h3><p>각 항목은 기간 내 독립적인 이벤트 건수입니다. 같은 이용자의 순서나 이동을 추적한 전환율이 아니며, 항목 간 차이를 이탈률로 해석하지 않습니다.</p>${funnelOK?bars(r.events):'<p class="aa-empty">행동 기록을 불러오지 못했습니다.</p>'}</section>
     <section class="aa-panel"><h3>무료 기본 리포트에서 연우로</h3><p>이 경로에서 발생한 단계별 기록입니다. 같은 브라우저의 결과 흐름당 각 단계는 한 번만 기록합니다. 가입은 신규 계정만, 첫 상담은 해당 흐름에서 실제 답변을 받은 첫 질문만 셉니다. 기기 간 이용자 추적이나 동일 기간 코호트 전환율은 아닙니다.</p>${!funnelOK?'<p class="aa-empty">행동 기록을 불러오지 못했습니다.</p>':r.reportInstrumented?bars(r.reportEvents):'<p class="aa-empty">선택 기간에 무료 리포트 전환 기록이 없습니다. 신규 집계 필드 수집은 관련 화면과 Firestore 규칙을 함께 적용한 뒤 시작됩니다.</p>'}</section>
     <section class="aa-panel"><h3>검색 가이드 성과</h3><p>가이드에서 상담으로 이어진 기록 · 결제 이벤트, 주문 원장과 집계 기준이 다를 수 있습니다.</p>${data.ok.seo?table(['가이드','상담 유입','가입','첫 답변','결제 이벤트'],r.seo.slice(0,20).map(x=>['/'+x.name+'/',fmt(x.visits),fmt(x.signups),fmt(x.answers),fmt(x.purchases)]),'선택한 기간에 검색 가이드 유입 기록이 없습니다.'):'<p class="aa-empty">검색 가이드 기록을 불러오지 못했습니다.</p>'}${data.seoCapped?'<p>검색 가이드 기록은 최대 2,000개 문서 범위의 부분 집계입니다.</p>':''}</section>
