@@ -26,9 +26,9 @@
     const rate=n=>n==null?'—':fmt(n)+'%';
     const stats=!available?'<p class="aa-empty">미리보기 통계를 불러오지 못했습니다.</p>':
       !rows[0].value?'<p class="aa-empty">선택한 기간에 수집된 미리보기 기록이 없습니다.</p>':
-        table(['단계','인원','직전 단계 대비','미리보기 대비'],
+        table(['단계','인원','직전 대비','미리보기 대비'],
           rows.map(row=>[row.name,fmt(row.value)+'명',rate(row.fromPrevious),rate(row.fromPreview)]),'');
-    return `<section class="aa-panel" aria-labelledby="aaPreviewTitle"><h3 id="aaPreviewTitle">홈 상담 답변 미리보기</h3>
+    return `<section class="aa-panel aa-preview-panel" aria-labelledby="aaPreviewTitle"><h3 id="aaPreviewTitle">홈 상담 답변 미리보기</h3>
       <p>미리보기를 확인한 뒤 같은 탭에서 30분 안에 상담을 준비하고 신규 가입한 흐름입니다. 첫 미리보기를 확인한 날짜에 모든 단계를 집계합니다.</p>
       ${stats}
       <details class="aa-definitions"><summary>미리보기 집계 기준</summary>
