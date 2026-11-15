@@ -80,7 +80,12 @@ test('integration loads owner store before legacy scripts and removes only hidde
  const adapter=fs.readFileSync('account-session.js','utf8');assert(adapter.includes("where('ownerUid','==',token.owner)"));assert(adapter.includes('!store.current(token)||request!==inquiryRequest'));assert(adapter.includes("e.key==='Escape'"));assert(adapter.includes("e.key!=='Tab'"));
 });
 test('each approved legacy change has exactly its recorded scope',()=>{
- let text=html;for(const c of JSON.parse(fs.readFileSync('account-ui-contract-changes.json','utf8')).reverse()){
+ let text=html;
+ for(const [after,before,expected=1] of JSON.parse(fs.readFileSync('consultation-ui-contract-changes.json','utf8'))){
+  assert.equal(text.split(after).length-1,expected,after.slice(0,80));
+  text=text.split(after).join(before);
+ }
+ for(const c of JSON.parse(fs.readFileSync('account-ui-contract-changes.json','utf8')).reverse()){
   assert.equal(text.split(c.after).length-1,c.count,c.after.slice(0,80));text=text.split(c.after).join(c.before);
  }
 });

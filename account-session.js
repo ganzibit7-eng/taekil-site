@@ -12,6 +12,7 @@
     if(typeof closeAdminPermissionModal==='function')closeAdminPermissionModal();
     store.clearGuest(['taekilso_locked_birth','taekilso_history','taekilso_my_inquiries','taekilso_ai_conversations_v1','taekilso_ai_active_session_v1','taekilso_saju_vault','taekilso_pending_paid_ai_question_v1','taekilso_pending_today_fortune_question_v1']);
     window.__aiConversationId=null;window.__aiChatHistory=[];window.__aiChatSubjects=[];window.__aiChatProfile=null;window.__aiChatSaju='';window.__freeReportSnapshot=null;window.__newyearChatContext=false;window.__pendingCategoryQuestion=null;window.__pendingPaidAiQuestion='';
+    window.__aiConsultantId='yeonwoo';
     window.__chronological=null;window.__ctx=null;window.__visibleResultCandidates=[];window.__resultCompareSelections=new Set();window.__dayDetailResult=null;
     for(const key of Object.keys(window))if(/^__result_\d+$/.test(key))window[key]=null;
     if(typeof aiShareCurrentText!=='undefined')aiShareCurrentText='';

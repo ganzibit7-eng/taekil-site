@@ -48,7 +48,7 @@ test('partial birthday text survives a tab reload and follows the same account a
 test('topic guides survive authorized login and old drafts open without a guide', () => {
   const draft = {...sample(), topic:'wealth'};
   assert.equal(C.read(JSON.stringify(draft), 2000, 'member-a').topic, 'wealth');
-  for (const topic of ['first-date', 'reunion', 'marriage', 'career-start', 'side-job', 'saving', 'career-growth']) {
+  for (const topic of ['first-date', 'reunion', 'marriage', 'wedding', 'career-start', 'side-job', 'saving', 'career-growth']) {
     assert.equal(C.read({...draft, topic}, 2000, 'member-a').topic, topic);
   }
   assert.equal(C.read(sample(), 2000, '').topic, '');
