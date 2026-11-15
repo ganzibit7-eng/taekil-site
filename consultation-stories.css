@@ -23,7 +23,7 @@
   font: 600 clamp(28px,4vw,54px)/1.35 var(--serif);
   letter-spacing: -.04em;
 }
-.consultation-story-intro p:last-child { margin: 0; color: #c6cdc3; font: 400 17px/1.75 var(--sans); }
+.consultation-story-intro p:not(.consultation-story-label) { margin: 0; color: #c6cdc3; font: 400 17px/1.75 var(--sans); }
 .consultation-story-body { max-width: 720px; padding-top: clamp(20px,4vw,44px); word-break: keep-all; overflow-wrap: anywhere; }
 .consultation-story-body > section { padding-block: clamp(22px,4vw,34px); border-bottom: 1px solid #38453d; }
 .consultation-story-body h2 { margin: 0 0 14px; font: 600 clamp(22px,3vw,30px)/1.45 var(--serif); color: #f0ebe1; }
@@ -95,9 +95,35 @@
 .consultation-story-choice:focus-within { outline: 2px solid #f0ebe1; outline-offset: 2px; }
 .consultation-story-choice input { flex: 0 0 16px; width: 16px; height: 16px; margin: 0; accent-color: var(--story-tone); }
 .consultation-story-question-label { color: var(--story-tone); margin: 18px 0 6px; font: 600 14px/1.55 var(--sans); }
-[data-story-feature] .consultation-story-example summary { cursor: pointer; color: var(--story-tone); font: 600 16px/1.6 var(--sans); }
-[data-story-feature] .consultation-story-example summary:focus-visible { outline: 2px solid #f0ebe1; outline-offset: 4px; }
-[data-story-feature] .consultation-story-example figure { margin-top: 12px; }
+.consultation-story-jump {
+  margin-top: 16px;
+  padding: 8px 12px;
+  min-height: 44px;
+  color: var(--story-tone);
+  background: transparent;
+  border: 1px solid var(--story-rule);
+  border-radius: 6px;
+  cursor: pointer;
+  font: 600 15px/1.5 var(--sans);
+}
+.consultation-story-jump:hover { border-color: var(--story-tone); }
+.consultation-story-jump:focus-visible { outline: 2px solid #f0ebe1; outline-offset: 3px; }
+[data-story-feature] .consultation-story-body > section { padding-block: clamp(30px,6vw,62px); }
+.consultation-story-chapter .consultation-story-label { margin-bottom: 9px; }
+.consultation-story-chapter-portrait { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,.55fr); align-items: start; gap: clamp(20px,4vw,34px); }
+.consultation-story-chapter-portrait img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 32%; border-radius: 6px; }
+.consultation-story-prose { margin: 0; color: #c6cdc3; font: 400 17px/1.85 var(--sans); }
+.consultation-story-prose + .consultation-story-prose { margin-top: 12px; }
+.consultation-story-aside {
+  margin: 24px 0 0;
+  padding: 16px clamp(14px,4vw,26px);
+  border-inline-start: 2px solid var(--story-tone);
+  background: #1b2420;
+}
+.consultation-story-aside blockquote { color: #f0ebe1; font: 600 clamp(17px,2.4vw,22px)/1.65 var(--serif); }
+.consultation-story-aside figcaption { margin-top: 8px; color: var(--story-tone); font: 500 14px/1.5 var(--sans); }
+[data-story-feature] .consultation-story-entry { scroll-margin-top: 76px; }
+.consultation-story-choices legend:focus { outline: none; }
 @media (max-width: 700px) {
   .consultation-story-hero { grid-template-columns: minmax(0,1fr); gap: 20px; }
   .consultation-story-film { aspect-ratio: 1 / 1; }
@@ -108,4 +134,8 @@
   [data-story-feature] .consultation-story-film { grid-area: 2 / 1; max-width: 360px; aspect-ratio: 4 / 5; }
   [data-story-feature] .consultation-story-film :is(img,video) { object-position: 50% 45%; }
   [data-story-feature] .consultation-story-intro h1 { font-size: clamp(28px,8vw,40px); }
+}
+@media (max-width: 540px) {
+  .consultation-story-chapter-portrait { grid-template-columns: minmax(0,1fr); }
+  .consultation-story-chapter-portrait img { aspect-ratio: 5 / 3; }
 }
