@@ -10,6 +10,8 @@ const html = readFileSync('index.html','utf8').replace(/\r\n/g,'\n');
 test('every home consultation topic restores to its designated advisor and a local portrait', () => {
   const topics = [...html.matchAll(/data-consultation-topic="([^"]+)"/g)].map(m=>m[1]);
   assert.equal(new Set(topics).size,topics.length);
+  assert.equal(new Set(topics.map(topic=>personas.forTopic(topic).id)).size, topics.length);
+  assert.equal(new Set(topics.map(topic=>personas.forTopic(topic).portrait)).size, topics.length);
   for(const topic of topics) {
     assert.equal(draft.normalizeTopic(topic),topic);
     const advisor = personas.forTopic(topic);
@@ -17,9 +19,9 @@ test('every home consultation topic restores to its designated advisor and a loc
     assert.equal(advisor.questions.length,3);
     assert.ok(existsSync(advisor.portrait));
   }
-  assert.equal(personas.forTopic('reunion').name,'서화');
-  assert.equal(personas.forTopic('saving').name,'도겸');
-  assert.equal(personas.forTopic('side-job').name,'무진');
+  assert.equal(personas.forTopic('reunion').name,'이준');
+  assert.equal(personas.forTopic('saving').name,'다온');
+  assert.equal(personas.forTopic('side-job').name,'태율');
   assert.equal(personas.forTopic('wedding').name,'소담');
 });
 

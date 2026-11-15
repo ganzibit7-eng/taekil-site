@@ -51,7 +51,7 @@ test('directory shortcuts focus and scroll to their headings without changing th
   const document = {
     documentElement: { dataset: {} },
     addEventListener(type, handle) { assert.equal(type, 'DOMContentLoaded'); handle(); },
-    querySelectorAll() { return [button]; },
+    querySelectorAll(selector) { return selector.includes('[data-directory-jump]') ? [button] : []; },
     getElementById(id) { assert.equal(id, headingId); return heading; }
   };
   runInNewContext(entry, { URLSearchParams, location, document });
