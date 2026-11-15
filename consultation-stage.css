@@ -28,13 +28,35 @@ body.consultation-open #aiChatSetup .ai-chat-setup-label{color:#F0EBE1;font-size
 body.consultation-open .consultation-profile-scroll>label{font-size:14px!important;line-height:1.6;color:#D0D6CB!important}
 body.consultation-open #aiChatSetup .ai-chat-profile-note{font-size:14px;line-height:1.7;color:#D0D6CB;background:rgba(16,23,21,.65);padding:10px 12px;border-radius:6px}
 body.consultation-open #aiChatSetup>.btn{flex:0 0 auto;min-height:54px;font-size:16px;margin-top:10px;background:#C6AA76;color:#101715}
-body.consultation-open .home-first-block #aiChatPanel{overflow:hidden;flex-direction:column;gap:0}
-body.consultation-open #aiChatWindow{flex:1 1 auto;min-height:0;height:auto;overflow-y:auto;overscroll-behavior:contain;padding:8px 0 16px!important;scrollbar-width:thin;scrollbar-color:#9D8B62 transparent;scroll-behavior:smooth}
+body.consultation-open .home-first-block #aiChatPanel{
+  inset:clamp(136px,calc((var(--consult-height,100dvh) - var(--consult-nav,80px)) * .40),312px) 0 0!important;
+  overflow:hidden;flex-direction:column;gap:0;
+}
+body.consultation-open.ai-keyboard-open .home-first-block #aiChatPanel,
+body.consultation-open .home-first-block .reading-focus #aiChatPanel{inset:86px 0 0!important}
+body.consultation-open .home-first-block .ai-chat-stage:has(#aiChatPanel[style*="flex"]) > .ai-chat-bgvideo{
+  filter:saturate(.88) brightness(.92);
+}
+body.consultation-open .home-first-block .ai-chat-stage:has(#aiChatPanel[style*="flex"]) .ai-chat-vignette-top{
+  height:105px;background:linear-gradient(180deg,#080d0bcc,transparent);
+}
+body.consultation-open .home-first-block .ai-chat-stage:has(#aiChatPanel[style*="flex"]) .ai-chat-vignette-bottom{
+  background:linear-gradient(180deg,transparent 19%,#10171512 33%,#101715b3 60%,#101715f0 100%);
+}
+body.consultation-open #aiChatWindow{
+  position:relative;flex:1 1 auto;min-height:0;height:auto;overflow-y:auto;overscroll-behavior:contain;
+  padding:8px 0 16px!important;scrollbar-width:thin;scrollbar-color:#9D8B62 transparent;scroll-behavior:smooth;
+}
+body.consultation-open #aiChatWindow > :first-child{margin-block-start:auto}
+body.consultation-open #aiChatWindow:focus-visible{outline:1px solid #c6aa7680;outline-offset:-1px}
+@media(max-height:580px){
+  body.consultation-open .home-first-block #aiChatPanel{
+    inset:clamp(86px,calc((var(--consult-height,100dvh) - var(--consult-nav,80px)) * .31),166px) 0 0!important;
+  }
+}
 body.consultation-open .ai-chat-msg.assistant{background:rgba(16,23,21,.82);border:1px solid rgba(240,235,225,.12);backdrop-filter:blur(8px);border-radius:9px;font-size:16px;line-height:1.75}
 body.consultation-open .ai-chat-msg.user{background:rgba(57,68,49,.88);border-radius:9px;font-size:16px;line-height:1.7}
 body.consultation-open .ai-chat-msg.system-note{color:#F0EBE1;background:rgba(16,23,21,.68);padding:12px;font-size:15px;line-height:1.7;border-radius:6px}
-body.consultation-open #aiChatQuickActions{flex:0 1 auto;min-height:0;max-height:30%;overflow-y:auto;overscroll-behavior:contain;margin:4px 0 8px;padding:0 0 4px;gap:7px}
-body.consultation-open #aiChatQuickActions:not([style*="none"]){display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));flex:0 0 auto;max-height:min(30%,170px);align-items:stretch;justify-content:stretch}
 body.consultation-open.ai-keyboard-open #aiChatQuickActions{display:none!important}
 body.consultation-open #aiChatQuickActions button,body.consultation-open .ai-chat-followups button{background:rgba(16,23,21,.84);border-color:rgba(240,235,225,.18);border-radius:6px;font-size:15px;line-height:1.6;min-height:44px}
 body.consultation-open .ai-chat-status{flex:0 0 auto;color:#D0D6CB;font-size:13px;line-height:1.6;margin:4px 0 8px}
@@ -86,29 +108,34 @@ body.consultation-open .consultation-profile-scroll:has(#aiChatCalType option[va
 .consultation-compare summary {padding: 12px 0; min-height: 44px; cursor: pointer; font-size: 15px}
 .consultation-compare summary span {float: right; color: #c6aa76; font-size: 13px}
 .consultation-compare select {width: 100%; margin-bottom: 10px}
+.consultation-chat-meta {
+  display:flex;
+  flex:0 0 auto;
+  align-items:center;
+  justify-content:space-between;
+  gap:5px 10px;
+}
 .consultation-current-profile {
-  flex: 0 0 auto;
-  margin: 0 0 5px;
-  padding: 7px 10px;
-  background: #101715e8;
-  border-left: 2px solid #c6aa7680;
-  border-radius: 0 5px 5px 0;
+  flex:1 1 auto;
+  min-width:0;
+  margin:0;
+  padding:4px 0;
   color: #f0ebe1;
-  font-size: 13px;
-  line-height: 1.5;
+  font-size:12px;
+  line-height:1.5;
+  text-shadow:0 1px 3px #000;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.consultation-current-profile[hidden], body.ai-keyboard-open .consultation-current-profile {display: none}
-.consultation-starter-note, .consultation-more-questions {grid-column: 1 / -1}
-.consultation-starter-note {margin: 0; padding: 6px 9px; background: #101715db; border-radius: 6px; font-size: 14px; color: #f0ebe1}
-.consultation-more-questions summary {padding: 9px; background: #101715e0; border-radius: 6px; cursor: pointer; color: #f0ebe1; font-size: 14px}
+.consultation-current-profile[hidden], body.ai-keyboard-open .consultation-chat-meta {display:none}
+body.consultation-open .consultation-chat-meta .reading-toolbar {margin-left:auto;padding:0;gap:5px}
+body.consultation-open .consultation-chat-meta .reading-toolbar button {
+  min-height:40px;padding:5px 8px;background:#101715b8;
+}
+.consultation-more-questions {grid-column:1 / -1}
 .consultation-more-questions > div {display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; padding-top: 7px}
 .consultation-progress-text {margin: 0 0 5px; font-size: 15px; color: #d9dcd2}
-body.consultation-open #aiChatQuickActions:not([style*="none"]) {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
 
 /* A quiet, guided introduction over the existing Yeonwoo film. */
 body.consultation-open .home-first-block #aiChatSetup.consultation-guided-entry {
@@ -177,7 +204,7 @@ body.consultation-open .ai-chat-stage:has(.consultation-guided-entry[style*="blo
 }
 
 .ai-chat-name-block small[hidden],
-#aiChatQuickActions > button[hidden] { display: none !important; }
+#aiChatQuickActions button[hidden] { display: none !important; }
 .ai-history-consultant,
 .reading-consultant { color: #dfc69c; font-weight: 600; }
 .consultation-entry-nav > span:not(.entry-nav-count) {
@@ -292,63 +319,41 @@ body.consultation-open #aiChatSetup.consultation-guided-entry #aiChatRelation {m
 .consultation-entry-actions button {min-height:56px}
 .consultation-entry-actions button:disabled {opacity:.38;cursor:not-allowed}
 
-/* One quiet surface for the question chooser, with clear typographic hierarchy. */
-body.consultation-open #aiChatQuickActions:not([style*="none"]) {
-  gap:10px 8px;
-  padding:16px;
-  margin:8px 0 0;
-  max-height:min(48%,280px);
-  background:rgba(14,21,18,.88);
-  backdrop-filter:blur(12px);
-  border:1px solid rgba(240,235,225,.1);
-  border-radius:10px;
-  scrollbar-width:thin;
+/* Keep presets below the conversation in a closed disclosure until requested. */
+body.consultation-open #aiChatQuickActions {
+  display:block;flex:0 0 auto;margin:0;
+  background:rgba(14,21,18,.78);border:1px solid #f0ebe11f;border-radius:8px;
 }
-body.consultation-open #aiChatQuickActions .consultation-starter-note {
-  padding:0 0 4px;
-  margin:0;
-  border-radius:0;
-  background:none;
-  color:#e9e6dc;
-  font:500 15px/1.65 var(--sans);
-  letter-spacing:-.02em;
+body.consultation-open #aiChatQuickActions .consultation-starter-choices {
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;
+  max-height:clamp(96px,24dvh,194px);padding:0 11px 10px;
+  overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;
 }
-body.consultation-open #aiChatQuickActions > button {
-  min-height:48px;
-  padding:10px 3px;
-  background:rgba(240,235,225,.035);
-  border:1px solid rgba(198,170,118,.3);
-  border-radius:7px;
-  color:#e5d3ae;
-  font:500 15px/1.5 var(--sans);
-  letter-spacing:-.035em;
-  white-space:nowrap;
-  box-shadow:none;
+body.consultation-open #aiChatQuickActions .consultation-starter-choices > button {
+  min-width:0;padding:6px 3px;background:#f0ebe108;border-color:#c6aa764a;
+  color:#e5d3ae;font:500 14px/1.45 var(--sans);word-break:keep-all;
 }
-body.consultation-open #aiChatQuickActions > button:hover {background:rgba(198,170,118,.12);border-color:#c6aa7680}
+body.consultation-open #aiChatQuickActions button:hover {background:#c6aa761f;border-color:#c6aa7680}
 body.consultation-open #aiChatQuickActions button:focus-visible,
-body.consultation-open #aiChatQuickActions summary:focus-visible {outline:2px solid #c6aa76;outline-offset:2px}
-body.consultation-open #aiChatQuickActions .consultation-more-questions {border-top:1px solid #f0ebe117;padding-top:3px}
-body.consultation-open #aiChatQuickActions .consultation-more-questions summary {
+body.consultation-open #aiChatQuickActions summary:focus-visible {outline:2px solid #c6aa76;outline-offset:-2px}
+body.consultation-open #aiChatQuickActions .consultation-more-questions {border-top:1px solid #f0ebe117}
+body.consultation-open #aiChatQuickActions summary {
   display:flex;align-items:center;justify-content:space-between;gap:12px;
-  min-height:44px;box-sizing:border-box;padding:9px 0 2px;
-  background:none;border:0;border-radius:0;list-style:none;
+  min-height:44px;box-sizing:border-box;list-style:none;cursor:pointer;
   color:#bfc6bc;font:400 14px/1.6 var(--sans);letter-spacing:-.01em;
 }
+body.consultation-open #aiChatQuickActions > summary {padding:0 13px;color:#e5d3ae;font-weight:550}
 body.consultation-open #aiChatQuickActions summary::-webkit-details-marker {display:none}
 body.consultation-open #aiChatQuickActions summary::marker {content:''}
 body.consultation-open #aiChatQuickActions summary::after {content:'+';font:300 22px/1 var(--sans);color:#b7a47e}
-body.consultation-open #aiChatQuickActions details[open] summary::after {content:'−'}
-body.consultation-open #aiChatQuickActions .consultation-more-questions > div {gap:8px;padding:10px 0 2px}
+body.consultation-open details#aiChatQuickActions[open] > summary::after,
+body.consultation-open #aiChatQuickActions details[open] > summary::after {content:'−'}
+body.consultation-open #aiChatQuickActions .consultation-more-questions > div {gap:8px;padding:3px 0 2px}
 body.consultation-open #aiChatQuickActions .consultation-more-questions button {font-size:14px;background:#f0ebe108;border-color:#f0ebe11c;color:#e1e5dc}
 body.consultation-open .ai-chat-status {
-  padding:9px 4px 5px;margin:0 0 6px;text-align:right;
+  padding:5px 4px;margin:0 0 3px;text-align:right;
   font:400 12px/1.6 var(--sans);letter-spacing:.01em;color:#c5ccbf;
   text-shadow:0 1px 4px #080e0b;
-}
-@media(max-width:360px) {
-  body.consultation-open #aiChatQuickActions:not([style*="none"]) {padding:12px;gap:8px 6px}
-  body.consultation-open #aiChatQuickActions > button {font-size:14px}
 }
 .consultation-entry-review {background:none;padding:12px 0 18px;border-radius:0;border-top:1px solid #f0ebe126;border-bottom:1px solid #f0ebe126;gap:10px 12px;font-size:15px}
 body.consultation-open .ai-chat-stage:has(.consultation-guided-entry[style*="block"]) .ai-chat-vignette-bottom {

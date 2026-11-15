@@ -48,7 +48,7 @@
  const toolbar=el('div',null,'reading-toolbar'),focus=btn('읽기에 집중',()=>{const on=!stage.classList.contains('reading-focus');stage.classList.toggle('reading-focus',on);focus.setAttribute('aria-pressed',String(on));focus.textContent=on?'배경과 함께 보기':'읽기에 집중';window.dispatchEvent(new Event('taekilso:readingMode'));});focus.setAttribute('aria-pressed','false');
  let size=17;try{size=Number(localStorage.getItem('taekilso_reading_font'))===19?19:17;}catch(_){}
  const font=btn('글자 크게',()=>{size=size===17?19:17;applyFont();try{localStorage.setItem('taekilso_reading_font',String(size));}catch(_){} });
- function applyFont(){document.documentElement.style.setProperty('--consultation-reading-size',size+'px');font.textContent=size===19?'기본 글자':'글자 크게';font.setAttribute('aria-pressed',String(size===19));}applyFont();toolbar.append(focus,font);panel?.prepend(toolbar);
+ function applyFont(){document.documentElement.style.setProperty('--consultation-reading-size',size+'px');font.textContent=size===19?'기본 글자':'글자 크게';font.setAttribute('aria-pressed',String(size===19));}applyFont();toolbar.append(focus,font);panel?.querySelector('.consultation-chat-meta')?.append(toolbar);
  function clearFailure(){document.querySelectorAll('.reading-failure').forEach(n=>n.remove());}
  if(panel)new MutationObserver(()=>{if(panel.style.display==='flex')return;stage.classList.remove('reading-focus');focus.setAttribute('aria-pressed','false');focus.textContent='읽기에 집중';window.dispatchEvent(new Event('taekilso:readingMode'));}).observe(panel,{attributes:true,attributeFilter:['style']});
  function failure(message,question){

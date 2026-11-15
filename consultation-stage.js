@@ -21,7 +21,9 @@
   const specialty = document.createElement('small');
   chatName.after(specialty);
   const starters = document.getElementById('aiChatQuickActions');
-  const defaultStarters = starters.querySelectorAll(':scope > button');
+  const starterChoices = starters.querySelector('.consultation-starter-choices');
+  const moreStarters = starterChoices.querySelector('.consultation-more-questions');
+  const defaultStarters = starterChoices.querySelectorAll(':scope > button');
   const specialistStarters = Array.from({length:defaultStarters.length}, (_, index) => {
     const button = document.createElement('button');
     button.type = 'button';
@@ -30,8 +32,14 @@
       const question = personas.get(window.__aiConsultantId).questions?.[index]?.[1];
       if (question) window.prepareAiQuestion(question);
     });
-    starters.querySelector('.consultation-more-questions').before(button);
+    moreStarters.before(button);
     return button;
+  });
+  starters.addEventListener('click', event => {
+    const button = event.target.closest('button');
+    if (!button) return;
+    if (document.activeElement === button) starters.querySelector('summary').focus({preventScroll:true});
+    starters.open = false;
   });
   let displayedConsultant = '';
 
@@ -88,8 +96,9 @@
     suggestedQuestion = '';
     if (input) input.value = '';
     if (send) send.disabled = false;
-    const starters = document.getElementById('aiChatQuickActions');
-    if (starters) starters.style.display = '';
+    starters.open = false;
+    moreStarters.open = false;
+    starters.style.display = '';
     document.querySelector('.ai-chat-stage')?.classList.remove('ai-chat-thinking');
     resizeComposer();
   };
@@ -176,7 +185,7 @@
     setup.style.display='none';panel.style.display='none';intro.style.display='block';
     sync();
     const defaultTrigger = document.documentElement.dataset.homeLayout === 'directory'
-      ? document.querySelector('.directory-primary') : document.getElementById('homeStartChatBtn');
+      ? document.querySelector('.directory-character') : document.getElementById('homeStartChatBtn');
     const trigger = returnTrigger?.getClientRects().length ? returnTrigger : defaultTrigger;
     trigger?.focus({preventScroll:true});
     returnTrigger = null;
@@ -461,7 +470,7 @@
   let requestedTopic = null;
   const core = window.TaekilConsultationDraft;
   document.addEventListener('click', event => {
-    if (event.target.closest('.directory-primary,#homeStartChatBtn,.brand-story-start')) requestedTopic = '';
+    if (event.target.closest('#homeStartChatBtn,.brand-story-start')) requestedTopic = '';
   }, true);
   for (const button of document.querySelectorAll('[data-consultation-topic][data-consultation-question]')) {
     const key = core.normalizeTopic(button.dataset.consultationTopic);

@@ -77,6 +77,20 @@ test('the home FAQ starts folded in the directory and stays expanded on the ad l
   }
 });
 
+test('the directory has a separate new-year section leading to the existing Yeonwoo landing', () => {
+  const html = readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  const directoryStart = html.indexOf('id="homeDirectory"');
+  const adStart = html.indexOf('<div class="block home-first-block"', directoryStart);
+  const directory = html.slice(directoryStart, adStart);
+  const hero = directory.slice(0, directory.indexOf('<nav'));
+  assert.match(hero, /id="directoryHeroTitle"/);
+  assert.doesNotMatch(hero, /연우의 AI 사주 상담|연애와 일, 돈과 관계|연우와 상담 시작하기|처음 가입하면 질문 3개 무료/);
+  const season = directory.match(/<section class="directory-section" aria-labelledby="directoryNewyearTitle">([\s\S]+?)<\/section>/)?.[1];
+  assert.match(season, /2027년 신년상담/);
+  assert.match(season, /href="\/\?landing=yeonwoo"/);
+  assert.match(html.slice(adStart), /<button class="btn newyear-home-entry" data-open-newyear>2027 신년상담 알아보기<\/button>/);
+});
+
 test('the public home uses a separate image for every displayed hero, portrait and topic', () => {
   const html = readFileSync(path.join(__dirname, 'index.html'), 'utf8');
   const start = html.indexOf('id="homeDirectory"');
