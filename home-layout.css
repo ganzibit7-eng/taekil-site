@@ -249,7 +249,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 .directory-preview-reading blockquote p { margin: 0; }
 .directory-preview-reading blockquote p + p { margin-top: 10px; }
 .directory-preview-reading[hidden] { display: none; }
-.home-directory .directory-preview-action {
+.directory-preview-action {
   display: inline-flex;
   box-sizing: border-box;
   align-items: center;
@@ -261,18 +261,20 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   color: #ecdbb8;
   font: 600 15px/1.45 var(--sans);
   text-decoration: none;
+  cursor: pointer;
 }
 #uiDemoTitle { scroll-margin-top: 86px; }
 @media (hover: hover) {
-  .home-directory .directory-preview-action:hover,
+  .directory-preview-action:hover,
   .directory-preview-choices button:hover { background: #c6aa7622; border-color: #c6aa76; }
 }
 .directory-date-example {
+  --directory-line: #38453d;
+  --directory-muted: #c1c9bf;
   display: grid;
   grid-template-columns: minmax(0, .72fr) minmax(0, 1fr);
   align-items: center;
   gap: clamp(18px, 4vw, 52px);
-  margin-top: clamp(28px, 4vw, 48px);
   padding: clamp(18px, 3vw, 40px);
   border: 1px solid var(--directory-line);
   border-radius: 10px;
@@ -298,6 +300,26 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 .directory-date-basis { margin: 8px 0 12px; }
 .directory-date-basis summary { padding: 10px 0; min-height: 24px; color: #dfc69c; cursor: pointer; font-size: 15px; }
 .directory-date-basis summary:focus-visible { outline: 2px solid #dfc69c; outline-offset: 3px; }
+.wedding-comparison-section { padding-top: clamp(20px, 4vw, 36px); }
+.wedding-comparison-section > .container { max-width: 980px; }
+.wedding-comparison-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.wedding-comparison-actions .wedding-comparison-start {
+  color: #101715;
+  background: #c6aa76;
+  border-color: #c6aa76;
+}
+.wedding-comparison-actions .wedding-comparison-start:hover { background: #dfc69c; }
+.wedding-comparison-range {
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: #dfc69c;
+  font: 500 15px/1.45 var(--sans);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.wedding-comparison-actions :is(button,a):focus-visible { outline: 2px solid #dfc69c; outline-offset: 3px; }
 .directory-features {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

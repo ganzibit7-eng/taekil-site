@@ -195,7 +195,7 @@
   }
   document.addEventListener('click',event=>{
     const trigger=event.target.closest('#homeStartChatBtn,.brand-story-start,[data-home-consultation]');
-    if(trigger&&!opened){returnY=window.scrollY;returnTrigger=trigger;}
+    if(trigger&&!opened){returnY=home.classList.contains('visible')?window.scrollY:0;returnTrigger=trigger;}
     if(opened&&event.target.closest('.topbar .brand'))close();
   },true);
   exit.addEventListener('click',close);
@@ -496,18 +496,23 @@
   }, true);
   function startTopic(button, key) {
     requestedTopic = key;
+    if (!document.getElementById('view-home').classList.contains('visible')) goTo('home');
     handleHomeChatStart(button);
   }
   for (const button of document.querySelectorAll('[data-consultation-topic][data-consultation-question]')) {
     const key = core.normalizeTopic(button.dataset.consultationTopic);
     if (!key) continue;
-    const name = personas.forTopic(key).name;
-    const title = button.querySelector(':is(.directory-character-copy, .directory-card-copy) > strong')?.textContent;
-    topics.set(key, { title: [name, title].filter(Boolean).join(' · '), question: button.dataset.consultationQuestion });
-    button.addEventListener('click', () => startTopic(button, key));
+    const consultant = personas.forTopic(key);
+    const title = button.querySelector(':is(.directory-character-copy, .directory-card-copy) > strong')?.textContent || consultant.specialty;
+    topics.set(key, { title: consultant.name + ' · ' + title, question: button.dataset.consultationQuestion });
+    if (!button.hasAttribute('data-story-topic')) button.addEventListener('click', () => startTopic(button, key));
   }
   for (const button of document.querySelectorAll('#homeDirectory [data-consultation-example]')) {
     const key = core.normalizeTopic(button.dataset.consultationExample);
+    if (topics.has(key)) button.addEventListener('click', () => startTopic(button, key));
+  }
+  for (const button of document.querySelectorAll('[data-story-start]')) {
+    const key = core.normalizeTopic(button.dataset.storyStart);
     if (topics.has(key)) button.addEventListener('click', () => startTopic(button, key));
   }
   const suggestedConcerns = new Set(examples.map(([, text]) => text));

@@ -1,0 +1,46 @@
+.consultation-story-view {
+  color: #f0ebe1;
+  --story-tone: #c6aa76;
+  padding: clamp(22px,5vw,64px) 0 clamp(42px,7vw,80px);
+}
+.consultation-story-view > :is(.consultation-story-hero,.consultation-story-body) {
+  width: min(1040px,calc(100% - 40px));
+  margin-inline: auto;
+}
+.consultation-story-hero {
+  display: grid;
+  grid-template-columns: minmax(0,.9fr) minmax(0,1fr);
+  gap: clamp(24px,6vw,78px);
+  align-items: center;
+  word-break: keep-all;
+}
+.consultation-story-film { margin: 0; width: 100%; aspect-ratio: 4 / 5; border-radius: 9px; background: #1b2420; }
+.consultation-story-film :is(img,video) { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 32%; }
+.consultation-story-label { margin: 0 0 12px; color: var(--story-tone); font: 500 15px/1.55 var(--sans); }
+.consultation-story-intro h1 {
+  margin: 0 0 20px;
+  color: #f0ebe1;
+  font: 600 clamp(28px,4vw,54px)/1.35 var(--serif);
+  letter-spacing: -.04em;
+}
+.consultation-story-intro p:last-child { margin: 0; color: #c6cdc3; font: 400 17px/1.75 var(--sans); }
+.consultation-story-body { max-width: 720px; padding-top: clamp(20px,4vw,44px); word-break: keep-all; overflow-wrap: anywhere; }
+.consultation-story-body > section { padding-block: clamp(22px,4vw,34px); border-bottom: 1px solid #38453d; }
+.consultation-story-body h2 { margin: 0 0 14px; font: 600 clamp(22px,3vw,30px)/1.45 var(--serif); color: #f0ebe1; }
+.consultation-story-scope ul { margin: 0; padding-inline-start: 20px; color: #c6cdc3; font: 400 16px/1.75 var(--sans); }
+.consultation-story-scope li + li { margin-top: 6px; }
+.consultation-story-scope li::marker { color: var(--story-tone); }
+.consultation-story-body blockquote { margin: 0; color: #dedfd6; font: 400 16px/1.75 var(--sans); }
+.consultation-story-example figure { margin: 0; padding: 18px 20px; border-radius: 7px; background: #1b2420; }
+.consultation-story-example figcaption { margin-bottom: 8px; color: var(--story-tone); font: 500 15px/1.6 var(--sans); }
+.consultation-story-example blockquote p { margin: 0 0 10px; }
+.consultation-story-example blockquote p:last-child { margin-bottom: 0; }
+.consultation-story-entry blockquote { border-left: 2px solid var(--story-tone); padding-left: 14px; }
+.consultation-story-entry .btn { margin-top: 20px; min-height: 46px; white-space: normal; }
+.consultation-story-entry .btn:focus-visible { outline: 2px solid #f0ebe1; outline-offset: 4px; }
+@media (max-width: 700px) {
+  .consultation-story-hero { grid-template-columns: minmax(0,1fr); gap: 20px; }
+  .consultation-story-film { aspect-ratio: 1 / 1; }
+  .consultation-story-intro h1 { margin-bottom: 12px; }
+  .consultation-story-entry .btn { width: 100%; }
+}
