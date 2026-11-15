@@ -493,6 +493,15 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
   }
   .directory-characters > *,
   .directory-cards > * { scroll-snap-align: start; }
+  .home-directory :is(.directory-character, .directory-card)[data-rail-current] {
+    border-color: #c6aa768c;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .home-directory :is(.directory-character, .directory-card)[data-rail-current] img {
+      transform: scale(1.025);
+      filter: brightness(1.045) saturate(1.035);
+    }
+  }
   @supports selector(::-webkit-scrollbar) {
     :is(.directory-characters, .directory-cards) {
       scrollbar-width: auto;
