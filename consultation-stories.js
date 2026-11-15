@@ -17,9 +17,23 @@
     },
     career: {
       tone: '#aebedb',
-      title: '옮길까, 지금 자리에서 길을 바꿔볼까',
-      scene: '이직 제안은 반갑지만 지금 직장에서도 맡고 싶은 일이 생겼습니다. 무진과 평소 힘이 나는 업무를 먼저 짚고, 두 자리에서 실제로 할 수 있는 일을 비교해 보세요.',
-      points: ['강점이 살아나는 업무 방식과 결정권', '지금 조직에서 조율해 볼 조건', '새 팀의 역할과 평가 방식에 대해 물을 질문']
+      title: '좋은 제안이 왔는데, 옮겨도 될까요?',
+      scene: '금요일까지 이직 제안에 답해야 합니다. 지금 팀은 익숙하고, 새 팀은 해보고 싶던 일을 맡긴다고 해요. 무진과 두 자리에서 실제로 일하는 모습을 비교해 보세요.',
+      feature: {
+        media: 'mujin',
+        heading: '두 직장에서 보낼 하루',
+        offers: [
+          ['지금 직장', '기획부터 실행까지 내가 맡아요.', '다음 분기부터 역할이 넓어질 수 있어요.'],
+          ['새 팀의 제안', '해보고 싶던 프로젝트에 합류해요.', '어디까지 결정할 수 있을지는 아직 몰라요.']
+        ],
+        questionTitle: '두 자리 사이에서 무엇이 가장 고민인가요?',
+        choices: [
+          ['일하는 방식', '지금은 업무 방식과 일정을 제가 정하는 편이에요. 새 팀에서도 자율성이 중요할지 제 사주에서 업무 강점을 보고, 면접에서 확인할 질문을 알려주세요.'],
+          ['역할과 권한', '새 직장에서 더 넓은 역할을 제안받았지만 결정권이 모호해요. 제 사주에서 책임과 권한을 어떤 방식으로 맡을 때 강점이 살아나는지와 협의할 조건을 알려주세요.'],
+          ['평가 기준', '지금 팀과 새 팀의 성과 평가 방식이 달라요. 제 사주에서 강점을 꾸준히 발휘할 수 있는 환경을 짚고, 두 곳의 평가 기준을 어떻게 비교할지 알려주세요.']
+        ],
+        action: '무진과 이직 조건 살펴보기'
+      }
     },
     'first-date': {
       tone: '#dfbaa6',
@@ -29,9 +43,19 @@
     },
     reunion: {
       tone: '#ceaebd',
-      title: '다시 연락하기 전, 달라진 것이 있나요',
-      scene: '보낼 문장을 써놓고도 예전과 같은 싸움이 시작될까 봐 멈칫합니다. 이준과 지난 갈등에서 되풀이한 내 반응을 돌아보고, 이번 연락에서 지킬 기준을 정리해 보세요.',
-      points: ['갈등 뒤에 반복되는 나의 대화 방식', '다시 이어가기 전에 확인할 실제 변화', '상대의 답을 기다릴 때 지킬 경계'],
+      title: '쓰고 지운 그 말을 보내도 될까요?',
+      scene: '한 달 전 헤어진 사람에게 안부를 쓰고, 아직 보내지 않았습니다. 그리운 마음과 같은 일로 다시 다툴까 걱정되는 마음을 이준과 함께 들여다봅니다.',
+      feature: {
+        media: 'ijun',
+        heading: '보내지 않은 메시지',
+        message: '잘 지내? 그때 내가 왜 그렇게 말했는지, 괜찮다면 한 번 이야기하고 싶어.',
+        questionTitle: '지금 어떤 마음에 더 가까운가요?',
+        choices: [
+          ['지금 연락하고 싶어요', '헤어진 사람에게 사과하고 싶어 안부를 써뒀어요. 제 사주에서 갈등 뒤 반복하기 쉬운 대화 방식을 짚고, 연락하기 전에 확인할 변화와 지킬 경계를 알려주세요.'],
+          ['조금 더 기다리고 싶어요', '다시 연락하고 싶지만 이전과 같은 갈등이 걱정돼요. 제 사주에서 관계가 불안할 때 나타나는 내 반응을 짚고, 기다리는 동안 어떤 변화를 확인하면 좋을지 알려주세요.']
+        ],
+        action: '이준과 재회 고민 살펴보기'
+      },
       example: 'directoryPreviewReunion'
     },
     marriage: {
@@ -54,9 +78,20 @@
     },
     saving: {
       tone: '#aec39f',
-      title: '하루를 버틴 뒤, 작은 지출이 쌓인다면',
-      scene: '야근을 마치면 배달 앱을 켜고, 피곤한 날엔 작은 물건을 하나 더 주문합니다. 다온과 어떤 순간에 지출 기준이 느슨해지는지 짚고 오늘부터 적용할 한 가지를 골라보세요.',
-      points: ['내가 결제 전에 자주 망설이는 상황', '가격표에 바로 보이지 않는 배달비와 배송료', '한 달 동안 계속 써볼 소비·저축 기준'],
+      title: '피곤한 날엔 왜 더 쉽게 결제할까요?',
+      scene: '야근한 저녁에는 배달, 집에 가는 길에는 소액 주문. 한 건씩 보면 작지만 모아 보니 이번 주 저축을 미룰 정도입니다. 다온과 결제 직전의 상황을 되짚어 보세요.',
+      feature: {
+        media: 'daon',
+        heading: '야근한 주의 영수증',
+        receipts: [['늦은 저녁 배달', '18,500원'], ['배달비', '3,500원'], ['퇴근길 소액 주문', '8,900원'], ['합계', '30,900원']],
+        questionTitle: '내 소비에서 먼저 보고 싶은 건 무엇인가요?',
+        choices: [
+          ['야근 뒤 배달', '야근하고 돌아오면 예산을 정해도 배달비까지 결제해요. 제 사주에서 피곤한 날 소비 기준이 흔들리는 패턴을 살피고, 다음 야근 날 적용할 기준을 알려주세요.'],
+          ['작은 주문이 반복돼요', '부담 없는 가격이라 생각해 소액 주문을 자주 해요. 제 사주에서 돈을 쓸 때 드러나는 습관을 풀이하고, 어떤 순간에 결제를 하루 미뤄보면 좋을지 알려주세요.'],
+          ['저축일을 자꾸 미뤄요', '쓰고 남는 돈을 저축하려다 매번 날짜를 미뤄요. 제 사주에서 계획을 지키기 쉬운 방식을 짚고, 한 달간 실험해 볼 저축 기준을 알려주세요.']
+        ],
+        action: '다온과 소비 습관 살펴보기'
+      },
       example: 'directoryPreviewSaving'
     },
     'career-growth': {
@@ -74,26 +109,80 @@
     return element;
   }
 
+  function makeScene(feature) {
+    const scene = make('section', '', 'consultation-story-scene');
+    scene.append(make('h2', feature.heading), make('p', '가상의 상황 예시', 'consultation-story-scene-note'));
+    if (feature.message) {
+      scene.append(make('blockquote', feature.message, 'consultation-story-letter'));
+    } else if (feature.receipts) {
+      const receipt = make('dl', '', 'consultation-story-receipt');
+      for (const [item, price] of feature.receipts) {
+        const line = make('div');
+        line.append(make('dt', item), make('dd', price));
+        receipt.append(line);
+      }
+      scene.append(receipt);
+    } else {
+      const offers = make('div', '', 'consultation-story-offers');
+      for (const [name, detail, condition] of feature.offers) {
+        const offer = make('div');
+        offer.append(make('h3', name), make('p', detail), make('p', condition));
+        offers.append(offer);
+      }
+      scene.append(offers);
+    }
+    return scene;
+  }
+
+  function addChoices(entry, feature, key, question, start) {
+    const choices = make('fieldset', '', 'consultation-story-choices');
+    choices.append(make('legend', feature.questionTitle));
+    feature.choices.forEach(([label, text], index) => {
+      const option = make('label', '', 'consultation-story-choice');
+      const input = make('input');
+      input.type = 'radio';
+      input.name = 'story-choice-' + key;
+      input.dataset.storyQuestion = text;
+      const apply = () => {
+        question.textContent = text;
+        start.dataset.storyQuestion = text;
+      };
+      input.addEventListener('change', apply);
+      if (index === 0) {
+        input.checked = true;
+        apply();
+      }
+      option.append(input, make('span', label));
+      choices.append(option);
+    });
+    question.setAttribute('aria-live', 'polite');
+    entry.append(choices, make('p', '상담 첫 질문으로 이어지는 문장', 'consultation-story-question-label'), question, start);
+  }
+
   for (const card of document.querySelectorAll('#homeDirectory [data-story-topic]')) {
     const key = card.dataset.storyTopic;
     const story = stories[key];
     const view = document.getElementById('view-topic-' + key);
     if (!story || !view) continue;
     const advisor = personas.forTopic(key);
+    const feature = story.feature;
     view.style.setProperty('--story-tone', story.tone);
+    if (feature) view.dataset.storyFeature = key;
 
     const hero = make('header', '', 'consultation-story-hero');
     const frame = make('figure', '', 'consultation-story-film yeonwoo-video-frame');
     const portrait = make('img');
-    portrait.src = advisor.portrait;
+    const poster = feature ? 'assets/consultant-' + feature.media + '-story.jpg' : advisor.portrait;
+    portrait.src = poster;
     portrait.alt = '';
     portrait.loading = 'lazy';
     frame.append(portrait);
-    if (advisor.motion?.entry) {
+    const motion = feature ? 'assets/consultant-' + feature.media + '-story.mp4' : advisor.motion?.entry;
+    if (motion) {
       const video = make('video', '', 'yeonwoo-story-video');
       video.dataset.storyPreviewVideo = '';
-      video.dataset.videoSrc = advisor.motion.entry;
-      video.poster = advisor.portrait;
+      video.dataset.videoSrc = motion;
+      video.poster = poster;
       frame.append(video);
     }
     frame.setAttribute('aria-hidden', 'true');
@@ -107,27 +196,40 @@
     hero.append(frame, intro);
 
     const body = make('div', '', 'consultation-story-body');
-    const scope = make('section', '', 'consultation-story-scope');
-    const points = make('ul');
-    story.points.forEach(point => points.append(make('li', point)));
-    scope.append(make('h2', '함께 살펴볼 이야기'), points);
-    body.append(scope);
+    if (feature) {
+      body.append(makeScene(feature));
+    } else {
+      const scope = make('section', '', 'consultation-story-scope');
+      const points = make('ul');
+      story.points.forEach(point => points.append(make('li', point)));
+      scope.append(make('h2', '함께 살펴볼 이야기'), points);
+      body.append(scope);
+    }
 
+    let exampleSection;
     const sample = story.example && document.getElementById(story.example)?.querySelector('figure');
     if (sample) {
       const quote = make('section', '', 'consultation-story-example');
-      quote.append(make('h2', '가상 사주로 받은 실제 답변'), sample.cloneNode(true));
-      body.append(quote);
+      const heading = '가상 사주로 받은 실제 답변';
+      if (feature) {
+        const details = make('details');
+        details.append(make('summary', heading), sample.cloneNode(true));
+        quote.append(details);
+      } else quote.append(make('h2', heading), sample.cloneNode(true));
+      if (feature) exampleSection = quote;
+      else body.append(quote);
     }
 
     const entry = make('section', '', 'consultation-story-entry');
     const question = make('blockquote', card.dataset.consultationQuestion);
-    const start = make('button', '내 사주로 상담 시작하기', 'btn btn-primary');
+    const start = make('button', feature?.action || '내 사주로 상담 시작하기', 'btn btn-primary');
     start.type = 'button';
     start.dataset.storyStart = key;
     start.setAttribute('data-home-consultation', '');
-    entry.append(make('h2', '이 질문으로 시작할 수 있어요'), question, start);
+    if (feature) addChoices(entry, feature, key, question, start);
+    else entry.append(make('h2', '이 질문으로 시작할 수 있어요'), question, start);
     body.append(entry);
+    if (exampleSection) body.append(exampleSection);
     view.replaceChildren(hero, body);
     const focusTitle = () => { if (view.classList.contains('visible')) title.focus({preventScroll:true}); };
     new MutationObserver(focusTitle).observe(view, {attributes:true,attributeFilter:['class']});

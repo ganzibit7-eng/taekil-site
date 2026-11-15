@@ -489,15 +489,19 @@
   });
   // Keep external report/profile handoffs intact; reset only on a new visible entry.
   let visible = false;
-  let requestedTopic = null;
+  let requestedEntry = null;
   const core = window.TaekilConsultationDraft;
   document.addEventListener('click', event => {
-    if (event.target.closest('#homeStartChatBtn,.brand-story-start')) requestedTopic = '';
+    if (event.target.closest('#homeStartChatBtn,.brand-story-start')) requestedEntry = { topic: '' };
   }, true);
-  function startTopic(button, key) {
-    requestedTopic = key;
+  function startTopic(button, key, storyQuestion) {
+    requestedEntry = { topic: key, storyQuestion };
+    if (storyQuestion && document.getElementById('aiChatPanel').style.display === 'flex') {
+      document.getElementById('consultationExit').click();
+    }
     if (!document.getElementById('view-home').classList.contains('visible')) goTo('home');
     handleHomeChatStart(button);
+    if (visible && setup.style.display === 'block') applyRequestedEntry();
   }
   for (const button of document.querySelectorAll('[data-consultation-topic][data-consultation-question]')) {
     const key = core.normalizeTopic(button.dataset.consultationTopic);
@@ -513,12 +517,26 @@
   }
   for (const button of document.querySelectorAll('[data-story-start]')) {
     const key = core.normalizeTopic(button.dataset.storyStart);
-    if (topics.has(key)) button.addEventListener('click', () => startTopic(button, key));
+    if (topics.has(key)) button.addEventListener('click', () => startTopic(button, key, button.dataset.storyQuestion));
   }
   const suggestedConcerns = new Set(examples.map(([, text]) => text));
+  for (const choice of document.querySelectorAll('input[data-story-question]')) {
+    suggestedConcerns.add(choice.dataset.storyQuestion);
+  }
   for (const [key, topic] of topics) {
     suggestedConcerns.add(topic.question);
     for (const [, text] of personas.forTopic(key).questions || []) suggestedConcerns.add(text);
+  }
+  function applyRequestedEntry() {
+    if (!requestedEntry) return;
+    const { topic, storyQuestion } = requestedEntry;
+    requestedEntry = null;
+    const questionText = storyQuestion || topics.get(topic)?.question || '';
+    const replaceSuggestion = Boolean(storyQuestion) || topic !== selectedTopic;
+    showTopic(topic);
+    if (!question.value.trim() || (replaceSuggestion && suggestedConcerns.has(question.value))) question.value = questionText;
+    render(step);
+    persist();
   }
   new MutationObserver(() => {
     const nextVisible = setup.style.display === 'block';
@@ -527,15 +545,7 @@
         showTopic('');
         render(0);
       }
-      if (requestedTopic !== null) {
-        const questionText = topics.get(requestedTopic)?.question || '';
-        const topicChanged = requestedTopic !== selectedTopic;
-        showTopic(requestedTopic);
-        if (!question.value.trim() || (topicChanged && suggestedConcerns.has(question.value))) question.value = questionText;
-        render(step);
-        persist();
-      }
-      requestedTopic = null;
+      applyRequestedEntry();
     }
     visible = nextVisible;
   }).observe(setup, {attributes:true, attributeFilter:['style']});
