@@ -328,10 +328,12 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
 }
 .directory-card-reunion img { object-position: center 39%; }
 .directory-card-copy {
+  position: relative;
   display: grid;
   grid-template-rows: auto 1fr auto;
   gap: 4px;
   padding: clamp(11px, 1.65vw, 17px);
+  background: inherit;
   word-break: keep-all;
   overflow-wrap: anywhere;
 }
@@ -458,8 +460,21 @@ html[data-home-layout="directory"] #homeFaqSection .reveal {
 @media (hover: hover) {
   .home-directory .directory-primary:hover { background: #ddc598; }
   .home-directory :is(.directory-feature, .directory-character, .directory-card):hover { border-color: #c6aa76; }
+  .home-directory :is(.directory-character, .directory-card):hover img { filter: brightness(1.08) saturate(1.05); }
   .home-directory .directory-tools > *:hover { background: #ffffff07; }
   .home-directory :is(.directory-sections button, .directory-utility a):hover { color: #f0ebe1; }
+}
+.home-directory :is(.directory-character, .directory-card):active {
+  border-color: #e0c695;
+  background-color: #29332a;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .home-directory :is(.directory-character, .directory-card) { transition: border-color 180ms ease, transform 150ms ease; }
+  .home-directory :is(.directory-character, .directory-card) img { transition: transform 280ms ease, filter 220ms ease; }
+  .home-directory :is(.directory-character, .directory-card):active { transform: scale(.988); }
+  @media (hover: hover) {
+    .home-directory :is(.directory-character, .directory-card):hover img { transform: scale(1.035); }
+  }
 }
 @media (max-width: 979px) {
   .directory-characters,

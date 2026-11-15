@@ -176,8 +176,21 @@ body.consultation-open .ai-chat-stage:has(.consultation-guided-entry[style*="blo
   .consultation-guided-entry .consultation-setup-heading h2 {font-size:24px}
 }
 
-/* A topic cover introduces the form. The chat continues with Yeonwoo's usual media. */
+/* Topic covers and specialist portraits use the same stage as Yeonwoo. */
 .home-first-block .ai-chat-bgvideo.ai-chat-topic-portrait { display: none !important; }
+.home-first-block .ai-chat-bgvideo.ai-chat-consultant-portrait { display: none !important; }
+body.consultation-open .home-first-block .ai-chat-stage[data-chat-consultant] > .ai-chat-bgvideo:not(.ai-chat-consultant-portrait) {
+  display: none !important;
+}
+body.consultation-open .home-first-block .ai-chat-stage[data-chat-consultant]:not(.reading-focus) > .ai-chat-consultant-portrait[src] {
+  display: block !important;
+  opacity: 1 !important;
+  object-position: 50% 24%;
+}
+.ai-chat-name-block small[hidden],
+#aiChatQuickActions > button[hidden] { display: none !important; }
+.ai-history-consultant,
+.reading-consultant { color: #dfc69c; font-weight: 600; }
 body.consultation-open .ai-chat-stage:has(#aiChatSetup[data-entry-topic][style*="block"]) .ai-chat-bgvideo.ai-chat-entry-media {
   display: none !important;
 }
@@ -207,7 +220,7 @@ body.consultation-open .ai-chat-msg.assistant {
   background:rgba(15,23,19,.95);border:1px solid #f0ebe117;border-radius:10px;
   color:#e5e8df;font:400 17px/1.85 var(--sans);backdrop-filter:blur(12px);box-shadow:none;
 }
-body.consultation-open .ai-chat-msg.assistant::before {content:'연우';display:block;margin:0 0 14px;color:#cbb386;font:600 15px/1.5 var(--serif);letter-spacing:0}
+body.consultation-open .ai-chat-msg.assistant::before {content:var(--consultant-name,'연우');display:block;margin:0 0 14px;color:#cbb386;font:600 15px/1.5 var(--serif);letter-spacing:0}
 body.consultation-open .ai-chat-msg.assistant .ai-chat-heading {font:600 18px/1.65 var(--serif);color:#eee5d3;margin:8px 0 6px}
 body.consultation-open .ai-chat-msg.assistant .ai-chat-strong {font-weight:600;color:#f1eadc}
 body.consultation-open .ai-chat-msg.assistant .ai-chat-bullet {padding-left:15px}

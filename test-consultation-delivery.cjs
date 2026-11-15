@@ -2,6 +2,7 @@ const {test} = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
+const personas = require('./consultation-personas.js');
 
 const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 const sendSource = html.match(/async function sendAiChatMessage\(\) \{[^]*?\n}/)[0];
@@ -32,7 +33,7 @@ function fixture() {
       requests.push(JSON.parse(opts.body));
       return {ok:true, status:200, json:async () => ({reply:'답변', freeUsed:1, freeLimit:3})};
     },
-    appendAiChatMessage:() => ({classList:{add() {}}, remove() {}}),
+    appendAiChatMessage:() => ({classList:{add() {}}, querySelector:()=>({}), remove() {}}),
     clearAiFollowupSuggestions() {}, setActiveAiSession() {}, showToast() {},
     saveCurrentAiConversation() {}, bumpDailyFunnel() {}, trackSeoConversion() {}, trackAiFunnel() {},
     appendAiInlineSpecificDateComparison:() => true, updateAiChatStatus() {}, showAiFollowups() {},
@@ -62,6 +63,20 @@ test('a failed question returns as a draft and a retry sends one complete turn',
   assert.deepEqual(f.requests[1].history, []);
   assert.deepEqual(f.history.map(m => m.role), ['user','assistant']);
   assert.equal(f.input.value, '');
+});
+
+test('each active advisor is passed to the existing authenticated send path', async () => {
+  for (const consultantId of ['seohwa','dogyeom','mujin','sodam',undefined,'unknown-id']) {
+    const f = fixture();
+    f.context.window.TaekilConsultationPersonas = personas;
+    f.context.window.__aiConsultantId = consultantId;
+    f.input.value = '확인할 조건을 알려주세요';
+    await f.context.sendAiChatMessage();
+    assert.equal(f.requests.length,1);
+    assert.equal(f.requests[0].uid,'A');
+    assert.equal(f.requests[0].consultantId,personas.get(consultantId).id);
+    assert.deepEqual(f.history.map(m=>m.role),['user','assistant']);
+  }
 });
 
 test('a pending question blocks Enter or button resubmission and protects a new draft', async () => {

@@ -6,7 +6,7 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function() {
   const ttl = 30 * 60 * 1000;
   const fields = ['ProfileName','Relation','Gender','CalType','Year','Month','Day','Hour'];
-  const topics = new Set(['love', 'wealth', 'career', 'first-date', 'reunion', 'marriage',
+  const topics = new Set(['love', 'wealth', 'career', 'first-date', 'reunion', 'marriage', 'wedding',
     'career-start', 'side-job', 'saving', 'career-growth']);
   const normalizeTopic = value => topics.has(value) ? value : '';
   function birth(raw) {

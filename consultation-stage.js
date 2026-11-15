@@ -1,4 +1,4 @@
-// Presentation only: keep profile entry and conversation inside one video stage.
+// Keep profile entry and conversation inside one consultation stage.
 (() => {
   const home=document.getElementById('view-home');
   const setup=document.getElementById('aiChatSetup');
@@ -14,6 +14,58 @@
   const compareFields = ['aiChatCompareProfile', 'aiChatCompareProfile2'].map(id => document.getElementById(id));
   const input = document.getElementById('aiChatInput');
   const send = document.getElementById('aiChatSendBtn');
+  const personas = window.TaekilConsultationPersonas;
+  const chatStage = panel.closest('.ai-chat-stage');
+  const avatar = chatStage.querySelector('.ai-chat-avatar-mini img');
+  const chatName = chatStage.querySelector('.ai-chat-name-block strong');
+  const specialty = document.createElement('small');
+  chatName.after(specialty);
+  const chatPortrait = document.createElement('img');
+  chatPortrait.className = 'ai-chat-bgvideo ai-chat-consultant-portrait';
+  chatPortrait.alt = '';
+  chatPortrait.setAttribute('aria-hidden', 'true');
+  chatStage.prepend(chatPortrait);
+  const starters = document.getElementById('aiChatQuickActions');
+  const defaultStarters = starters.querySelectorAll(':scope > button');
+  const specialistStarters = Array.from({length:defaultStarters.length}, (_, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.hidden = true;
+    button.addEventListener('click', () => {
+      const question = personas.get(window.__aiConsultantId).questions?.[index]?.[1];
+      if (question) window.prepareAiQuestion(question);
+    });
+    starters.querySelector('.consultation-more-questions').before(button);
+    return button;
+  });
+  let displayedConsultant = '';
+
+  function syncChatPersona() {
+    const persona = personas.get(panel.style.display === 'flex' ? window.__aiConsultantId : undefined);
+    if (persona.id === displayedConsultant) return;
+    displayedConsultant = persona.id;
+    chatName.textContent = persona.name;
+    chatStage.style.setProperty('--consultant-name', JSON.stringify(persona.name));
+    avatar.src = persona.portrait;
+    avatar.alt = persona.name;
+    specialty.textContent = persona.specialty;
+    const isSpecialist = persona.id !== 'yeonwoo';
+    specialty.hidden = !isSpecialist;
+    if (isSpecialist) {
+      chatStage.dataset.chatConsultant = persona.id;
+      chatPortrait.src = persona.portrait;
+    } else {
+      delete chatStage.dataset.chatConsultant;
+      chatPortrait.removeAttribute('src');
+    }
+    input.placeholder = persona.name + '에게 물어보세요';
+    input.setAttribute('aria-label', persona.name + '에게 보낼 질문');
+    defaultStarters.forEach(button => { button.hidden = isSpecialist; });
+    specialistStarters.forEach((button, index) => {
+      button.textContent = persona.questions?.[index]?.[0] || '';
+      button.hidden = !button.textContent;
+    });
+  }
   let suggestedQuestion = '';
   const composer = input?.closest('.ai-chat-inputrow');
   const composeMeta = document.createElement('div');
@@ -106,6 +158,7 @@
   }
   function resize(){if(!frame)frame=requestAnimationFrame(size);}
   function sync(){
+    syncChatPersona();
     updateProfileLine();
     updateCompareLabel();
     resizeComposer();
@@ -162,6 +215,7 @@
   const heading = scroll?.querySelector('.consultation-setup-heading');
   const submit = setup?.querySelector(':scope > button');
   if (!scroll || !heading || !submit) return;
+  const personas = window.TaekilConsultationPersonas;
   const field = id => document.getElementById('aiChat' + id);
   const saved = field('SavedProfile');
   const steps = [
@@ -337,9 +391,10 @@
   function showTopic(topic) {
     selectedTopic = core.normalizeTopic(topic);
     const card = topics.get(selectedTopic);
+    const persona = personas.forTopic(selectedTopic);
     entryTitle.textContent = card?.title || '연우와의 첫 대화';
-    if (card?.image) {
-      if (topicPortrait.getAttribute('src') !== card.image) topicPortrait.src = card.image;
+    if (card) {
+      if (topicPortrait.getAttribute('src') !== persona.portrait) topicPortrait.src = persona.portrait;
       setup.dataset.entryTopic = selectedTopic;
     } else {
       delete setup.dataset.entryTopic;
@@ -377,8 +432,9 @@
   }
   function render(index, focus = false) {
     step = Math.max(0, Math.min(steps.length - 1, index));
+    const consultant = personas.forTopic(selectedTopic).name;
     panes.forEach((pane, i) => { pane.hidden = i !== step; });
-    progress.textContent = `${step + 1} / ${steps.length} · 연우와 만나는 준비`;
+    progress.textContent = `${step + 1} / ${steps.length} · ${consultant} 상담 준비`;
     syncChoices();
     syncCalendar();
     signupNote.hidden = !!member();
@@ -387,7 +443,7 @@
     heading.querySelector('h2').textContent = step === 4 && selectedTopic
       ? '이 질문으로 시작할까요?' : steps[step][0];
     heading.querySelector('p:not(.consultation-entry-progress)').textContent = step === 0 && selectedTopic
-      ? '연우 상담에 사용할 사주 정보를 알려주세요.' : steps[step][1];
+      ? consultant + ' 상담에 사용할 사주 정보를 알려주세요.' : steps[step][1];
     concernChoices.hidden = Boolean(selectedTopic);
     concernHint.textContent = selectedTopic
       ? '내 상황을 덧붙이거나 궁금한 점으로 바꿔도 좋아요.'
@@ -396,7 +452,7 @@
     next.hidden = step === 5;
     next.disabled = step === 1 && !core.birth(birthInput.value).complete;
     submit.hidden = step !== 5;
-    submit.textContent = member() ? '연우와 상담 시작하기' : '로그인하고 상담 이어가기';
+    submit.textContent = member() ? consultant + ' 상담 시작하기' : '로그인하고 상담 이어가기';
     error.textContent = '';
     count.textContent = `${question.value.length} / 200`;
     if (step === 5) updateReview();
@@ -418,15 +474,17 @@
   });
   // Keep external report/profile handoffs intact; reset only on a new visible entry.
   let visible = false;
-  let requestedTopic = '';
+  let requestedTopic = null;
   const core = window.TaekilConsultationDraft;
+  document.addEventListener('click', event => {
+    if (event.target.closest('.directory-primary,#homeStartChatBtn,.brand-story-start')) requestedTopic = '';
+  }, true);
   for (const button of document.querySelectorAll('[data-consultation-topic][data-consultation-question]')) {
     const key = core.normalizeTopic(button.dataset.consultationTopic);
     if (!key) continue;
-    const name = button.querySelector('.directory-character-copy > span')?.textContent;
+    const name = personas.forTopic(key).name;
     const title = button.querySelector(':is(.directory-character-copy, .directory-card-copy) > strong')?.textContent;
-    topics.set(key, { title: [name, title].filter(Boolean).join(' · '),
-      image: button.querySelector('img')?.getAttribute('src'), question: button.dataset.consultationQuestion });
+    topics.set(key, { title: [name, title].filter(Boolean).join(' · '), question: button.dataset.consultationQuestion });
     button.addEventListener('click', () => {
       requestedTopic = key;
       handleHomeChatStart(button);
@@ -440,14 +498,14 @@
         showTopic('');
         render(0);
       }
-      if (requestedTopic) {
-        const questionText = topics.get(requestedTopic).question;
+      if (requestedTopic !== null) {
+        const questionText = topics.get(requestedTopic)?.question || '';
         showTopic(requestedTopic);
         if (!question.value.trim() || topicQuestions.has(question.value)) question.value = questionText;
         render(step);
         persist();
       }
-      requestedTopic = '';
+      requestedTopic = null;
     }
     visible = nextVisible;
   }).observe(setup, {attributes:true, attributeFilter:['style']});
@@ -506,7 +564,7 @@
       if (typeof checkMemberAccess === 'function' && !await checkMemberAccess(actor, {strict:true})) return;
       if (member()?.uid !== actor.uid) return;
       // Manual handoff prepares a draft question; never charge or call Claude on navigation.
-      startAiChat({source:'free-report'});
+      startAiChat({source:'free-report', consultantId:personas.forTopic(selectedTopic).id});
       if (document.getElementById('aiChatPanel').style.display !== 'flex') return;
       const input = document.getElementById('aiChatInput');
       input.value = question.value.trim(); input.dispatchEvent(new Event('input', {bubbles:true}));
@@ -530,7 +588,7 @@
     if (!window.resumeGuidedConsultation()) {
       read();
       if (changed) { question.value = ''; birthInput.value = ''; awaitingAuth = false; showTopic(''); }
-      submit.textContent = member() ? '연우와 상담 시작하기' : '로그인하고 상담 이어가기';
+      submit.textContent = member() ? personas.forTopic(selectedTopic).name + ' 상담 시작하기' : '로그인하고 상담 이어가기';
     }
     syncChoices();
   });

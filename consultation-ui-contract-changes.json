@@ -1,0 +1,48 @@
+[
+  [
+    "    consultantId: window.TaekilConsultationPersonas?.get(window.__aiConsultantId).id || 'yeonwoo',\n",
+    ""
+  ],
+  [
+    "    const consultantName = window.TaekilConsultationPersonas?.get(rec.consultantId).name || '연우';\n",
+    ""
+  ],
+  [
+    "<b class=\"ai-history-consultant\">${escapeHtml(consultantName)} 상담</b> · ",
+    ""
+  ],
+  [
+    "  window.__aiConsultantId = window.TaekilConsultationPersonas?.get(rec.consultantId).id || 'yeonwoo';\n",
+    "",
+    2
+  ],
+  [
+    "  window.__aiConsultantId = window.TaekilConsultationPersonas?.get(reportOptions?.consultantId).id || 'yeonwoo';\n",
+    ""
+  ],
+  [
+    "  const consultant = window.TaekilConsultationPersonas?.get(window.__aiConsultantId);\n  if (consultant && consultant.id !== 'yeonwoo') {\n    typingEl.querySelector('.consultation-progress-text').textContent = consultant.name + ' · 질문을 살펴보고 있어요.';\n  }\n",
+    ""
+  ],
+  [
+    "        consultantId: consultant?.id || 'yeonwoo',\n",
+    ""
+  ],
+  [
+    "return window.TaekilExperienceCore.followups(question, reply, window.__aiChatHistory || [], window.__aiConsultantId);",
+    "return window.TaekilExperienceCore.followups(question, reply, window.__aiChatHistory || []);"
+  ],
+  [
+    "  const brand = modal?.querySelector('.ai-share-brand');\n  if (brand) brand.textContent = '택일소 · ' + (window.TaekilConsultationPersonas?.get(window.__aiConsultantId).name || '연우');\n",
+    ""
+  ],
+  [
+    "title:'택일소 · AI 사주 상담',",
+    "title:'택일소 · 연우 AI 사주 상담',"
+  ],
+  [
+    "showToast('상담 답변을 복사했어요.');",
+    "showToast('연우 답변을 복사했어요.');",
+    2
+  ]
+]

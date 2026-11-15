@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="/home-layout.js?v=20261115-portraits"></script>
-<link rel="stylesheet" href="/home-layout.css?v=20261115-portraits">
+<link rel="stylesheet" href="/home-layout.css?v=20261115-personas">
 <title>택일소 | AI 사주 상담 · 오늘의 운세 · 결혼·이사·개업 택일</title>
 <meta name="description" content="AI 사주 상담가 연우에게 오늘의 운세, 연애운, 재물운, 궁합을 묻고 결혼·이사·개업·계약 날짜까지 비교해보세요. 첫 질문 3개 무료.">
 <meta name="keywords" content="사주, 사주풀이, 무료사주, 사주궁합, 오늘의운세, 신년운세, 택일, 결혼택일, 이사택일, 개업택일, 손없는날, 만세력">
@@ -2264,7 +2264,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <div id="authOverlay">
   <div class="modal-box">
     <div class="auth-brand"><svg class="taekilso-symbol" data-brand-symbol viewBox="0 0 40 40" fill="none" aria-hidden="true" focusable="false"><image href="/assets/brand-emblem-transparent.png?v=20261111-1" width="40" height="40"/></svg><span>택일소</span></div>
-    <div class="modal-title" id="authTitle">연우에게 바로 물어보세요</div>
+    <div class="modal-title" id="authTitle">택일소 로그인</div>
     <div class="auth-free-benefit">
       <b>첫 질문 3개는 무료예요</b>
       <span>Google 또는 카카오 계정으로 시작하세요.<br>카드 등록과 자동결제 없이 이용할 수 있어요.</span>
@@ -2385,13 +2385,13 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <img src="assets/portrait-career.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
           <span class="directory-character-copy"><span>무진</span><strong>직업 · 이직</strong><small>내가 잘 맞는 일과 환경</small></span>
         </button>
-        <a class="directory-character character-wedding" href="#wedding" onclick="goTo('wedding');return false;">
+        <button type="button" class="directory-character character-wedding" data-home-consultation data-consultation-topic="wedding" data-consultation-question="결혼을 준비하고 있어요. 제 사주를 바탕으로 결혼 전에 함께 나눌 이야기를 짚어주고, 예식 날짜를 정하기 전에 확인할 현실 조건도 알려주세요.">
           <img src="assets/portrait-wedding.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-character-copy"><span>소담</span><strong>결혼 택일</strong><small>함께할 날 고르기</small></span>
-        </a>
+          <span class="directory-character-copy"><span>소담</span><strong>결혼·택일</strong><small>결혼 생활과 날짜 준비</small></span>
+        </button>
       </div>
       <div class="directory-topic-links">
-        <p>고민을 고르면 연우에게 물어볼 첫 질문을 준비해 드려요.</p>
+        <p>고민에 맞는 상담사를 고르면 첫 질문을 준비해 드려요.</p>
         <a class="directory-text-link" href="/?landing=yeonwoo">연우 소개와 실제 답변 보기</a>
       </div>
     </section>
@@ -2415,11 +2415,11 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <div class="directory-cards">
         <button type="button" class="directory-card" data-home-consultation data-consultation-topic="first-date" data-consultation-question="새로운 인연을 만나고 싶어요. 제 사주에서 관계를 맺는 방식은 어떻게 읽히나요? 첫 만남에서 상대와 잘 맞는지 살펴볼 기준을 알려주세요.">
           <img src="assets/portrait-love.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>새로운 만남</strong><small>첫 만남에서 살펴볼 기준</small><span>연우 상담</span></span>
+          <span class="directory-card-copy"><strong>새로운 만남</strong><small>첫 만남에서 살펴볼 기준</small><span>서화 상담</span></span>
         </button>
         <button type="button" class="directory-card directory-card-reunion" data-home-consultation data-consultation-topic="reunion" data-consultation-question="헤어진 사람에게 다시 연락할지 고민이에요. 제 사주에서 가까운 관계에서 반복되기 쉬운 방식이 있다면 짚어주고, 연락하기 전에 무엇을 확인하면 좋을지 알려주세요.">
-          <img src="assets/yeonwoo-moonlight.jpg" width="1122" height="1402" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>재회 고민</strong><small>다시 연락하기 전에 돌아볼 점</small><span>연우 상담</span></span>
+          <img src="assets/portrait-love.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
+          <span class="directory-card-copy"><strong>재회 고민</strong><small>다시 연락하기 전에 돌아볼 점</small><span>서화 상담</span></span>
         </button>
         <button type="button" class="directory-card" onclick="openSajuInsight('love')">
           <img src="char-wedding.jpg" width="640" height="1440" alt="" loading="lazy" decoding="async">
@@ -2427,7 +2427,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         </button>
         <button type="button" class="directory-card" data-home-consultation data-consultation-topic="marriage" data-consultation-question="결혼을 앞두고 있어요. 제 사주에서 가까운 사람과 생활을 맞춰가는 방식은 어떻게 읽히나요? 결혼 전에 함께 이야기해 둘 주제와 질문을 알려주세요.">
           <img src="assets/portrait-wedding.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>결혼을 앞두고</strong><small>같이 살기 전 나눌 이야기</small><span>연우 상담</span></span>
+          <span class="directory-card-copy"><strong>결혼을 앞두고</strong><small>같이 살기 전 나눌 이야기</small><span>소담 상담</span></span>
         </button>
       </div>
     </section>
@@ -2437,19 +2437,19 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <div class="directory-cards">
         <button type="button" class="directory-card" data-home-consultation data-consultation-topic="career-start" data-consultation-question="취업을 준비하고 있는데 어떤 일을 먼저 알아볼지 고민이에요. 제 사주에서 잘 맞는 업무 방식과 환경을 설명하고, 직무 두세 가지를 비교할 기준을 알려주세요.">
           <img src="assets/portrait-career.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>취업·진로</strong><small>나와 잘 맞는 일의 조건</small><span>연우 상담</span></span>
+          <span class="directory-card-copy"><strong>취업·진로</strong><small>나와 잘 맞는 일의 조건</small><span>무진 상담</span></span>
         </button>
         <button type="button" class="directory-card" data-home-consultation data-consultation-topic="side-job" data-consultation-question="지금 일에 더해 창업이나 부업을 고민해요. 제 사주에서 혼자 일하거나 사람과 함께할 때 각각 어떤 강점이 읽히나요? 작게 시작해 확인할 기준을 알려주세요.">
-          <img src="char-opening.jpg" width="640" height="1440" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>창업·부업</strong><small>작게 시작해 확인할 조건</small><span>연우 상담</span></span>
+          <img src="assets/portrait-career.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
+          <span class="directory-card-copy"><strong>창업·부업</strong><small>작게 시작해 확인할 조건</small><span>무진 상담</span></span>
         </button>
         <button type="button" class="directory-card" data-home-consultation data-consultation-topic="saving" data-consultation-question="돈이 새기 쉬운 부분을 알고 싶어요. 제 사주의 재물 관련 근거를 바탕으로 어떤 소비 상황에 흔들리기 쉬운지와, 제가 먼저 바꿔볼 습관을 설명해 주세요.">
           <img src="assets/portrait-wealth.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>소비·저축</strong><small>돈이 새기 쉬운 상황과 습관</small><span>연우 상담</span></span>
+          <span class="directory-card-copy"><strong>소비·저축</strong><small>돈이 새기 쉬운 상황과 습관</small><span>도겸 상담</span></span>
         </button>
         <button type="button" class="directory-card" data-home-consultation data-consultation-topic="career-growth" data-consultation-question="직장에서 더 큰 역할을 맡을지 고민돼요. 제 사주에서 책임을 다루는 방식과 강점을 보고, 맡기 전에 확인할 업무 범위와 협업 조건을 알려주세요.">
-          <img src="assets/yeonwoo-reading.jpg" width="1122" height="1402" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>승진·역할 변화</strong><small>더 큰 책임을 맡기 전 살펴볼 점</small><span>연우 상담</span></span>
+          <img src="assets/portrait-career.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
+          <span class="directory-card-copy"><strong>승진·역할 변화</strong><small>더 큰 책임을 맡기 전 살펴볼 점</small><span>무진 상담</span></span>
         </button>
       </div>
     </section>
@@ -8772,6 +8772,7 @@ function buildCurrentAiConversationRecord(){
 
   return {
     id: window.__aiConversationId,
+    consultantId: window.TaekilConsultationPersonas?.get(window.__aiConsultantId).id || 'yeonwoo',
     title: titleBase.length > 34 ? titleBase.slice(0,34) + '…' : titleBase,
     subjects,
     messages,
@@ -8852,13 +8853,14 @@ function renderAiConversationHistory(){
 
   if (empty) empty.style.display = 'none';
   host.innerHTML = list.map(rec => {
+    const consultantName = window.TaekilConsultationPersonas?.get(rec.consultantId).name || '연우';
     const names = (rec.subjects || []).map(s => s.name).filter(Boolean).join(' · ');
     const dt = rec.updatedAtMs ? new Date(rec.updatedAtMs).toLocaleString('ko-KR') : '';
     return `<div class="ai-history-item">
       <div class="ai-history-top">
         <div>
           <div class="ai-history-title">${escapeHtml(rec.title || 'AI 사주 상담')}</div>
-          <div class="ai-history-meta">${escapeHtml(names || '상담 대상')} · ${escapeHtml(dt)}</div>
+          <div class="ai-history-meta"><b class="ai-history-consultant">${escapeHtml(consultantName)} 상담</b> · ${escapeHtml(names || '상담 대상')} · ${escapeHtml(dt)}</div>
         </div>
       </div>
       <div class="ai-history-preview">${escapeHtml(rec.preview || '')}</div>
@@ -8878,6 +8880,7 @@ function resumeAiConversation(id){
 
   if (window.__aiConversationId !== rec.id) window.resetAiComposer?.();
   window.__aiConversationId = rec.id;
+  window.__aiConsultantId = window.TaekilConsultationPersonas?.get(rec.consultantId).id || 'yeonwoo';
   setActiveAiSession(rec.id);
   window.__aiChatSubjects = Array.isArray(rec.subjects) ? rec.subjects.slice(0,3) : [];
   window.__aiChatProfile = window.__aiChatSubjects[0]?.profile || null;
@@ -8921,6 +8924,7 @@ function restoreActiveAiConversation(options){
 
   if (window.__aiConversationId !== rec.id) window.resetAiComposer?.();
   window.__aiConversationId = rec.id;
+  window.__aiConsultantId = window.TaekilConsultationPersonas?.get(rec.consultantId).id || 'yeonwoo';
   window.__aiChatSubjects = Array.isArray(rec.subjects) ? rec.subjects.slice(0,3) : [];
   window.__aiChatProfile = window.__aiChatSubjects[0]?.profile || null;
   window.__aiChatSaju = window.__aiChatSubjects[0]?.summary || '';
@@ -9594,6 +9598,7 @@ function startAiChat(reportOptions) {
   window.__aiChatHistory = [];
   window.resetAiComposer?.();
   window.__aiConversationId = makeAiConversationId();
+  window.__aiConsultantId = window.TaekilConsultationPersonas?.get(reportOptions?.consultantId).id || 'yeonwoo';
   setActiveAiSession(window.__aiConversationId);
 
   document.getElementById('aiChatSetup').style.display = 'none';
@@ -9749,7 +9754,7 @@ function getUsedAiFollowupState(){
 }
 
 function aiFollowupSet(question, reply, used){
-  return window.TaekilExperienceCore.followups(question, reply, window.__aiChatHistory || []);
+  return window.TaekilExperienceCore.followups(question, reply, window.__aiChatHistory || [], window.__aiConsultantId);
 }
 
 function showAiOtherSajuTopics(locked){
@@ -10253,6 +10258,10 @@ async function sendAiChatMessage() {
   const typingEl = appendAiChatMessage('assistant', '');
   typingEl.classList.add('ai-chat-typing');
   typingEl.innerHTML = '<p class="consultation-progress-text" role="status">연우가 질문을 살펴보고 있어요.</p><div aria-hidden="true"><span></span><span></span><span></span></div>';
+  const consultant = window.TaekilConsultationPersonas?.get(window.__aiConsultantId);
+  if (consultant && consultant.id !== 'yeonwoo') {
+    typingEl.querySelector('.consultation-progress-text').textContent = consultant.name + ' · 질문을 살펴보고 있어요.';
+  }
   const stage = document.querySelector('.ai-chat-stage');
   if (stage) stage.classList.add('ai-chat-thinking'); // 캐릭터 주변이 은은하게 반응합니다.
 
@@ -10263,6 +10272,7 @@ async function sendAiChatMessage() {
       headers: await (async () => { const headers = await getAiRequestHeaders(); if (!sameConversation()) throw new Error('ACCOUNT_CHANGED'); return headers; })(),
       body: JSON.stringify({
         uid,
+        consultantId: consultant?.id || 'yeonwoo',
         sajuSummary: window.__aiChatSaju,
         sajuProfile: window.__aiChatProfile,
         /* NEWYEAR_SCOPE_START */
@@ -10917,7 +10927,7 @@ document.addEventListener('DOMContentLoaded', () => setTimeout(setupAiRecommenda
 </script>
 
 <div class="ai-share-modal" id="aiShareModal" onclick="if(event.target===this) closeAiShareModal()">
-  <div class="ai-share-panel" role="dialog" aria-modal="true" aria-label="연우 답변 공유">
+  <div class="ai-share-panel" role="dialog" aria-modal="true" aria-label="상담 답변 공유">
     <div class="ai-share-card" id="aiShareCard">
       <div>
         <div class="ai-share-brand">택일소 · 연우</div>
@@ -10952,6 +10962,8 @@ function openAiShareModal(text){
   aiShareCurrentText = cleaned;
   const answer = document.getElementById('aiShareAnswer');
   const modal = document.getElementById('aiShareModal');
+  const brand = modal?.querySelector('.ai-share-brand');
+  if (brand) brand.textContent = '택일소 · ' + (window.TaekilConsultationPersonas?.get(window.__aiConsultantId).name || '연우');
   if (answer) answer.textContent = cleaned;
   if (modal) modal.classList.add('show');
 }
@@ -10964,7 +10976,7 @@ async function shareAiAnswerNative(){
   const text = aiShareCurrentText;
   if (!text) return;
   const shareData = {
-    title:'택일소 · 연우 AI 사주 상담',
+    title:'택일소 · AI 사주 상담',
     text:text + '\n\nAI 사주 상담 · 택일소',
     url:'https://taekilso.com/'
   };
@@ -10987,11 +10999,11 @@ async function copyAiAnswerText(){
   const text = aiShareCurrentText + '\n\nAI 사주 상담 · 택일소\nhttps://taekilso.com/';
   try{
     await navigator.clipboard.writeText(text);
-    showToast('연우 답변을 복사했어요.');
+    showToast('상담 답변을 복사했어요.');
   }catch(err){
     const ta=document.createElement('textarea');
     ta.value=text; document.body.appendChild(ta); ta.select();
-    try{document.execCommand('copy');showToast('연우 답변을 복사했어요.');}catch(e){showToast('복사하지 못했어요.');}
+    try{document.execCommand('copy');showToast('상담 답변을 복사했어요.');}catch(e){showToast('복사하지 못했어요.');}
     ta.remove();
   }
 }
@@ -11606,12 +11618,13 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=20261111-operations"></script>
 <script src="admin-analytics.js?v=20261113-recovery-1"></script>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261115-directory-1"></script><script src="premium-motion.js" defer></script>
-<link rel="stylesheet" href="consultation-stage.css?v=20261115-entry">
-<script src="consultation-draft-core.js?v=20261115-topics"></script>
-<script src="consultation-stage.js?v=20261115-topics"></script>
+<link rel="stylesheet" href="consultation-stage.css?v=20261115-personas">
+<script src="consultation-personas.js?v=20261115-personas"></script>
+<script src="consultation-draft-core.js?v=20261115-personas"></script>
+<script src="consultation-stage.js?v=20261115-personas"></script>
 <link rel="stylesheet" href="consultation-experience.css?v=20261113-library-1">
-<script src="consultation-experience-core.js?v=20261113-library-1"></script>
-<script src="consultation-experience.js?v=20261113-library-1"></script>
+<script src="consultation-experience-core.js?v=20261115-personas"></script>
+<script src="consultation-experience.js?v=20261115-personas"></script>
 
 <script src="navigation-stability.js?v=20261111-2"></script>
 <link rel="stylesheet" href="newyear-consultation.css?v=20261111-experience">
@@ -11627,7 +11640,7 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <script src="consultation-quality.js?v=20261111-experience"></script>
 <link rel="stylesheet" href="site-menu.css?v=20261111-3"><script src="site-menu.js?v=20261115-directory-1"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=20261111-2">
-<script src="account-session.js?v=20261113-library-1"></script>
+<script src="account-session.js?v=20261115-personas"></script>
 <script src="campaign-attribution-core.js?v=20261111-1"></script><script src="campaign-attribution.js?v=20261111-1"></script>
 </body>
 </html>
