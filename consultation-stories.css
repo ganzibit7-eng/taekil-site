@@ -110,8 +110,14 @@
 .consultation-story-jump:focus-visible { outline: 2px solid #f0ebe1; outline-offset: 3px; }
 [data-story-feature] .consultation-story-body > section { padding-block: clamp(30px,6vw,62px); }
 .consultation-story-chapter .consultation-story-label { margin-bottom: 9px; }
-.consultation-story-chapter-portrait { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,.55fr); align-items: start; gap: clamp(20px,4vw,34px); }
-.consultation-story-chapter-portrait img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 32%; border-radius: 6px; }
+.consultation-story-illustration {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: clamp(16px,3vw,24px) 0;
+  border-radius: 6px;
+  background: #1b2420;
+}
 .consultation-story-prose { margin: 0; color: #c6cdc3; font: 400 17px/1.85 var(--sans); }
 .consultation-story-prose + .consultation-story-prose { margin-top: 12px; }
 .consultation-story-aside {
@@ -134,8 +140,4 @@
   [data-story-feature] .consultation-story-film { grid-area: 2 / 1; max-width: 360px; aspect-ratio: 4 / 5; }
   [data-story-feature] .consultation-story-film :is(img,video) { object-position: 50% 45%; }
   [data-story-feature] .consultation-story-intro h1 { font-size: clamp(28px,8vw,40px); }
-}
-@media (max-width: 540px) {
-  .consultation-story-chapter-portrait { grid-template-columns: minmax(0,1fr); }
-  .consultation-story-chapter-portrait img { aspect-ratio: 5 / 3; }
 }
