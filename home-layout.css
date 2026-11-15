@@ -206,6 +206,21 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   color: var(--directory-muted);
   font: 400 16px/1.65 var(--sans);
 }
+.directory-preview-choices { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+.directory-preview-choices button {
+  min-height: 44px;
+  padding: 7px 12px;
+  border: 1px solid var(--directory-line);
+  border-radius: 6px;
+  background: transparent;
+  color: #c1c9bf;
+  font: 500 15px/1.4 var(--sans);
+}
+.directory-preview-choices button[aria-pressed="true"] {
+  border-color: #c6aa76;
+  background: #c6aa761a;
+  color: #f0e2c5;
+}
 .directory-preview .directory-text-link { margin-top: 4px; }
 .directory-preview-reading {
   padding: clamp(18px, 3vw, 28px);
@@ -231,7 +246,13 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   color: #e2e4dc;
   font: 400 16px/1.7 var(--sans);
 }
-.directory-preview-reading button {
+.directory-preview-reading blockquote p { margin: 0; }
+.directory-preview-reading blockquote p + p { margin-top: 10px; }
+.directory-preview-reading[hidden] { display: none; }
+.home-directory .directory-preview-action {
+  display: inline-flex;
+  box-sizing: border-box;
+  align-items: center;
   min-height: 44px;
   padding: 8px 14px;
   border: 1px solid #c6aa7677;
@@ -239,11 +260,44 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   background: #c6aa760b;
   color: #ecdbb8;
   font: 600 15px/1.45 var(--sans);
+  text-decoration: none;
 }
 #uiDemoTitle { scroll-margin-top: 86px; }
 @media (hover: hover) {
-  .directory-preview-reading button:hover { background: #c6aa7622; border-color: #c6aa76; }
+  .home-directory .directory-preview-action:hover,
+  .directory-preview-choices button:hover { background: #c6aa7622; border-color: #c6aa76; }
 }
+.directory-date-example {
+  display: grid;
+  grid-template-columns: minmax(0, .72fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(18px, 4vw, 52px);
+  margin-top: clamp(28px, 4vw, 48px);
+  padding: clamp(18px, 3vw, 40px);
+  border: 1px solid var(--directory-line);
+  border-radius: 10px;
+  background: #1b2420;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.directory-date-visual {
+  width: 100%;
+  max-width: 340px;
+  aspect-ratio: 3 / 4;
+  border-radius: 6px;
+  justify-self: center;
+}
+.directory-date-visual :is(img,video) { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.directory-date-copy h3 { margin: 6px 0 9px; font: 600 clamp(22px, 3vw, 32px)/1.4 var(--serif); }
+.directory-date-copy p { margin: 0; color: var(--directory-muted); font: 400 16px/1.65 var(--sans); }
+.directory-date-scores { margin: 18px 0; border-top: 1px solid var(--directory-line); }
+.directory-date-scores > div { padding: 12px 0; border-bottom: 1px solid var(--directory-line); }
+.directory-date-scores dt { display: flex; justify-content: space-between; gap: 8px; font: 600 16px/1.5 var(--sans); }
+.directory-date-scores strong { flex: none; color: #e0c695; font-variant-numeric: tabular-nums; }
+.directory-date-scores dd { margin: 3px 0 0; color: var(--directory-muted); font-size: 14px; line-height: 1.5; }
+.directory-date-basis { margin: 8px 0 12px; }
+.directory-date-basis summary { padding: 10px 0; min-height: 24px; color: #dfc69c; cursor: pointer; font-size: 15px; }
+.directory-date-basis summary:focus-visible { outline: 2px solid #dfc69c; outline-offset: 3px; }
 .directory-features {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -499,8 +553,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 #view-wedding .wedding-guide .hero-actions { justify-content: flex-start; margin-top: 22px; }
 
 @media (hover: hover) {
-  .home-directory :is(.directory-feature, .directory-character, .directory-card):hover { border-color: #c6aa76; }
-  .home-directory :is(.directory-character, .directory-card):hover img { filter: brightness(1.08) saturate(1.05); }
+  .home-directory .directory-feature:hover { border-color: #c6aa76; }
   .home-directory .directory-tools > *:hover { background: #ffffff07; }
   .home-directory :is(.directory-sections button, .directory-utility a):hover { color: #f0ebe1; }
 }
@@ -509,12 +562,9 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   background-color: #29332a;
 }
 @media (prefers-reduced-motion: no-preference) {
-  .home-directory :is(.directory-character, .directory-card) { transition: border-color 180ms ease, transform 150ms ease; }
+  .home-directory :is(.directory-character, .directory-card) { transition: border-color 180ms ease, background-color 180ms ease, transform 150ms ease; }
   .home-directory :is(.directory-character, .directory-card) img { transition: transform 280ms ease, filter 220ms ease; }
   .home-directory :is(.directory-character, .directory-card):active { transform: scale(.988); }
-  @media (hover: hover) {
-    .home-directory :is(.directory-character, .directory-card):hover img { transform: scale(1.035); }
-  }
 }
 @media (max-width: 979px) {
   .directory-characters,
@@ -550,7 +600,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   }
   @media (prefers-reduced-motion: no-preference) {
     .home-directory :is(.directory-character, .directory-card)[data-rail-current] img {
-      transform: scale(1.035);
+      transform: scale(1.025);
       filter: brightness(1.045) saturate(1.035);
     }
   }
@@ -565,6 +615,14 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
       border-radius: 8px;
       background: #7c7561;
     }
+  }
+}
+.home-directory :is(.directory-character, .directory-card):focus-visible { border-color: #dfc69c; }
+@media (any-hover: hover) {
+  .home-directory :is(.directory-character, .directory-card):hover { border-color: #dfc69c; background-color: #253129; }
+  .home-directory :is(.directory-character, .directory-card):hover img { filter: brightness(1.12) saturate(1.075); }
+  @media (prefers-reduced-motion: no-preference) {
+    .home-directory :is(.directory-character, .directory-card):hover img { transform: scale(1.065); }
   }
 }
 @media (max-width: 660px) {
@@ -587,6 +645,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   .directory-preview { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .directory-preview-intro h2 br { display: none; }
   .directory-preview-intro p { max-width: none; }
+  .directory-date-example { grid-template-columns: minmax(0, 1fr); }
   .directory-features { grid-template-columns: 1fr; gap: 32px; }
   .home-directory .directory-feature { min-height: 184px; }
   .directory-feature-copy { width: 64%; }

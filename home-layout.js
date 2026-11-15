@@ -31,6 +31,14 @@
         heading.scrollIntoView({ block: 'start', behavior: 'instant' });
       });
     }
+    const exampleChoices = [...document.querySelectorAll('#homeDirectory [data-preview-choice]')];
+    const examplePanels = [...document.querySelectorAll('#homeDirectory [data-preview-panel]')];
+    for (const choice of exampleChoices) {
+      choice.addEventListener('click', () => {
+        for (const panel of examplePanels) panel.hidden = panel.dataset.previewPanel !== choice.dataset.previewChoice;
+        for (const button of exampleChoices) button.setAttribute('aria-pressed', String(button === choice));
+      });
+    }
     for (const rail of document.querySelectorAll('#homeDirectory :is(.directory-characters, .directory-cards)')) {
       let frame = 0;
       let current = null;

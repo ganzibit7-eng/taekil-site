@@ -71,21 +71,27 @@
   window.addEventListener('online', () => { retryCount = 0; flush(); });
   flush();
 
-  const excerpt = document.querySelector('#homeDirectory .directory-preview-reading blockquote');
-  if (!excerpt || !('IntersectionObserver' in window)) return;
-  let visible = false;
+  const excerpts = document.querySelectorAll('#homeDirectory .directory-preview-reading blockquote');
+  if (!excerpts.length || !('IntersectionObserver' in window)) return;
+  const visibleExcerpts = new Set();
+  const visible = () => Array.from(visibleExcerpts).find(excerpt => !excerpt.closest('[hidden]'));
   let dwellTimer = 0;
   function scheduleView() {
     clearTimeout(dwellTimer);
-    if (visible && !document.hidden) {
+    const excerpt = visible();
+    if (excerpt && !document.hidden) {
       dwellTimer = setTimeout(() => {
-        if (visible && !document.hidden) advance(1);
+        if (visible() === excerpt && !document.hidden) advance(1);
       }, 1000);
     }
   }
-  new IntersectionObserver(([entry]) => {
-    visible = entry.isIntersecting && entry.intersectionRatio >= 0.5;
+  const observer = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (entry.isIntersecting && entry.intersectionRatio >= 0.5) visibleExcerpts.add(entry.target);
+      else visibleExcerpts.delete(entry.target);
+    }
     scheduleView();
-  }, { threshold: 0.5 }).observe(excerpt);
+  }, { threshold: 0.5 });
+  for (const excerpt of excerpts) observer.observe(excerpt);
   document.addEventListener('visibilitychange', scheduleView);
 })();

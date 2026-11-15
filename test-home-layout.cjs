@@ -112,6 +112,46 @@ test('the public preview quotes the existing demonstration and opens the existin
   assert.match(html, /id="uiDemoTitle"/);
 });
 
+test('new home previews quote recorded answers and hand off to their original specialist topics', () => {
+  const html = readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  const { examples } = JSON.parse(readFileSync(path.join(__dirname, 'content/home-consultation-previews.json'), 'utf8'));
+  assert.deepEqual(examples.map(e => e.topic), ['reunion', 'saving']);
+  for (const {topic,advisor,answer} of examples) {
+    const panel = html.match(new RegExp('data-preview-panel="' + topic + '" hidden>([\\s\\S]*?)</div>'))?.[1];
+    assert.ok(panel, topic);
+    assert.ok(panel.includes('<figcaption>' + advisor + '의 답변</figcaption>'));
+    const excerpt = panel.match(/<blockquote>([\s\S]+?)<\/blockquote>/)?.[1];
+    assert.ok(excerpt);
+    const paragraphs = [...excerpt.matchAll(/<p>(.+?)<\/p>/g)].map(match => match[1]);
+    assert.ok(paragraphs.length >= 2);
+    paragraphs.forEach(text => assert.ok(answer.includes(text), text));
+    assert.ok(panel.includes('data-consultation-example="' + topic + '"'));
+    assert.equal([...html.matchAll(new RegExp('data-consultation-topic="' + topic + '"','g'))].length, 1);
+  }
+});
+
+test('the displayed wedding example matches the existing couple scoring and calendar dates', () => {
+  const html = readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  const part=(a,b)=>html.slice(html.indexOf(a),html.indexOf(b,html.indexOf(a)));
+  const score=runInNewContext(
+    part('const CHEONGAN =','renderTodayGanji();') +
+    part('function scoreDate','const dowNames') +
+    part('function buildAiInlineCandidate','function getAiInlineTaekilTop') +
+    part('function to100','/* ---------- RESULT CARDS') +
+    `function getAiChatPrimaryOhaeng(){return ohaengOf(dayGanjiIndex(new Date(1990,0,1)))}
+     function getAiChatPartnerOhaeng(){return ohaengOf(dayGanjiIndex(new Date(1992,3,18)))}
+     // The deployed lunar calendar returns day 10 and day 11 for these two dates.
+     function getLunarInfo(date){return {isSonEomneun:date.getDate()===15}}
+     day=>{const row=buildAiInlineCandidate(new Date(2027,4,day),'결혼식');return [to100(row.score),row.ganji,row.ganjiHanja]}`);
+  const example=html.match(/<article class="directory-date-example"[\s\S]+?<\/article>/)?.[0];
+  assert.ok(example);
+  assert.match(example, /data-video-src="assets\/sodam-date-comparison\.mp4"/);
+  for (const day of [15,16]) {
+    const [value,ganji,hanja]=score(day);
+    assert.match(example,new RegExp('datetime="2027-05-'+day+'"[^<]*>[^<]*</time><strong>'+value+'점</strong></dt><dd>'+ganji+'\\('+hanja+'\\)'));
+  }
+});
+
 test('the public home uses a separate image for every displayed hero, portrait and topic', () => {
   const html = readFileSync(path.join(__dirname, 'index.html'), 'utf8');
   const start = html.indexOf('id="homeDirectory"');

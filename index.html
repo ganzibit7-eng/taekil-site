@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="/home-layout.js?v=20261115-consultation-preview"></script>
-<link rel="stylesheet" href="/home-layout.css?v=20261115-consultation-preview">
+<script src="/home-layout.js?v=20261115-preview-topics"></script>
+<link rel="stylesheet" href="/home-layout.css?v=20261115-preview-topics">
 <title>택일소 | AI 사주 상담 · 오늘의 운세 · 결혼·이사·개업 택일</title>
 <meta name="description" content="AI 사주 상담가 연우에게 오늘의 운세, 연애운, 재물운, 궁합을 묻고 결혼·이사·개업·계약 날짜까지 비교해보세요. 첫 질문 3개 무료.">
 <meta name="keywords" content="사주, 사주풀이, 무료사주, 사주궁합, 오늘의운세, 신년운세, 택일, 결혼택일, 이사택일, 개업택일, 손없는날, 만세력">
@@ -2395,17 +2395,47 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <section class="directory-section directory-preview" aria-labelledby="directoryPreviewTitle">
       <div class="directory-preview-intro">
         <h2 id="directoryPreviewTitle">사주 상담은<br> 이렇게 진행돼요</h2>
-        <p>가상의 사주와 고민으로 받은 연우의 실제 답변 일부예요.</p>
-        <a class="directory-text-link" href="/?landing=yeonwoo#uiDemoTitle">다른 상담 예시 보기</a>
+        <p>한 사람의 사주와 고민을 함께 살펴봅니다. 가상 사주로 받은 실제 답변 일부를 읽어보세요.</p>
+        <div class="directory-preview-choices" role="group" aria-label="상담 예시 주제">
+          <button type="button" data-preview-choice="career" aria-controls="directoryPreviewCareer" aria-pressed="true">이직</button>
+          <button type="button" data-preview-choice="reunion" aria-controls="directoryPreviewReunion" aria-pressed="false">재회</button>
+          <button type="button" data-preview-choice="saving" aria-controls="directoryPreviewSaving" aria-pressed="false">소비 습관</button>
+        </div>
+        <a class="directory-text-link" href="/?landing=yeonwoo#uiDemoTitle">연우의 전체 예시 보기</a>
       </div>
-      <div class="directory-preview-reading">
+      <div class="directory-preview-reading" id="directoryPreviewCareer" data-preview-panel="career">
         <span class="directory-preview-label">직업·이직 상담 예시</span>
         <h3>이직을 고민 중인데, 제 사주에서 어떤 업무 환경이 잘 맞을까요?</h3>
         <figure>
           <figcaption>연우의 답변</figcaption>
           <blockquote>당신의 사주를 보면 자율성과 창의성이 강한 환경에서 실력을 발휘하는 타입이고, 현재 느끼는 답답함은 그 기질과 맞지 않는 구조 때문일 가능성이 높아요.</blockquote>
         </figure>
-        <button type="button" data-home-consultation data-consultation-example="career">무진에게 직업·이직 상담하기</button>
+        <button class="directory-preview-action" type="button" data-home-consultation data-consultation-example="career">무진에게 직업·이직 상담하기</button>
+      </div>
+      <div class="directory-preview-reading" id="directoryPreviewReunion" data-preview-panel="reunion" hidden>
+        <span class="directory-preview-label">재회 상담 예시</span>
+        <h3>헤어진 사람에게 다시 연락하기 전에 무엇을 확인할까요?</h3>
+        <figure>
+          <figcaption>이준의 답변</figcaption>
+          <blockquote>
+            <p>월지의 지장간 癸에서 정관이 계산되어 있어요. 전통 명리에서 살펴보는 관점은 ‘외부의 기준·책임과 자신을 조율하는 과정’입니다.</p>
+            <p>관계를 다시 시작하거나 진전시키고 싶다면, 상대의 마음을 추측하기보다 서로 지킬 수 있는 약속과 부담스러운 기대를 구분해 대화하는 것이 중요해요.</p>
+          </blockquote>
+        </figure>
+        <button class="directory-preview-action" type="button" data-home-consultation data-consultation-example="reunion">이준에게 재회 상담하기</button>
+      </div>
+      <div class="directory-preview-reading" id="directoryPreviewSaving" data-preview-panel="saving" hidden>
+        <span class="directory-preview-label">소비 습관 상담 예시</span>
+        <h3>야근한 날마다 돈이 새요. 어떤 기준으로 지출을 줄일까요?</h3>
+        <figure>
+          <figcaption>다온의 답변</figcaption>
+          <blockquote>
+            <p>월간에서 비견이 계산되어 있어요. 전통 명리에서 살펴보는 관점은 ‘자기 기준과 동료 사이의 관계’입니다.</p>
+            <p>이를 현재 상황에 연결하면, 피로한 상태에서 '작은 것쯤'이라고 생각하며 지출 기준을 낮추는 일이 반복될 수 있다는 뜻입니다.</p>
+            <p>배송료·배달비를 포함한 총액을 말로 읽고 '이 금액이 내 피로를 푸는 값어치가 있는가?'라고 묻기.</p>
+          </blockquote>
+        </figure>
+        <button class="directory-preview-action" type="button" data-home-consultation data-consultation-example="saving">다온에게 소비 습관 상담하기</button>
       </div>
     </section>
 
@@ -2494,6 +2524,24 @@ const ADMIN_EMAIL = "green092432@gmail.com";
           <span class="directory-card-copy"><strong>계약 택일</strong><small>서명할 날짜 비교하기</small></span>
         </a>
       </div>
+      <article class="directory-date-example" aria-labelledby="directoryWeddingExampleTitle">
+        <div class="directory-date-visual yeonwoo-video-frame" aria-hidden="true">
+          <img src="assets/sodam-date-comparison.jpg" width="540" height="720" alt="" loading="lazy" decoding="async">
+          <video class="yeonwoo-story-video" data-home-directory-video muted loop playsinline preload="none" data-video-src="assets/sodam-date-comparison.mp4" poster="assets/sodam-date-comparison.jpg"></video>
+        </div>
+        <div class="directory-date-copy">
+          <span class="directory-preview-label">소담 · 결혼 택일 예시</span>
+          <h3 id="directoryWeddingExampleTitle">예식장이 두 날짜를 제안했다면</h3>
+          <p>가상의 두 사람을 기준으로 택일소에서 계산한 2027년 5월 예식 후보예요.</p>
+          <dl class="directory-date-scores">
+            <div><dt><time datetime="2027-05-15">5월 15일 토요일</time><strong>93점</strong></dt><dd>갑오(甲午) · 목 · 손없는 날</dd></div>
+            <div><dt><time datetime="2027-05-16">5월 16일 일요일</time><strong>80점</strong></dt><dd>을미(乙未) · 목</dd></div>
+          </dl>
+          <p>두 날짜 모두 화 기운과 상생하고, 15일에는 손없는 날 가점이 붙어요. 예식장 비용과 하객 이동 시간도 함께 비교해 보세요.</p>
+          <details class="directory-date-basis"><summary>예시에 사용한 사주</summary><p>양력 1990년 1월 1일(화)과 1992년 4월 18일(목). 두 사람 모두 출생시간 미상으로 설정했습니다.</p></details>
+          <a class="directory-preview-action" href="#tool" onclick="goTo('tool','결혼식');return false;">내 예식 날짜 비교하기</a>
+        </div>
+      </article>
     </section>
 
     <nav class="directory-utility" aria-label="택일소 서비스 안내">
@@ -11649,7 +11697,7 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <link rel="stylesheet" href="admin-analytics.css?v=20261115-preview-conversion">
 <script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=20261115-preview-conversion"></script>
 <script src="admin-analytics.js?v=20261115-preview-conversion"></script>
-<link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261115-topic-motion"></script><script src="premium-motion.js" defer></script>
+<link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261115-sodam-comparison"></script><script src="premium-motion.js" defer></script>
 <link rel="stylesheet" href="consultation-stage.css?v=20261115-consultation-preview">
 <script src="consultation-personas.js?v=20261115-representative-motion"></script>
 <script src="consultation-draft-core.js?v=20261115-personas"></script>
@@ -11674,7 +11722,7 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <link rel="stylesheet" href="interaction-refinement.css?v=20261111-2">
 <script src="account-session.js?v=20261115-personas"></script>
 <script src="campaign-attribution-core.js?v=20261111-1"></script><script src="campaign-attribution.js?v=20261115-preview-conversion"></script>
-<script src="preview-funnel.js?v=20261115-preview-conversion"></script>
+<script src="preview-funnel.js?v=20261115-preview-topics"></script>
 </body>
 </html>
 
