@@ -209,9 +209,11 @@ body.consultation-open .ai-chat-stage:has(.consultation-guided-entry[style*="blo
 /* Immersive entry: one question at a time, with the same uninterrupted film. */
 .consultation-entry-nav {display:none}
 .consultation-concern-choices {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.consultation-concern-choices button {min-height:44px;padding:8px 4px;border:1px solid #c6aa764d;border-radius:7px;background:#10171580;color:#e5d3ae;font:500 14px/1.5 var(--sans);cursor:pointer}
+.consultation-concern-choices button {min-height:44px;padding:8px 5px;border:1px solid #c6aa764d;border-radius:7px;background:#101715a6;color:#e5d3ae;font:500 15px/1.5 var(--sans);word-break:keep-all;overflow-wrap:break-word;cursor:pointer}
+.consultation-concern-choices button[aria-pressed=true] {border-color:#c6aa76;background:#3d3829;color:#f0e2c5}
 .consultation-concern-choices button:focus-visible {outline:2px solid #c6aa76;outline-offset:2px}
-.consultation-concern-choices + .entry-field-hint {margin:10px 0 14px}
+.consultation-concern-choices + .entry-field-hint {margin:10px 0 14px;font-size:14px}
+body.consultation-open #toastHost {pointer-events:none}
 
 /* Reading and composing share the quiet surfaces of the topic chooser. */
 body.consultation-open #aiChatWindow {gap:18px;padding:8px 0 20px!important;scroll-padding:16px}
