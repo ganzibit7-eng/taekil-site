@@ -291,7 +291,6 @@
     concernChoices.append(choice);
   }
   const concernHint = document.createElement('p'); concernHint.className = 'entry-field-hint';
-  concernHint.textContent = '주제를 고르면 예시를 채워드려요. 내 상황에 맞게 고쳐주세요.';
   panes[4].prepend(concernChoices,concernHint);
   panes[5].append(signupNote,draftNote);
   const progress = document.createElement('p');
@@ -385,9 +384,14 @@
     signupNote.hidden = !!member();
     entryCount.textContent = `${step + 1} / ${steps.length}`;
     setup.dataset.entryStep = String(step);
-    heading.querySelector('h2').textContent = steps[step][0];
+    heading.querySelector('h2').textContent = step === 4 && selectedTopic
+      ? '이 질문으로 시작할까요?' : steps[step][0];
     heading.querySelector('p:not(.consultation-entry-progress)').textContent = step === 0 && selectedTopic
       ? '연우 상담에 사용할 사주 정보를 알려주세요.' : steps[step][1];
+    concernChoices.hidden = Boolean(selectedTopic);
+    concernHint.textContent = selectedTopic
+      ? '내 상황을 덧붙이거나 궁금한 점으로 바꿔도 좋아요.'
+      : '주제를 고르면 예시를 채워드려요. 내 상황에 맞게 고쳐주세요.';
     back.hidden = step === 0;
     next.hidden = step === 5;
     next.disabled = step === 1 && !core.birth(birthInput.value).complete;
@@ -420,7 +424,7 @@
     const key = core.normalizeTopic(button.dataset.consultationTopic);
     if (!key) continue;
     const name = button.querySelector('.directory-character-copy > span')?.textContent;
-    const title = button.querySelector('.directory-character-copy > strong')?.textContent;
+    const title = button.querySelector(':is(.directory-character-copy, .directory-card-copy) > strong')?.textContent;
     topics.set(key, { title: [name, title].filter(Boolean).join(' · '),
       image: button.querySelector('img')?.getAttribute('src'), question: button.dataset.consultationQuestion });
     button.addEventListener('click', () => {

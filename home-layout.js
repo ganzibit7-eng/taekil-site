@@ -5,4 +5,14 @@
   const consultationLanding = params.get('landing') === 'yeonwoo' ||
     params.has('seo_landing') || location.hash === '#ai-chat' || naverAd;
   document.documentElement.dataset.homeLayout = consultationLanding ? 'consultation' : 'directory';
+
+  if (!consultationLanding) document.addEventListener('DOMContentLoaded', () => {
+    for (const button of document.querySelectorAll('#homeDirectory [data-directory-jump]')) {
+      button.addEventListener('click', () => {
+        const heading = document.getElementById(button.dataset.directoryJump);
+        heading.focus({ preventScroll: true });
+        heading.scrollIntoView({ block: 'start', behavior: 'instant' });
+      });
+    }
+  });
 })();

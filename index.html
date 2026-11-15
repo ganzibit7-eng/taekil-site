@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="/home-layout.js?v=20261115-1"></script>
-<link rel="stylesheet" href="/home-layout.css?v=20261115-surface">
+<script src="/home-layout.js?v=20261115-topics"></script>
+<link rel="stylesheet" href="/home-layout.css?v=20261115-topics">
 <title>택일소 | AI 사주 상담 · 오늘의 운세 · 결혼·이사·개업 택일</title>
 <meta name="description" content="AI 사주 상담가 연우에게 오늘의 운세, 연애운, 재물운, 궁합을 묻고 결혼·이사·개업·계약 날짜까지 비교해보세요. 첫 질문 3개 무료.">
 <meta name="keywords" content="사주, 사주풀이, 무료사주, 사주궁합, 오늘의운세, 신년운세, 택일, 결혼택일, 이사택일, 개업택일, 손없는날, 만세력">
@@ -2363,6 +2363,13 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       </div>
     </section>
 
+    <nav class="directory-sections" aria-label="홈에서 주제 찾기">
+      <button type="button" data-directory-jump="directoryFeaturedTitle">사주 리포트</button>
+      <button type="button" data-directory-jump="directoryRelationshipsTitle">연애·궁합</button>
+      <button type="button" data-directory-jump="directoryCareerTitle">일·재물</button>
+      <button type="button" data-directory-jump="directoryDatesTitle">운세·택일</button>
+    </nav>
+
     <section class="directory-section" aria-labelledby="directoryTopicsTitle">
       <h2 id="directoryTopicsTitle">고민별 사주·택일</h2>
       <div class="directory-characters" role="group" aria-label="고민별 캐릭터 선택">
@@ -2384,13 +2391,13 @@ const ADMIN_EMAIL = "green092432@gmail.com";
         </a>
       </div>
       <div class="directory-topic-links">
-        <p>연애·재물·직업은 연우 상담에서 이어서 물어볼 수 있어요.</p>
+        <p>고민을 고르면 연우에게 물어볼 첫 질문을 준비해 드려요.</p>
         <a class="directory-text-link" href="/?landing=yeonwoo">연우 소개와 실제 답변 보기</a>
       </div>
     </section>
 
     <section class="directory-section" aria-labelledby="directoryFeaturedTitle">
-      <h2 id="directoryFeaturedTitle">사주 리포트</h2>
+      <h2 id="directoryFeaturedTitle" tabindex="-1">사주 리포트</h2>
       <div class="directory-features">
         <button type="button" class="directory-feature" data-open-basic-report>
           <span class="directory-feature-copy"><strong>무료 사주 리포트</strong><span>내 오행과 기본 성향</span><small>로그인 없이 보기</small></span>
@@ -2403,18 +2410,74 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       </div>
     </section>
 
+    <section class="directory-section" aria-labelledby="directoryRelationshipsTitle">
+      <h2 id="directoryRelationshipsTitle" tabindex="-1">연애·궁합</h2>
+      <div class="directory-cards">
+        <button type="button" class="directory-card" data-home-consultation data-consultation-topic="first-date" data-consultation-question="새로운 인연을 만나고 싶어요. 제 사주에서 관계를 맺는 방식은 어떻게 읽히나요? 첫 만남에서 상대와 잘 맞는지 살펴볼 기준을 알려주세요.">
+          <img src="assets/portrait-love.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
+          <span class="directory-card-copy"><strong>새로운 만남</strong><small>첫 만남에서 살펴볼 기준</small><span>연우 상담</span></span>
+        </button>
+        <button type="button" class="directory-card directory-card-reunion" data-home-consultation data-consultation-topic="reunion" data-consultation-question="헤어진 사람에게 다시 연락할지 고민이에요. 제 사주에서 가까운 관계에서 반복되기 쉬운 방식이 있다면 짚어주고, 연락하기 전에 무엇을 확인하면 좋을지 알려주세요.">
+          <img src="assets/yeonwoo-moonlight.jpg" width="1122" height="1402" alt="" loading="lazy" decoding="async">
+          <span class="directory-card-copy"><strong>재회 고민</strong><small>다시 연락하기 전에 돌아볼 점</small><span>연우 상담</span></span>
+        </button>
+        <button type="button" class="directory-card" onclick="openSajuInsight('love')">
+          <img src="char-wedding.jpg" width="640" height="1440" alt="" loading="lazy" decoding="async">
+          <span class="directory-card-copy"><strong>두 사람 궁합</strong><small>두 사주의 오행 비교</small><span>무료 미리보기</span></span>
+        </button>
+        <button type="button" class="directory-card" data-home-consultation data-consultation-topic="marriage" data-consultation-question="결혼을 앞두고 있어요. 제 사주에서 가까운 사람과 생활을 맞춰가는 방식은 어떻게 읽히나요? 결혼 전에 함께 이야기해 둘 주제와 질문을 알려주세요.">
+          <img src="assets/portrait-wedding.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
+          <span class="directory-card-copy"><strong>결혼을 앞두고</strong><small>같이 살기 전 나눌 이야기</small><span>연우 상담</span></span>
+        </button>
+      </div>
+    </section>
+
+    <section class="directory-section" aria-labelledby="directoryCareerTitle">
+      <h2 id="directoryCareerTitle" tabindex="-1">일·재물</h2>
+      <div class="directory-cards">
+        <button type="button" class="directory-card" data-home-consultation data-consultation-topic="career-start" data-consultation-question="취업을 준비하고 있는데 어떤 일을 먼저 알아볼지 고민이에요. 제 사주에서 잘 맞는 업무 방식과 환경을 설명하고, 직무 두세 가지를 비교할 기준을 알려주세요.">
+          <img src="assets/portrait-career.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
+          <span class="directory-card-copy"><strong>취업·진로</strong><small>나와 잘 맞는 일의 조건</small><span>연우 상담</span></span>
+        </button>
+        <button type="button" class="directory-card" data-home-consultation data-consultation-topic="side-job" data-consultation-question="지금 일에 더해 창업이나 부업을 고민해요. 제 사주에서 혼자 일하거나 사람과 함께할 때 각각 어떤 강점이 읽히나요? 작게 시작해 확인할 기준을 알려주세요.">
+          <img src="char-opening.jpg" width="640" height="1440" alt="" loading="lazy" decoding="async">
+          <span class="directory-card-copy"><strong>창업·부업</strong><small>작게 시작해 확인할 조건</small><span>연우 상담</span></span>
+        </button>
+        <button type="button" class="directory-card" data-home-consultation data-consultation-topic="saving" data-consultation-question="돈이 새기 쉬운 부분을 알고 싶어요. 제 사주의 재물 관련 근거를 바탕으로 어떤 소비 상황에 흔들리기 쉬운지와, 제가 먼저 바꿔볼 습관을 설명해 주세요.">
+          <img src="assets/portrait-wealth.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
+          <span class="directory-card-copy"><strong>소비·저축</strong><small>돈이 새기 쉬운 상황과 습관</small><span>연우 상담</span></span>
+        </button>
+        <button type="button" class="directory-card" data-home-consultation data-consultation-topic="career-growth" data-consultation-question="직장에서 더 큰 역할을 맡을지 고민돼요. 제 사주에서 책임을 다루는 방식과 강점을 보고, 맡기 전에 확인할 업무 범위와 협업 조건을 알려주세요.">
+          <img src="assets/yeonwoo-reading.jpg" width="1122" height="1402" alt="" loading="lazy" decoding="async">
+          <span class="directory-card-copy"><strong>승진·역할 변화</strong><small>더 큰 책임을 맡기 전 살펴볼 점</small><span>연우 상담</span></span>
+        </button>
+      </div>
+    </section>
+
     <section class="directory-section" aria-labelledby="directoryDatesTitle">
-      <h2 id="directoryDatesTitle">오늘과 중요한 날</h2>
+      <h2 id="directoryDatesTitle" tabindex="-1">오늘과 중요한 날</h2>
       <div class="directory-tools">
         <button type="button" onclick="openFortuneModal()"><strong>오늘의 운세</strong><span>생년월일로 보는 오늘의 흐름</span></button>
         <a href="#tool" onclick="goTo('tool');return false;"><strong>좋은 날짜 찾기</strong><span>내 사주로 중요한 날 비교하기</span></a>
       </div>
-      <nav class="directory-date-links" aria-label="목적별 택일">
-        <a href="#wedding" onclick="goTo('wedding');return false;">결혼</a>
-        <a href="#moving" onclick="goTo('moving');return false;">이사</a>
-        <a href="#opening" onclick="goTo('opening');return false;">개업</a>
-        <a href="#contract" onclick="goTo('contract');return false;">계약</a>
-      </nav>
+      <div class="directory-cards directory-date-cards">
+        <a class="directory-card" href="#wedding" onclick="goTo('wedding');return false;">
+          <img src="assets/portrait-wedding.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
+          <span class="directory-card-copy"><strong>결혼 택일</strong><small>예식 후보일 비교하기</small></span>
+        </a>
+        <a class="directory-card" href="#moving" onclick="goTo('moving');return false;">
+          <img src="char-moving.jpg" width="640" height="1440" alt="" loading="lazy" decoding="async">
+          <span class="directory-card-copy"><strong>이사 택일</strong><small>집을 옮길 날짜 비교하기</small></span>
+        </a>
+        <a class="directory-card" href="#opening" onclick="goTo('opening');return false;">
+          <img src="char-opening.jpg" width="640" height="1440" alt="" loading="lazy" decoding="async">
+          <span class="directory-card-copy"><strong>개업 택일</strong><small>첫 영업일 후보 비교하기</small></span>
+        </a>
+        <a class="directory-card" href="#contract" onclick="goTo('contract');return false;">
+          <img src="char-contract.jpg" width="640" height="1440" alt="" loading="lazy" decoding="async">
+          <span class="directory-card-copy"><strong>계약 택일</strong><small>서명할 날짜 비교하기</small></span>
+        </a>
+      </div>
     </section>
 
     <nav class="directory-utility" aria-label="택일소 서비스 안내">
@@ -11542,8 +11605,8 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <script src="admin-analytics.js?v=20261113-recovery-1"></script>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261115-directory-1"></script><script src="premium-motion.js" defer></script>
 <link rel="stylesheet" href="consultation-stage.css?v=20261115-entry">
-<script src="consultation-draft-core.js?v=20261115-entry"></script>
-<script src="consultation-stage.js?v=20261115-entry"></script>
+<script src="consultation-draft-core.js?v=20261115-topics"></script>
+<script src="consultation-stage.js?v=20261115-topics"></script>
 <link rel="stylesheet" href="consultation-experience.css?v=20261113-library-1">
 <script src="consultation-experience-core.js?v=20261113-library-1"></script>
 <script src="consultation-experience.js?v=20261113-library-1"></script>

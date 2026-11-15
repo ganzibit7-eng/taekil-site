@@ -6,7 +6,9 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function() {
   const ttl = 30 * 60 * 1000;
   const fields = ['ProfileName','Relation','Gender','CalType','Year','Month','Day','Hour'];
-  const normalizeTopic = value => ['love', 'wealth', 'career'].includes(value) ? value : '';
+  const topics = new Set(['love', 'wealth', 'career', 'first-date', 'reunion', 'marriage',
+    'career-start', 'side-job', 'saving', 'career-growth']);
+  const normalizeTopic = value => topics.has(value) ? value : '';
   function birth(raw) {
     const digits = String(raw || '').replace(/\D/g,'').slice(0,8);
     const text = [digits.slice(0,4),digits.slice(4,6),digits.slice(6,8)].filter(Boolean).join('.');
