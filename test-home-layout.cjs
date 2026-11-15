@@ -56,3 +56,21 @@ test('directory shortcuts focus and scroll to their headings without changing th
   assert.deepEqual(calls, [['focus', true], ['scroll', 'start', 'instant']]);
   assert.equal(location.href, 'https://taekilso.com/?utm_source=search');
 });
+
+test('the home FAQ starts folded in the directory and stays expanded on the ad landing', () => {
+  const html = readFileSync(__dirname + '/index.html', 'utf8');
+  const openingTag = html.match(/<details[^>]*\bid="homeFaqFold"[^>]*>/)?.[0];
+  assert.ok(openingTag);
+  assert.doesNotMatch(openingTag, /\bopen\b/);
+  for (const path of ['/', '/?landing=yeonwoo']) {
+    const faq = {open:false};
+    const document = {
+      documentElement: {dataset:{}},
+      addEventListener(type, handle) { assert.equal(type, 'DOMContentLoaded'); handle(); },
+      querySelectorAll() { return []; },
+      getElementById(id) { assert.equal(id, 'homeFaqFold'); return faq; }
+    };
+    runInNewContext(entry, {URLSearchParams, location:new URL(path, 'https://taekilso.com'), document});
+    assert.equal(faq.open, path.includes('landing=yeonwoo'));
+  }
+});
