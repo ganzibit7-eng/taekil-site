@@ -501,6 +501,14 @@
     container.append(jump);
   }
 
+  const readingObserver = typeof IntersectionObserver === 'function' ? new IntersectionObserver((entries, observer) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.dataset.storyReveal = 'shown';
+      observer.unobserve(entry.target);
+    }
+  }, {rootMargin: '0px 0px -104px 0px'}) : null;
+
   for (const [key, story] of Object.entries(stories)) {
     const isWedding = key === 'wedding';
     const route = document.getElementById(isWedding ? 'view-wedding' : 'view-topic-' + key);
@@ -560,6 +568,15 @@
     }
     body.append(makeChapter(closing), entry);
     view.replaceChildren(hero, body, dock);
+    if (readingObserver) {
+      const readingText = body.querySelectorAll(
+        ':is(.consultation-story-scene,.consultation-story-chapter,.consultation-story-example) > :is(h2,p,blockquote,.consultation-story-aside), .consultation-story-example > figure'
+      );
+      for (const element of readingText) {
+        element.dataset.storyReveal = 'waiting';
+        readingObserver.observe(element);
+      }
+    }
     const focusTitle = () => { if (route.classList.contains('visible')) title.focus({preventScroll:true}); };
     new MutationObserver(focusTitle).observe(route, {attributes:true,attributeFilter:['class']});
     focusTitle();

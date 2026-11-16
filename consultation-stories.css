@@ -127,6 +127,15 @@
 }
 .consultation-story-aside blockquote { color: #f0ebe1; font: 600 clamp(17px,2.4vw,22px)/1.65 var(--serif); }
 .consultation-story-aside figcaption { margin-top: 8px; color: var(--story-tone); font: 500 14px/1.5 var(--sans); }
+@media screen and (prefers-reduced-motion: no-preference) {
+  .consultation-story-body [data-story-reveal="waiting"] { opacity: 0; }
+  .consultation-story-body [data-story-reveal="shown"] { animation: consultation-story-reveal 440ms cubic-bezier(.2,.7,.25,1) backwards; }
+  .consultation-story-body :is(h2,.consultation-story-prose + .consultation-story-prose)[data-story-reveal="shown"] { animation-delay: 55ms; }
+  @keyframes consultation-story-reveal {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
 [data-story-feature] .consultation-story-entry { scroll-margin-top: 76px; }
 .consultation-story-choices legend:focus { outline: none; }
 #weddingStoryComparison { scroll-margin-top: 68px; }
