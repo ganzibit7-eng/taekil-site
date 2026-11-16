@@ -24,6 +24,7 @@
  function sync(v){const s=states.get(v);if(s.failed||!v.dataset.videoSrc||!canPlay(v)){pause(v);return;}
   if(!v.getAttribute('src')){v.src=v.dataset.videoSrc;v.load();}
   if(s.pending||!v.paused)return;
+  if(v.ended){v.classList.add('yeonwoo-playing');return;}
   const request=Symbol();s.pending=request;
   const play=v.play();Promise.resolve(play).then(()=>{if(s.pending!==request)return;s.pending=false;if(!canPlay(v))pause(v);else v.classList.add('yeonwoo-playing');}).catch(()=>{if(s.pending!==request)return;s.pending=false;s.failed=true;pause(v);});
  }
@@ -49,7 +50,28 @@
  const all=()=>{syncStageMedia();videos.forEach(sync);};
  window.addEventListener('taekilso:readingMode',all);
  const observer='IntersectionObserver'in window?new IntersectionObserver(entries=>{entries.forEach(e=>{states.get(e.target).visible=e.isIntersecting&&e.intersectionRatio>=.12;sync(e.target);});},{threshold:[0,.12]}):null;
- for(const v of videos){v.muted=true;v.defaultMuted=true;v.loop=true;v.playsInline=true;v.autoplay=false;v.preload='none';v.setAttribute('muted','');v.setAttribute('playsinline','');v.setAttribute('aria-hidden','true');states.set(v,{visible:false,failed:false,pending:false});v.addEventListener('error',()=>{states.get(v).failed=true;pause(v);});v.addEventListener('playing',()=>{if(canPlay(v))v.classList.add('yeonwoo-playing');else pause(v);});observer?.observe(v);}
+ for(const v of videos){
+  v.muted=true;
+  v.defaultMuted=true;
+  v.loop=v.dataset.storyChoiceVideo===undefined;
+  v.playsInline=true;
+  v.autoplay=false;
+  v.preload='none';
+  v.setAttribute('muted','');
+  v.setAttribute('playsinline','');
+  v.setAttribute('aria-hidden','true');
+  states.set(v,{visible:false,failed:false,pending:false});
+  v.addEventListener('error',()=>{
+   states.get(v).failed=true;
+   pause(v);
+  });
+  v.addEventListener('playing',()=>{
+   if(canPlay(v))v.classList.add('yeonwoo-playing');
+   else pause(v);
+  });
+  if(!v.loop)v.addEventListener('seeked',()=>sync(v));
+  observer?.observe(v);
+ }
  document.addEventListener('visibilitychange',all);reduced.addEventListener('change',all);connection?.addEventListener?.('change',all);
  const home=document.getElementById('view-home');if(home)new MutationObserver(all).observe(home,{attributes:true,attributeFilter:['class']});
  const newyear=document.getElementById('view-newyear');if(newyear)new MutationObserver(all).observe(newyear,{attributes:true,attributeFilter:['class']});

@@ -2,10 +2,11 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
-function harness({reduced=false,saveData=false,reject=false,observer=true}={}){
+function harness({reduced=false,saveData=false,reject=false,observer=true,choice=false}={}){
  const events={},mediaEvents={},connectionEvents={},items=[];let intersect;
  const classes=new Set();
  const video={dataset:{videoSrc:'assets/yeonwoo-listening.mp4'},paused:true,loads:0,plays:0,attrs:{},classList:{add:c=>classes.add(c),remove:c=>classes.delete(c),contains:c=>c==='ai-chat-bgvideo'||classes.has(c)},closest:()=>classes.has('reading-focus')?{}:null,getAttribute(k){return this.attrs[k]||null},setAttribute(k,v){this.attrs[k]=v},set src(v){this.attrs.src=v},getBoundingClientRect:()=>({width:390,height:630,top:0,bottom:630}),load(){this.loads++},play(){this.plays++;if(reject)return Promise.reject(new Error('blocked'));this.paused=false;return Promise.resolve()},pause(){this.paused=true},addEventListener:(k,v)=>items[k]=v};
+ if(choice)video.dataset.storyChoiceVideo='';
  const media={matches:reduced,addEventListener:(k,v)=>mediaEvents[k]=v};
  const connection={saveData,addEventListener:(k,v)=>connectionEvents[k]=v};
  const document={hidden:false,querySelector:s=>s==='video.ai-chat-bgvideo'?video:null,querySelectorAll:()=>[],getElementById:()=>null,addEventListener:(k,v)=>events[k]=v};
@@ -21,3 +22,20 @@ test('play rejection and media error retain image fallback without retry loop',a
 test('unsupported observer keeps static posters',()=>{const h=harness({observer:false});assert.equal(h.video.loads,0);assert.equal(h.video.plays,0)});
 
 test('reading focus pauses video and leaving focus resumes only when motion is allowed',async()=>{const h=harness();await h.see(true);h.classes.add('reading-focus');h.events['taekilso:readingMode']();assert.equal(h.video.paused,true);h.classes.delete('reading-focus');h.events['taekilso:readingMode']();await h.tick();assert.equal(h.video.paused,false);h.media.matches=true;h.mediaEvents.change();h.events['taekilso:readingMode']();assert.equal(h.video.paused,true);});
+
+test('choice scene holds its last frame and plays again after returning to the start', async () => {
+ const h=harness({choice:true});
+ await h.see(true);
+ assert.equal(h.video.loop,false);
+ assert.equal(h.video.plays,1);
+ h.video.ended=true;
+ h.video.pause();
+ await h.see(false);
+ await h.see(true);
+ assert.equal(h.video.plays,1);
+ assert.equal(h.classes.has('yeonwoo-playing'),true);
+ h.video.ended=false;
+ h.items.seeked();
+ await h.tick();
+ assert.equal(h.video.plays,2);
+});

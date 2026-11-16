@@ -185,8 +185,16 @@
         ],
         questionTitle: '지금 어떤 마음에 더 가까운가요?',
         choices: [
-          ['지금 연락하고 싶어요', '헤어진 사람에게 사과하고 싶어 안부를 써뒀어요. 제 사주에서 갈등 뒤 반복하기 쉬운 대화 방식을 짚고, 연락하기 전에 확인할 변화와 지킬 경계를 알려주세요.'],
-          ['조금 더 기다리고 싶어요', '다시 연락하고 싶지만 이전과 같은 갈등이 걱정돼요. 제 사주에서 관계가 불안할 때 나타나는 내 반응을 짚고, 기다리는 동안 어떤 변화를 확인하면 좋을지 알려주세요.']
+          ['지금 연락하고 싶어요', '헤어진 사람에게 사과하고 싶어 안부를 써뒀어요. 제 사주에서 갈등 뒤 반복하기 쉬운 대화 방식을 짚고, 연락하기 전에 확인할 변화와 지킬 경계를 알려주세요.', {
+            media: 'contact',
+            description: '비 오는 창가에서 편지의 붉은 끈을 풀고 종이를 펼치는 이준의 손',
+            caption: '편지를 펼치고, 이번에 꼭 전하고 싶은 말 하나를 생각합니다.'
+          }],
+          ['조금 더 기다리고 싶어요', '다시 연락하고 싶지만 이전과 같은 갈등이 걱정돼요. 제 사주에서 관계가 불안할 때 나타나는 내 반응을 짚고, 기다리는 동안 어떤 변화를 확인하면 좋을지 알려주세요.', {
+            media: 'wait',
+            description: '묶어 둔 편지를 창가에서 나무 상자로 옮겨 담는 이준의 손',
+            caption: '편지를 잠시 보관하고, 다시 연락하기 전 달라진 점을 돌아봅니다.'
+          }]
         ]
       },
       example: 'directoryPreviewReunion'
@@ -461,21 +469,44 @@
     return section;
   }
 
+  function makeChoiceScene(scene, media) {
+    const figure = make('figure', '', 'consultation-story-choice-scene');
+    const frame = make('div', '', 'consultation-story-chapter-film yeonwoo-video-frame');
+    const source = 'assets/consultant-' + media + '-choice-' + scene.media;
+    addFilm(frame, source + '.webp', source + '.mp4', scene.description);
+    const video = frame.querySelector('video');
+    video.dataset.storyChoiceVideo = '';
+    figure.hidden = true;
+    figure.append(frame, make('figcaption', scene.caption));
+    return {figure, video};
+  }
+
   function addChoices(entry, feature, key, question, start, context) {
     const choices = make('fieldset', '', 'consultation-story-choices');
     const legend = make('legend', feature.questionTitle);
     legend.tabIndex = -1;
     choices.append(legend);
-    feature.choices.forEach(([label, text], index) => {
+    const scenes = [];
+    let currentScene;
+    feature.choices.forEach(([label, text, scene], index) => {
       const option = make('label', '', 'consultation-story-choice');
       const input = make('input');
       input.type = 'radio';
       input.name = 'story-choice-' + key;
       input.dataset.storyQuestion = text;
+      const clip = scene && makeChoiceScene(scene, feature.media);
+      if (clip) scenes.push(clip.figure);
       const apply = () => {
         question.textContent = text;
         start.dataset.storyQuestion = text;
         context.textContent = label;
+        if (currentScene === clip) return;
+        if (currentScene) currentScene.figure.hidden = true;
+        currentScene = clip;
+        if (clip) {
+          if (clip.video.currentTime > 0) clip.video.currentTime = 0;
+          clip.figure.hidden = false;
+        }
       };
       input.addEventListener('change', apply);
       if (index === 0) {
@@ -486,7 +517,7 @@
       choices.append(option);
     });
     question.setAttribute('aria-live', 'polite');
-    entry.append(choices, make('p', '상담 첫 질문으로 이어지는 문장', 'consultation-story-question-label'), question);
+    entry.append(choices, ...scenes, make('p', '상담 첫 질문으로 이어지는 문장', 'consultation-story-question-label'), question);
     return legend;
   }
 

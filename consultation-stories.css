@@ -93,6 +93,9 @@
 .consultation-story-choice:has(input:checked) { border-color: var(--story-tone); background: #202921; color: #f0ebe1; }
 .consultation-story-choice:focus-within { outline: 2px solid #f0ebe1; outline-offset: 2px; }
 .consultation-story-choice input { flex: 0 0 16px; width: 16px; height: 16px; margin: 0; accent-color: var(--story-tone); }
+.consultation-story-choice-scene { margin: 18px 0 0; }
+.consultation-story-choice-scene .consultation-story-chapter-film { margin: 0; }
+.consultation-story-choice-scene figcaption { margin-top: 8px; color: #c6cdc3; font: 400 15px/1.65 var(--sans); }
 .consultation-story-question-label { color: var(--story-tone); margin: 18px 0 6px; font: 600 14px/1.55 var(--sans); }
 .consultation-story-jump {
   margin-top: 16px;
