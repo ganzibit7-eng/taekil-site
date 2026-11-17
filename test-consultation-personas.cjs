@@ -48,7 +48,7 @@ test('the conversation and its rendered record carry the advisor and legacy reco
   assert.equal(context.window.__aiConsultantId,'dogyeom');
 });
 
-test('legacy advisors keep separate entry and chat videos and new advisors receive unique introductions', () => {
+test('new advisors have distinct assets for entry, chat and the story chapter', () => {
   const topics = [...html.matchAll(/data-consultation-topic="([^"]+)"/g)].map(m=>m[1]);
   const additional=require('./consultation-additional-stories.js');
   const sources = topics.flatMap(topic => {
@@ -57,7 +57,9 @@ test('legacy advisors keep separate entry and chat videos and new advisors recei
       assert.equal(portrait,'assets/topic-'+topic+'-portrait.webp');
       assert.equal(readFileSync(portrait).subarray(8,12).toString('ascii'),'WEBP');
       assert.equal(motion.entry, 'assets/consultant-'+id+'-intro.mp4');
-      return [motion.entry];
+      assert.equal(motion.chat, 'assets/consultant-'+id+'-chat.mp4');
+      assert.equal(motion.chapter, 'assets/consultant-'+id+'-chapter-film.mp4');
+      return [motion.entry, motion.chat, motion.chapter];
     }
     assert.equal(motion.entry, 'assets/consultant-'+id+'-entry.mp4');
     assert.equal(motion.chat, 'assets/consultant-'+id+'-chat.mp4');
