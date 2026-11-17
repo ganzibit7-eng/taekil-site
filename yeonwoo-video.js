@@ -53,7 +53,7 @@
  for(const v of videos){
   v.muted=true;
   v.defaultMuted=true;
-  v.loop=v.dataset.storyChoiceVideo===undefined;
+  v.loop=v.dataset.storyChoiceVideo===undefined&&!v.dataset.homeOpeningLoop;
   v.playsInline=true;
   v.autoplay=false;
   v.preload='none';
@@ -68,6 +68,15 @@
   v.addEventListener('playing',()=>{
    if(canPlay(v))v.classList.add('yeonwoo-playing');
    else pause(v);
+  });
+  if(v.dataset.homeOpeningLoop)v.addEventListener('ended',()=>{
+   const state=states.get(v);
+   state.pending=false;
+   v.dataset.videoSrc=v.dataset.homeOpeningLoop;
+   v.src=v.dataset.videoSrc;
+   v.loop=true;
+   v.load();
+   sync(v);
   });
   if(!v.loop)v.addEventListener('seeked',()=>sync(v));
   observer?.observe(v);
