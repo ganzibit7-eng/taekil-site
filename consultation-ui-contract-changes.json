@@ -1,4 +1,11 @@
 [
+  ["    .map(m => {\n      const evidence = m.role === 'assistant' && window.TaekilExperienceCore?.normalizeEvidence(m.evidence);\n      return { role:m.role, content:String(m.content || '').slice(0,4000), ...(evidence?.length ? {evidence} : {}) };\n    });","    .map(m => ({ role:m.role, content:String(m.content || '').slice(0,4000) }));"],
+  ["appendAiChatMessage(m.role, m.content, {scroll:'none',evidence:m.evidence})","appendAiChatMessage(m.role, m.content, {scroll:'none'})",2],
+  ["window.TaekilExperience?.saveControl(div,text,opts?.evidence);}\n  if (role === 'assistant' && opts?.evidence?.length) {\n    window.dispatchEvent(new CustomEvent('taekilso:consultationEvidence',{detail:{element:div,evidence:opts.evidence}}));\n  }","window.TaekilExperience?.saveControl(div,text);}"],
+  ["history: window.__aiChatHistory.slice(-12).map(({role,content})=>({role,content})),","history: window.__aiChatHistory.slice(-12),"],
+  ["    /* QUALITY_RESPONSE_START */\n    const evidence = window.TaekilExperienceCore?.normalizeEvidence(data.evidence) || [];\n    /* QUALITY_RESPONSE_END */\n    const answerEl = appendAiChatMessage('assistant', data.reply, { scroll: 'start', evidence });","    const answerEl = appendAiChatMessage('assistant', data.reply, { scroll: 'start' });\n    /* QUALITY_RESPONSE_START */\n    window.dispatchEvent(new CustomEvent('taekilso:consultationEvidence',{detail:{element:answerEl,evidence:data.evidence}}));\n    /* QUALITY_RESPONSE_END */"],
+  ["{ role: 'assistant', content: data.reply, ...(evidence.length ? {evidence} : {}) }","{ role: 'assistant', content: data.reply }"],
+  ["window.TaekilExperience?.saveControl(answerEl,data.reply,evidence);","window.TaekilExperience?.saveControl(answerEl,data.reply);"],
   [
     "    consultantId: window.TaekilConsultationPersonas?.get(window.__aiConsultantId).id || 'yeonwoo',\n",
     ""

@@ -8865,7 +8865,10 @@ function buildCurrentAiConversationRecord(){
   const messages = window.__aiChatHistory
     .filter(m => m && (m.role === 'user' || m.role === 'assistant'))
     .slice(-20)
-    .map(m => ({ role:m.role, content:String(m.content || '').slice(0,4000) }));
+    .map(m => {
+      const evidence = m.role === 'assistant' && window.TaekilExperienceCore?.normalizeEvidence(m.evidence);
+      return { role:m.role, content:String(m.content || '').slice(0,4000), ...(evidence?.length ? {evidence} : {}) };
+    });
 
   const subjects = (window.__aiChatSubjects || [])
     .slice(0,3)
@@ -9007,7 +9010,7 @@ function resumeAiConversation(id){
     if (win) {
       win.innerHTML = '';
       appendAiChatMessage('system-note', '저장한 상담을 불러왔어요. 이전 대화에 이어서 질문할 수 있어요.');
-      window.__aiChatHistory.forEach(m => appendAiChatMessage(m.role, m.content, {scroll:'none'}));
+      window.__aiChatHistory.forEach(m => appendAiChatMessage(m.role, m.content, {scroll:'none',evidence:m.evidence}));
       scrollAiChatToBottom(win);
     }
     const quick = document.getElementById('aiChatQuickActions');
@@ -9054,7 +9057,7 @@ function restoreActiveAiConversation(options){
       if (!opts.silent) {
         appendAiChatMessage('system-note', opts.note || '이전 상담을 불러왔어요. 그대로 이어서 질문할 수 있어요.');
       }
-      window.__aiChatHistory.forEach(m => appendAiChatMessage(m.role, m.content, {scroll:'none'}));
+      window.__aiChatHistory.forEach(m => appendAiChatMessage(m.role, m.content, {scroll:'none',evidence:m.evidence}));
       scrollAiChatToBottom(win);
     }
 
@@ -9478,7 +9481,10 @@ function appendAiChatMessage(role, text, opts) {
   if (role === 'assistant') div.innerHTML = formatAiReply(text);
   else div.textContent = text;
   win.appendChild(div);
-  if(role==='assistant'&&text){window.TaekilExperience?.decorate(div,text);if((window.__aiChatHistory||[]).some(m=>m.role==='assistant'&&m.content===text))window.TaekilExperience?.saveControl(div,text);}
+  if(role==='assistant'&&text){window.TaekilExperience?.decorate(div,text);if((window.__aiChatHistory||[]).some(m=>m.role==='assistant'&&m.content===text))window.TaekilExperience?.saveControl(div,text,opts?.evidence);}
+  if (role === 'assistant' && opts?.evidence?.length) {
+    window.dispatchEvent(new CustomEvent('taekilso:consultationEvidence',{detail:{element:div,evidence:opts.evidence}}));
+  }
   const scrollMode = (opts && opts.scroll) || 'bottom'; // 'bottom' | 'start' | 'none'
   if (scrollMode === 'bottom') scrollAiChatToBottom(win);
   else if (scrollMode === 'start') scrollAiChatToMessageStart(win, div);
@@ -10393,7 +10399,7 @@ async function sendAiChatMessage() {
         reportSnapshot: window.__freeReportSnapshot || undefined,
         analytics: window.TaekilCampaign?.analytics?.(),
         /* QUALITY_PAYLOAD_END */
-        history: window.__aiChatHistory.slice(-12),
+        history: window.__aiChatHistory.slice(-12).map(({role,content})=>({role,content})),
         message
       })
     });
@@ -10432,10 +10438,10 @@ async function sendAiChatMessage() {
     }
 
     receivedAnswer = true;
-    const answerEl = appendAiChatMessage('assistant', data.reply, { scroll: 'start' });
     /* QUALITY_RESPONSE_START */
-    window.dispatchEvent(new CustomEvent('taekilso:consultationEvidence',{detail:{element:answerEl,evidence:data.evidence}}));
+    const evidence = window.TaekilExperienceCore?.normalizeEvidence(data.evidence) || [];
     /* QUALITY_RESPONSE_END */
+    const answerEl = appendAiChatMessage('assistant', data.reply, { scroll: 'start', evidence });
 
     if (data.restricted || data.stopReason === 'server_capability') {
       // 수명·질병·도박·구체 투자지시 등 제한 질문은 결제 유도나 서비스 CTA를 붙이지 않고,
@@ -10447,9 +10453,9 @@ async function sendAiChatMessage() {
       return;
     }
 
-    window.__aiChatHistory.push({ role: 'user', content: message }, { role: 'assistant', content: data.reply });
+    window.__aiChatHistory.push({ role: 'user', content: message }, { role: 'assistant', content: data.reply, ...(evidence.length ? {evidence} : {}) });
     saveCurrentAiConversation();
-    window.TaekilExperience?.saveControl(answerEl,data.reply);
+    window.TaekilExperience?.saveControl(answerEl,data.reply,evidence);
 
     // 첫 AI 답변을 실제 activation으로 집계합니다.
     // 질문/답변 내용은 저장하지 않고, 해당 계정의 첫 성공 답변일 때만 숫자 +1.
@@ -11736,8 +11742,8 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <script src="consultation-draft-core.js?v=20261115-personas"></script>
 <script src="consultation-stage.js?v=20261116-featured-stories"></script>
 <link rel="stylesheet" href="consultation-experience.css?v=20261113-library-1">
-<script src="consultation-experience-core.js?v=20261115-personas"></script>
-<script src="consultation-experience.js?v=20261115-portrait-room"></script>
+<script src="consultation-experience-core.js?v=20261117-saved-evidence"></script>
+<script src="consultation-experience.js?v=20261117-saved-evidence"></script>
 
 <script src="navigation-stability.js?v=20261111-2"></script>
 <link rel="stylesheet" href="newyear-consultation.css?v=20261116-reading">
@@ -11750,7 +11756,7 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <script src="profile-picker-controls.js?v=20261110-1"></script>
 <link rel="stylesheet" href="consultation-quality.css?v=20261111-2">
 <script src="support-channels.js?v=20261111-refund"></script>
-<script src="consultation-quality.js?v=20261111-experience"></script>
+<script src="consultation-quality.js?v=20261117-saved-evidence"></script>
 <link rel="stylesheet" href="site-menu.css?v=20261116-home-logo"><script src="site-menu.js?v=20261116-home-logo"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=20261111-2">
 <script src="account-session.js?v=20261115-personas"></script>

@@ -19,5 +19,12 @@
  }
  function hash(text){let n=2166136261;for(const c of String(text))n=Math.imul(n^c.charCodeAt(0),16777619);return (n>>>0).toString(36);}
  function parse(raw){try{const x=JSON.parse(raw);return x&&typeof x==='object'&&!Array.isArray(x)?x:{};}catch(_){return {};}}
- return {followups,hash,parse};
+ function normalizeEvidence(rows){
+  if(!Array.isArray(rows))return [];
+  return rows.filter(row=>typeof row?.label==='string'&&typeof row.value==='string')
+   .slice(0,14).map(({label,value,scope})=>({
+    label:label.slice(0,160),value:value.slice(0,900),scope:typeof scope==='string'?scope.slice(0,240):''
+   }));
+ }
+ return {followups,hash,parse,normalizeEvidence};
 });
