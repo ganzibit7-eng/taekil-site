@@ -9525,6 +9525,7 @@ function formatAiReply(text){
   let html = escapeAiHtml(clean).replace(/\r\n/g,'\n');
   html = html.replace(/^###\s*(.+)$/gm,'<div class="ai-chat-heading">$1</div>');
   html = html.replace(/^##\s*(.+)$/gm,'<div class="ai-chat-heading">$1</div>');
+  html = html.replace(/^[ \t]*\*\*([^*\r\n]+)\*\*[ \t]*$/gm,'<div class="ai-chat-heading">$1</div>');
   html = html.replace(/\*\*(.+?)\*\*/g,'<span class="ai-chat-strong">$1</span>');
   html = html.replace(/^[-•]\s+(.+)$/gm,'<span class="ai-chat-bullet">$1</span>');
   html = html.replace(/^[ \t]*-{3,}[ \t]*$/gm,'<hr class="ai-chat-divider">');
@@ -11817,7 +11818,7 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=20261115-preview-conversion"></script>
 <script src="admin-analytics.js?v=20261115-preview-conversion"></script>
 
-<link rel="stylesheet" href="consultation-stage.css?v=20261115-consultation-preview">
+<link rel="stylesheet" href="consultation-stage.css?v=20261117-chat-headings">
 <script src="consultation-personas.js?v=20261117-added-topics"></script>
 <link rel="stylesheet" href="consultation-stories.css?v=20261116-ijun-choices">
 <script src="consultation-additional-stories.js?v=20261117"></script>
