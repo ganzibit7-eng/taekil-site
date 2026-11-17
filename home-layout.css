@@ -713,7 +713,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 /* A full-frame arrival before settling into the quiet consultation room. */
 .directory-hero[data-home-opening] { min-height:clamp(420px,42vw,600px);align-items:flex-end;background:#111814; }
 [data-home-opening] .directory-hero-media { inset:0; }
-[data-home-opening] .directory-hero-media :is(img,video) { object-position:50% 46%; }
+[data-home-opening] .directory-hero-media :is(img,video) { object-position:50% 16%; }
 [data-home-opening] .directory-hero-media::after { background:linear-gradient(180deg,#10171500 44%,#0a100c26 63%,#0a100cb8 100%); }
 [data-home-opening] .directory-hero-copy { width:100%;box-sizing:border-box;padding:clamp(24px,4vw,46px); }
 [data-home-opening] h1 { max-width:460px;text-shadow:0 2px 15px #0009; }

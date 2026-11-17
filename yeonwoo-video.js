@@ -53,7 +53,7 @@
  for(const v of videos){
   v.muted=true;
   v.defaultMuted=true;
-  v.loop=v.dataset.storyChoiceVideo===undefined&&!v.dataset.homeOpeningLoop;
+  v.loop=v.dataset.storyChoiceVideo===undefined&&v.dataset.homeOpeningOnce===undefined&&!v.dataset.homeOpeningLoop;
   v.playsInline=true;
   v.autoplay=false;
   v.preload='none';

@@ -2,12 +2,13 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
-function harness({reduced=false,saveData=false,reject=false,observer=true,choice=false,opening=false}={}){
+function harness({reduced=false,saveData=false,reject=false,observer=true,choice=false,opening=false,arrival=false}={}){
  const events={},mediaEvents={},connectionEvents={},items=[];let intersect;
  const classes=new Set();
  const video={dataset:{videoSrc:'assets/yeonwoo-listening.mp4'},paused:true,loads:0,plays:0,attrs:{},classList:{add:c=>classes.add(c),remove:c=>classes.delete(c),contains:c=>c==='ai-chat-bgvideo'||classes.has(c)},closest:()=>classes.has('reading-focus')?{}:null,getAttribute(k){return this.attrs[k]||null},setAttribute(k,v){this.attrs[k]=v},set src(v){this.attrs.src=v},getBoundingClientRect:()=>({width:390,height:630,top:0,bottom:630}),load(){this.loads++},play(){this.plays++;if(reject)return Promise.reject(new Error('blocked'));this.paused=false;return Promise.resolve()},pause(){this.paused=true},addEventListener:(k,v)=>items[k]=v};
  if(choice)video.dataset.storyChoiceVideo='';
  if(opening)video.dataset.homeOpeningLoop='assets/taekilso-hanok-waiting.mp4';
+ if(arrival)video.dataset.homeOpeningOnce='';
  const media={matches:reduced,addEventListener:(k,v)=>mediaEvents[k]=v};
  const connection={saveData,addEventListener:(k,v)=>connectionEvents[k]=v};
  const document={hidden:false,querySelector:s=>s==='video.ai-chat-bgvideo'?video:null,querySelectorAll:()=>[],getElementById:()=>null,addEventListener:(k,v)=>events[k]=v};
@@ -54,4 +55,17 @@ test('home arrival plays once, switches to its quiet loop and still pauses offsc
  assert.equal(h.video.paused,false);
  await h.see(false);
  assert.equal(h.video.paused,true);
+});
+
+test('continuous home arrival holds its final smile instead of replaying the entrance',async()=>{
+ const h=harness({arrival:true});
+ await h.see(true);
+ assert.equal(h.video.loop,false);
+ h.video.ended=true;
+ h.video.pause();
+ await h.see(false);
+ await h.see(true);
+ assert.equal(h.video.plays,1);
+ assert.equal(h.video.loop,false);
+ assert.equal(h.classes.has('yeonwoo-playing'),true);
 });
