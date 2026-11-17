@@ -23,12 +23,13 @@
   const boundary=[...body.childNodes].find(n=>n.nodeType===1&&(n.matches?.('.ai-chat-heading,hr')||n.tagName==='BR'));
   if(boundary&&boundary!==body.firstChild){const lead=el('div',null,'reading-answer-lead');while(body.firstChild&&body.firstChild!==boundary)lead.append(body.firstChild);while(body.firstChild?.nodeName==='BR')body.firstChild.remove();body.prepend(lead);}
  }
- function saveControl(element,text){
+ function saveControl(element,text,evidence){
   if(!element||!text||element.querySelector('.reading-save')||!store.owner())return;
   const captured=token(),conversation=window.__aiConversationId,id=core.hash(conversation+'|'+text);
   const consultantId=consultant(window.__aiConsultantId).id;
   const history=window.__aiChatHistory||[],at=history.findIndex(x=>x.role==='assistant'&&x.content===text),question=at>0?history[at-1].content:'';
-  const b=btn('',()=>{if(!store.current(captured))return;const data=read(),rows=Array.isArray(data.saved)?data.saved:[],exists=rows.some(x=>x.id===id);data.saved=exists?rows.filter(x=>x.id!==id):[{id,conversation,consultantId,question:String(question).slice(0,500),text:String(text).slice(0,12000),at:Date.now()},...rows].slice(0,50);if(write(data)){sync();renderLibrary();announce(exists?'저장한 답변에서 해제했어요.':'이 기기의 상담 보관함에 저장했어요.');}else announce('저장 공간을 확인해 주세요.');},'reading-save');
+  const details=core.normalizeEvidence(evidence);
+  const b=btn('',()=>{if(!store.current(captured))return;const data=read(),rows=Array.isArray(data.saved)?data.saved:[],exists=rows.some(x=>x.id===id);data.saved=exists?rows.filter(x=>x.id!==id):[{id,conversation,consultantId,question:String(question).slice(0,500),text:String(text).slice(0,12000),...(details.length?{evidence:details}:{}),at:Date.now()},...rows].slice(0,50);if(write(data)){sync();renderLibrary();announce(exists?'저장한 답변에서 해제했어요.':'이 기기의 상담 보관함에 저장했어요.');}else announce('저장 공간을 확인해 주세요.');},'reading-save');
   const sync=()=>{const yes=(read().saved||[]).some(x=>x.id===id);b.textContent=yes?'저장됨 · 해제':'답변 저장';b.setAttribute('aria-pressed',String(yes));};sync();element.append(b);
  }
  const profile=document.querySelector('#view-profile .pf-panels'),library=el('section',null,'reading-library pf-panel');library.id='consultationLibrary';profile?.before(library);
@@ -41,7 +42,7 @@
   if(!recent.length)library.append(el('p','첫 상담을 마치면 이곳에서 이어갈 수 있어요.','reading-muted'));
   const links=el('div',null,'reading-library-links');links.append(btn('상담 기록 전체',()=>{goTo('history');switchHistoryTab('ai');}),btn('내 신년 리포트',()=>openNewyearConsultation()));library.append(links);
   const saved=el('details',null,'reading-saved-list');saved.append(el('summary','저장한 답변 '+(read().saved||[]).length+'개'));
-  for(const item of read().saved||[]){const row=el('article'),answer=el('div',null,'reading-saved-text'),captured=token();const advisor=consultant(item.consultantId);answer.innerHTML=formatAiReply(item.text);row.append(el('span',advisor.name+' 상담','reading-consultant'),el('h3',item.question||'저장한 답변'),answer,btn('저장 해제',()=>{if(!store.current(captured))return;const data=read();data.saved=(data.saved||[]).filter(x=>x.id!==item.id);write(data);renderLibrary();}));saved.append(row);}library.append(saved,el('p','상담 기록은 기존 계정 보관함과 연결됩니다. 저장한 답변·메모·읽던 위치는 이 브라우저의 현재 계정에만 보관되며, 상담에 자동으로 사용되지 않습니다.','reading-muted'));
+  for(const item of read().saved||[]){const row=el('article'),answer=el('div',null,'reading-saved-text'),captured=token();const advisor=consultant(item.consultantId);answer.innerHTML=formatAiReply(item.text);if(item.evidence?.length)window.dispatchEvent(new CustomEvent('taekilso:consultationEvidence',{detail:{element:answer,evidence:item.evidence}}));row.append(el('span',advisor.name+' 상담','reading-consultant'),el('h3',item.question||'저장한 답변'),answer,btn('저장 해제',()=>{if(!store.current(captured))return;const data=read();data.saved=(data.saved||[]).filter(x=>x.id!==item.id);write(data);renderLibrary();}));saved.append(row);}library.append(saved,el('p','상담 기록은 기존 계정 보관함과 연결됩니다. 저장한 답변·메모·읽던 위치는 이 브라우저의 현재 계정에만 보관되며, 상담에 자동으로 사용되지 않습니다.','reading-muted'));
  }
  if(profile)new MutationObserver(()=>{if(document.getElementById('view-profile').classList.contains('visible')){renderLibrary();syncAiConversationHistoryFromCloud().then(renderLibrary);}}).observe(document.getElementById('view-profile'),{attributes:true,attributeFilter:['class']});
  const panel=document.getElementById('aiChatPanel'),stage=document.querySelector('.ai-chat-stage');

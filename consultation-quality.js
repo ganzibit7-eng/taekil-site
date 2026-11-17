@@ -3,12 +3,13 @@
  const make=(tag,text)=>{const e=document.createElement(tag);if(text)e.textContent=text;return e;};
  window.addEventListener('taekilso:consultationEvidence', event => {
    const {element, evidence} = event.detail || {};
-   if (!element || !Array.isArray(evidence) || !evidence.length) return;
+   const rows = window.TaekilExperienceCore?.normalizeEvidence(evidence);
+   if (!element || !rows?.length || element.querySelector('.consultation-evidence')) return;
    const details = make('details');
    details.className = 'consultation-evidence';
    details.append(make('summary', '풀이에 사용한 계산 근거'));
    const scopes = new Set();
-   for (const item of evidence) {
+   for (const item of rows) {
      const row = make('p');
      row.append(make('strong', item.label + ' · '), document.createTextNode(item.value));
      details.append(row);

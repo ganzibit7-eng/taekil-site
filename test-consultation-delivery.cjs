@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const personas = require('./consultation-personas.js');
+const experience = require('./consultation-experience-core.js');
 
 const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 const sendSource = html.match(/async function sendAiChatMessage\(\) \{[^]*?\n}/)[0];
@@ -77,6 +78,38 @@ test('each active advisor is passed to the existing authenticated send path', as
     assert.equal(f.requests[0].consultantId,personas.get(consultantId).id);
     assert.deepEqual(f.history.map(m=>m.role),['user','assistant']);
   }
+});
+
+test('answer evidence survives the saved record and stays out of follow-up payloads', async () => {
+  const f = fixture();
+  const evidence = [{label:'월간 · 비견',value:'자기 기준과 동료 사이의 관계',scope:'선택한 출생정보의 계산값'}];
+  const recordSource = html.match(/function buildCurrentAiConversationRecord\(\)\{[^]*?\n}/)[0];
+  const record = vm.runInNewContext(recordSource+'\nbuildCurrentAiConversationRecord', {
+    window:f.context.window, getAiConversationStore:()=>[], sanitizeAiConversationSubject:subject=>subject
+  });
+  f.context.window.TaekilExperienceCore = experience;
+  let added;
+  f.context.appendAiChatMessage = (role, text, opts) => {
+    if(role==='assistant'&&opts?.evidence)added=opts.evidence;
+    return {classList:{add() {}}, querySelector:()=>({}), remove() {}};
+  };
+  const send = f.context.fetch;
+  f.context.fetch = async (url, opts) => {
+    await send(url, opts);
+    return {ok:true, status:200, json:async () => ({reply:'함께 쓰는 돈의 기준을 먼저 정해 보세요.', evidence})};
+  };
+  f.input.value = '돈이 새기 쉬운 곳은?';
+  await f.context.sendAiChatMessage();
+  assert.deepEqual(added,evidence);
+  assert.deepEqual(record().messages[1].evidence,evidence);
+  assert.equal(record().messages[0].evidence,undefined);
+
+  f.input.value = '어떻게 이야기할까요?';
+  await f.context.sendAiChatMessage();
+  assert.deepEqual(f.requests[1].history,[
+    {role:'user',content:'돈이 새기 쉬운 곳은?'},
+    {role:'assistant',content:'함께 쓰는 돈의 기준을 먼저 정해 보세요.'}
+  ]);
 });
 
 test('a pending question blocks Enter or button resubmission and protects a new draft', async () => {
