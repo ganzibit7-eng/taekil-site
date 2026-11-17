@@ -121,15 +121,24 @@
   function appendReading(target,text){
     for(const paragraph of text.trim().split(/\n{2,}/))target.append(el('p',paragraph));
   }
+  function appendCalculationNote(target,text){
+    if(!text)return;
+    const note=el('details',null,'newyear-calculation-note');
+    note.append(el('summary','이 풀이의 계산 근거'));
+    appendReading(note,text);
+    target.append(note);
+  }
   function section(title,text){const s=el('section',null,'newyear-report-section');s.append(el('h2',title));appendReading(s,text);return s;}
   function showReport(data){
     const wasGenerating=view.classList.contains('is-generating');stopProgress();view.classList.add('has-report');content.style.minHeight='';
     content.replaceChildren();const r=data.report;
     content.append(el('p',`${data.profile.name} 님 · ${data.profile.date} · ${data.profile.hourValue==='unknown'?'출생시간 미상':data.profile.hourValue+'시'}`,'newyear-report-owner'));
     const overview=section('한 해의 큰 흐름',r.overview);
+    const foundation=section('나의 사주와 2027년',r.foundation);
+    appendCalculationNote(foundation,r.calculationNotes?.foundation);
     const areas=el('section',null,'newyear-areas');
     areas.append(el('h2','분야별 풀이'));
-    r.areas.forEach(a=>{const s=section(a.title,a.reading);s.append(el('p',a.action,'newyear-action'));areas.append(s);});
+    r.areas.forEach((a,index)=>{const s=section(a.title,a.reading);s.append(el('p',a.action,'newyear-action'));appendCalculationNote(s,r.calculationNotes?.areas?.[index]);areas.append(s);});
     const months=el('section',null,'newyear-months');months.append(el('h2','열두 달, 나의 흐름'));
     const contents=el('nav',null,'newyear-report-contents');
     contents.setAttribute('aria-label','신년 리포트 목차');
@@ -144,7 +153,7 @@
       });
       contents.append(jump);
     }
-    content.append(contents,overview,section('나의 사주와 2027년',r.foundation),areas);
+    content.append(contents,overview,foundation,areas);
     const monthIndex=el('nav',null,'newyear-month-index');
     monthIndex.setAttribute('aria-label','월별 풀이 바로가기');
     months.append(monthIndex);
@@ -154,7 +163,7 @@
       d.append(summary);
       appendReading(d,m.reading);
       d.append(el('p',m.action,'newyear-action'));
-      if(m.calculationNote)d.append(el('p',m.calculationNote,'newyear-month-basis'));
+      appendCalculationNote(d,m.calculationNote);
       months.append(d);
       monthIndex.append(button(m.month+'월',()=>{
         d.open=true;
