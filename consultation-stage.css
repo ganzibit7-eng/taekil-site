@@ -226,7 +226,8 @@ body.consultation-open .ai-chat-msg.assistant {
 }
 body.consultation-open .ai-chat-msg.assistant .reading-answer-body {line-height:1.76}
 body.consultation-open .ai-chat-msg.assistant::before {content:var(--consultant-name,'연우');display:block;margin:0 0 9px;color:#e3cca3;font:600 15px/1.5 var(--serif);letter-spacing:0}
-body.consultation-open .ai-chat-msg.assistant .ai-chat-heading {font:600 18px/1.65 var(--serif);color:#eee5d3;margin:8px 0 6px}
+body.consultation-open .ai-chat-msg.assistant .ai-chat-heading,
+.reading-saved-text .ai-chat-heading {font:600 18px/1.65 var(--serif);color:#e7c58f;margin:8px 0 6px}
 body.consultation-open .ai-chat-msg.assistant .ai-chat-strong {font-weight:600;color:#f1eadc}
 body.consultation-open .ai-chat-msg.assistant .ai-chat-bullet {padding-left:15px}
 body.consultation-open .ai-chat-msg.assistant .ai-chat-bullet::before {color:#bda579}

@@ -1,4 +1,5 @@
 [
+  ["  html = html.replace(/^[ \\t]*\\*\\*([^*\\r\\n]+)\\*\\*[ \\t]*$/gm,'<div class=\"ai-chat-heading\">$1</div>');\n",""],
   ["    .map(m => {\n      const evidence = m.role === 'assistant' && window.TaekilExperienceCore?.normalizeEvidence(m.evidence);\n      return { role:m.role, content:String(m.content || '').slice(0,4000), ...(evidence?.length ? {evidence} : {}) };\n    });","    .map(m => ({ role:m.role, content:String(m.content || '').slice(0,4000) }));"],
   ["appendAiChatMessage(m.role, m.content, {scroll:'none',evidence:m.evidence})","appendAiChatMessage(m.role, m.content, {scroll:'none'})",2],
   ["window.TaekilExperience?.saveControl(div,text,opts?.evidence);}\n  if (role === 'assistant' && opts?.evidence?.length) {\n    window.dispatchEvent(new CustomEvent('taekilso:consultationEvidence',{detail:{element:div,evidence:opts.evidence}}));\n  }","window.TaekilExperience?.saveControl(div,text);}"],

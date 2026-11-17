@@ -7,9 +7,11 @@ test('standalone markdown separators render as rules without accumulating blank 
   assert.equal(ctx.formatAiReply('앞 문단\n\n---\n\n뒷 문단'),'앞 문단<hr class="ai-chat-divider">뒷 문단');
   assert.equal(ctx.formatAiReply('A---B'),'A---B');
 });
-test('reply formatting still escapes HTML and preserves heading, emphasis and bullets',()=>{
-  const result=ctx.formatAiReply('## 제목\n**중요**\n- 기준\n<script>alert(1)</script>');
-  assert.match(result,/ai-chat-heading/);assert.match(result,/ai-chat-strong/);assert.match(result,/ai-chat-bullet/);
+test('reply formatting separates titles from inline emphasis and escapes HTML',()=>{
+  const result=ctx.formatAiReply('## 제목\n**책임과 실질적 몫을 조율하는 방식**\n본문의 **평가 기준**을 확인해요.\n- 기준\n<script>alert(1)</script>');
+  assert.match(result,/<div class="ai-chat-heading">제목<\/div>/);
+  assert.match(result,/<div class="ai-chat-heading">책임과 실질적 몫을 조율하는 방식<\/div>/);
+  assert.match(result,/<span class="ai-chat-strong">평가 기준<\/span>/);assert.match(result,/ai-chat-bullet/);
   assert.ok(!result.includes('<script>'));assert.ok(result.includes('&lt;script&gt;'));
 });
 test('Korean composition Enter is held while ordinary Enter and Shift+Enter keep existing handling',()=>{

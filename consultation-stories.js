@@ -577,7 +577,8 @@
     if (feature) {
       const frame = make('figure', '', 'consultation-story-chapter-film yeonwoo-video-frame');
       const source = 'assets/consultant-' + feature.media + '-chapter-film';
-      addFilm(frame, source + '.webp', source + '.mp4', feature.chapterDescription);
+      if (feature.chapterImage) frame.dataset.storyStill = '';
+      addFilm(frame, feature.chapterImage || source + '.webp', feature.chapterImage ? '' : source + '.mp4', feature.chapterDescription);
       section.append(frame);
     }
     section.append(...chapter.paragraphs.map(paragraph => make('p', paragraph, 'consultation-story-prose')));
@@ -660,7 +661,7 @@
     }
   }, {rootMargin: '0px 0px -104px 0px'}) : null;
 
-  for (const [key, story] of Object.entries(stories)) {
+  for (const [key, story] of Object.entries({...stories, ...window.TaekilAdditionalStories})) {
     const isWedding = key === 'wedding';
     const route = document.getElementById(isWedding ? 'view-wedding' : 'view-topic-' + key);
     const view = isWedding ? document.getElementById('weddingStoryIntro') : route;
@@ -721,7 +722,7 @@
     view.replaceChildren(hero, body, dock);
     if (readingObserver) {
       const readingText = body.querySelectorAll(
-        ':is(.consultation-story-scene,.consultation-story-chapter,.consultation-story-example) > :is(h2,p,blockquote,.consultation-story-aside), .consultation-story-example > figure'
+        ':is(.consultation-story-scene,.consultation-story-chapter,.consultation-story-example) > :is(h2,p,blockquote,.consultation-story-aside), .consultation-story-example > figure, [data-story-still]'
       );
       for (const element of readingText) {
         element.dataset.storyReveal = 'waiting';
