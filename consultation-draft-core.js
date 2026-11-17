@@ -7,7 +7,10 @@
   const ttl = 30 * 60 * 1000;
   const fields = ['ProfileName','Relation','Gender','CalType','Year','Month','Day','Hour'];
   const topics = new Set(['love', 'wealth', 'career', 'first-date', 'reunion', 'marriage', 'wedding',
-    'career-start', 'side-job', 'saving', 'career-growth']);
+    'career-start', 'side-job', 'saving', 'career-growth',
+    'study-routine', 'exam-planning', 'major-choice', 'new-learning',
+    'first-home', 'family-boundaries', 'work-rest', 'friendships',
+    'move-planning', 'opening-plan', 'contract-prep']);
   const normalizeTopic = value => topics.has(value) ? value : '';
   function birth(raw) {
     const digits = String(raw || '').replace(/\D/g,'').slice(0,8);

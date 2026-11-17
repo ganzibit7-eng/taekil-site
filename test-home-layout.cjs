@@ -155,7 +155,7 @@ test('the displayed wedding example matches the existing couple scoring and cale
 test('character cards open introductory views before the existing consultation or date form', () => {
   const html = readFileSync(path.join(__dirname, 'index.html'), 'utf8');
   const storyCards = [...html.matchAll(/<a href="#topic-([a-z-]+)"[^>]*data-story-topic="([a-z-]+)"[^>]*>/g)];
-  assert.equal(storyCards.length, 10);
+  assert.equal(storyCards.length, 21);
   for (const [card, route, topic] of storyCards) {
     assert.equal(route, topic);
     assert.doesNotMatch(card, /data-home-consultation/);
@@ -170,6 +170,43 @@ test('character cards open introductory views before the existing consultation o
   assert.match(wedding, /id="weddingStoryIntro"/);
   assert.match(wedding, /data-wedding-preview-video/);
   assert.match(wedding, /data-open-date-comparison/);
+});
+
+test('consultation cards come before utility cards, and the dates hub retains all calculators', () => {
+  const html = readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  const section=id=>html.match(new RegExp('aria-labelledby="'+id+'">([\\s\\S]+?)</section>'))?.[1]||'';
+  function cards(id) {
+    return [...section(id).matchAll(/<(?:a|button)\b[^>]*class="directory-card(?: [^"]*)?"[^>]*>/g)]
+      .map(([card])=>card.match(/data-story-topic="([^"]+)"/)?.[1]||card.match(/href="([^"]+)"/)?.[1]||'calculator');
+  }
+  assert.deepEqual(cards('directoryRelationshipsTitle'),['first-date','reunion','marriage','calculator']);
+  assert.deepEqual(cards('directoryDatesTitle'),['move-planning','opening-plan','contract-prep','#date-tools']);
+  assert.deepEqual(cards('directoryStudyTitle'),['study-routine','exam-planning','major-choice','new-learning']);
+  assert.deepEqual(cards('directoryLifeTitle'),['first-home','family-boundaries','work-rest','friendships']);
+  const hub=section('dateToolHubTitle');
+  assert.match(hub,/openFortuneModal\(\)/);
+  for(const route of ['tool','wedding','moving','opening','contract'])assert.ok(hub.includes('href="#'+route+'"'),route);
+});
+
+test('every additional story connects its distinct advisor and choice questions to the existing flow', () => {
+  const stories=require('./consultation-additional-stories.js');
+  const personas=require('./consultation-personas.js');
+  const {normalizeTopic}=require('./consultation-draft-core.js');
+  const unique=new Set();
+  for(const [topic,story] of Object.entries(stories)){
+    const advisor=personas.forTopic(topic);
+    assert.equal(normalizeTopic(topic),topic);
+    assert.equal(story.feature.media,advisor.id);
+    assert.notEqual(advisor.id,'yeonwoo');
+    assert.ok(!unique.has(advisor.id));
+    unique.add(advisor.id);
+    assert.equal(story.feature.chapters.length,3);
+    assert.equal(story.feature.choices.length,3);
+    assert.deepEqual(advisor.questions,story.feature.choices);
+    assert.ok(story.feature.choices.every(([,question])=>question.length<=200));
+    assert.ok(readFileSync(path.join(__dirname,story.feature.chapterImage)).length>0);
+  }
+  assert.equal(unique.size,11);
 });
 
 test('the public home uses a separate image for every displayed hero, portrait and topic', () => {

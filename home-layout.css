@@ -434,6 +434,20 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   font: 550 14px/1.45 var(--sans);
 }
 .directory-date-cards { margin-top: 14px; }
+.directory-tool-hub.visible > .home-directory { display: block; margin-bottom: 48px; }
+.directory-tool-heading { margin: 0 0 24px; }
+.directory-tool-heading h1 {
+  margin: 0 0 8px;
+  color: #f0ebe1;
+  font: 600 clamp(30px, 5vw, 50px)/1.3 var(--serif);
+}
+.directory-tool-heading p {
+  margin: 0;
+  color: var(--directory-muted);
+  font: 400 16px/1.65 var(--sans);
+  word-break: keep-all;
+}
+.home-directory .directory-tool-card img { filter: saturate(.82); }
 .directory-tools {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
