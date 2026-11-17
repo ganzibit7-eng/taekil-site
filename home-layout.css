@@ -709,3 +709,16 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   #view-wedding .wedding-guide .hero-inner { width: 100%; padding: 6px 22px 24px; }
   #view-wedding .wedding-guide .hero-copy { margin-top: 10px; margin-bottom: 0; }
 }
+
+/* A full-frame arrival before settling into the quiet consultation room. */
+.directory-hero[data-home-opening] { min-height:clamp(420px,42vw,600px);align-items:flex-end;background:#111814; }
+[data-home-opening] .directory-hero-media { inset:0; }
+[data-home-opening] .directory-hero-media :is(img,video) { object-position:50% 46%; }
+[data-home-opening] .directory-hero-media::after { background:linear-gradient(180deg,#10171500 44%,#0a100c26 63%,#0a100cb8 100%); }
+[data-home-opening] .directory-hero-copy { width:100%;box-sizing:border-box;padding:clamp(24px,4vw,46px); }
+[data-home-opening] h1 { max-width:460px;text-shadow:0 2px 15px #0009; }
+@media(max-width:660px) {
+ .directory-hero[data-home-opening] { min-height:clamp(420px,118vw,540px); }
+ [data-home-opening] .directory-hero-copy { padding:22px; }
+ [data-home-opening] .directory-hero-media::after { background:linear-gradient(180deg,#10171500 48%,#0a100c40 72%,#0a100cd9 100%); }
+}
