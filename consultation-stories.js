@@ -571,14 +571,14 @@
     return scene;
   }
 
-  function makeChapter(chapter, feature) {
+  function makeChapter(chapter, feature, chapterMotion) {
     const section = make('section', '', 'consultation-story-chapter');
     section.append(make('p', chapter.label, 'consultation-story-label'), make('h2', chapter.title));
     if (feature) {
       const frame = make('figure', '', 'consultation-story-chapter-film yeonwoo-video-frame');
       const source = 'assets/consultant-' + feature.media + '-chapter-film';
       if (feature.chapterImage) frame.dataset.storyStill = '';
-      addFilm(frame, feature.chapterImage || source + '.webp', feature.chapterImage ? '' : source + '.mp4', feature.chapterDescription);
+      addFilm(frame, feature.chapterImage || source + '.webp', feature.chapterImage ? chapterMotion : source + '.mp4', feature.chapterDescription);
       section.append(frame);
     }
     section.append(...chapter.paragraphs.map(paragraph => make('p', paragraph, 'consultation-story-prose')));
@@ -688,7 +688,7 @@
 
     const body = make('div', '', 'consultation-story-body');
     const [opening, reading, closing] = feature.chapters;
-    body.append(makeScene(feature), makeChapter(opening), makeChapter(reading, feature));
+    body.append(makeScene(feature), makeChapter(opening), makeChapter(reading, feature, advisor.motion?.chapter));
 
     const sample = story.example && document.getElementById(story.example)?.querySelector('figure');
     if (sample) {
