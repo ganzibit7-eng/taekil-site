@@ -118,7 +118,10 @@
     content.append(label,select,form,confirmation,error,generate,el('p','리포트 작성은 일반 질문 횟수에서 차감하지 않습니다. 작성 후에는 같은 계정에서 다시 읽을 수 있어요.','newyear-muted'));
   }
 
-  function section(title,text){const s=el('section',null,'newyear-report-section');s.append(el('h2',title),el('p',text));return s;}
+  function appendReading(target,text){
+    for(const paragraph of text.trim().split(/\n{2,}/))target.append(el('p',paragraph));
+  }
+  function section(title,text){const s=el('section',null,'newyear-report-section');s.append(el('h2',title));appendReading(s,text);return s;}
   function showReport(data){
     const wasGenerating=view.classList.contains('is-generating');stopProgress();view.classList.add('has-report');content.style.minHeight='';
     content.replaceChildren();const r=data.report;
@@ -149,8 +152,9 @@
       const d=el('details'),summary=el('summary');
       summary.append(el('span',String(m.month).padStart(2,'0')+'월'),el('strong',m.theme));
       d.append(summary);
+      appendReading(d,m.reading);
+      d.append(el('p',m.action,'newyear-action'));
       if(m.calculationNote)d.append(el('p',m.calculationNote,'newyear-month-basis'));
-      d.append(el('p',m.reading),el('p',m.action,'newyear-action'));
       months.append(d);
       monthIndex.append(button(m.month+'월',()=>{
         d.open=true;
@@ -161,7 +165,7 @@
     content.append(months);
     content.append(section('기회를 살리는 방법',r.opportunities),section('조금 더 신중할 때',r.cautions),section('연우가 전하는 말',r.closing));
     const calculation=el('details',null,'newyear-calculation');calculation.append(el('summary','계산 기준과 해석 범위'));
-    calculation.append(el('p',`2027년 정미(丁未) 세운은 입춘 ${data.calculation.annual.startsAt}부터 적용합니다. 1월부터 입춘 전까지는 병오(丙午) 세운입니다. 월별 해석은 양력 달력 기준이며 절기 경계를 함께 반영합니다.`));
+    calculation.append(el('p',`사주에서는 입춘부터 한 해의 기준이 바뀌어요. 2027년 입춘은 ${data.calculation.annual.startsAt}이고, 이때부터 정미(丁未), 그전까지는 병오(丙午)의 해로 봐요. 열두 달은 양력 순서로 보여드리며, 각 달에서 절기로 기준이 바뀌는 시점도 반영했어요.`));
     data.calculation.limitations.forEach(t=>calculation.append(el('p',t)));content.append(calculation);
     content.append(el('p','작성된 리포트는 이용기간이 끝나도 이 계정에서 다시 읽을 수 있어요.','newyear-muted'));
     const askReport=(question='신년 리포트 내용을 제 상황에 어떻게 적용하면 좋을까요?')=>{
