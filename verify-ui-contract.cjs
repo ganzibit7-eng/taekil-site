@@ -69,7 +69,9 @@ const anchors=html=>[...html.matchAll(/<a\b[^>]*\bhref="([^"]*)"/gi)].map(m=>m[1
 for(const file of detailFiles){
  let original=cp.execFileSync('git',['show',baselineRef+':'+file],{encoding:'utf8'}).replace(/\r\n/g,'\n');
  if(file==='404.html')original=original.replace('href="/taekil-site/"','href="/"');
- const updated=fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n');
+ // The approved static business footer adds public identity/contact details only.
+ // Strip that separately verified block when comparing the original article.
+ const updated=fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n').replace(/<!-- BUSINESS_INFO_START -->\n[\s\S]*?\n<!-- BUSINESS_INFO_END -->\n/g,'');
  assert(updated.includes('href="/premium-detail.css"'),file+': shared detail theme missing');
  assert.deepEqual(scripts(updated),scripts(original),file+': existing script changed');
  assert.deepEqual(anchors(updated),anchors(original),file+': navigation changed');
