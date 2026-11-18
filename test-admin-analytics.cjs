@@ -43,3 +43,11 @@ assert.equal(A.settledPaid({status:'paid',pay_state:4,lastPayState:4}),true);
 const attributed=A.aggregate({...data,orders:[{status:'paid',pay_state:4,amount:1900,createdAt:ms('2026-11-10T00:00:00Z'),attribution:{source:'naver',medium:'cpc',campaign:'winter'}},{status:'partially_refunded',pay_state:4,amount:8900,refundedAmount:100,createdAt:ms('2026-11-10T00:00:00Z'),attribution:{source:'naver',medium:'cpc',campaign:'winter'}}]},'2026-11-10','2026-11-10');
 assert.deepEqual(attributed.campaigns,[{source:'naver',medium:'cpc',campaign:'winter',count:1,revenue:1900}]);assert.equal(attributed.revenue,1900);
 console.log('PASS: cancelled/partially-refunded payments excluded and campaign-attributed completed revenue reconciles.');
+
+const created=ms('2026-11-01T12:00:00Z'),approved=ms('2026-11-18T01:00:00Z');
+assert.equal(A.orderTime({paidAtMs:approved,createdAt:created}),approved);
+assert.equal(A.orderTime({paidAt:{toMillis:()=>approved},pay_date:'20261101120000'}),approved);
+assert.equal(A.orderTime({pay_date:'20260231010000',createdAtMs:created}),created);
+const delayed=A.aggregate({...data,orders:[{status:'paid',pay_state:4,amount:1900,product:'ai_question_pack_5',paidAtMs:approved,createdAt:created}]},'2026-11-18','2026-11-18');
+assert.equal(delayed.paid,1);assert.equal(delayed.revenue,1900);assert.equal(delayed.series[0].orders,1);
+console.log('PASS: server-approved payment time, delayed approvals and invalid calendar dates use the correct reporting day.');
