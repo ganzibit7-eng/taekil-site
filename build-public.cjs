@@ -10,7 +10,7 @@ const publicFile = file => {
   if (file.startsWith('assets/')) return /\.(?:png|jpe?g|webp|svg|ico|mp4|woff2?)$/i.test(file);
   if (file.startsWith('content/')) return file.endsWith('.json');
   if (file.includes('/')) return file.endsWith('.html');
-  return /\.(?:html|js|css|png|jpe?g|webp|svg|ico|mp4|xml|txt)$/i.test(file) || file === 'manifest.json';
+  return /\.(?:html|js|css|png|jpe?g|webp|svg|ico|mp4|xml|txt)$/i.test(file) || ['manifest.json','_routes.json'].includes(file);
 };
 fs.mkdirSync(destination, {recursive: true});
 // Refuse a stale output directory instead of publishing files from an earlier build.
