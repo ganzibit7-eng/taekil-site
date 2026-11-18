@@ -202,7 +202,7 @@ test('every additional story connects its distinct advisor and choice questions 
     unique.add(advisor.id);
     assert.equal(story.feature.chapters.length,3);
     assert.equal(story.feature.choices.length,3);
-    assert.deepEqual(advisor.questions,story.feature.choices);
+    assert.deepEqual(advisor.questions,story.feature.choices.map(choice=>choice.slice(0,2)));
     assert.ok(story.feature.choices.every(([,question])=>question.length<=200));
     assert.ok(readFileSync(path.join(__dirname,story.feature.chapterImage)).length>0);
   }
