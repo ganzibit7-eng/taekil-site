@@ -9,6 +9,7 @@ const normalizeAccounts=source=>accountChanges.slice().reverse().reduce((text,ch
 const consultationChanges=JSON.parse(fs.readFileSync('consultation-ui-contract-changes.json','utf8'));
 const normalizeConsultation=source=>consultationChanges.reduce((text,[after,before])=>text.split(after).join(before),source);
 const normalizeReport=source=>normalizeAccounts(normalizeConsultation(source))
+.replaceAll('https://taekilso-api-jhqz3vlila-du.a.run.app','https://taekilso-backend-lemon.vercel.app') // Approved host migration only; API paths and handler logic remain invariant.
 .replace(/^ +\/\* CHECKOUT_START \*\/[\s\S]*?^ +\/\* CHECKOUT_END \*\/\n/gm,'')
 .replace(/^ +<!-- CHECKOUT_START -->[\s\S]*?^ +<!-- CHECKOUT_END -->\n/gm,'')
 .replaceAll(' data-checkout-action','')
@@ -97,6 +98,10 @@ assert.equal((current.match(/src="admin-analytics-core\.js(?:\?[^" ]*)?"/g)||[])
 assert.equal((current.match(/src="admin-analytics\.js(?:\?[^"]*)?"/g)||[]).length,1);
 assert(current.includes('id="adminAnalytics" hidden'));
 const analytics=fs.readFileSync('admin-analytics.js','utf8');
+for(const [file,source]of [['index.html',current],['admin-analytics.js',analytics]]){
+ assert(!source.includes('https://taekilso-backend-lemon.vercel.app'),file+': old production backend reference remains');
+ assert(source.includes('https://taekilso-api-jhqz3vlila-du.a.run.app/api/'),file+': expected Cloud Run backend missing');
+}
 assert(!/\.(set|update|delete|add)\(/.test(analytics),'Reporting must not mutate database documents');
 assert(analytics.includes('isAdmin()')&&analytics.includes("get({source:'server'})"));
 console.log('PASS: new administrator analytics scripts compile, mount once behind the existing admin gate, and contain no database write calls.');

@@ -72,7 +72,7 @@
     const daily=name=>db.collection(name).where(field,'>=',first).where(field,'<=',A.dateKey(Date.now())).get({source:'server'});
     const seoReport=async()=>{
       const token=await firebaseAuthUser.getIdToken();
-      const response=await fetch('https://taekilso-backend-lemon.vercel.app/api/admin-report?start='+first+'&end='+A.dateKey(Date.now()),{headers:{Authorization:'Bearer '+token},cache:'no-store',signal:AbortSignal.timeout(20000)});
+      const response=await fetch('https://taekilso-api-jhqz3vlila-du.a.run.app/api/admin-report?start='+first+'&end='+A.dateKey(Date.now()),{headers:{Authorization:'Bearer '+token},cache:'no-store',signal:AbortSignal.timeout(20000)});
       if(!response.ok)throw Object.assign(new Error('REPORT_UNAVAILABLE'),{code:response.status===401||response.status===403?'permission-denied':'unavailable'});
       const body=await response.json();if(!Array.isArray(body.rows)||body.rows.length>2000)throw new Error('INVALID_REPORT');
       return {docs:body.rows.map(row=>({id:row.date+'__'+row.slug,data:()=>row})),capped:!!body.capped};

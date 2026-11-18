@@ -3863,15 +3863,15 @@ const PREMIUM_DAYS = 30;
 // 현재 정적 호스팅 버전은 결제 완료 후 브라우저에서 30일 이용권을 활성화합니다.
 // 실제 운영/판매 단계에서는 반드시 PayApp 결제 결과를 서버에서 검증하고
 // users/{uid}.premiumUntil을 기록하는 방식으로 전환하세요.
-const PAYAPP_FEEDBACK_URL = 'https://taekilso-backend-lemon.vercel.app/api/payapp-feedback';
-const AI_CHAT_URL = 'https://taekilso-backend-lemon.vercel.app/api/ai-chat';
-const PREMIUM_USAGE_URL = 'https://taekilso-backend-lemon.vercel.app/api/premium-usage';
-const PREMIUM_STATUS_URL = 'https://taekilso-backend-lemon.vercel.app/api/premium-status';
-const ADMIN_USER_ACTION_URL = 'https://taekilso-backend-lemon.vercel.app/api/admin-user-action';
-const ADMIN_MEMBER_SECURITY_URL = 'https://taekilso-backend-lemon.vercel.app/api/admin-member-security';
-const MEMBER_LAST_SEEN_URL = 'https://taekilso-backend-lemon.vercel.app/api/member-last-seen';
-const MEMBER_ACCESS_STATUS_URL = 'https://taekilso-backend-lemon.vercel.app/api/member-access-status';
-const MEMBER_SELF_DELETE_URL = 'https://taekilso-backend-lemon.vercel.app/api/member-self-delete';
+const PAYAPP_FEEDBACK_URL = 'https://taekilso-api-jhqz3vlila-du.a.run.app/api/payapp-feedback';
+const AI_CHAT_URL = 'https://taekilso-api-jhqz3vlila-du.a.run.app/api/ai-chat';
+const PREMIUM_USAGE_URL = 'https://taekilso-api-jhqz3vlila-du.a.run.app/api/premium-usage';
+const PREMIUM_STATUS_URL = 'https://taekilso-api-jhqz3vlila-du.a.run.app/api/premium-status';
+const ADMIN_USER_ACTION_URL = 'https://taekilso-api-jhqz3vlila-du.a.run.app/api/admin-user-action';
+const ADMIN_MEMBER_SECURITY_URL = 'https://taekilso-api-jhqz3vlila-du.a.run.app/api/admin-member-security';
+const MEMBER_LAST_SEEN_URL = 'https://taekilso-api-jhqz3vlila-du.a.run.app/api/member-last-seen';
+const MEMBER_ACCESS_STATUS_URL = 'https://taekilso-api-jhqz3vlila-du.a.run.app/api/member-access-status';
+const MEMBER_SELF_DELETE_URL = 'https://taekilso-api-jhqz3vlila-du.a.run.app/api/member-self-delete';
 // 질문권(소모성 상품): 무료 3개를 다 쓴 뒤 이어서 물어볼 수 있게 해주는 상품입니다.
 // price가 실제 결제되는 금액(할인가)이고, originalPrice는 화면에 취소선으로 보여줄 정가입니다.
 const AI_QUESTION_PACKS = {
@@ -5774,7 +5774,7 @@ const KAKAO_JS_KEY = "0f7299964f7c22f2c6d1caaca0d33a7d";
 const KAKAO_REST_KEY = "189da591834b8e3edfffa2c7afa41c0d";
 const KAKAO_REDIRECT_URI = window.location.origin + window.location.pathname;
 // 무료(Spark) 운영에서는 별도 Cloud Function 없이 카카오 프로필을 브라우저 세션으로 유지합니다.
-const KAKAO_TOKEN_FUNCTION_URL = 'https://taekilso-backend-lemon.vercel.app/api/kakao-custom-token';
+const KAKAO_TOKEN_FUNCTION_URL = 'https://taekilso-api-jhqz3vlila-du.a.run.app/api/kakao-custom-token';
 let kakaoReady = false;
 try {
   if (KAKAO_JS_KEY !== "YOUR_KAKAO_JS_KEY" && window.Kakao && !Kakao.isInitialized()) {
@@ -11830,7 +11830,7 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 <link rel="stylesheet" href="premium-ui.css?v=20261111-hero-edge">
 <link rel="stylesheet" href="admin-analytics.css?v=20261115-preview-conversion">
 <script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=20261115-preview-conversion"></script>
-<script src="admin-analytics.js?v=20261115-preview-conversion"></script>
+<script src="admin-analytics.js?v=20261118-cloudrun"></script>
 
 <link rel="stylesheet" href="consultation-stage.css?v=20261117-chat-byline">
 <script src="consultation-personas.js?v=20261118-chat-films"></script>
