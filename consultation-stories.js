@@ -532,16 +532,15 @@
 
   function addFilm(frame, poster, motion, alt = '') {
     const image = make('img');
-    image.src = poster;
-    image.alt = alt;
     image.loading = 'lazy';
     image.decoding = 'async';
+    image.alt = alt;
+    image.src = poster;
     frame.append(image);
     if (motion) {
       const video = make('video', '', 'yeonwoo-story-video');
       video.dataset.storyPreviewVideo = '';
       video.dataset.videoSrc = motion;
-      video.poster = poster;
       frame.append(video);
     }
   }
@@ -638,7 +637,7 @@
       choices.append(option);
     });
     question.setAttribute('aria-live', 'polite');
-    entry.append(choices, ...scenes, make('p', '상담 첫 질문으로 이어지는 문장', 'consultation-story-question-label'), question);
+    entry.append(choices, ...scenes, make('p', '이 질문으로 상담을 시작해요', 'consultation-story-question-label'), question);
     return legend;
   }
 
