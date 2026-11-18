@@ -1,0 +1,31 @@
+// Publish only tracked browser assets. Repository metadata, rules and checks stay private to the build.
+const fs = require('node:fs');
+const path = require('node:path');
+const cp = require('node:child_process');
+const root = __dirname;
+const destination = path.join(root, 'dist');
+const files = cp.execFileSync('git', ['ls-files', '-z'], {cwd: root, encoding: 'utf8'}).split('\0').filter(Boolean);
+const publicFile = file => {
+  if (file.startsWith('.') || file.startsWith('docs/') || file.startsWith('firebase/')) return false;
+  if (file.startsWith('assets/')) return /\.(?:png|jpe?g|webp|svg|ico|mp4|woff2?)$/i.test(file);
+  if (file.startsWith('content/')) return file.endsWith('.json');
+  if (file.includes('/')) return file.endsWith('.html');
+  return /\.(?:html|js|css|png|jpe?g|webp|svg|ico|mp4|xml|txt)$/i.test(file) || file === 'manifest.json';
+};
+fs.mkdirSync(destination, {recursive: true});
+// Refuse a stale output directory instead of publishing files from an earlier build.
+if (fs.readdirSync(destination).length) throw new Error('dist must be empty before building');
+let bytes = 0;
+const published = files.filter(publicFile);
+for (const file of published) {
+  const source = path.join(root, file);
+  const size = fs.statSync(source).size;
+  if (size > 25 * 1024 * 1024) throw new Error('Cloudflare Pages file limit: ' + file);
+  const target = path.join(destination, file);
+  fs.mkdirSync(path.dirname(target), {recursive: true});
+  fs.copyFileSync(source, target);
+  bytes += size;
+}
+// Do not index the alternate Pages hostname; the existing public domain remains canonical.
+fs.writeFileSync(path.join(destination, '_headers'), 'https://:project.pages.dev/*\n  X-Robots-Tag: noindex\n\nhttps://:hash.:project.pages.dev/*\n  X-Robots-Tag: noindex\n');
+console.log(JSON.stringify({files: published.length + 1, bytes, output: destination}));
