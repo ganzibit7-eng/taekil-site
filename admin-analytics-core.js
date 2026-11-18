@@ -11,9 +11,11 @@
   const dateKey=ms=>new Date(ms+9*3600000).toISOString().slice(0,10);
   function millis(v){if(v&&typeof v.toMillis==='function')return v.toMillis();if(v&&v.seconds)return v.seconds*1000;if(typeof v==='number')return v;if(typeof v==='string'){const n=Date.parse(v);return Number.isFinite(n)?n:0;}return 0;}
   function orderTime(o){
+    const approved=millis(o.paidAtMs)||millis(o.paidAt);
+    if(approved)return approved;
     const raw=String(o.pay_date||'').replace(/\D/g,'');
-    if(raw.length===14){const y=+raw.slice(0,4),m=+raw.slice(4,6),d=+raw.slice(6,8),h=+raw.slice(8,10),mi=+raw.slice(10,12),se=+raw.slice(12,14);if(y>=2020&&m>=1&&m<=12&&d>=1&&d<=31&&h<24&&mi<60&&se<60)return Date.UTC(y,m-1,d,h-9,mi,se);}
-    return millis(o.paidAt)||millis(o.createdAt);
+    if(raw.length===14){const y=+raw.slice(0,4),m=+raw.slice(4,6),d=+raw.slice(6,8),h=+raw.slice(8,10),mi=+raw.slice(10,12),se=+raw.slice(12,14);if(y>=2020&&m>=1&&m<=12&&d>=1&&d<=31&&h<24&&mi<60&&se<60){const value=Date.UTC(y,m-1,d,h-9,mi,se);if(new Date(value+9*3600000).toISOString().slice(0,10)===`${raw.slice(0,4)}-${raw.slice(4,6)}-${raw.slice(6,8)}`)return value;}}
+    return millis(o.createdAtMs)||millis(o.createdAt);
   }
   function keys(end,days){const t=Date.parse(end+'T00:00:00+09:00');return Array.from({length:days},(_,i)=>dateKey(t-(days-1-i)*86400000));}
   function aggregate(data,start,end){
