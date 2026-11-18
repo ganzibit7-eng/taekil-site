@@ -10,6 +10,7 @@ const consultationChanges=JSON.parse(fs.readFileSync('consultation-ui-contract-c
 const normalizeConsultation=source=>consultationChanges.reduce((text,[after,before])=>text.split(after).join(before),source);
 const normalizeReport=source=>normalizeAccounts(normalizeConsultation(source))
 .replaceAll('https://taekilso-api-jhqz3vlila-du.a.run.app','https://taekilso-backend-lemon.vercel.app') // Approved host migration only; API paths and handler logic remain invariant.
+.replace('// 서버의 ADMIN_DELETE_PASSWORD Secret과 서버에서만 비교합니다.','// Vercel의 ADMIN_DELETE_PASSWORD Secret과 서버에서만 비교합니다.')
 .replace(/^ +\/\* CHECKOUT_START \*\/[\s\S]*?^ +\/\* CHECKOUT_END \*\/\n/gm,'')
 .replace(/^ +<!-- CHECKOUT_START -->[\s\S]*?^ +<!-- CHECKOUT_END -->\n/gm,'')
 .replaceAll(' data-checkout-action','')
