@@ -1,0 +1,170 @@
+{
+  "love": {
+    "title": "서화의 연애·관계 상담 | 택일소",
+    "description": "가까운 관계에서 반복되는 대화와 오해를 서화와 살펴보세요.",
+    "image": "assets/portrait-love.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "wealth": {
+    "title": "도겸의 재물운 상담 | 택일소",
+    "description": "돈을 벌고 모으는 방식, 함께 쓰는 돈의 기준을 도겸과 살펴보세요.",
+    "image": "assets/portrait-wealth.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "career": {
+    "title": "무진의 직업·이직 상담 | 택일소",
+    "description": "지금 직장과 새로운 기회 사이에서 나에게 맞는 일의 조건을 무진과 비교해 보세요.",
+    "image": "assets/portrait-career.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "wedding": {
+    "title": "소담의 결혼·택일 상담 | 택일소",
+    "description": "예식 규모와 두 사람의 우선순위, 예식 후보일을 소담과 차분히 살펴보세요.",
+    "image": "assets/portrait-wedding.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "first-date": {
+    "title": "하린의 새로운 만남 상담 | 택일소",
+    "description": "첫 만남에서 나와 잘 맞는 사람을 알아볼 기준을 하린과 살펴보세요.",
+    "image": "assets/topic-first-meeting-illustrated.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "reunion": {
+    "title": "이준의 재회 고민 상담 | 택일소",
+    "description": "다시 연락할지, 조금 더 기다릴지 고민될 때 이준과 먼저 확인할 점을 살펴보세요.",
+    "image": "assets/topic-reunion-illustrated.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "marriage": {
+    "title": "연서의 결혼을 앞두고 상담 | 택일소",
+    "description": "같이 살기 전 나눌 이야기와 현실적인 약속을 연서와 정리해 보세요.",
+    "image": "assets/topic-marriage-preparation-illustrated.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "career-start": {
+    "title": "해온의 취업·진로 상담 | 택일소",
+    "description": "관심 가는 채용 공고와 업무를 어떤 기준으로 비교할지 해온과 살펴보세요.",
+    "image": "assets/topic-career-start-illustrated.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "side-job": {
+    "title": "태율의 창업·부업 상담 | 택일소",
+    "description": "일을 더 벌이기 전, 작은 규모로 먼저 확인해 볼 조건을 태율과 찾아보세요.",
+    "image": "assets/topic-side-business-illustrated.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "saving": {
+    "title": "다온의 소비·저축 상담 | 택일소",
+    "description": "돈이 새기 쉬운 상황과 다음 지출에 적용할 기준을 다온과 찾아보세요.",
+    "image": "assets/topic-saving-illustrated.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "career-growth": {
+    "title": "시현의 승진·역할 변화 상담 | 택일소",
+    "description": "더 큰 역할을 맡기 전 책임과 권한을 어디까지 확인할지 시현과 살펴보세요.",
+    "image": "assets/topic-promotion-illustrated.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "study-routine": {
+    "title": "여울의 공부 습관 상담 | 택일소",
+    "description": "공부를 시작하기 어려울 때 나에게 맞는 첫 동작을 여울과 찾아보세요.",
+    "image": "assets/share-study-routine.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "exam-planning": {
+    "title": "서진의 시험·자격증 상담 | 택일소",
+    "description": "남은 기간에 어떤 오답을 다시 볼지 서진과 정리해 보세요.",
+    "image": "assets/share-exam-planning.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "major-choice": {
+    "title": "윤슬의 전공·진학 상담 | 택일소",
+    "description": "두 전공의 수업과 과제를 어떤 기준으로 살펴볼지 윤슬과 비교해 보세요.",
+    "image": "assets/share-major-choice.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "new-learning": {
+    "title": "지안의 새 기술 배우기 상담 | 택일소",
+    "description": "강의에서 배운 것을 처음 직접 써 볼 방법을 지안과 찾아보세요.",
+    "image": "assets/share-new-learning.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "first-home": {
+    "title": "모은의 독립·첫 살림 상담 | 택일소",
+    "description": "처음 드는 돈과 계속 들어갈 생활비의 기준을 모은과 정리해 보세요.",
+    "image": "assets/share-first-home.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "family-boundaries": {
+    "title": "이솔의 가족과 거리 상담 | 택일소",
+    "description": "가까운 사이에서 내 일정을 지키며 마음을 전할 말을 이솔과 찾아보세요.",
+    "image": "assets/share-family-boundaries.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "work-rest": {
+    "title": "유현의 일과 쉼 상담 | 택일소",
+    "description": "퇴근하고도 일이 떠오를 때 나에게 맞는 마무리 기준을 유현과 살펴보세요.",
+    "image": "assets/share-work-rest.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "friendships": {
+    "title": "소율의 친구·모임 상담 | 택일소",
+    "description": "새로운 모임에서 편안하게 말을 꺼내거나 거리를 조절하는 법을 소율과 살펴보세요.",
+    "image": "assets/share-friendships.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "move-planning": {
+    "title": "담원의 이사 준비 상담 | 택일소",
+    "description": "출퇴근, 동네, 생활 리듬을 따져 어느 집이 더 잘 맞을지 담원과 비교해 보세요.",
+    "image": "assets/share-move-planning.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "opening-plan": {
+    "title": "기윤의 개업 계획 상담 | 택일소",
+    "description": "첫 손님을 맞기 전 무엇을 시험하고 준비할지 기윤과 정리해 보세요.",
+    "image": "assets/share-opening-plan.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "contract-prep": {
+    "title": "정온의 계약 전 점검 상담 | 택일소",
+    "description": "서명하기 전에 책임과 수정 범위를 확인할 첫 질문을 정온과 찾아보세요.",
+    "image": "assets/share-contract-prep.jpg",
+    "width": 600,
+    "height": 750
+  },
+  "yeonwoo": {
+    "title": "연우의 AI 사주 상담 | 택일소",
+    "description": "사주를 바탕으로 연애, 일, 관계와 중요한 날까지 연우에게 고민을 들려주세요.",
+    "image": "ai-consultant-poster.jpg",
+    "width": 780,
+    "height": 834
+  },
+  "newyear": {
+    "title": "2027 신년 리포트 | 택일소",
+    "description": "연우와 2027년 한 해의 흐름과 열두 달을 살펴보고, 7월 실제 풀이를 미리 읽어보세요.",
+    "image": "assets/yeonwoo-moonlight.jpg",
+    "width": 1122,
+    "height": 1402
+  }
+}

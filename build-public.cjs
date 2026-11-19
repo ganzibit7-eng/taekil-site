@@ -1,6 +1,7 @@
 // Publish only tracked browser assets. Repository metadata, rules and checks stay private to the build.
 const fs = require('node:fs');
 const path = require('node:path');
+const {pages, renderSharePage} = require('./render-consultation-share.cjs');
 const cp = require('node:child_process');
 const root = __dirname;
 const destination = path.join(root, 'dist');
@@ -18,6 +19,14 @@ if (fs.readdirSync(destination).length) throw new Error('dist must be empty befo
 const homepage = require('./render-home.cjs')();
 fs.writeFileSync(path.join(destination, 'index.html'), homepage);
 let bytes = Buffer.byteLength(homepage);
+for (const [topic, page] of Object.entries(pages)) {
+  if (!files.includes(page.image)) throw new Error('Untracked share image for ' + topic);
+  const output = path.join(destination, 'consultation', topic, 'index.html');
+  const html = renderSharePage(homepage, topic);
+  fs.mkdirSync(path.dirname(output), {recursive: true});
+  fs.writeFileSync(output, html);
+  bytes += Buffer.byteLength(html);
+}
 const published = files.filter(publicFile);
 for (const file of published) {
   const source = path.join(root, file);
@@ -30,4 +39,4 @@ for (const file of published) {
 }
 // Do not index the alternate Pages hostname; the existing public domain remains canonical.
 fs.writeFileSync(path.join(destination, '_headers'), 'https://:project.pages.dev/*\n  X-Robots-Tag: noindex\n\nhttps://:hash.:project.pages.dev/*\n  X-Robots-Tag: noindex\n');
-console.log(JSON.stringify({files: published.length + 2, bytes, output: destination}));
+console.log(JSON.stringify({files: published.length + Object.keys(pages).length + 2, bytes, output: destination}));

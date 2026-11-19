@@ -1,5 +1,13 @@
 [
   [
+    "    const {sharePath, shareRoute} = document.documentElement.dataset;\n    const sameShare = sharePath && route === shareRoute;\n    if (sharePath) u.pathname = sameShare ? sharePath : '/';\n    u.hash = sameShare || route === 'home' ? '' : route;",
+    "    u.hash = route === 'home' ? '' : route;"
+  ],
+  [
+    "function routeAtLocation() {\n  const { sharePath, shareRoute } = document.documentElement.dataset;\n  const onSharePage = sharePath && (location.pathname === sharePath || location.pathname + '/' === sharePath);\n  return safeRoute(location.hash.slice(1) || (onSharePage ? shareRoute : 'home'));\n}\n// Direct links may need view handlers declared later in the document.\ndocument.addEventListener('DOMContentLoaded', () => {\n  goTo(routeAtLocation(), undefined, {skipHistory:true});\n  /* STARTUP_READY */\n  window.TaekilStartup?.routed();\n  /* END_STARTUP_READY */\n}, {once:true});\nfunction restoreRouteFromHistory(){\n  const route = routeAtLocation();\n  if (document.getElementById('view-' + route)?.classList.contains('visible')) return;\n  goTo(route, undefined, {skipHistory:true});\n}\n",
+    "// Direct links may need view handlers declared later in the document.\ndocument.addEventListener('DOMContentLoaded', () => {\n  goTo(safeRoute(location.hash ? location.hash.slice(1) : 'home'), undefined, {skipHistory:true});\n  /* STARTUP_READY */\n  window.TaekilStartup?.routed();\n  /* END_STARTUP_READY */\n}, {once:true});\nfunction restoreRouteFromHistory(){\n  const route = safeRoute(location.hash.slice(1));\n  if (document.getElementById('view-' + route)?.classList.contains('visible')) return;\n  goTo(route, undefined, {skipHistory:true});\n}\n"
+  ],
+  [
     "// Direct links may need view handlers declared later in the document.\ndocument.addEventListener('DOMContentLoaded', () => {\n  goTo(safeRoute(location.hash ? location.hash.slice(1) : 'home'), undefined, {skipHistory:true});\n  /* STARTUP_READY */\n  window.TaekilStartup?.routed();\n  /* END_STARTUP_READY */\n}, {once:true});\n",
     "// setTimeout(0)으로 미뤄서, 아직 선언되지 않은 이후 코드(firebaseReady 등)를\n// 이 시점에서 참조하다가 스크립트 전체 실행이 멈추는 일이 없도록 합니다.\n// (예: #admin, #tool 같은 해시 주소로 바로 접속하거나 새로고침하는 경우)\nsetTimeout(() => {\n  goTo(safeRoute(location.hash ? location.hash.slice(1) : 'home'), undefined, {skipHistory:true});\n  /* STARTUP_READY */\n  window.TaekilStartup?.routed();\n  /* END_STARTUP_READY */\n}, 0);\n"
   ],

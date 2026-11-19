@@ -618,8 +618,6 @@ body.admin-exclusive-mode .admin-fold.open .admin-fold-body{
 
 <link rel="canonical" href="https://taekilso.com/">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
-<meta property="og:type" content="website"><meta property="og:locale" content="ko_KR"><meta property="og:site_name" content="택일소">
-<meta property="og:title" content="택일소 | 사주·궁합·이직운·택일 AI 상담"><meta property="og:description" content="생년월일시를 바탕으로 사주 흐름을 확인하고 AI 연우에게 궁금한 운세를 직접 질문해 보세요."><meta property="og:url" content="https://taekilso.com/"><meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json" id="taekilso-seo-schema">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://taekilso.com/#website","url":"https://taekilso.com/","name":"택일소","inLanguage":"ko-KR"},{"@type":"WebApplication","@id":"https://taekilso.com/#app","name":"택일소","url":"https://taekilso.com/","applicationCategory":"LifestyleApplication","operatingSystem":"Web","description":"생년월일시를 바탕으로 사주 흐름을 확인하고 AI 상담으로 연애운, 재물운, 이직운, 궁합과 택일을 질문할 수 있는 웹서비스.","isPartOf":{"@id":"https://taekilso.com/#website"}}]}</script>
 <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 
