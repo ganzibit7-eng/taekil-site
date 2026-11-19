@@ -10,7 +10,6 @@
   const loggedIn=()=>!!((typeof getKakaoUser==='function'&&getKakaoUser())||(typeof firebaseAuthUser!=='undefined'&&firebaseAuthUser&&!firebaseAuthUser.isAnonymous));
   const owner=()=>typeof getCurrentUserKey==='function'?getCurrentUserKey():null;
   async function request(operation,profile){
-    if (operation === 'generate' && !window.TaekilPrivacy?.confirmAI()) throw Error('AI 처리 안내를 확인한 후 리포트를 요청할 수 있어요.');
     const accountToken=window.accountStore.snapshot();
     const actor=owner(),headers=await getAiRequestHeaders();
     if(actor!==owner()||!window.accountStore.current(accountToken))throw new Error('계정이 변경되었어요. 이용권을 다시 확인해 주세요.');
@@ -77,6 +76,7 @@
     profiles.forEach((p,i)=>{const o=el('option',`${p._fromFreeReport?'무료 리포트에서 가져온 사주':p.name||'상담자'} · ${p.y}.${p.m}.${p.d} · ${p.calType==='lunar'?'음력':'양력'}${p.isLeap?' 윤달':''}`);o.value=String(i);select.append(o);});
     select.value=profiles.length?'0':'new';
     const form=el('div',null,'newyear-profile-form');
+    const childPrivacy=el('p','만 14세 미만 아동 정보는 입력하지 마세요.','privacy-input-note');
     function field(title,input){const l=el('label',title);l.htmlFor=input.id;const wrap=el('div',null,'newyear-input-field');wrap.append(l,input);return wrap;}
     const name=el('input');name.type='text';name.id='newyearName';name.placeholder='이름 또는 호칭 (선택)';name.maxLength=20;name.autocomplete='off';
     const calendar=el('select');calendar.id='newyearCalendar';for(const [value,title]of [['solar','양력'],['lunar','음력']]){const o=el('option',title);o.value=value;calendar.append(o);}
@@ -103,7 +103,17 @@
         if((p.calType||'solar')==='solar'&&(birth.getFullYear()!==Number(p.y)||birth.getMonth()+1!==Number(p.m)||birth.getDate()!==Number(p.d)))throw Error('존재하지 않는 날짜예요. 생년월일을 다시 확인해 주세요.');
         if(p.calType==='lunar'){const back=Lunar.fromYmd(Number(p.y),p.isLeap?-Number(p.m):Number(p.m),Number(p.d)).getSolar().getLunar();if(back.getYear()!==Number(p.y)||back.getMonth()!==(p.isLeap?-Number(p.m):Number(p.m))||back.getDay()!==Number(p.d))throw Error('음력 날짜와 윤달 여부를 다시 확인해 주세요.');}
       }catch(e){error.textContent=e.message;check.checked=false;generate.disabled=true;return;}
-      const actor=owner(),requestVersion=++version;if(select.value==='new'){draft={...profile};draftOwner=actor;}busy=true;generate.disabled=true;select.disabled=true;check.disabled=true;
+      const actor=owner(),accountToken=window.accountStore.snapshot(),requestVersion=++version;
+      busy=true;generate.disabled=true;
+      try {
+        const consent = await window.TaekilPrivacy?.confirmAI();
+        if (!consent || !check.checked || actor!==owner() || !window.accountStore.current(accountToken) || requestVersion!==version || !active) {
+          generate.disabled=!check.checked;busy=false;return;
+        }
+      } catch (_) {
+        generate.disabled=!check.checked;busy=false;return;
+      }
+      if(select.value==='new'){draft={...profile};draftOwner=actor;}select.disabled=true;check.disabled=true;
       message('선택한 사주로 신년 리포트를 작성하고 있습니다.');showProgress(Date.now());
       try{const data=await request('generate',profile);if(actor===owner()&&requestVersion===version&&active)render(data);}
       catch(e){
@@ -116,7 +126,7 @@
     generate.disabled=true;check.addEventListener('change',()=>{generate.disabled=!check.checked;error.textContent='';});
     function reset(){check.checked=false;generate.disabled=true;error.textContent='';form.hidden=select.value!=='new';leapLabel.hidden=calendar.value!=='lunar';if(calendar.value!=='lunar')leap.checked=false;}
     select.addEventListener('change',reset);form.addEventListener('input',reset);form.addEventListener('change',reset);reset();
-    content.append(label,select,form,confirmation,error,generate,el('p','리포트 작성은 일반 질문 횟수에서 차감하지 않습니다. 작성 후에는 같은 계정에서 다시 읽을 수 있어요.','newyear-muted'));
+    content.append(label,select,childPrivacy,form,confirmation,error,generate,el('p','리포트 작성은 일반 질문 횟수에서 차감하지 않습니다. 작성 후에는 같은 계정에서 다시 읽을 수 있어요.','newyear-muted'));
   }
 
   function appendReading(target,text){

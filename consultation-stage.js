@@ -271,7 +271,7 @@
   birthInput.autocomplete = 'bday'; birthInput.placeholder = 'YYYY.MM.DD'; birthInput.maxLength = 10;
   birthInput.setAttribute('aria-label','생년월일 8자리'); birthInput.setAttribute('aria-describedby','consultationBirthHint');
   const birthHint = document.createElement('p'); birthHint.id = 'consultationBirthHint'; birthHint.className = 'entry-field-hint';
-  birthHint.textContent = '예: 19900101 · 연도, 월, 일 순서로 입력해 주세요.';
+  birthHint.textContent = '예: 19900101 · 만 14세 미만 아동 정보는 입력하지 마세요.';
   const birthLine = document.createElement('div'); birthLine.className = 'entry-birth-line';
   const calendar = document.createElement('div'); calendar.className = 'entry-calendar-choices';
   calendar.setAttribute('role','group'); calendar.setAttribute('aria-label','달력 종류');
@@ -319,12 +319,17 @@
   question.id = 'consultationEntryQuestion'; question.maxLength = 200;
   question.rows = 4; question.setAttribute('aria-label', '지금의 고민 (선택)');
   question.placeholder = '예: 이직을 고민하고 있어요. 지금 직장과 새로운 기회 사이에서 어떤 점을 살펴보면 좋을까요?';
+  const childPrivacy = document.createElement('p');
+  childPrivacy.id = 'consultationQuestionPrivacy';
+  childPrivacy.className = 'privacy-input-note';
+  childPrivacy.textContent = '만 14세 미만 아동 정보는 입력하지 마세요.';
+  question.setAttribute('aria-describedby', childPrivacy.id);
   const count = document.createElement('p'); count.className = 'consultation-entry-count';
   const draftNote = document.createElement('p'); draftNote.className = 'consultation-entry-draft-note';
   draftNote.textContent = '로그인 전 입력 내용은 이 탭에 최대 30분간 보관돼요.';
   const signupNote = document.createElement('p'); signupNote.className = 'entry-signup-note';
   signupNote.textContent = 'Google·카카오로 가입하면 첫 질문 3개를 무료로 이용할 수 있어요.';
-  panes[4].append(question, count);
+  panes[4].append(question, childPrivacy, count);
   const concernChoices = document.createElement('div');
   concernChoices.className = 'consultation-concern-choices';
   concernChoices.setAttribute('role','group'); concernChoices.setAttribute('aria-label','고민 작성 예시');

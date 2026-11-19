@@ -335,8 +335,9 @@
             </div>
           </details>
           <div class="ai-chat-status" id="aiChatStatus"></div>
+          <p class="privacy-input-note" id="aiChatPrivacyNote">만 14세 미만 아동 정보는 입력하지 마세요.</p>
           <div class="ai-chat-inputrow">
-            <textarea aria-description="AI가 사주 계산값과 대화 내용을 바탕으로 답해요. 민감한 정보는 입력하지 말아 주세요." id="aiChatInput" rows="1" placeholder="연우에게 물어보세요" maxlength="500" aria-label="연우에게 보낼 질문" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiChatMessage();}"></textarea>
+            <textarea aria-describedby="aiChatPrivacyNote" id="aiChatInput" rows="1" placeholder="연우에게 물어보세요" maxlength="500" aria-label="연우에게 보낼 질문" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiChatMessage();}"></textarea>
             <button class="btn btn-primary" id="aiChatSendBtn" onclick="sendAiChatMessage()" aria-label="전송">전송</button>
           </div>
         </div>
