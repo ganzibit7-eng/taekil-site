@@ -6,7 +6,53 @@
     params.has('seo_landing') || location.hash === '#ai-chat' || naverAd;
   document.documentElement.dataset.homeLayout = consultationLanding ? 'consultation' : 'directory';
 
+  function buildTopicIndex(groups) {
+    const home = document.getElementById('homeDirectory');
+    const index = document.getElementById('view-topics');
+    const shortcuts = index.querySelector('.topic-index-shortcuts');
+    for (const group of groups) {
+      const title = group.querySelector('h2');
+      const shortcut = document.createElement('button');
+      shortcut.type = 'button';
+      shortcut.textContent = title.textContent;
+      shortcut.addEventListener('click', () => {
+        title.focus({ preventScroll: true });
+        title.scrollIntoView({ block: 'start', behavior: 'instant' });
+      });
+      shortcuts.append(shortcut);
+
+      const list = group.querySelector('ul');
+      for (const card of home.querySelectorAll(group.dataset.topicGroup)) {
+        const item = document.createElement('li');
+        const label = document.createElement('strong');
+        const target = document.createElement(card.localName);
+        const copy = card.querySelector(':is(.directory-character-copy,.directory-card-copy,.directory-feature-copy)');
+        label.textContent = copy?.querySelector('strong').textContent || card.textContent.trim();
+        if (card.localName === 'a') {
+          target.href = card.getAttribute('href');
+        } else {
+          target.type = 'button';
+          target.addEventListener('click', () => card.click());
+        }
+        target.append(label);
+        const description = copy?.querySelector('small');
+        if (description) {
+          const detail = document.createElement('span');
+          detail.textContent = description.textContent;
+          target.append(detail);
+        }
+        item.append(target);
+        list.append(item);
+      }
+    }
+    new MutationObserver(() => {
+      if (index.classList.contains('visible')) document.getElementById('topicIndexTitle').focus({ preventScroll: true });
+    }).observe(index, { attributes:true, attributeFilter:['class'] });
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
+    const topicGroups = document.querySelectorAll('#view-topics [data-topic-group]');
+    if (topicGroups.length) buildTopicIndex(topicGroups);
     if (consultationLanding) {
       const faq = document.getElementById('homeFaqFold');
       if (faq) {

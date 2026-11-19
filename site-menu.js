@@ -30,6 +30,7 @@
     <nav class="site-menu-navigation" aria-label="전체 메뉴">
       <section class="site-menu-group" aria-labelledby="siteMenuReadings">
         <h3 id="siteMenuReadings">사주·상담</h3>
+        <button type="button" data-menu-route="topics">고민별 상담 찾기</button>
         <button type="button" data-menu-basic-report>무료 사주 리포트</button>
         <button type="button" data-menu-route="newyear">2027년 신년상담</button>
         <button type="button" data-menu-route="history">나의 상담 기록</button>

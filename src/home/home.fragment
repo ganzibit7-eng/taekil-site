@@ -24,13 +24,16 @@
     </nav>
 
     <nav class="directory-sections" aria-label="홈에서 주제 찾기">
-      <button type="button" data-directory-jump="directoryNewyearTitle">신년상담</button>
-      <button type="button" data-directory-jump="directoryRelationshipsTitle">연애·궁합</button>
-      <button type="button" data-directory-jump="directoryCareerTitle">일·재물</button>
-      <button type="button" data-directory-jump="directoryStudyTitle">학업·성장</button>
-      <button type="button" data-directory-jump="directoryLifeTitle">생활·관계</button>
-      <button type="button" data-directory-jump="directoryDatesTitle">중요한 결정</button>
-      <button type="button" data-directory-jump="directoryFeaturedTitle">사주 리포트</button>
+      <div class="directory-section-rail">
+        <button type="button" data-directory-jump="directoryNewyearTitle">신년상담</button>
+        <button type="button" data-directory-jump="directoryRelationshipsTitle">연애·궁합</button>
+        <button type="button" data-directory-jump="directoryCareerTitle">일·재물</button>
+        <button type="button" data-directory-jump="directoryStudyTitle">학업·성장</button>
+        <button type="button" data-directory-jump="directoryLifeTitle">생활·관계</button>
+        <button type="button" data-directory-jump="directoryDatesTitle">중요한 결정</button>
+        <button type="button" data-directory-jump="directoryFeaturedTitle">사주 리포트</button>
+      </div>
+      <a class="directory-all-topics" href="#topics">전체 주제</a>
     </nav>
 
     <section class="directory-section" aria-labelledby="directoryTopicsTitle">
