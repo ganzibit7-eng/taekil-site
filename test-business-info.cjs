@@ -1,7 +1,7 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),cp=require('node:child_process');
 test('every public page displays the registered operator and usable contacts without publishing the certificate or birth date',()=>{
  const pages=cp.execFileSync('git',['ls-files','*.html'],{encoding:'utf8'}).trim().split('\n');let count=0;
- for(const file of pages){
+ for(const file of ['index.html', ...pages]){
   const html=fs.readFileSync(file,'utf8');if(!html.includes('</body>'))continue;
   const block=html.match(/<!-- BUSINESS_INFO_START -->\s*([\s\S]*?)\s*<!-- BUSINESS_INFO_END -->/)?.[1];assert.ok(block,file);
   for(const value of ['테일모라','김도윤','804-03-03583','첨단연신로 216, 109동 1501호','<dt>통신판매업</dt><dd>신고 면제</dd>','<dt>호스팅 제공자</dt><dd>Cloudflare, Inc.</dd>','tel:01021305797','mailto:contact@taekilso.com'])assert.ok(block.includes(value),file+': '+value);

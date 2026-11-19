@@ -1,0 +1,1057 @@
+
+
+<div class="saju-insight-modal" id="sajuInsightModal" onclick="if(event.target===this) closeSajuInsight()">
+  <div class="saju-insight-box">
+    <button class="fortune-close" onclick="closeSajuInsight()" aria-label="닫기">×</button>
+    <div class="section-kicker">FREE · SAJU INSIGHT</div>
+    <h3 id="sajuInsightTitle">내 사주 핵심</h3>
+    <p class="sub">생년월일만 입력하면 핵심 결과를 무료로 확인할 수 있어요.</p>
+    <label class="couple-row" id="insightLockWrap" style="margin-bottom:10px;">
+      <span class="switch"><input type="checkbox" id="insightLock" onchange="onBirthLockToggle('insight')"></span>
+      이 생년월일 고정하기 (다른 곳에서도 자동으로 채워져요)
+    </label>
+    <div class="field full" style="margin-bottom:8px;">
+      <label>달력 기준</label>
+      <div class="cal-type-toggle" id="insightCalType">
+        <span class="ct-btn active" data-type="solar">양력</span>
+        <span class="ct-btn" data-type="lunar">음력</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>생년월일</label>
+      <div class="ymd-row">
+        <select id="insightYear" class="ymd-select"></select>
+        <select id="insightMonth" class="ymd-select"></select>
+        <select id="insightDay" class="ymd-select"></select>
+      </div>
+    </div>
+    <label class="couple-row" id="insightLeapWrap" style="display:none;">
+      <span class="switch"><input type="checkbox" id="insightLeap"><span class="switch-track"><span class="switch-thumb"></span></span></span>
+      윤달이에요
+    </label>
+    <button class="btn btn-primary form-submit" style="margin-top:16px" onclick="calculateSajuInsight()">무료 결과 보기</button>
+    <div id="sajuInsightResult"></div>
+  </div>
+</div>
+
+
+<style id="taekilso-research-upgrade">
+.saju-hub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.saju-hub-card{min-height:235px;padding:25px 23px;text-align:left;border:1px solid var(--line-soft);border-radius:23px;background:linear-gradient(145deg,#12100c,#0b0a09);color:var(--white);display:flex;flex-direction:column;align-items:flex-start;transition:.4s var(--ease);position:relative;overflow:hidden;cursor:pointer}
+.saju-hub-card:hover{transform:translateY(-6px);border-color:rgba(231,199,125,.38);box-shadow:0 22px 70px rgba(0,0,0,.28)}
+.saju-hub-card:after{content:"";position:absolute;right:-75px;bottom:-85px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,rgba(231,199,125,.12),transparent 70%)}
+.saju-hub-card.featured,.saju-hub-card.premium{border-color:rgba(231,199,125,.34);background:linear-gradient(145deg,rgba(231,199,125,.12),#0d0b09)}
+.saju-hub-icon{font-family:"Noto Serif KR",serif;font-size:28px;color:var(--gold-hi);margin-bottom:18px}
+.saju-hub-art{width:56px;height:56px;margin-bottom:16px}
+@keyframes sh-spin-kf{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.sh-spin{transform-origin:32px 32px;animation:sh-spin-kf 12s linear infinite}
+@keyframes sh-twinkle-kf{0%,100%{opacity:.25;transform:scale(.7)}50%{opacity:1;transform:scale(1)}}
+.sh-twinkle{fill:var(--gold-hi);transform-origin:center;transform-box:fill-box;animation:sh-twinkle-kf 2.2s ease-in-out infinite}
+.sh-twinkle.sh-d1{animation-delay:.5s}
+.sh-twinkle.sh-d2{animation-delay:1.1s}
+@keyframes sh-pulse-kf{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.sh-pulse{transform-origin:center;transform-box:fill-box;animation:sh-pulse-kf 1.6s ease-in-out infinite}
+@keyframes sh-float-kf{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.sh-float{transform-box:fill-box;animation:sh-float-kf 2.8s ease-in-out infinite}
+@keyframes sh-sparkle-kf{0%,100%{opacity:.4;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
+.sh-sparkle{transform-origin:center;transform-box:fill-box;animation:sh-sparkle-kf 1.8s ease-in-out infinite}
+@media (prefers-reduced-motion: reduce){.sh-spin,.sh-twinkle,.sh-pulse,.sh-float,.sh-sparkle{animation:none}}
+@keyframes ec-ring-kf{0%,100%{transform:rotate(0deg) translateX(0)}50%{transform:rotate(-8deg) translateX(-1px)}}
+.ec-ring1{transform-box:fill-box; transform-origin:center; animation:ec-ring-kf 1.9s ease-in-out infinite}
+.ec-ring2{transform-box:fill-box; transform-origin:center; animation:ec-ring-kf 1.9s ease-in-out infinite reverse}
+@keyframes ec-bounce-kf{0%,100%{transform:translateY(0) rotate(0deg)}30%{transform:translateY(-4px) rotate(-3deg)}60%{transform:translateY(0.5px) rotate(2deg)}}
+.ec-bounce{transform-box:fill-box; transform-origin:bottom center; animation:ec-bounce-kf 2.2s ease-in-out infinite}
+@keyframes ec-pop-kf{0%,50%,100%{transform:scale(1)}25%{transform:scale(1.22)}}
+.ec-pop{transform-box:fill-box; transform-origin:center; animation:ec-pop-kf 2s ease-in-out infinite}
+@keyframes ec-spin2-kf{from{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.1)}to{transform:rotate(360deg) scale(1)}}
+.ec-spin2{transform-origin:12px 12px; animation:ec-spin2-kf 3.4s cubic-bezier(.5,0,.5,1) infinite}
+.ec-draw{stroke-dasharray:26; stroke-dashoffset:26; animation:ec-draw-kf 2.4s ease-in-out infinite}
+@keyframes ec-draw-kf{0%{stroke-dashoffset:26}45%,55%{stroke-dashoffset:0}100%{stroke-dashoffset:0; opacity:.35}}
+@media (prefers-reduced-motion: reduce){.ec-ring1,.ec-ring2,.ec-bounce,.ec-pop,.ec-spin2,.ec-draw,.ec-halo{animation:none}}
+.saju-hub-kicker{font-size:9px;letter-spacing:.17em;color:var(--gold);font-weight:800;margin-bottom:8px}
+.saju-hub-card strong{font-family:"Noto Serif KR",serif;font-size:19px}
+.saju-hub-card small{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.75;max-width:260px}
+.saju-hub-card b{margin-top:auto;padding-top:17px;color:var(--gold-hi);font-size:11px}
+.saju-trust-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:16px;border:1px solid var(--line-soft);border-radius:18px;overflow:hidden;background:var(--line-soft)}
+.saju-trust-strip>div{padding:18px;background:rgba(255,255,255,.025)}
+.saju-trust-strip strong{display:block;color:var(--gold-hi);font-size:13px;margin-bottom:5px}
+.saju-trust-strip span{color:var(--muted);font-size:11px;line-height:1.6}
+.saju-insight-modal{display:none;position:fixed;inset:0;z-index:170;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.80);backdrop-filter:blur(18px)}
+.saju-insight-modal.show{display:flex}
+.saju-insight-box{width:min(560px,100%);max-height:min(88vh,760px);overflow:auto;padding:28px;border:1px solid rgba(215,180,106,.3);border-radius:28px;background:#100f0c;box-shadow:0 35px 100px rgba(0,0,0,.65)}
+.saju-insight-box h3{font-family:"Noto Serif KR",serif;font-size:27px;margin:0 0 7px}
+.saju-insight-result{margin-top:18px;padding:20px;border-radius:20px;border:1px solid rgba(215,180,106,.24);background:rgba(215,180,106,.06)}
+.sir-head{display:flex;justify-content:space-between;gap:15px;align-items:flex-start}
+.sir-title{font-family:"Noto Serif KR",serif;font-size:21px}
+.sir-score{font-size:25px;font-weight:850;color:var(--gold-hi)}
+.sir-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}
+.sir-tags span{padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.06);font-size:10px;color:#d2cabb}
+.sir-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.sir-grid div{padding:12px;border-radius:14px;background:rgba(255,255,255,.025);font-size:11.5px;color:#c9c5bc}
+.sir-grid b{color:#f0e7d5}
+.sir-cta{margin-top:16px;padding-top:15px;border-top:1px solid var(--line-soft)}
+.sir-lock{margin-top:18px; padding:18px; border-radius:16px; background:rgba(215,180,106,.06); border:1px solid rgba(215,180,106,.22); text-align:center;}
+.sir-lock-kicker{font-size:12px; font-weight:700; color:var(--gold-hi); margin-bottom:8px;}
+.sir-lock p{font-size:12.5px; color:var(--muted); line-height:1.7; margin:0 0 14px;}
+.sir-deep{margin-top:18px; padding:18px; border-radius:16px; background:rgba(215,180,106,.05); border:1px solid rgba(215,180,106,.18);}
+.sir-deep-kicker{font-size:11px; font-weight:700; color:var(--gold-hi); margin-bottom:12px;}
+.sir-deep-block{margin-bottom:14px;}
+.sir-deep-block:last-child{margin-bottom:0}
+.sir-deep-block b{display:block; font-size:12.5px; color:var(--white); margin-bottom:5px;}
+.sir-deep-block p{font-size:12.5px; color:#d3cec3; line-height:1.75; margin:0;}
+.sir-cta p{margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.7}
+@media(max-width:820px){.saju-hub-grid{grid-template-columns:1fr 1fr}.saju-trust-strip{grid-template-columns:1fr}}
+@media(max-width:520px){.saju-hub-grid{grid-template-columns:1fr}.saju-insight-box{padding:22px 16px}.sir-grid{grid-template-columns:1fr}}
+</style>
+
+<script id="taekilso-research-upgrade-js">
+(function(){
+  const original = window.openFortuneModal;
+  window.openSajuInsight = function(type){
+    const modal=document.getElementById('sajuInsightModal');
+    const title=document.getElementById('sajuInsightTitle');
+    if(!modal||!title)return;
+    const titles={profile:'내 사주 핵심',year:'2026 올해의 흐름',love:'궁합 · 연애 흐름',money:'재물 · 직업 흐름',monthly:'운세 캘린더'};
+    title.textContent=titles[type]||titles.profile;
+    modal.dataset.type=type||'profile';
+    fillInsightDateSelects();
+    document.getElementById('sajuInsightResult').innerHTML='';
+    modal.classList.add('show');
+    applyLockedBirthTo('insight');
+  };
+  window.closeSajuInsight=function(){document.getElementById('sajuInsightModal').classList.remove('show')};
+  /* 구매한 리포트를 예쁘게 PDF로 저장할 수 있게 브라우저 인쇄 기능을 씁니다.
+     인쇄 대화상자에서 "PDF로 저장"을 고르면 실제 파일로 남길 수 있어요. */
+  window.printSajuInsight=function(title){
+    const originalTitle = document.title;
+    document.title = '택일소 - ' + title;
+    document.body.classList.add('printing-insight');
+    window.print();
+    setTimeout(() => {
+      document.title = originalTitle;
+      document.body.classList.remove('printing-insight');
+    }, 500);
+  };
+  window.fillInsightDateSelects=function(){
+    const y=document.getElementById('insightYear'),m=document.getElementById('insightMonth'),d=document.getElementById('insightDay');
+    if(!y||!m||!d||y.options.length)return;
+    for (const [select, label] of [[y,'출생 연도'], [m,'월'], [d,'일']]) {
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = label;
+      select.appendChild(placeholder);
+    }
+    const now=new Date();
+    for(let yy=1940;yy<=now.getFullYear();yy++){const o=document.createElement('option');o.value=yy;o.textContent=yy+'년';y.appendChild(o)}
+    for(let mm=1;mm<=12;mm++){const o=document.createElement('option');o.value=mm;o.textContent=mm+'월';m.appendChild(o)}
+    for(let dd=1;dd<=31;dd++){const o=document.createElement('option');o.value=dd;o.textContent=dd+'일';d.appendChild(o)}
+    y.value = m.value = d.value = '';
+  };
+  window.calculateSajuInsight=function(){
+    const y=+document.getElementById('insightYear').value,m=+document.getElementById('insightMonth').value,d=+document.getElementById('insightDay').value;
+    if (!y || !m || !d) { showToast('생년월일을 모두 선택해주세요.'); return; }
+    const calType = getCalType('insightCalType');
+    const isLeap = document.getElementById('insightLeap') ? document.getElementById('insightLeap').checked : false;
+    const birth = resolveBirthDate(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`, calType, isLeap);
+    if (!birth) return;
+    const idx=dayGanjiIndex(birth), oh=ohaengOf(idx);
+    const type=document.getElementById('sajuInsightModal').dataset.type||'profile';
+    const today=new Date(), todayIdx=dayGanjiIndex(today), todayOh=ohaengOf(todayIdx);
+    const rel=(GENERATES[oh]===todayOh||GENERATES[todayOh]===oh)?'상생 흐름':(OVERCOMES[oh]===todayOh||OVERCOMES[todayOh]===oh)?'속도 조절':'균형 흐름';
+    const base={목:{strength:'성장·기획·관계 확장',watch:'과속과 감정적인 결정'},화:{strength:'표현·추진·주도성',watch:'충동적인 선택과 소진'},토:{strength:'안정·실무·신뢰',watch:'변화를 너무 늦게 받아들이는 것'},금:{strength:'판단·기준·정리',watch:'지나친 완벽주의'},수:{strength:'유연함·정보·직관',watch:'결정 미루기'}}[oh];
+    let score=65+((idx*7)%21);
+    if(rel==='상생 흐름')score+=8;if(rel==='속도 조절')score-=5;score=Math.max(50,Math.min(92,score));
+    const content={
+      profile:['오늘 기준 핵심',`일주 ${ganjiFull(idx)} · ${oh} 기운을 중심으로 보면 ${base.strength} 쪽 강점을 살릴 때 흐름이 편합니다.`,`주의할 점은 ${base.watch}입니다.`],
+      year:['2026 키워드',`올해는 ${base.strength}을 활용해 ‘선택을 좁히는 것’이 중요합니다. 기회를 무작정 늘리기보다 기준을 세우세요.`,`중요한 일정은 좋은 날을 고르는 것까지 연결하면 활용도가 높아집니다.`],
+      love:['관계 키워드',`관계에서는 ${base.strength}이 장점으로 작용하기 쉽습니다. 서로의 차이를 이기는 것보다 맞추는 방식이 유리합니다.`,`결혼처럼 중요한 일정이라면 두 사람의 생년월일을 함께 넣어 날짜를 비교해보세요.`],
+      money:['재물·직업 키워드',`${base.strength}을 실제 업무나 선택 기준으로 바꾸면 강점이 됩니다. 숫자만 보고 결정하기보다 오래 유지할 수 있는지를 함께 보세요.`,`큰 계약·개업 등은 실제 조건과 함께 날짜를 비교하는 방식이 좋습니다.`],
+      monthly:['날짜 선택 키워드',`현재 기운은 ${rel}로 계산됩니다. 특정 날짜를 고를 때는 ‘좋다/나쁘다’보다 후보를 여러 개 놓고 비교하는 방식이 유용합니다.`,`택일소에서는 무료 TOP 5를 먼저 확인한 뒤 필요하면 365일 후보와 정밀 리포트로 확장할 수 있습니다.`]
+    }[type]||[];
+    const deepAnalysis = {
+      목:{personality:'새로운 것을 시작하고 키우는 힘이 강한 편입니다. 아이디어가 많고 사람·기회를 확장하는 데 능하지만, 한 번에 여러 갈래로 벌이면 마무리가 약해질 수 있습니다.', daeun:'큰 흐름에서는 확장기와 정리기가 번갈아 오는 편으로 봅니다. 확장기에 벌인 일을 정리기에 추스르는 리듬을 의식하면 유리합니다.', talent:'남들이 못 보는 새 기회를 먼저 알아채는 감각이 있습니다. 이 감각을 "시작"에만 쓰지 말고, 이미 있는 것에 새 아이디어를 접목하는 데 써보면 성과가 커집니다.', h1:'상반기는 새로운 인연·기회·정보가 유독 많이 들어오는 시기입니다. 다 붙잡기보다 마음이 확실히 가는 1~2가지만 골라 깊게 파고드는 편이 낫습니다.', h2:'하반기는 상반기에 벌인 것들을 정리하고 결과를 확인하는 시기입니다. 새로운 걸 또 벌이기보다, 이미 시작한 것의 마무리에 집중하면 성과가 확실해집니다.'},
+      화:{personality:'표현력과 추진력이 두드러집니다. 사람들 앞에서 주도하는 역할이 잘 맞고 에너지가 클 때 성과도 큰 편이지만, 감정 기복이 판단에 영향을 줄 수 있습니다.', daeun:'열기가 오를 때와 식을 때의 낙차가 큰 편으로 봅니다. 열기가 오를 때 결정한 일을 열기가 식은 뒤 다시 점검하는 습관이 도움이 됩니다.', talent:'사람의 마음을 움직이고 분위기를 이끄는 힘이 강점입니다. 발표·설득·리더십이 필요한 자리에서 특히 빛을 발하니, 그런 역할을 스스로 만들어 나서보세요.', h1:'상반기는 에너지가 높고 추진력이 좋은 시기입니다. 다만 중요한 계약이나 큰 결정은 감정이 격해진 순간이 아니라, 하루 정도 시간을 두고 다시 확인한 뒤 진행하세요.', h2:'하반기는 열기가 가라앉으며 차분하게 되돌아보게 되는 시기입니다. 상반기에 급하게 결정한 일이 있다면, 이 시기에 한 번 재점검해보는 게 좋습니다.'},
+      토:{personality:'꾸준함과 신뢰가 강점입니다. 실무적이고 안정적인 선택을 선호하며 맡은 역할을 끝까지 해내는 힘이 있지만, 변화가 필요한 순간에도 기존 방식을 오래 붙드는 경향이 있습니다.', daeun:'안정기가 길게 이어지다가 한 번씩 큰 변화의 시점이 오는 리듬으로 봅니다. 변화의 신호가 왔을 때 너무 늦게 반응하지 않는 것이 중요합니다.', talent:'한번 맡은 일은 끝까지 책임지는 신뢰감이 최대 강점입니다. 이 신뢰를 바탕으로 사람들이 자연스럽게 중요한 역할을 맡기게 되니, 기회가 왔을 때 망설이지 말고 받아들이세요.', h1:'상반기는 지금까지 해온 것들이 안정적으로 쌓이는 시기입니다. 큰 변화보다는 지금 하는 일의 완성도를 높이는 데 집중하면 좋은 평가로 이어집니다.', h2:'하반기엔 오래 미뤄온 결정(이직·계약 변경 등)을 재검토해볼 만한 흐름이 옵니다. 변화의 신호를 느꼈다면 너무 늦지 않게 움직여보세요.'},
+      금:{personality:'기준이 분명하고 판단이 정확한 편입니다. 원칙과 완성도를 중시해 신뢰를 얻지만, 기준에 못 미치는 상황을 받아들이기 어려워할 때가 있습니다.', daeun:'정리·수확의 시기와 도전의 시기가 교차하는 흐름으로 봅니다. 정리의 시기에는 무리한 확장보다 다듬는 데 집중하는 편이 유리합니다.', talent:'정확한 판단력과 높은 완성도가 강점입니다. 남들이 대충 넘어가는 디테일을 챙기는 능력이 있으니, 품질·검증이 중요한 역할에서 특히 인정받습니다.', h1:'상반기는 그동안 쌓아온 것을 정리하고 다듬기 좋은 시기입니다. 완벽한 조건을 기다리기보다, 70% 정도 준비됐을 때 움직이면 기회를 놓치지 않습니다.', h2:'하반기엔 도전적인 기회가 찾아올 수 있는 흐름입니다. 기준을 조금 낮추고 우선 시작해보는 유연함이 이 시기엔 더 큰 결실로 이어집니다.'},
+      수:{personality:'유연하고 직관이 발달한 편입니다. 정보를 흡수하고 상황에 맞춰 방향을 바꾸는 데 능하지만, 결정을 계속 미루다 타이밍을 놓치는 경우가 있습니다.', daeun:'흐름을 타는 시기와 방향을 잡지 못하는 시기가 함께 오는 편으로 봅니다. 방향이 흐릿할 때는 큰 결정을 미루고 정보를 더 모으는 편이 안전합니다.', talent:'상황을 빠르게 파악하고 유연하게 대처하는 직관이 강점입니다. 변화가 잦은 환경일수록 이 강점이 두드러지니, 정해진 틀보다 유동적인 역할이 잘 맞습니다.', h1:'상반기는 여러 정보와 선택지가 한꺼번에 들어오는 시기입니다. 다 검토하려다 시간만 흐르기 쉬우니, 기준 하나를 정해두고 그에 맞는 것만 추리세요.', h2:'하반기는 그동안 모은 정보를 바탕으로 결단을 내려야 할 시기입니다. 여러 선택지 중 하나를 정해 밀어붙이는 편이 이 시기엔 특히 유리합니다.'}
+    }[oh];
+    const deepAnalysisLove = {
+      목:{personality:'관계에서 먼저 다가가고 이끄는 편입니다. 호감이 생기면 속도가 빠른 편이라, 상대가 준비되기 전에 진도를 너무 빨리 나가면 부담스러워할 수 있습니다.', daeun:'새로운 인연이 자주 찾아오는 시기와, 한 사람에게 정착하고 싶어지는 시기가 번갈아 오는 편으로 봅니다.', match:'수(水) 기운을 가진 상대와 특히 잘 맞는 편입니다. 수 기운은 목 기운을 채워주는 관계라, 함께 있을 때 마음이 편안해지고 관계가 오래갑니다. 화 기운의 상대와는 서로를 활발하게 만들어주는 케미가 있습니다.', h1:'상반기는 새로운 만남의 기회가 유독 많은 시기입니다. 서두르기보다 몇 번 더 만나보고 판단하는 여유를 가져보세요.', h2:'하반기는 관계가 한 단계 깊어지거나, 반대로 정리가 필요한 관계가 명확해지는 시기입니다. 애매하게 끌어온 관계가 있다면 이 시기에 방향을 정해보세요.'},
+      화:{personality:'표현이 솔직하고 애정 표현이 큰 편입니다. 관계에 몰입할 때 에너지가 크지만, 감정 기복이 그대로 다툼으로 이어질 수 있습니다.', daeun:'열정적으로 가까워지는 시기와 서로 지쳐서 거리를 두는 시기가 뚜렷하게 오는 편입니다.', match:'목(木) 기운을 가진 상대와 특히 잘 맞는 편입니다. 목 기운이 화 기운을 북돋아줘서 관계에 활력이 생깁니다. 토 기운의 상대와는 당신이 상대를 편안하게 감싸주는 안정적인 케미가 있습니다.', h1:'상반기는 감정 표현이 풍부해지고 관계가 뜨거워지기 쉬운 시기입니다. 다만 다툼이 생기면 그 자리에서 결론 내지 말고 시간을 두고 다시 이야기하세요.', h2:'하반기는 열기가 한 차례 가라앉으며 관계의 진짜 모습이 드러나는 시기입니다. 상반기의 설렘 이후에도 편안하게 남아있다면 좋은 신호입니다.'},
+      토:{personality:'신뢰를 오래 쌓는 안정적인 연애 스타일입니다. 한 사람에게 진득한 편이지만, 관계가 편해지면 표현을 점점 줄이는 경향이 있습니다.', daeun:'오래 만나던 관계가 자연스럽게 다음 단계(결혼 등)로 넘어가는 흐름이 오는 편으로 봅니다.', match:'화(火) 기운을 가진 상대와 특히 잘 맞는 편입니다. 화 기운이 토 기운을 채워주는 관계라 안정감 속에서도 관계에 온기가 유지됩니다. 금 기운의 상대와는 당신이 이끌어주는 신뢰 관계가 형성됩니다.', h1:'상반기는 지금까지 쌓아온 관계가 더 단단해지는 시기입니다. 편해진 사이일수록 의도적으로 애정 표현을 챙기면 만족도가 크게 올라갑니다.', h2:'하반기는 오래 만난 관계라면 다음 단계(동거, 결혼 등)를 진지하게 고민해볼 만한 흐름이 옵니다. 미뤄둔 이야기가 있다면 꺼내보기 좋은 시기입니다.'},
+      금:{personality:'상대를 볼 때 기준이 뚜렷한 편입니다. 신뢰가 쌓이면 깊이 있는 관계를 만들지만, 상대의 사소한 실수를 오래 마음에 담아둘 수 있습니다.', daeun:'까다롭게 고르는 시기 이후, 확신이 서는 상대를 만나 관계가 급진전되는 흐름이 오는 편입니다.', match:'토(土) 기운을 가진 상대와 특히 잘 맞는 편입니다. 토 기운이 금 기운을 든든하게 받쳐줘서 안정적인 관계가 됩니다. 수 기운의 상대와는 당신이 방향을 잡아주는 보완 관계가 형성됩니다.', h1:'상반기는 마음에 드는 사람을 신중하게 가늠해보는 시기입니다. 완벽한 상대를 기다리기보다, 지금 관계에서 좋은 점을 먼저 보는 연습이 도움이 됩니다.', h2:'하반기엔 확신이 서는 상대를 만나면 관계가 급진전될 수 있는 흐름입니다. 이 시기엔 망설임보다 마음이 가는 대로 움직여보는 게 좋습니다.'},
+      수:{personality:'대화가 잘 통하는 사람에게 끌리는 편입니다. 유연하게 맞춰주는 장점이 있지만, 갈등이 생기면 회피하고 넘어가려는 경향이 있습니다.', daeun:'여러 인연을 두루 만나는 시기와, 한 사람에게 깊이 집중하는 시기가 함께 오는 편으로 봅니다.', match:'금(金) 기운을 가진 상대와 특히 잘 맞는 편입니다. 금 기운이 수 기운에게 방향과 기준을 잡아줘서 관계가 안정적으로 흘러갑니다. 목 기운의 상대와는 당신이 성장을 도와주는 케미가 있습니다.', h1:'상반기는 여러 사람과 두루 인연이 닿는 시기입니다. 가볍게 만나보되, 마음이 확실히 가는 사람에게는 조금 더 적극적으로 다가가보세요.', h2:'하반기는 한 사람에게 마음이 깊어지는 시기입니다. 갈등이 생겨도 피하지 말고 직접 이야기 나누는 편이 관계를 다음 단계로 넘어가게 합니다.'}
+    }[oh];
+    const deepAnalysisMoney = {
+      목:{personality:'새로운 기회를 스스로 만들어내는 데 능합니다. 사업 확장이나 새 프로젝트에 강하지만, 벌여둔 일이 많아지면 자금 관리가 흐트러질 수 있습니다.', daeun:'수입원이 늘어나는 확장기와, 벌여둔 것을 정리하며 자산을 다지는 시기가 번갈아 오는 편입니다.', style:'분산 투자보다, 성장 가능성이 보이는 곳에 자원을 집중하는 방식이 잘 맞습니다. 다만 여러 곳에 벌여두면 관리가 안 되니, 동시에 진행하는 건 2~3개로 제한하는 편이 좋습니다.', h1:'상반기는 새 수입원이나 투자 기회가 여러 개 보이는 시기입니다. 전부 시도하기보다, 가장 성과 좋은 하나에 자원을 몰아주는 편이 유리합니다.', h2:'하반기는 상반기에 벌인 것들을 정리하며 실제 성과를 확인하는 시기입니다. 새로운 지출보다 기존 것을 다지는 데 집중하면 자산이 안정적으로 쌓입니다.'},
+      화:{personality:'추진력 있게 밀어붙여 성과를 내는 편입니다. 큰 돈이 움직일 때 순간적인 판단력이 좋지만, 감정적으로 흥분한 상태에서 지출·투자 결정을 내리기 쉽습니다.', daeun:'큰 수익 기회가 오는 시기와, 그만큼 지출도 커지는 시기가 함께 오는 흐름입니다.', style:'단기간에 승부를 보는 방식이 잘 맞지만, 그만큼 손실 위험도 큽니다. 투자·지출 금액에 미리 상한선을 정해두고 그 안에서만 움직이는 규칙이 꼭 필요합니다.', h1:'상반기는 큰 수익 기회가 찾아올 수 있는 시기입니다. 다만 감정이 격해진 순간의 결정은 하루 지나 다시 판단하는 습관이 손실을 막아줍니다.', h2:'하반기는 상반기의 성과와 지출을 함께 점검해야 하는 시기입니다. 열기가 컸던 만큼 새어나간 돈도 있을 수 있으니, 가계부·장부를 한 번 정리해보세요.'},
+      토:{personality:'꾸준히 모으고 지키는 재물운입니다. 계획적인 소비와 저축에 강하지만, 변화하는 기회를 너무 신중하게 재다가 놓치는 경우가 있습니다.', daeun:'안정적으로 자산이 쌓이는 시기가 길게 이어지다, 한 번씩 큰 결단이 필요한 시점이 오는 흐름입니다.', style:'정기적인 저축·적립식 투자처럼 꾸준히 쌓는 방식이 체질에 잘 맞습니다. 다만 너무 안전한 것만 고집하면 자산이 늘어나는 속도가 더디니, 일부는 성장형에 배분해보는 것도 방법입니다.', h1:'상반기는 지금까지 해온 대로 꾸준히 쌓아가기 좋은 시기입니다. 큰 변화보다는 기존 계획을 착실히 지키는 편이 유리합니다.', h2:'하반기엔 이미 충분히 검토한 기회가 있다면, 완벽한 확신이 없어도 한 번은 움직여볼 만한 흐름이 옵니다. 너무 오래 재다가 놓치지 않도록 하세요.'},
+      금:{personality:'숫자와 조건을 정확히 따지는 편이라 손해 보는 거래가 적습니다. 다만 기준이 까다로워 좋은 기회도 조건이 안 맞으면 쉽게 포기하는 경향이 있습니다.', daeun:'꼼꼼히 정리하는 시기 이후, 확실한 조건의 기회를 잡아 수익이 크게 느는 흐름이 오는 편입니다.', style:'조건과 수치를 꼼꼼히 따지는 방식 자체가 강점입니다. 다만 100% 조건이 맞는 것만 찾다 보면 기회 자체가 줄어드니, 핵심 조건 2~3가지만 기준으로 삼는 편이 유리합니다.', h1:'상반기는 그동안의 자산·지출을 정리하고 다듬기 좋은 시기입니다. 이 시기에 정리해둔 것이 하반기 기회를 잡는 밑거름이 됩니다.', h2:'하반기엔 조건이 맞는 기회가 나타날 수 있는 흐름입니다. 100% 확신을 기다리기보다 80% 정도 맞으면 움직이는 유연함이 이 시기엔 특히 유리합니다.'},
+      수:{personality:'정보를 빠르게 흡수해 흐름을 잘 타는 재물운입니다. 유연한 대응이 강점이지만, 결정을 계속 미루다 타이밍을 놓치는 경우가 있습니다.', daeun:'여러 정보를 모으는 시기와, 방향을 정해 집중하는 시기가 함께 오는 흐름으로 봅니다.', style:'트렌드에 민감하게 반응하는 방식이 잘 맞습니다. 다만 정보를 계속 모으기만 하고 실행을 미루는 경향이 있으니, 정보 수집 기한을 미리 정해두는 게 도움이 됩니다.', h1:'상반기는 여러 정보와 기회가 동시에 들어오는 시기입니다. 다 검토하려다 시간만 흐르기 쉬우니, 기준을 하나 정해두고 그에 맞는 것만 추리세요.', h2:'하반기는 그동안 모은 정보를 바탕으로 실행에 옮겨야 할 시기입니다. 정보가 어느 정도 모였다면, 더 기다리지 않고 하나를 정해 움직이는 결단이 유리합니다.'}
+    }[oh];
+    const insightConfig = {
+      profile: { kicker: 'AI 정밀사주', deep: deepAnalysis,
+        lockDesc: '성격 심층 분석 · 나만의 재능 포인트 · 대운 흐름 · 2026년 상반기·하반기 흐름까지, 프리미엄 회원이면 확인할 수 있어요.',
+        blocks: [['성격 심층 분석','personality'],['나만의 재능 포인트','talent'],['대운(인생 큰 흐름)','daeun'],['2026년 상반기 흐름','h1'],['2026년 하반기 흐름','h2']] },
+      love: { kicker: 'AI 궁합·연애 분석', deep: deepAnalysisLove,
+        lockDesc: '연애 패턴 심층 분석 · 잘 맞는 궁합 오행 · 관계 흐름 · 2026년 상반기·하반기 연애운까지, 프리미엄 회원이면 확인할 수 있어요.',
+        blocks: [['연애 패턴 심층 분석','personality'],['잘 맞는 궁합 오행','match'],['관계 흐름(대운)','daeun'],['2026년 상반기 연애운','h1'],['2026년 하반기 연애운','h2']] },
+      money: { kicker: 'AI 재물·직업 분석', deep: deepAnalysisMoney,
+        lockDesc: '재물 흐름 심층 분석 · 나에게 맞는 재테크 방식 · 대운 흐름 · 2026년 상반기·하반기 재물운까지, 프리미엄 회원이면 확인할 수 있어요.',
+        blocks: [['재물 흐름 심층 분석','personality'],['나에게 맞는 재테크 방식','style'],['재물 대운 흐름','daeun'],['2026년 상반기 재물운','h1'],['2026년 하반기 재물운','h2']] }
+    }[type];
+    const deepSectionHtml = !insightConfig ? '' : (isPremium() ? `
+        <div class="sir-deep">
+          <div class="sir-deep-kicker">🔓 ${insightConfig.kicker} · 프리미엄</div>
+          ${insightConfig.blocks.map(([label,key])=>`<div class="sir-deep-block"><b>${label}</b><p>${insightConfig.deep[key]}</p></div>`).join('')}
+          <button class="btn btn-primary no-print" style="width:100%; margin-top:16px;" onclick="printSajuInsight('${insightConfig.kicker}')">📄 이 리포트 PDF로 저장</button>
+        </div>` : `
+        <div class="sir-lock">
+          <div class="sir-lock-kicker">🔒 ${insightConfig.kicker}</div>
+          <p>${insightConfig.lockDesc}</p>
+          <button class="btn btn-primary" style="width:100%" data-checkout-action onclick="payPremium()">✦ 프리미엄으로 보기 · ${PREMIUM_PRICE.toLocaleString('ko-KR')}원</button>
+        </div>`);
+    document.getElementById('sajuInsightResult').innerHTML=`
+      <div class="saju-insight-result">
+        <div class="sir-head"><div><div class="fortune-kicker">${type.toUpperCase()} · FREE</div><div class="sir-title">${content[0]}</div></div><div class="sir-score">${score}<small style="font-size:10px;color:var(--muted)"> / 100</small></div></div>
+        <div class="sir-tags"><span>일주 ${ganjiFull(idx)}</span><span>${oh} 오행</span><span>${rel}</span></div>
+        <p style="color:#d3cec3;font-size:13px;line-height:1.85;margin:15px 0 0">${content[1]}</p>
+        <div class="sir-grid"><div><b>강점</b><br>${base.strength}</div><div><b>체크</b><br>${base.watch}</div></div>
+        <div class="sir-cta"><p>${content[2]}</p><button class="btn btn-primary" style="width:100%" onclick="closeSajuInsight();goTo('tool')">내 좋은 날짜까지 찾아보기 →</button></div>
+        ${deepSectionHtml}
+      </div>
+      <p style="color:var(--muted-2);font-size:10.5px;line-height:1.7;margin:12px 2px 0">※ 전통 명리학 기준을 단순화한 참고용 콘텐츠입니다. 중요한 결정은 현실적인 조건을 함께 확인하세요.</p>`;
+    /* REPORT_RESULT_EVENT_START */
+    window.__freeReportSnapshot={version:'taekil-basic-1',birthDate:`${birth.getFullYear()}-${String(birth.getMonth()+1).padStart(2,'0')}-${String(birth.getDate()).padStart(2,'0')}`,referenceDate:`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`,day:ganjiHanja(idx),element:oh,relation:rel,score,strength:base.strength,watch:base.watch};
+    window.dispatchEvent(new CustomEvent('taekilso:freeReportReady', {detail:{type,profile:{y,m,d,calType,isLeap},strength:base.strength,element:oh}}));
+    /* REPORT_RESULT_EVENT_END */
+  };
+})();
+</script>
+
+<script id="home-growth-features-js">
+
+function getHomeDailyMessage(){
+  const messages = [
+    ['서두르기보다 순서를 정리하기 좋은 날이에요.','중요한 결정은 한 번 더 조건을 비교해보세요.'],
+    ['사람과의 대화에서 힌트를 얻기 좋은 날이에요.','혼자 결론내리기보다 상대의 관점도 들어보세요.'],
+    ['작은 실행이 흐름을 바꾸기 좋은 날이에요.','미뤄둔 일 하나를 구체적인 행동으로 옮겨보세요.'],
+    ['선택지를 줄이면 판단이 선명해지는 날이에요.','가장 중요한 기준 한두 가지부터 정해보세요.'],
+    ['속도보다 균형을 챙기기 좋은 날이에요.','일정과 지출, 관계에서 무리한 선택은 피하는 편이 좋아요.'],
+    ['정리와 점검에 힘을 쓰기 좋은 날이에요.','새로운 시작 전 기존 계획을 한 번 다듬어보세요.'],
+    ['내가 원하는 방향을 다시 확인하기 좋은 날이에요.','주변의 기대보다 내 우선순위를 먼저 적어보세요.']
+  ];
+  const kst = new Date(Date.now() + 9*60*60*1000);
+  const key = Number(kst.toISOString().slice(0,10).replace(/-/g,''));
+  return messages[key % messages.length];
+}
+function renderHomeDailyYeonwoo(){
+  const msg = getHomeDailyMessage();
+  const title = document.getElementById('homeDailyYeonwooTitle');
+  const text = document.getElementById('homeDailyYeonwooText');
+  if (title) title.textContent = msg[0];
+  if (text) text.textContent = msg[1] + ' 전통 사주 해석은 참고 기준으로 활용해주세요.';
+}
+function openHomeDailyConsult(){
+  const question = '오늘 제 사주 흐름에서 특히 신경 쓰면 좋은 점과 활용법을 알려주세요.';
+  try { sessionStorage.setItem('taekilso_pending_home_ai_question', question); } catch(e) {}
+  const first = document.querySelector('#view-home > .home-first-block');
+  if (first) first.scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(() => {
+    const input = document.getElementById('aiChatInput');
+    if (input) {
+      input.value = question;
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      input.focus();
+    }
+  }, 500);
+}
+document.addEventListener('DOMContentLoaded', renderHomeDailyYeonwoo);
+
+</script>
+<script id="conversion-seo-expansion-js">
+
+function inferAiNextActions(text){
+  const t = String(text || '').toLowerCase();
+  const actions = [];
+  const push = (label, onclick) => {
+    if (!actions.some(a => a.label === label)) actions.push({label, onclick});
+  };
+
+  if (/결혼|웨딩|혼인|예식|신혼/.test(t)) {
+    push('💍 결혼 날짜 찾아보기', "goTo('tool','결혼식')");
+    push('❤️ 두 사람 궁합 보기', "openSajuInsight('love')");
+  }
+  if (/이사|집|입주|전입|부동산/.test(t)) {
+    push('🏠 이사 날짜 찾아보기', "goTo('tool','이사')");
+  }
+  if (/개업|창업|오픈|가게|사업 시작/.test(t)) {
+    push('🏮 개업 날짜 찾아보기', "goTo('tool','개업')");
+  }
+  if (/계약|서명|협상|계약서/.test(t)) {
+    push('📜 계약 날짜 찾아보기', "goTo('tool','계약체결')");
+  }
+  if (/연애|궁합|재회|썸|남자친구|여자친구|배우자|관계/.test(t)) {
+    push('❤️ 궁합·연애 분석 보기', "openSajuInsight('love')");
+  }
+  if (/돈|재물|재정|수입|사업|직업|취업|이직|회사|커리어/.test(t)) {
+    push('💰 재물·직업 심층분석', "openSajuInsight('money')");
+  }
+  if (/사주|성향|오행|대운|전체운|올해/.test(t)) {
+    push('🔮 내 사주 기본 리포트', "openSajuInsight('profile')");
+  }
+
+  if (!actions.length) {
+    push('🔮 내 사주 기본 리포트', "openSajuInsight('profile')");
+    push('📅 중요한 날짜 찾아보기', "goTo('tool')");
+  }
+
+  return actions.slice(0, 3);
+}
+
+function renderAiNextActions(container, sourceText){
+  if (!container) return;
+  const actions = inferAiNextActions(sourceText);
+  if (!actions.length) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'ai-next-actions';
+  wrap.innerHTML = '<div class="ai-next-actions-title">이어서 해볼 수 있어요</div>';
+
+  actions.forEach((a) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = a.label;
+    btn.setAttribute('onclick', a.onclick);
+    wrap.appendChild(btn);
+  });
+
+  container.appendChild(wrap);
+}
+
+
+function setupAiRecommendationObserver(){
+  const log = document.getElementById('aiChatMessages') || document.getElementById('aiChatLog') || document.querySelector('.ai-chat-messages');
+  if (!log || log.dataset.nextActionsObserver === '1') return;
+  log.dataset.nextActionsObserver = '1';
+
+  const observer = new MutationObserver(() => {
+    const candidates = Array.from(log.querySelectorAll('.ai-chat-message, .chat-message, .ai-message, .message, .ai-chat-bubble-npc'));
+    if (!candidates.length) return;
+
+    // 마지막 AI 답변처럼 보이는 항목을 찾습니다.
+    for (let i = candidates.length - 1; i >= 0; i--) {
+      const el = candidates[i];
+      const cls = String(el.className || '').toLowerCase();
+      const isUser = /user|mine|me/.test(cls);
+      if (isUser) continue;
+      if (el.querySelector && el.querySelector('.ai-next-actions')) return;
+
+      const text = (el.innerText || el.textContent || '').trim();
+      if (text.length < 20) continue;
+
+      let source = text;
+      const input = document.getElementById('aiChatInput');
+      const recentUser = Array.from(log.querySelectorAll('.ai-chat-message-user, .chat-message.user, .user-message')).pop();
+      if (recentUser) source += ' ' + (recentUser.innerText || recentUser.textContent || '');
+
+      renderAiNextActions(el, source);
+      break;
+    }
+  });
+
+  observer.observe(log, {childList:true, subtree:true});
+}
+document.addEventListener('DOMContentLoaded', () => setTimeout(setupAiRecommendationObserver, 700));
+
+</script>
+
+<div class="ai-share-modal" id="aiShareModal" onclick="if(event.target===this) closeAiShareModal()">
+  <div class="ai-share-panel" role="dialog" aria-modal="true" aria-label="상담 답변 공유">
+    <div class="ai-share-card" id="aiShareCard">
+      <div>
+        <div class="ai-share-brand">택일소 · 연우</div>
+        <div class="ai-share-sub">AI 사주 상담</div>
+      </div>
+      <div class="ai-share-answer" id="aiShareAnswer"></div>
+      <div class="ai-share-foot"><span>사주는 참고 기준으로 활용해주세요.</span><span>taekilso.com</span></div>
+    </div>
+    <div class="ai-share-actions">
+      <button type="button" class="primary" onclick="shareAiAnswerNative()">공유하기</button>
+      <button type="button" onclick="copyAiAnswerText()">텍스트 복사</button>
+    </div>
+    <button type="button" class="ai-share-close" onclick="closeAiShareModal()">닫기</button>
+  </div>
+</div>
+
+<script id="ai-answer-share-js">
+
+let aiShareCurrentText = '';
+
+function cleanAiShareText(text){
+  return String(text || '')
+    .replace(/이어서 해볼 수 있어요[\s\S]*$/,'')
+    .replace(/\s{3,}/g,'\n\n')
+    .trim()
+    .slice(0,900);
+}
+
+function openAiShareModal(text){
+  const cleaned = cleanAiShareText(text);
+  if (!cleaned) return;
+  aiShareCurrentText = cleaned;
+  const answer = document.getElementById('aiShareAnswer');
+  const modal = document.getElementById('aiShareModal');
+  const brand = modal?.querySelector('.ai-share-brand');
+  if (brand) brand.textContent = '택일소 · ' + (window.TaekilConsultationPersonas?.get(window.__aiConsultantId).name || '연우');
+  if (answer) answer.textContent = cleaned;
+  if (modal) modal.classList.add('show');
+}
+
+function closeAiShareModal(){
+  document.getElementById('aiShareModal')?.classList.remove('show');
+}
+
+async function shareAiAnswerNative(){
+  const text = aiShareCurrentText;
+  if (!text) return;
+  const shareData = {
+    title:'택일소 · AI 사주 상담',
+    text:text + '\n\nAI 사주 상담 · 택일소',
+    url:'https://taekilso.com/'
+  };
+  try{
+    if (navigator.share) {
+      await navigator.share(shareData);
+      return;
+    }
+    await navigator.clipboard.writeText(shareData.text + '\n' + shareData.url);
+    showToast('공유할 내용을 복사했어요.');
+  }catch(err){
+    if (err && err.name === 'AbortError') return;
+    console.warn('공유 실패',err);
+    showToast('공유하지 못했어요.');
+  }
+}
+
+async function copyAiAnswerText(){
+  if (!aiShareCurrentText) return;
+  const text = aiShareCurrentText + '\n\nAI 사주 상담 · 택일소\nhttps://taekilso.com/';
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast('상담 답변을 복사했어요.');
+  }catch(err){
+    const ta=document.createElement('textarea');
+    ta.value=text; document.body.appendChild(ta); ta.select();
+    try{document.execCommand('copy');showToast('상담 답변을 복사했어요.');}catch(e){showToast('복사하지 못했어요.');}
+    ta.remove();
+  }
+}
+
+function attachAiShareButtons(){
+  const log = document.getElementById('aiChatMessages') || document.getElementById('aiChatLog') || document.querySelector('.ai-chat-messages');
+  if (!log) return;
+
+  const candidates = Array.from(log.querySelectorAll('.ai-chat-message, .chat-message, .ai-message, .message, .ai-chat-bubble-npc'));
+  candidates.forEach((el) => {
+    if (el.dataset.aiShareReady === '1') return;
+    const cls = String(el.className || '').toLowerCase();
+    if (/user|mine|me/.test(cls)) return;
+
+    const text = (el.innerText || el.textContent || '').trim();
+    if (text.length < 40) return;
+
+    el.dataset.aiShareReady='1';
+    const bar=document.createElement('div');
+    bar.className='ai-answer-sharebar';
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='ai-answer-sharebtn';
+    btn.textContent='↗ 답변 공유';
+    btn.addEventListener('click',()=>openAiShareModal(text));
+    bar.appendChild(btn);
+    el.appendChild(bar);
+  });
+}
+
+function setupAiShareObserver(){
+  const log = document.getElementById('aiChatMessages') || document.getElementById('aiChatLog') || document.querySelector('.ai-chat-messages');
+  if (!log || log.dataset.aiShareObserver === '1') return;
+  log.dataset.aiShareObserver='1';
+  const obs=new MutationObserver(()=>attachAiShareButtons());
+  obs.observe(log,{childList:true,subtree:true});
+  attachAiShareButtons();
+}
+document.addEventListener('DOMContentLoaded',()=>setTimeout(setupAiShareObserver,850));
+
+</script>
+<script id="mobile-ai-keyboard-fix-js">
+(function(){
+  const vv = window.visualViewport;
+  const isMobile = () => window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
+  let focused = false;
+  let raf = 0;
+
+  function inputEl(){ return document.getElementById('aiChatInput'); }
+  function panelEl(){ return document.getElementById('aiChatPanel'); }
+
+  function keyboardLikelyOpen(){
+    if(!vv) return focused;
+    return focused && (window.innerHeight - vv.height > 120);
+  }
+
+  function applyViewport(){
+    if(!isMobile() || !focused) return;
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => {
+      const h = vv ? vv.height : window.innerHeight;
+      const top = vv ? vv.offsetTop : 0;
+      document.documentElement.style.setProperty('--ai-vv-height', Math.max(260, h) + 'px');
+      document.documentElement.style.setProperty('--ai-vv-top', Math.max(0, top) + 'px');
+
+      if(keyboardLikelyOpen()) document.body.classList.add('ai-keyboard-open');
+
+      const input = inputEl();
+      if(input){
+        input.style.fontSize = '16px';
+        input.scrollIntoView({block:'nearest', inline:'nearest'});
+      }
+
+      const win = document.getElementById('aiChatWindow');
+      if(win) win.scrollTop = win.scrollHeight;
+    });
+  }
+
+  function clearViewport(){
+    document.body.classList.remove('ai-keyboard-open');
+    document.documentElement.style.removeProperty('--ai-vv-height');
+    document.documentElement.style.removeProperty('--ai-vv-top');
+  }
+
+  function bind(){
+    const input = inputEl();
+    if(!input || input.dataset.mobileKeyboardFixed === '1') return;
+    input.dataset.mobileKeyboardFixed = '1';
+
+    input.addEventListener('focus', () => {
+      if(!isMobile()) return;
+      focused = true;
+      input.style.fontSize = '16px';
+      applyViewport();
+      setTimeout(applyViewport, 60);
+      setTimeout(applyViewport, 180);
+      setTimeout(applyViewport, 360);
+    }, {passive:true});
+
+    input.addEventListener('blur', () => {
+      focused = false;
+      setTimeout(() => {
+        if(document.activeElement !== input) clearViewport();
+      }, 120);
+    }, {passive:true});
+  }
+
+  bind();
+  const mo = new MutationObserver(bind);
+  mo.observe(document.documentElement, {childList:true, subtree:true});
+
+  if(vv){
+    vv.addEventListener('resize', applyViewport, {passive:true});
+    vv.addEventListener('scroll', applyViewport, {passive:true});
+  }
+  window.addEventListener('orientationchange', () => setTimeout(applyViewport, 150), {passive:true});
+})();
+</script>
+
+<style id="premium-faq-free-scroll-fix">
+/* 프리미엄 이후 FAQ/footer는 PPT 스냅 대상이 아니라 일반 문서 흐름으로 스크롤 */
+html.home-after-premium,
+html.home-after-premium body {
+  scroll-snap-type: none !important;
+}
+html.home-after-premium body {
+  overflow-y: auto !important;
+  overscroll-behavior-y: auto !important;
+}
+#view-home .pricing,
+#view-home [id*="premium"],
+#view-home .faq-section,
+#view-home .home-faq-section,
+#view-home footer {
+  scroll-snap-stop: normal !important;
+}
+#view-home .faq-section,
+#view-home .home-faq-section,
+#view-home footer {
+  scroll-snap-align: none !important;
+  min-height: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+</style>
+<script id="premium-faq-free-scroll-fix-js">
+(function () {
+  function homeVisible() {
+    var home = document.getElementById('view-home');
+    return home && !home.classList.contains('hidden') &&
+      getComputedStyle(home).display !== 'none';
+  }
+
+  function getFaq() {
+    return document.querySelector(
+      '#view-home .home-faq-section, #view-home .faq-section, #view-home [id*="faq" i]'
+    );
+  }
+
+  function getPremium() {
+    return document.querySelector(
+      '#view-home .pricing, #view-home [id*="premium" i], #view-home [class*="premium" i]'
+    );
+  }
+
+  function update() {
+    if (!homeVisible()) {
+      document.documentElement.classList.remove('home-after-premium');
+      return;
+    }
+    var faq = getFaq();
+    var premium = getPremium();
+    if (!faq) return;
+
+    var faqRect = faq.getBoundingClientRect();
+    var premiumRect = premium ? premium.getBoundingClientRect() : null;
+
+    // FAQ가 다음 화면에 가까워졌거나 프리미엄 하단까지 내려오면 PPT snap 해제.
+    var release =
+      faqRect.top <= window.innerHeight * 1.15 ||
+      (premiumRect && premiumRect.bottom <= window.innerHeight * 1.05);
+
+    // 위쪽 PPT 구간으로 충분히 되돌아간 경우에만 기존 snap 복원.
+    if (!release && faqRect.top > window.innerHeight * 1.65) {
+      document.documentElement.classList.remove('home-after-premium');
+    } else if (release) {
+      document.documentElement.classList.add('home-after-premium');
+    }
+  }
+
+  var ticking = false;
+  function schedule() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () {
+      ticking = false;
+      update();
+    });
+  }
+
+  window.addEventListener('scroll', schedule, {passive:true});
+  window.addEventListener('wheel', schedule, {passive:true});
+  window.addEventListener('touchmove', schedule, {passive:true});
+  window.addEventListener('resize', schedule, {passive:true});
+  document.addEventListener('DOMContentLoaded', schedule);
+  setTimeout(schedule, 100);
+  setTimeout(schedule, 500);
+})();
+</script>
+
+
+<script id="admin-dashboard-accordion-js">
+function toggleAdminFold(id){
+  const box=document.getElementById(id);
+  if(!box) return;
+  const willOpen=!box.classList.contains('open');
+  box.classList.toggle('open',willOpen);
+  const btn=box.querySelector('.admin-fold-toggle');
+  if(btn) btn.setAttribute('aria-expanded',willOpen?'true':'false');
+  try{sessionStorage.setItem('taekilso_admin_fold_v2_'+id,willOpen?'1':'0');}catch(e){}
+}
+function restoreAdminFolds(){
+  document.querySelectorAll('.admin-fold').forEach(box=>{
+    let open = box.id === 'adminFoldStats' || box.id === 'adminFoldMembers';
+    try { const saved=sessionStorage.getItem('taekilso_admin_fold_v2_'+box.id); if(saved!==null) open=saved==='1'; } catch(e) {}
+    box.classList.toggle('open',open);
+    const btn=box.querySelector('.admin-fold-toggle');
+    if(btn) btn.setAttribute('aria-expanded',String(open));
+  });
+}
+document.addEventListener('DOMContentLoaded',restoreAdminFolds);
+</script>
+
+
+<script id="admin-fold-toolbar-js">
+function setAdminFoldState(box,open){
+  if(!box) return;
+  box.classList.toggle('open',!!open);
+  const btn=box.querySelector('.admin-fold-toggle');
+  if(btn) btn.setAttribute('aria-expanded',open?'true':'false');
+  try{sessionStorage.setItem('taekilso_admin_fold_v2_'+box.id,open?'1':'0');}catch(e){}
+}
+function setAllAdminFolds(open){
+  document.querySelectorAll('.admin-fold').forEach(box=>setAdminFoldState(box,open));
+}
+function openAndGoAdminFold(id){
+  const box=document.getElementById(id);
+  if(!box) return;
+  setAdminFoldState(box,true);
+  requestAnimationFrame(()=>box.scrollIntoView({behavior:'smooth',block:'start'}));
+}
+</script>
+
+
+<script id="admin-menu-overview-js">
+function cleanAdminOverviewCards(){
+  const root=document.getElementById('adminFoldStats') || document;
+  root.querySelectorAll('.stat-card,.admin-stat-card,[class*="stat-card"]').forEach(card=>{
+    const txt=(card.textContent||'').replace(/\s+/g,' ').trim();
+    if(txt.includes('카카오 가입자') || txt.includes('최근 7일 접속')) card.style.display='none';
+  });
+}
+function openAdminTrafficMenu(){
+  const card=document.getElementById('adminTrafficSourceCard');
+  const details=document.getElementById('trafficSourceDetails');
+  const anchor=document.getElementById('adminTrafficMenuAnchor') || card;
+  if(details && details.style.display==='none') toggleAdminTrafficSources();
+  if(anchor) requestAnimationFrame(()=>anchor.scrollIntoView({behavior:'smooth',block:'start'}));
+}
+document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true});
+</script>
+
+
+<script id="admin-exclusive-mode-js">
+(function(){
+  let lastAdminVisible=null;
+  function syncAdminExclusiveMode(){
+    const admin=document.getElementById('view-admin');
+    if(!admin) return;
+    const visible=admin.style.display!=='none' && !admin.hidden &&
+      !admin.classList.contains('hidden') &&
+      getComputedStyle(admin).display!=='none';
+    if(visible===lastAdminVisible) return;
+    lastAdminVisible=visible;
+    document.body.classList.toggle('admin-exclusive-mode',visible);
+    document.documentElement.classList.toggle('admin-exclusive-mode',visible);
+  }
+  window.syncAdminExclusiveMode=syncAdminExclusiveMode;
+  document.addEventListener('DOMContentLoaded',syncAdminExclusiveMode,{once:true});
+  window.addEventListener('hashchange',syncAdminExclusiveMode,{passive:true});
+  window.addEventListener('popstate',syncAdminExclusiveMode,{passive:true});
+  window.addEventListener('pageshow',syncAdminExclusiveMode,{passive:true});
+})();
+</script>
+
+<style id="seo-service-hub-style">.seo-service-hub{padding:56px 20px 72px;scroll-snap-align:none}.seo-service-hub-inner{max-width:880px;margin:0 auto}.seo-eyebrow{font-size:11px;letter-spacing:.16em;color:var(--gold);margin:0 0 8px}.seo-service-hub h2{font-size:clamp(22px,4vw,34px);line-height:1.3;margin:0 0 12px}.seo-service-hub p{line-height:1.8;color:var(--muted)}.seo-service-links{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:22px 0}.seo-service-links a{display:flex;align-items:center;justify-content:center;min-height:48px;padding:9px;border:1px solid rgba(255,255,255,.1);border-radius:12px;text-decoration:none;color:var(--white);font-size:12px}.seo-topic-copy{margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,255,255,.08)}.seo-topic-copy h3{font-size:18px;margin:0 0 8px}body.admin-exclusive-mode .seo-service-hub{display:none!important}@media(max-width:640px){.seo-service-hub{padding:42px 16px 60px}.seo-service-links{grid-template-columns:repeat(2,minmax(0,1fr))}}</style>
+
+
+<style id="takil-event-carousel">
+/* =========================================================
+   TAKILSO EVENT CAROUSEL — premium horizontal discovery
+   ========================================================= */
+.event-grid{display:block!important;position:relative;margin:34px 0 0;overflow:visible!important}
+.event-carousel-viewport{
+  position:relative;
+  overflow-x:auto; overflow-y:hidden;
+  padding:8px 0 28px; margin:0 -2px;
+  -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x proximity;
+  scrollbar-width:none;
+}
+.event-carousel-viewport::-webkit-scrollbar{display:none}
+.event-track{display:flex;gap:18px;padding:0 8px}
+.event-track .event-card{flex:0 0 calc((100% - 36px)/3);width:calc((100% - 36px)/3);min-height:0!important;padding:0!important;overflow:hidden!important;cursor:pointer;position:relative;scroll-snap-align:start;transition:transform .45s cubic-bezier(.2,.8,.2,1),border-color .35s,box-shadow .35s,opacity .35s!important}
+.event-track .event-card:hover{transform:translateY(-8px)!important}
+.event-track .event-card.is-active{border-color:rgba(231,199,125,.42)!important;box-shadow:0 28px 80px rgba(0,0,0,.46),0 0 55px rgba(231,199,125,.07)!important}
+.event-track .event-card.is-dim{opacity:.72}
+.event-carousel-controls{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:0;padding:0 8px}
+.event-carousel-copy{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:11px;letter-spacing:.03em}
+.event-carousel-copy .drag-line{width:34px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.7}
+.event-carousel-nav{display:flex;align-items:center;gap:9px}
+.event-carousel-btn{width:44px;height:44px;border-radius:50%;border:1px solid rgba(231,199,125,.2);background:rgba(255,255,255,.035);color:#e9d49e;display:grid;place-items:center;font-size:19px;cursor:pointer;transition:transform .25s,background .25s,border-color .25s,box-shadow .25s}
+.event-carousel-btn:hover{transform:translateY(-2px);background:rgba(231,199,125,.09);border-color:rgba(231,199,125,.45);box-shadow:0 10px 28px rgba(0,0,0,.25)}
+.event-carousel-btn:disabled{opacity:.32;cursor:default;transform:none;box-shadow:none}
+.event-carousel-dots{display:flex;align-items:center;gap:6px;margin:0 8px}
+.event-carousel-dot{width:5px;height:5px;padding:0;border:0;border-radius:99px;background:rgba(255,255,255,.2);cursor:pointer;transition:width .3s,background .3s}
+.event-carousel-dot.is-active{width:22px;background:linear-gradient(90deg,#8f6d32,#f5dc9f)}
+.event-section-note{display:inline-flex;align-items:center;gap:8px;margin-top:15px;padding:7px 11px;border:1px solid rgba(231,199,125,.12);border-radius:999px;background:rgba(231,199,125,.025);color:#928a7d;font-size:10px}
+.event-section-note b{color:#d9bb78;font-weight:600}
+@media(max-width:1050px){.event-track .event-card{flex-basis:calc((100% - 18px)/2);width:calc((100% - 18px)/2)}}
+@media(max-width:700px){
+  .event-carousel-viewport{margin:0 -14px;padding:8px 0 24px}
+  .event-track{gap:12px;padding:0 14px}
+  .event-track .event-card{flex-basis:calc(86vw - 28px);width:calc(86vw - 28px)}
+  .event-carousel-controls{padding:0 2px}
+  .event-carousel-copy{font-size:10px}
+  .event-carousel-btn{width:40px;height:40px}
+}
+@media(prefers-reduced-motion:reduce){.event-carousel-viewport{scroll-behavior:auto}.event-carousel-btn,.event-carousel-dot{transition:none}}
+</style>
+
+<script id="takil-event-carousel-script">
+(function(){
+  const grid=document.querySelector('.event-grid');
+  if(!grid || grid.dataset.carouselReady) return;
+  const cards=[...grid.querySelectorAll(':scope > .event-card')];
+  if(cards.length<2) return;
+  grid.dataset.carouselReady='1';
+
+  const viewport=document.createElement('div');
+  viewport.className='event-carousel-viewport';
+  const track=document.createElement('div');
+  track.className='event-track';
+  cards.forEach(card=>track.appendChild(card));
+  viewport.appendChild(track);
+  grid.innerHTML='';
+  grid.appendChild(viewport);
+
+  const controls=document.createElement('div');
+  controls.className='event-carousel-controls';
+  controls.innerHTML='<div class="event-carousel-copy"><span class="drag-line"></span><span>좌우로 밀어서 원하는 날짜를 골라보세요</span></div><div class="event-carousel-nav"><div class="event-carousel-dots"></div><button class="event-carousel-btn prev" type="button" aria-label="이전">‹</button><button class="event-carousel-btn next" type="button" aria-label="다음">›</button></div>';
+  grid.appendChild(controls);
+
+  const dots=controls.querySelector('.event-carousel-dots');
+  const prev=controls.querySelector('.prev');
+  const next=controls.querySelector('.next');
+  let index=0;
+  let syncing=false;
+
+  cards.forEach((_,i)=>{
+    const dot=document.createElement('button');
+    dot.type='button'; dot.className='event-carousel-dot';
+    dot.setAttribute('aria-label',(i+1)+'번째 선택');
+    dot.addEventListener('click',()=>go(i));
+    dots.appendChild(dot);
+  });
+
+  function visible(){
+    if(innerWidth<=700) return 1;
+    if(innerWidth<=1050) return 2;
+    return 3;
+  }
+  function maxIndex(){return Math.max(0,cards.length-visible());}
+  function step(){
+    const first=cards[0];
+    const gap=parseFloat(getComputedStyle(track).gap)||18;
+    return first.getBoundingClientRect().width+gap;
+  }
+  function updateUI(){
+    cards.forEach((c,i)=>{
+      c.classList.toggle('is-active',i===index);
+      c.classList.toggle('is-dim',i<index || i>index+visible()-1);
+    });
+    [...dots.children].forEach((d,i)=>d.classList.toggle('is-active',i===index));
+    prev.disabled=index===0;
+    next.disabled=index===maxIndex();
+  }
+  function go(nextIndex,behavior){
+    index=Math.max(0,Math.min(maxIndex(),nextIndex));
+    syncing=true;
+    viewport.scrollTo({ left: index*step(), behavior: behavior || 'smooth' });
+    updateUI();
+    setTimeout(()=>{ syncing=false; },400);
+  }
+  prev.addEventListener('click',()=>go(index-1));
+  next.addEventListener('click',()=>go(index+1));
+
+  /* Native scroll (touch swipe, trackpad, mouse-wheel shift+scroll all work automatically) */
+  let scrollTimer=null;
+  viewport.addEventListener('scroll',()=>{
+    if(syncing) return;
+    clearTimeout(scrollTimer);
+    scrollTimer=setTimeout(()=>{
+      const s=step();
+      index=s ? Math.round(viewport.scrollLeft/s) : 0;
+      index=Math.max(0,Math.min(maxIndex(),index));
+      updateUI();
+    },90);
+  },{passive:true});
+
+  addEventListener('resize',()=>go(index,'auto'),{passive:true});
+  updateUI();
+})();
+</script>
+
+<style id="takil-event-unique-scenes">
+/* =========================================================
+   TAKILSO — FOUR DISTINCT CINEMATIC EVENT WORLDS
+   Each card has its own palette, atmosphere, objects and motion.
+   ========================================================= */
+.event-track .event-card{isolation:isolate}
+.event-track .event-card .tm-art{isolation:isolate;position:relative;overflow:hidden}
+.event-track .event-card .tm-art::before{transition:filter .8s ease,transform 1.2s cubic-bezier(.2,.8,.2,1)!important}
+.event-track .event-card .tm-art::after{z-index:8!important}
+.event-track .event-card .ultra-scene{z-index:6!important}
+.event-track .event-card .tm-art-light{z-index:7!important}
+
+/* ---------- 01 WEDDING : rose / champagne / romantic orbit ---------- */
+.event-track .event-card:nth-child(1){
+  --card-accent:#f1b6c5; --card-accent2:#d96f93;
+  border-color:rgba(241,182,197,.20)!important;
+  background:linear-gradient(180deg,#180f16,#0d090d)!important;
+}
+.event-track .event-card:nth-child(1) .tm-art{
+  background:
+    radial-gradient(circle at 20% 25%,rgba(239,133,169,.24),transparent 28%),
+    radial-gradient(circle at 78% 30%,rgba(255,219,183,.18),transparent 30%),
+    linear-gradient(145deg,#351629 0%,#17101d 48%,#09090d 100%)!important;
+}
+.event-track .event-card:nth-child(1) .tm-content{background:linear-gradient(180deg,#25131e,#120b10)!important}
+.event-track .event-card:nth-child(1) .tm-icon{color:#ffd8e1;border-color:rgba(241,182,197,.35);background:rgba(217,111,147,.10);box-shadow:0 0 28px rgba(217,111,147,.13)}
+.event-track .event-card:nth-child(1) h3{color:#fff1f4}
+.event-track .event-card:nth-child(1) .tm-art::before{
+  background:
+    radial-gradient(ellipse at 50% 70%,rgba(239,133,169,.18),transparent 48%),
+    linear-gradient(145deg,rgba(100,38,69,.55),rgba(22,15,30,.8))!important;
+}
+.event-track .event-card:nth-child(1) .scene-stars{background-image:
+  radial-gradient(circle at 12% 22%,#ffe4ed 0 1.4px,transparent 2.5px),
+  radial-gradient(circle at 31% 38%,rgba(255,199,215,.8) 0 1px,transparent 2px),
+  radial-gradient(circle at 72% 18%,#ffe4ed 0 1.2px,transparent 2px),
+  radial-gradient(circle at 84% 52%,rgba(255,199,215,.75) 0 1px,transparent 2px),
+  radial-gradient(circle at 55% 63%,rgba(255,220,228,.55) 0 1px,transparent 2px)!important}
+.event-track .event-card:nth-child(1) .scene-moon{
+  width:70px;height:70px;right:16%;top:18%;
+  background:radial-gradient(circle at 34% 30%,#fff8ee,#f0c2a2 48%,#a45162 100%)!important;
+  box-shadow:0 0 42px rgba(242,157,183,.35)!important;
+  animation:weddingMoon 6s ease-in-out infinite!important;
+}
+@keyframes weddingMoon{0%,100%{transform:translate3d(0,0,0) scale(.92)}50%{transform:translate3d(-8px,7px,0) scale(1.08)}}
+.event-track .event-card:nth-child(1) .scene-moon:after{background:rgba(116,51,70,.12)!important;box-shadow:12px -8px 0 rgba(116,51,70,.08),-9px 13px 0 rgba(116,51,70,.07)!important}
+.event-track .event-card:nth-child(1) .scene-sun{
+  width:170px;height:170px;left:50%;top:48%;
+  background:radial-gradient(circle,#fff5e6 0 5%,rgba(255,184,203,.75) 13%,rgba(222,93,133,.20) 38%,transparent 70%)!important;
+  animation:weddingGlow 4s ease-in-out infinite!important;
+}
+@keyframes weddingGlow{50%{transform:translate(-50%,-50%) scale(1.22);opacity:.92}}
+.event-track .event-card:nth-child(1) .scene-path{width:290px;height:120px;bottom:-48px;border-color:rgba(241,182,197,.34);animation:weddingPath 4.8s ease-in-out infinite!important}
+@keyframes weddingPath{50%{transform:translateX(-50%) scaleX(1.16);opacity:.85}}
+.event-track .event-card:nth-child(1) .scene-gate{display:none}
+.event-track .event-card:nth-child(1) .ultra-scene::before,
+.event-track .event-card:nth-child(1) .ultra-scene::after{
+  content:"";position:absolute;border-radius:50%;pointer-events:none;z-index:5;
+}
+.event-track .event-card:nth-child(1) .ultra-scene::before{width:180px;height:90px;left:50%;top:48%;border:1px solid rgba(255,193,211,.32);transform:translate(-50%,-50%) rotate(-18deg);animation:weddingOrbit 8s linear infinite}
+.event-track .event-card:nth-child(1) .ultra-scene::after{width:245px;height:120px;left:50%;top:48%;border:1px solid rgba(255,232,216,.15);transform:translate(-50%,-50%) rotate(28deg);animation:weddingOrbit 12s linear infinite reverse}
+@keyframes weddingOrbit{to{transform:translate(-50%,-50%) rotate(342deg)}}
+.event-track .event-card:nth-child(1) .scene-flare{background:linear-gradient(90deg,transparent,rgba(255,196,215,.95),transparent);animation:weddingFlare 5.5s linear infinite!important}
+@keyframes weddingFlare{0%{left:-35%;top:28%;opacity:0}20%{opacity:1}100%{left:120%;top:65%;opacity:0}}
+
+/* ---------- 02 MOVING : teal / cyan / house + road ---------- */
+.event-track .event-card:nth-child(2){
+  --card-accent:#78e2dc; --card-accent2:#2fa7b4;
+  border-color:rgba(120,226,220,.18)!important;
+  background:linear-gradient(180deg,#09181a,#071012)!important;
+}
+.event-track .event-card:nth-child(2) .tm-art{background:
+  radial-gradient(circle at 70% 28%,rgba(120,226,220,.20),transparent 25%),
+  linear-gradient(145deg,#123b40 0%,#0d242b 48%,#071014 100%)!important}
+.event-track .event-card:nth-child(2) .tm-content{background:linear-gradient(180deg,#10282b,#091315)!important}
+.event-track .event-card:nth-child(2) .tm-icon{color:#b8fff9;border-color:rgba(120,226,220,.35);background:rgba(47,167,180,.11);box-shadow:0 0 28px rgba(47,167,180,.13)}
+.event-track .event-card:nth-child(2) h3{color:#e8fffd}
+.event-track .event-card:nth-child(2) .scene-stars{opacity:.72;filter:hue-rotate(35deg);animation:movingStars 10s linear infinite!important}
+@keyframes movingStars{to{transform:translate3d(-18px,8px,0)}}
+.event-track .event-card:nth-child(2) .scene-moon{display:none}
+.event-track .event-card:nth-child(2) .scene-sun{
+  width:115px;height:115px;left:76%;top:24%;
+  background:radial-gradient(circle,#d9fffa 0 5%,rgba(120,226,220,.55) 15%,rgba(47,167,180,.12) 45%,transparent 72%)!important;
+  animation:movingSun 6s ease-in-out infinite!important}
+@keyframes movingSun{50%{transform:translate(-50%,-50%) translate3d(-12px,8px,0) scale(1.15);opacity:.75}}
+.event-track .event-card:nth-child(2) .scene-gate{left:37%;bottom:0;width:135px;height:105px;border-color:rgba(120,226,220,.62);border-width:2px;animation:movingHouse 5s ease-in-out infinite!important}
+@keyframes movingHouse{50%{transform:translateX(-50%) translateY(-5px) scale(1.025);filter:brightness(1.2)}}
+.event-track .event-card:nth-child(2) .scene-gate:after{width:45px;top:23px;background:linear-gradient(90deg,#0b2325,#1d7b79 45%,#0a2022);border-color:rgba(120,226,220,.26)}
+.event-track .event-card:nth-child(2) .scene-path{left:70%;width:340px;height:150px;bottom:-55px;border-color:rgba(120,226,220,.26);animation:movingRoad 4.2s ease-in-out infinite!important}
+@keyframes movingRoad{50%{transform:translateX(-50%) scaleX(1.12);opacity:.78}}
+.event-track .event-card:nth-child(2) .ultra-scene::before{content:"";position:absolute;left:-20%;bottom:32px;width:140%;height:1px;background:linear-gradient(90deg,transparent,rgba(120,226,220,.7),transparent);box-shadow:0 0 18px rgba(120,226,220,.25);transform:rotate(-7deg);animation:roadBeam 3.8s linear infinite}
+@keyframes roadBeam{to{left:20%;transform:rotate(-7deg) translateY(-95px)}}
+.event-track .event-card:nth-child(2) .scene-flare{background:linear-gradient(90deg,transparent,rgba(165,255,249,.8),transparent);animation:movingFlare 7s linear infinite!important}
+@keyframes movingFlare{0%{left:-45%;top:68%;opacity:0}18%{opacity:.9}100%{left:125%;top:25%;opacity:0}}
+
+/* ---------- 03 OPENING : emerald / amber / sunrise + spark ---------- */
+.event-track .event-card:nth-child(3){
+  --card-accent:#e8bd69; --card-accent2:#58c88a;
+  border-color:rgba(232,189,105,.20)!important;
+  background:linear-gradient(180deg,#10180f,#0a0d08)!important;
+}
+.event-track .event-card:nth-child(3) .tm-art{background:
+  radial-gradient(circle at 48% 48%,rgba(232,189,105,.22),transparent 26%),
+  radial-gradient(circle at 18% 72%,rgba(88,200,138,.20),transparent 27%),
+  linear-gradient(145deg,#26381d 0%,#152016 45%,#080c08 100%)!important}
+.event-track .event-card:nth-child(3) .tm-content{background:linear-gradient(180deg,#182315,#0c110b)!important}
+.event-track .event-card:nth-child(3) .tm-icon{color:#fff1c2;border-color:rgba(232,189,105,.35);background:rgba(88,200,138,.09);box-shadow:0 0 28px rgba(88,200,138,.12)}
+.event-track .event-card:nth-child(3) h3{color:#f7ffe9}
+.event-track .event-card:nth-child(3) .scene-stars{opacity:.5;animation:openingStars 9s ease-in-out infinite alternate!important}
+@keyframes openingStars{to{transform:translate3d(4px,-11px,0);opacity:.9}}
+.event-track .event-card:nth-child(3) .scene-moon{display:none}
+.event-track .event-card:nth-child(3) .scene-sun{width:190px;height:190px;left:50%;top:48%;background:radial-gradient(circle,#fff8cf 0 5%,rgba(232,189,105,.78) 13%,rgba(88,200,138,.16) 43%,transparent 72%)!important;animation:openingSun 4.8s ease-in-out infinite!important}
+@keyframes openingSun{50%{transform:translate(-50%,-50%) scale(1.16);opacity:.95}}
+.event-track .event-card:nth-child(3) .scene-gate{display:none}
+.event-track .event-card:nth-child(3) .scene-path{width:320px;height:175px;bottom:-68px;border-color:rgba(232,189,105,.31);box-shadow:0 0 50px rgba(88,200,138,.08),inset 0 0 40px rgba(232,189,105,.08);animation:openingPath 5s ease-in-out infinite!important}
+@keyframes openingPath{50%{transform:translateX(-50%) scaleX(1.1) scaleY(.94);opacity:.86}}
+.event-track .event-card:nth-child(3) .ultra-scene::before{content:"✦";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:90px;line-height:1;color:rgba(255,226,144,.08);text-shadow:0 0 35px rgba(232,189,105,.35);animation:openingSpark 3.5s ease-in-out infinite;z-index:5}
+@keyframes openingSpark{0%,100%{transform:translate(-50%,-50%) scale(.75) rotate(0deg);opacity:.2}50%{transform:translate(-50%,-50%) scale(1.05) rotate(45deg);opacity:.8}}
+.event-track .event-card:nth-child(3) .ultra-scene::after{content:"";position:absolute;left:0;right:0;bottom:0;height:44%;background:linear-gradient(0deg,rgba(4,9,5,.7),transparent);z-index:5}
+.event-track .event-card:nth-child(3) .scene-flare{background:linear-gradient(90deg,transparent,rgba(255,226,144,.95),transparent);animation:openingFlare 6s ease-in-out infinite!important}
+@keyframes openingFlare{0%,100%{transform:rotate(-9deg) translateX(-50%);opacity:0}45%{opacity:.9}70%{transform:rotate(-9deg) translateX(80%);opacity:0}}
+
+/* ---------- 04 CONTRACT : sapphire / silver / document + scan ---------- */
+.event-track .event-card:nth-child(4){
+  --card-accent:#9fc7ff; --card-accent2:#5b7fe8;
+  border-color:rgba(159,199,255,.18)!important;
+  background:linear-gradient(180deg,#0b1120,#080b12)!important;
+}
+.event-track .event-card:nth-child(4) .tm-art{background:
+  radial-gradient(circle at 68% 24%,rgba(159,199,255,.20),transparent 27%),
+  linear-gradient(145deg,#172d4b 0%,#111b31 48%,#080c16 100%)!important}
+.event-track .event-card:nth-child(4) .tm-content{background:linear-gradient(180deg,#121e35,#090e19)!important}
+.event-track .event-card:nth-child(4) .tm-icon{color:#d8e8ff;border-color:rgba(159,199,255,.35);background:rgba(91,127,232,.11);box-shadow:0 0 28px rgba(91,127,232,.14)}
+.event-track .event-card:nth-child(4) h3{color:#eef5ff}
+.event-track .event-card:nth-child(4) .scene-stars{opacity:.62;filter:hue-rotate(80deg);animation:contractStars 12s linear infinite!important}
+@keyframes contractStars{to{transform:translate3d(12px,4px,0)}}
+.event-track .event-card:nth-child(4) .scene-moon{width:62px;height:62px;right:12%;top:18%;background:radial-gradient(circle at 35% 30%,#fff,#bcd8ff 45%,#5573bd 100%)!important;box-shadow:0 0 35px rgba(159,199,255,.3)!important;animation:contractMoon 8s ease-in-out infinite!important}
+@keyframes contractMoon{50%{transform:translate3d(-10px,5px,0) scale(1.08)}}
+.event-track .event-card:nth-child(4) .scene-gate{left:34%;bottom:-2px;width:118px;height:92px;border-color:rgba(159,199,255,.46);border-width:2px;animation:contractFrame 6s ease-in-out infinite!important}
+@keyframes contractFrame{50%{transform:translateX(-50%) scale(1.04);filter:brightness(1.15)}}
+.event-track .event-card:nth-child(4) .scene-gate:after{width:54px;top:20px;background:linear-gradient(90deg,#0a1425,#4866a8 45%,#0a1425);border-color:rgba(159,199,255,.25)}
+.event-track .event-card:nth-child(4) .scene-path{left:67%;width:285px;height:125px;bottom:-45px;border-color:rgba(159,199,255,.20);animation:contractPath 5.5s ease-in-out infinite!important}
+@keyframes contractPath{50%{transform:translateX(-50%) rotate(1deg) scaleX(1.08);opacity:.75}}
+.event-track .event-card:nth-child(4) .ultra-scene::before{content:"";position:absolute;left:12%;right:12%;top:30%;height:86px;border:1px solid rgba(159,199,255,.16);border-radius:8px;transform:rotate(-7deg);background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(91,127,232,.04));box-shadow:0 0 35px rgba(91,127,232,.07);animation:contractPaper 7s ease-in-out infinite;z-index:5}
+@keyframes contractPaper{50%{transform:rotate(-5deg) translateY(-5px);box-shadow:0 0 55px rgba(91,127,232,.14)}}
+.event-track .event-card:nth-child(4) .ultra-scene::after{content:"";position:absolute;left:18%;right:18%;top:43%;height:1px;background:linear-gradient(90deg,transparent,rgba(185,215,255,.85),transparent);box-shadow:0 0 14px rgba(159,199,255,.5);z-index:7;animation:contractScan 3.4s ease-in-out infinite}
+@keyframes contractScan{0%,100%{transform:translateY(-34px);opacity:0}18%,78%{opacity:.95}50%{transform:translateY(40px)}}
+.event-track .event-card:nth-child(4) .scene-flare{background:linear-gradient(90deg,transparent,rgba(195,220,255,.9),transparent);animation:contractFlare 6.5s linear infinite!important}
+@keyframes contractFlare{0%{left:-40%;top:72%;opacity:0}25%{opacity:.8}100%{left:125%;top:25%;opacity:0}}
+
+/* shared hover: each world wakes up independently */
+@media(pointer:fine){
+  .event-track .event-card:hover .tm-art::before{filter:saturate(1.28) contrast(1.08) brightness(1.06)!important;transform:scale(1.15) translate3d(var(--mx,0px),var(--my,0px),0)!important}
+  .event-track .event-card:hover .tm-icon{transform:translateY(-3px) rotate(-3deg) scale(1.06);transition:.5s cubic-bezier(.2,.8,.2,1)}
+  .event-track .event-card:hover .tm-art-light{filter:blur(2px);transform:translate(-48%,-52%) scale(1.25)!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .event-track .event-card:nth-child(1) .ultra-scene::before,.event-track .event-card:nth-child(1) .ultra-scene::after,
+  .event-track .event-card:nth-child(2) .ultra-scene::before,
+  .event-track .event-card:nth-child(3) .ultra-scene::before,
+  .event-track .event-card:nth-child(4) .ultra-scene::before,.event-track .event-card:nth-child(4) .ultra-scene::after{animation:none!important}
+}
+</style>
+
+<script id="takil-event-unique-scenes-script">
+(function(){
+  const cards=[...document.querySelectorAll('.event-card')];
+  if(cards.length!==4) return;
+  const scenes=[
+    '<span class="scene-stars"></span><span class="scene-moon"></span><span class="scene-sun"></span><span class="scene-path"></span><span class="scene-flare"></span>',
+    '<span class="scene-stars"></span><span class="scene-sun"></span><span class="scene-gate"></span><span class="scene-path"></span><span class="scene-flare"></span>',
+    '<span class="scene-stars"></span><span class="scene-sun"></span><span class="scene-path"></span><span class="scene-flare"></span>',
+    '<span class="scene-stars"></span><span class="scene-moon"></span><span class="scene-gate"></span><span class="scene-path"></span><span class="scene-flare"></span>'
+  ];
+  cards.forEach((card,i)=>{
+    const scene=card.querySelector('.ultra-scene');
+    if(scene) scene.innerHTML=scenes[i];
+    card.dataset.scene=i+1;
+  });
+})();
+</script>
+
+
+<!-- UI-only overrides follow the legacy style blocks. -->
+<link rel="stylesheet" href="premium-ui.css?v=20261111-hero-edge">
+<link rel="stylesheet" href="admin-analytics.css?v=20261115-preview-conversion">

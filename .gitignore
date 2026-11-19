@@ -1,2 +1,3 @@
 .qa-*.html
 dist/
+/index.html

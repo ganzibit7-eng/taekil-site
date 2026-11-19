@@ -1,0 +1,758 @@
+<section id="view-tool" class="view">
+  <header class="hero hero-sm">
+    <div class="hero-inner">
+      <div class="eyebrow">사주</div>
+      <h1 style="font-size:clamp(28px,4.6vw,46px);">무슨 날짜가<br>궁금하신가요</h1>
+      <p class="hero-copy">결혼식·이사·개업·계약체결 같은 중요한 날짜부터, 오늘의 운세와 사주 핵심까지 한 곳에서 확인하세요.</p>
+    </div>
+  </header>
+
+  <section class="block" style="padding-top:10px; padding-bottom:0;">
+    <div class="container" style="max-width:640px;">
+      <div class="saju-event-cards">
+        <div class="saju-event-card" onclick="selectEventAndFocus('결혼식')">
+          <span class="ec-halo"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#d7b46a" stroke-width="1.5"><circle class="ec-ring1" cx="9" cy="14" r="5"/><circle class="ec-ring2" cx="15" cy="14" r="5"/></svg>
+          <h3>결혼식</h3><p>예식 날짜 고르기</p>
+        </div>
+        <div class="saju-event-card" onclick="selectEventAndFocus('이사')">
+          <span class="ec-halo"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#d7b46a" stroke-width="1.5"><g class="ec-bounce"><path d="M4 20V10l8-6 8 6v10H4z"/><path d="M9 20v-6h6v6"/></g></svg>
+          <h3>이사</h3><p>입주 날짜 고르기</p>
+        </div>
+        <div class="saju-event-card" onclick="selectEventAndFocus('개업')">
+          <span class="ec-halo"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#d7b46a" stroke-width="1.5"><circle class="ec-pop" cx="12" cy="12" r="5"/><path class="ec-spin2" d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+          <h3>개업</h3><p>오픈일 고르기</p>
+        </div>
+        <div class="saju-event-card" onclick="selectEventAndFocus('계약체결')">
+          <span class="ec-halo"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#d7b46a" stroke-width="1.5"><rect x="5" y="3" width="14" height="18" rx="1"/><path class="ec-draw" d="M8 8h8M8 12h8M8 16h5"/></svg>
+          <h3>계약체결</h3><p>서명일 고르기</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" style="padding-top:10px; display:none;" id="toolFormAnchor">
+    <div class="container" style="max-width:720px;">
+      <div class="tool-shell">
+        <p class="lead" id="toolSelectedLabel">생년월일과 가능한 기간만 알려주세요. 좋은 후보부터 비교해서 보여드릴게요.</p>
+        <div class="tool-date-mode" role="group" aria-label="택일 방식">
+          <button type="button" aria-pressed="true" data-date-mode="range">기간으로 찾기</button>
+          <button type="button" aria-pressed="false" data-date-mode="exact">두 날짜 비교</button>
+        </div>
+        <div class="tool-exact-dates" hidden>
+          <h2 tabindex="-1" id="toolExactTitle">후보 날짜 비교</h2>
+          <p>후보일 두 개는 양력 날짜로 고르고, 아래에 생년월일을 입력해 주세요.</p>
+          <div class="form-grid">
+            <div class="field"><label for="exactDateFirst">첫 번째 후보일</label><input type="date" id="exactDateFirst"></div>
+            <div class="field"><label for="exactDateSecond">두 번째 후보일</label><input type="date" id="exactDateSecond"></div>
+          </div>
+        </div>
+
+        <div class="event-opts" id="eventPicker" style="display:none;">
+          <div class="event-opt active" data-val="결혼식">결혼식</div>
+          <div class="event-opt" data-val="이사">이사</div>
+          <div class="event-opt" data-val="개업">개업</div>
+          <div class="event-opt" data-val="계약체결">계약체결</div>
+        </div>
+
+        <div class="field full" style="margin-bottom:8px;">
+          <label>달력 기준</label>
+          <div class="cal-type-toggle" id="birthCalType">
+            <span class="ct-btn active" data-type="solar">양력</span>
+            <span class="ct-btn" data-type="lunar">음력</span>
+          </div>
+        </div>
+        <label class="couple-row" id="birthLockWrap" style="margin-bottom:14px;">
+          <span class="switch"><input type="checkbox" id="birthLock" onchange="onBirthLockToggle('birth')"></span>
+          이 생년월일 고정하기 (다른 곳에서도 자동으로 채워져요)
+        </label>
+
+        <div class="field full" style="margin-top:16px;">
+          <label>생년월일</label>
+          <div class="ymd-row">
+            <select id="birthYear" class="ymd-select" aria-label="본인 출생연도"></select>
+            <select id="birthMonth" class="ymd-select" aria-label="본인 출생월"></select>
+            <select id="birthDay" class="ymd-select" aria-label="본인 출생일"></select>
+          </div>
+        </div>
+        <div class="field full">
+          <label>태어난 시(모르면 비워두세요)</label>
+          <input type="time" id="birthTime">
+        </div>
+        <input type="hidden" id="birthDate">
+        <label class="couple-row" id="birthLeapWrap" style="display:none;">
+          <span class="switch"><input type="checkbox" id="birthLeap"><span class="switch-track"><span class="switch-thumb"></span></span></span>
+          윤달이에요
+        </label>
+
+        <div class="saju-preview" id="sajuPreview">
+          <div class="sp-ganji" id="sajuGanji"></div>
+          <div>
+            <div class="sp-label">내 일주(日柱) · 타고난 기운</div>
+            <div id="sajuOhaeng" style="margin-top:3px;"></div>
+          </div>
+        </div>
+
+        <label class="couple-row">
+          <span class="switch"><input type="checkbox" id="coupleToggle"><span class="switch-track"><span class="switch-thumb"></span></span></span>
+          상대방도 함께 분석할게요 · 결혼식이라면 켜주세요
+        </label>
+        <div id="coupleFields" style="display:none;">
+          <div class="field full">
+            <label>상대방 생년월일</label>
+            <div class="ymd-row">
+              <select id="partnerYear" class="ymd-select" aria-label="상대방 출생연도"></select>
+              <select id="partnerMonth" class="ymd-select" aria-label="상대방 출생월"></select>
+              <select id="partnerDay" class="ymd-select" aria-label="상대방 출생일"></select>
+            </div>
+          </div>
+          <div class="field full">
+            <label>상대방 태어난 시(선택)</label>
+            <input type="time" id="partnerBirthTime">
+          </div>
+          <input type="hidden" id="partnerBirthDate">
+        </div>
+        <div class="cal-type-toggle" id="partnerCalType" style="display:none; margin-bottom:14px;">
+          <span class="ct-btn active" data-type="solar">양력</span>
+          <span class="ct-btn" data-type="lunar">음력</span>
+        </div>
+        <label class="couple-row" id="partnerLeapWrap" style="display:none;">
+          <span class="switch"><input type="checkbox" id="partnerLeap"><span class="switch-track"><span class="switch-thumb"></span></span></span>
+          윤달이에요
+        </label>
+
+        <div class="form-grid tool-range-dates">
+          <div class="field"><label>찾아볼 기간 시작</label><input type="date" id="rangeStart"></div>
+          <div class="field"><label>찾아볼 기간 끝</label><input type="date" id="rangeEnd"></div>
+        </div>
+
+        <button class="btn btn-primary form-submit" id="submitBtn">좋은 날짜 찾아보기</button>
+        <div class="tool-exact-output" hidden>
+          <p class="tool-exact-error" role="alert"></p>
+          <button type="button" class="btn btn-primary form-submit" id="compareExactDates">선택한 두 날짜 비교하기</button>
+          <section class="tool-exact-results" aria-labelledby="toolExactResultTitle" hidden></section>
+        </div>
+        <div id="loadingLine" class="loading-line" style="display:none;"><span class="spinner"></span>사주와 일진을 대조하는 중입니다…</div>
+
+        <div id="results">
+          <div class="result-intro">
+            <div>
+              <div class="results-heading" id="resultsHeading"></div>
+              <div class="results-sub" id="resultsSub"></div>
+            </div>
+            <div class="result-count" id="resultCount"></div>
+          </div>
+          <div id="bestResultHero" class="best-result-hero" style="display:none;"></div>
+
+          <div class="filter-chips">
+            <span class="filter-chip active" data-mode="all" onclick="applyDowFilter('all')">전체 요일</span>
+            <span class="filter-chip" data-mode="weekend" onclick="applyDowFilter('weekend')">주말만</span>
+            <span class="filter-chip" data-mode="weekday" onclick="applyDowFilter('weekday')">평일만</span>
+          </div>
+
+          <div class="result-grid" id="dateCards"></div>
+          <div id="premiumUpsell" style="display:none;"></div>
+
+          <div class="calendar-wrap" id="calendarWrap"></div>
+          <div class="cal-legend">
+            <span><i style="background:rgba(215,180,106,.35)"></i>추천</span>
+            <span><i style="background:rgba(255,255,255,.08)"></i>보통</span>
+            <span><i style="background:rgba(201,131,106,.3)"></i>주의</span>
+            <span><i style="background:var(--gold-hi);border-radius:50%;width:6px;height:6px;"></i>손없는 날</span>
+          </div>
+          <div class="day-detail" id="dayDetail" style="display:none;"></div>
+
+          <div id="premiumProgramPanel" class="premium-program-panel" style="display:none;"></div>
+          <div class="reset-row">
+            <span class="text-action" onclick="printResults()">🖨 인쇄 / PDF 저장</span>
+            <span class="text-action" onclick="resetTool()">다시 검색하기</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">간편사주</div>
+          <h2 class="section-title">다른 사주 서비스도<br>함께 볼 수 있어요</h2>
+        </div>
+        <p class="section-desc">날짜를 정하기 전에, 오늘의 운세와 내 사주 핵심부터 가볍게 확인해보세요.</p>
+      </div>
+
+      <div class="saju-hub-grid">
+        <button class="saju-hub-card" onclick="openFortuneModal('today')">
+          <svg class="saju-hub-art" viewBox="0 0 64 64"><circle cx="32" cy="32" r="13" fill="var(--gold-hi)"/><g class="sh-twinkle"><line x1="32" y1="6" x2="32" y2="15" stroke="var(--gold-hi)" stroke-width="2.4" stroke-linecap="round"/><line x1="32" y1="49" x2="32" y2="58" stroke="var(--gold-hi)" stroke-width="2.4" stroke-linecap="round"/><line x1="6" y1="32" x2="15" y2="32" stroke="var(--gold-hi)" stroke-width="2.4" stroke-linecap="round"/><line x1="49" y1="32" x2="58" y2="32" stroke="var(--gold-hi)" stroke-width="2.4" stroke-linecap="round"/></g></svg>
+          <span class="saju-hub-kicker">FREE · TODAY</span>
+          <strong>오늘의 운세</strong>
+          <small>생년월일을 넣고 오늘의 기운을 바로 확인</small>
+          <b>무료로 보기 →</b>
+        </button>
+        <button class="saju-hub-card featured" onclick="openSajuInsight('profile')">
+          <svg class="saju-hub-art" viewBox="0 0 64 64"><circle cx="32" cy="32" r="22" fill="none" stroke="var(--gold-hi)" stroke-width="1.4"/><path class="sh-spin" d="M32 10a22 22 0 0 1 0 44 11 11 0 0 1 0-22 11 11 0 0 0 0-22z" fill="var(--gold-hi)" opacity=".9"/><circle class="sh-spin" cx="32" cy="21" r="3.4" fill="#0c0b09"/><circle cx="32" cy="43" r="3.4" fill="var(--gold-hi)"/></svg>
+          <span class="saju-hub-kicker">FREE PREVIEW</span>
+          <strong>내 사주 핵심</strong>
+          <small>일주 · 오행 · 성향을 쉽고 짧게 먼저 확인</small>
+          <b>무료로 보기 →</b>
+        </button>
+        <button class="saju-hub-card" onclick="openSajuInsight('year')">
+          <svg class="saju-hub-art" viewBox="0 0 64 64"><path d="M40 14a18 18 0 1 0 10 32 14 14 0 0 1-10-32z" fill="var(--gold-hi)"/><circle class="sh-twinkle" cx="48" cy="16" r="2"/><circle class="sh-twinkle sh-d1" cx="54" cy="26" r="1.4"/><circle class="sh-twinkle sh-d2" cx="46" cy="30" r="1.1"/></svg>
+          <span class="saju-hub-kicker">2026</span>
+          <strong>올해의 흐름</strong>
+          <small>연애 · 재물 · 일 · 인간관계의 올해 키워드</small>
+          <b>올해 운세 →</b>
+        </button>
+        <button class="saju-hub-card" onclick="openSajuInsight('love')">
+          <svg class="saju-hub-art" viewBox="0 0 64 64"><path class="sh-pulse" d="M25 20c-6 0-11 5-11 11 0 12 14 19 18 21 4-2 18-9 18-21 0-6-5-11-11-11-3 0-5.5 1.4-7 3.6C30.5 21.4 28 20 25 20z" fill="var(--gold-hi)"/></svg>
+          <span class="saju-hub-kicker">RELATIONSHIP</span>
+          <strong>궁합·연애</strong>
+          <small>두 사람의 오행 조화를 보고 중요한 날짜까지 연결</small>
+          <b>궁합 보기 →</b>
+        </button>
+        <button class="saju-hub-card" onclick="openSajuInsight('money')">
+          <svg class="saju-hub-art" viewBox="0 0 64 64"><g class="sh-float"><circle cx="32" cy="30" r="15" fill="none" stroke="var(--gold-hi)" stroke-width="2"/><text x="32" y="36" text-anchor="middle" font-size="15" fill="var(--gold-hi)" font-family="serif">財</text></g><ellipse cx="32" cy="49" rx="15" ry="3" fill="var(--gold-hi)" opacity=".18"/></svg>
+          <span class="saju-hub-kicker">LIFE</span>
+          <strong>재물·직업</strong>
+          <small>내 기운에 맞는 선택과 주의 포인트를 간단히 확인</small>
+          <b>핵심 보기 →</b>
+        </button>
+        <button class="saju-hub-card" onclick="openSajuInsight('monthly')">
+          <svg class="saju-hub-art" viewBox="0 0 64 64"><rect x="14" y="16" width="36" height="32" rx="4" fill="none" stroke="var(--gold-hi)" stroke-width="1.6"/><line x1="14" y1="25" x2="50" y2="25" stroke="var(--gold-hi)" stroke-width="1.6"/><line x1="22" y1="10" x2="22" y2="20" stroke="var(--gold-hi)" stroke-width="1.6" stroke-linecap="round"/><line x1="42" y1="10" x2="42" y2="20" stroke="var(--gold-hi)" stroke-width="1.6" stroke-linecap="round"/><g class="sh-sparkle"><circle cx="38" cy="36" r="4.4" fill="var(--gold-hi)"/></g></svg>
+          <span class="saju-hub-kicker">CALENDAR</span>
+          <strong>운세 캘린더</strong>
+          <small>좋은 날을 찾는 흐름을 월별로 생각해볼 수 있어요</small>
+          <b>날짜 찾기 →</b>
+        </button>
+      </div>
+    </div>
+  </section>
+</section>
+
+<!-- ============ HISTORY ============ -->
+<section id="view-history" class="view">
+  <header class="hero hero-sm">
+    <div class="hero-inner">
+      <div class="eyebrow">내 기록</div>
+      <h1 style="font-size:clamp(28px,4.6vw,46px);">찾아본 날짜와<br>저장한 사주를 한곳에</h1>
+      <p class="hero-copy">연우와 나눈 AI 상담을 먼저 이어보고, 택일 검색 기록과 저장한 사주도 한곳에서 관리할 수 있어요.</p>
+    </div>
+  </header>
+
+  <section class="block history-hub" style="padding-top:10px;">
+    <div class="container" style="max-width:760px;">
+
+      <div class="history-summary-grid">
+        <button class="history-summary-card active" id="historySummaryAi" onclick="switchHistoryTab('ai')">
+          <span>AI 상담</span>
+          <strong id="historyAiCount">0</strong>
+          <small>연우와 나눈 상담 이어보기</small>
+        </button>
+
+        <button class="history-summary-card" id="historySummarySearch" onclick="switchHistoryTab('search')">
+          <span>검색 기록</span>
+          <strong id="historySearchCount">0</strong>
+          <small>지난 택일 결과 다시 보기</small>
+        </button>
+
+        <button class="history-summary-card" id="historySummaryVault" onclick="switchHistoryTab('vault')">
+          <span>사주 보관함</span>
+          <strong id="historyVaultCount">0</strong>
+          <small>나와 소중한 사람들의 사주</small>
+        </button>
+      </div>
+
+      <div class="history-tabbar" role="tablist" aria-label="기록 종류">
+        <button id="historyTabAi" class="history-tab active" role="tab" aria-selected="true" onclick="switchHistoryTab('ai')">AI 상담</button>
+        <button id="historyTabSearch" class="history-tab" role="tab" aria-selected="false" onclick="switchHistoryTab('search')">검색 기록</button>
+        <button id="historyTabVault" class="history-tab" role="tab" aria-selected="false" onclick="switchHistoryTab('vault')">사주 보관함</button>
+      </div>
+
+      <div id="historySearchPanel" class="history-panel">
+        <div class="history-panel-head">
+          <div>
+            <b>택일 검색 기록</b>
+            <small>이 브라우저에서 찾아본 추천 날짜가 저장돼요.</small>
+          </div>
+          <button class="history-clear-btn" id="historyClearBtn" onclick="clearAllSearchHistory()">전체 삭제</button>
+        </div>
+
+        <div id="historyList" class="usecase-list"></div>
+        <div id="historyEmpty" class="empty-note history-empty-box" style="display:none;">
+          아직 저장된 검색 기록이 없어요.<br>
+          <button onclick="goTo('home')">날짜 찾아보기 →</button>
+        </div>
+      </div>
+
+      <div id="historyVaultPanel" class="history-panel">
+        <div class="saju-vault-card history-vault-card">
+          <div class="saju-vault-head">
+            <div>
+              <b>사주 보관함</b>
+              <small>가족·연인·사업 파트너의 사주를 저장하고 AI 상담에서 바로 불러오세요. 로그인 상태에서는 Firebase 계정과 동기화되고, 이 브라우저에도 백업됩니다.</small>
+            </div>
+            <button class="btn history-add-saju-btn" onclick="openAiProfileCreator()">+ 사주 추가</button>
+          </div>
+
+          <div class="history-vault-guide">
+            <span>① 사주 저장</span>
+            <i>→</i>
+            <span>② 상담 대상 선택</span>
+            <i>→</i>
+            <span>③ AI에게 바로 질문</span>
+          </div>
+
+          <div id="sajuVaultList" class="saju-vault-list"></div>
+
+          <div id="sajuVaultEmpty" class="empty-note history-empty-box">
+            저장된 사주가 아직 없어요.<br>
+            <button onclick="openAiProfileCreator()">첫 사주 저장하기 →</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="historyAiPanel" class="history-panel active">
+        <div class="history-panel-head">
+          <div>
+            <b>AI 상담 기록</b>
+            <small>연우와 나눈 최근 상담을 다시 열어 이어서 질문할 수 있어요.</small>
+          </div>
+        </div>
+        <div id="aiConversationHistoryList" class="ai-history-list"></div>
+        <div id="aiConversationHistoryEmpty" class="empty-note history-empty-box">
+          아직 저장된 AI 상담이 없어요.<br>
+          <button onclick="goTo('home')">연우와 상담 시작하기 →</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</section>
+
+<!-- ============ PROFILE ============ -->
+<section id="view-profile" class="view">
+  <div class="pf-shell">
+    <header class="pf-heading">
+      <h1 id="profileHeading" tabindex="-1">내 프로필</h1>
+    </header>
+    <div class="pf-card">
+      <div class="pf-avatar" id="profileAvatar" aria-hidden="true">택</div>
+      <div class="pf-id">
+        <div class="pf-name" id="profileName">이름</div>
+        <div class="pf-meta" id="profileMeta">로그인 방식</div>
+        <div class="pf-badge-row">
+          <span class="pf-badge" id="profileTier">무료 회원</span>
+          <span class="pf-expiry" id="premiumExpiry" style="display:none;"></span>
+        </div>
+        <div class="pf-uid" id="profileUidRow" style="display:none;">
+          <span>회원 UID</span>
+          <code id="profileUid"></code>
+          <button type="button" onclick="copyProfileUid()" aria-label="회원 UID 복사">복사</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pf-panels">
+      <section class="pf-panel pf-plan" aria-labelledby="profilePlanHeading">
+        <h2 id="profilePlanHeading">이용권</h2>
+        <p id="profilePremiumPriceNote">8,900원 / 30일 · 자동결제 없음 · AI 상담 하루 10개</p>
+        <p class="checkout-pause-note" data-checkout-paused>신규 이용권 구매를 잠시 중단했습니다.</p>
+        <button type="button" class="pf-upgrade" id="profileUpgradeBtn" data-checkout-action onclick="payPremium()">프리미엄 30일 · 8,900원 구매</button>
+        <button type="button" class="profile-plan-guide" onclick="goTo('plans')">이용권 안내</button>
+      </section>
+      <section class="pf-panel" aria-labelledby="profileLibraryHeading">
+        <h2 id="profileLibraryHeading">나의 리포트와 기록</h2>
+        <div class="pf-menu">
+          <button type="button" class="pf-menu-item" data-open-newyear>나의 2027 신년 리포트</button>
+          <button type="button" class="pf-menu-item" onclick="goTo('history')">내 기록 · 사주 보관함</button>
+          <button type="button" class="pf-menu-item" onclick="goTo('support')">고객센터 · 1:1 문의</button>
+          <div id="adminEntryWrap" style="display:none;">
+            <button type="button" class="pf-menu-item" onclick="goTo('admin')">관리자 대시보드</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="pf-account-actions" aria-labelledby="profileAccountHeading">
+      <h2 id="profileAccountHeading">계정 관리</h2>
+      <p class="pf-danger-note">회원탈퇴 시 동일 계정으로 30일간 재가입할 수 없습니다. 무료 3회 혜택도 재가입 제한 기간이 지난 뒤에만 다시 가입할 수 있어요.</p>
+      <div class="pf-danger-row">
+        <button type="button" class="text-action" onclick="logout()">로그아웃</button>
+        <button type="button" class="text-action pf-delete" onclick="confirmDeleteAccount()">회원탈퇴</button>
+      </div>
+    </section>
+  </div>
+</section>
+
+<!-- ============ SUPPORT (1:1 문의) ============ -->
+<section id="view-support" class="view">
+  <header class="hero hero-sm">
+    <div class="hero-inner">
+      <div class="eyebrow">고객센터</div>
+      <h1 style="font-size:clamp(28px,4.6vw,46px);">1:1 문의</h1>
+      <p class="hero-copy">궁금한 점이나 불편한 점을 남겨주시면 확인 후 답변드릴게요. 내 문의는 나만 볼 수 있어요.</p>
+    </div>
+  </header>
+  <section class="block" style="padding-top:10px;">
+    <div class="container" style="max-width:700px;">
+      <a href="mailto:contact@taekilso.com" class="support-email-link"><span>이메일 문의</span><strong>contact@taekilso.com</strong></a><p class="support-email-note">메일 주소를 눌러 이메일 앱에서 문의하실 수 있어요.</p>
+      <div class="tool-shell">
+        <h2>새 문의 작성</h2>
+        <p class="lead">로그인 후 이용할 수 있어요. 작성한 문의와 답변은 이 목록에서 확인할 수 있어요.</p>
+        <div class="field full" style="margin-bottom:14px;">
+          <label>자주 있는 결제 문의 (누르면 아래 제목·내용이 자동으로 채워져요)</label>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;">
+            <button type="button" class="btn" style="padding:8px 16px; min-height:auto; font-size:12.5px;" onclick="fillCommonInquiry('paymentFailed')">💳 결제가 안 됐어요</button>
+            <button type="button" class="btn" style="padding:8px 16px; min-height:auto; font-size:12.5px;" onclick="fillCommonInquiry('premiumNotOpen')">🔒 결제했는데 프리미엄이 안 열려요</button>
+            <button type="button" class="btn" style="padding:8px 16px; min-height:auto; font-size:12.5px;" onclick="requestRefund()">↩️ 환불하고 싶어요</button>
+          </div>
+        </div>
+        <div class="field full" style="margin-bottom:12px;">
+          <label>제목</label>
+          <input type="text" id="supportTitle" placeholder="예: 결제가 안 돼요">
+        </div>
+        <div class="field full" style="margin-bottom:8px;">
+          <label>내용</label>
+          <textarea id="supportMessage" rows="5" placeholder="자세한 상황을 알려주세요." style="width:100%; padding:14px 15px; background:#090908; border:1px solid rgba(255,255,255,.10); border-radius:14px; color:var(--white); font-family:inherit; font-size:14px; resize:vertical;"></textarea>
+        </div>
+        <button class="btn btn-primary form-submit" onclick="submitInquiry()">문의 등록하기</button>
+        <div id="supportStatus" style="display:none; margin-top:12px; padding:12px 14px; border-radius:12px; font-size:13px; line-height:1.6;"></div>
+      </div>
+
+      <div class="section-head" style="margin-top:40px;">
+        <div><div class="section-kicker">MY INQUIRIES</div><h2 class="section-title" style="font-size:22px;">내 문의 내역</h2></div>
+      </div>
+      <div id="supportList" class="usecase-list"></div>
+      <div id="supportEmpty" class="empty-note" style="display:none;">아직 등록한 문의가 없어요.</div>
+      <div id="supportDetail" class="day-detail" style="display:none;"></div>
+    </div>
+  </section>
+</section>
+
+<!-- ============ ADMIN ============ -->
+<section id="view-admin" class="view">
+  <header class="hero hero-sm">
+    <div class="hero-inner">
+      <div class="eyebrow">관리자</div>
+      <h1 style="font-size:clamp(28px,4.6vw,46px);">운영 현황</h1>
+      <p class="hero-copy">방문·가입·구매 통계와 회원 목록을 확인할 수 있어요.</p>
+    </div>
+  </header>
+  <section class="block" style="padding-top:10px;">
+    <div class="container" style="max-width:800px;">
+      <div id="adminDenied" style="display:none; text-align:center; color:var(--muted); padding:40px 0;">관리자 계정으로 로그인해야 볼 수 있어요.</div>
+      <div id="adminContent" style="display:none;">
+<section id="adminAnalytics" hidden aria-label="기간별 운영 분석"></section>
+<div class="admin-menu-overview" aria-label="관리자 전체 메뉴">
+  <button type="button" onclick="openAndGoAdminFold('adminFoldStats')"><small>OVERVIEW</small>운영 현황</button>
+  <button type="button" onclick="openAndGoAdminFold('adminFoldFunnel')"><small>FUNNEL</small>오늘 주요 행동</button>
+  <button type="button" onclick="openAdminTrafficMenu()"><small>TRAFFIC</small>오늘 유입 경로</button>
+  <button type="button" onclick="openAndGoAdminFold('adminFoldSeo')"><small>SEO</small>SEO 성과</button>
+  <button type="button" onclick="openAndGoAdminFold('adminFoldMembers')"><small>MEMBERS</small>회원 관리</button>
+  <button type="button" onclick="openAndGoAdminFold('adminFoldBans')"><small>BANNED</small>영구 밴 관리</button>
+  <button type="button" onclick="openAndGoAdminFold('adminFoldSupport')"><small>SUPPORT</small>1:1 문의 관리</button>
+</div>
+</div>
+
+<div class="admin-fold" id="adminFoldStats">
+  <button type="button" class="admin-fold-toggle" onclick="toggleAdminFold('adminFoldStats')" aria-expanded="false">
+    <span class="admin-fold-title"><small>OVERVIEW</small><b>운영 통계</b></span>
+    <span class="admin-fold-chevron">⌄</span>
+  </button>
+  <div class="admin-fold-body">
+        <div id="adminStatsStatus" class="admin-data-status" role="status" aria-live="polite"></div>
+        <div class="admin-stats">
+          <div class="admin-stat"><small>누적 방문수</small><b id="statVisits">–</b></div>
+          <div class="admin-stat"><small>오늘 방문수 · 00시 초기화</small><b id="statTodayVisits">–</b></div>
+          <div class="admin-stat"><small>총 가입자수</small><b id="statSignups">–</b></div>
+          <div class="admin-stat"><small>카카오 가입자</small><b id="statKakaoMembers">–</b></div>
+          <div class="admin-stat"><small>오늘 접속 회원</small><b id="statActiveToday">–</b></div>
+          <div class="admin-stat"><small>최근 7일 접속</small><b id="statActive7d">–</b></div>
+          <div class="admin-stat"><small>총 구매수</small><b id="statPurchases">–</b></div>
+          <div class="admin-stat"><small>누적 매출</small><b id="statRevenue" style="font-size:20px;">–</b></div>
+          <div class="admin-stat"><small>현재 프리미엄 회원</small><b id="statActivePremium">–</b></div>
+          <div class="admin-stat"><small>프리미엄 구매수</small><b id="statPurchasesPremium">–</b></div>
+          <div class="admin-stat"><small>질문권 구매수</small><b id="statPurchasesQuestionPacks">–</b></div>
+          <div class="admin-stat"><small>답변 대기 문의</small><b id="statPendingInquiries" style="color:var(--warn);">–</b></div>
+        </div>
+
+
+  </div>
+</div>
+
+<div class="admin-fold" id="adminFoldFunnel">
+  <button type="button" class="admin-fold-toggle" onclick="toggleAdminFold('adminFoldFunnel')" aria-expanded="false">
+    <span class="admin-fold-title"><small>TODAY FUNNEL · KST</small><b>오늘 주요 행동</b></span>
+    <span class="admin-fold-chevron">⌄</span>
+  </button>
+  <div class="admin-fold-body">
+        <div class="section-head" style="margin-top:40px;">
+          <div>
+            <div class="section-kicker">TODAY FUNNEL · KST</div>
+            <h2 class="section-title" style="font-size:24px;">오늘 주요 행동</h2>
+          </div>
+        </div>
+        <div class="price-note" style="margin:0 0 14px;">
+          한국시간 00:00 기준 · 서로 독립적인 행동 건수이며, 동일 이용자의 단계별 전환율이 아닙니다.
+        </div>
+        <div id="adminFunnelGrid" class="admin-stats" style="margin-bottom:10px;">
+          <div class="admin-stat"><small>방문</small><b id="funnelVisits">0</b><span id="funnelVisitsRate" style="font-size:9px;color:var(--muted-2);">기준</span></div>
+          <div class="admin-stat"><small>오늘의 운세 결과</small><b id="funnelFortune">0</b><span id="funnelFortuneRate" style="font-size:9px;color:var(--muted-2);">0%</span></div>
+          <div class="admin-stat"><small>연우 CTA 클릭</small><b id="funnelAiCta">0</b><span id="funnelAiCtaRate" style="font-size:9px;color:var(--muted-2);">0%</span></div>
+          <div class="admin-stat"><small>신규 가입</small><b id="funnelSignup">0</b><span id="funnelSignupRate" style="font-size:9px;color:var(--muted-2);">0%</span></div>
+          <div class="admin-stat"><small>첫 AI 답변</small><b id="funnelFirstAi">0</b><span id="funnelFirstAiRate" style="font-size:9px;color:var(--muted-2);">0%</span></div>
+          <div class="admin-stat"><small>무료 3회 소진</small><b id="funnelFreeDone">0</b><span id="funnelFreeDoneRate" style="font-size:9px;color:var(--muted-2);">0%</span></div>
+          <div class="admin-stat"><small>결제 완료</small><b id="funnelPurchase">0</b><span id="funnelPurchaseRate" style="font-size:9px;color:var(--muted-2);">0%</span></div>
+        </div>
+        <div id="adminFunnelHint" class="price-note" style="margin:0 0 24px;">오늘 데이터가 쌓이면 가장 큰 이탈 구간을 자동으로 표시합니다.</div>
+
+
+  </div>
+</div>
+
+<div class="admin-fold" id="adminFoldSeo">
+  <button type="button" class="admin-fold-toggle" onclick="toggleAdminFold('adminFoldSeo')" aria-expanded="false">
+    <span class="admin-fold-title"><small>SEO · KST</small><b>SEO 성과</b></span><span class="admin-fold-chevron">⌄</span>
+  </button>
+  <div class="admin-fold-body">
+    <div class="price-note" style="margin:16px 0 12px;">검색 가이드에서 메인 상담으로 넘어온 세션을 익명 집계합니다. 질문·사주·이메일은 저장하지 않습니다.</div>
+    <div id="adminSeoSummary" class="admin-stats" style="margin-bottom:12px;">
+      <div class="admin-stat"><small>SEO 상담 유입</small><b id="seoVisits">0</b></div>
+      <div class="admin-stat"><small>가입</small><b id="seoSignups">0</b></div>
+      <div class="admin-stat"><small>첫 AI 답변</small><b id="seoFirstAi">0</b></div>
+      <div class="admin-stat"><small>무료 3회 소진</small><b id="seoFreeDone">0</b></div>
+      <div class="admin-stat"><small>결제 완료</small><b id="seoPurchases">0</b></div>
+      <div class="admin-stat"><small>SEO→결제</small><b id="seoPurchaseRate">0%</b></div>
+    </div>
+    <div id="adminSeoLandingRows" class="price-note" style="margin:0 0 24px;">SEO 유입 데이터가 쌓이면 랜딩페이지별 성과를 표시합니다.</div>
+  </div>
+</div>
+
+        <div id="adminTrafficMenuAnchor" style="scroll-margin-top:150px"></div>
+        <button id="adminTrafficSourceCard" class="admin-traffic-card" type="button" onclick="toggleAdminTrafficSources()" aria-expanded="false" aria-controls="trafficSourceDetails">
+          <span class="admin-traffic-heading">
+            <span class="admin-fold-title"><small>TODAY TRAFFIC · KST</small><b>오늘 유입 경로 <span id="trafficSourceTotal">0명</span></b></span>
+            <span id="trafficSourceChevron" class="admin-fold-chevron" aria-hidden="true">⌄</span>
+          </span>
+          <span id="trafficSourceSummary">검색 0 · SNS 0 · 직접 0 · 기타 0</span>
+          <span id="trafficSourceDetails" style="display:none;"></span>
+        </button>
+
+<div class="admin-fold" id="adminFoldMembers">
+  <button type="button" class="admin-fold-toggle" onclick="toggleAdminFold('adminFoldMembers')" aria-expanded="false">
+    <span class="admin-fold-title"><small>MEMBERS</small><b>회원 관리</b></span>
+    <span class="admin-fold-chevron">⌄</span>
+  </button>
+  <div class="admin-fold-body">
+        <div class="section-head" style="margin-top:40px;">
+          <div><div class="section-kicker">MEMBERS</div><h2 class="section-title" style="font-size:24px;">회원 목록</h2></div>
+        </div>
+        <div class="admin-member-tools" style="margin-bottom:14px;">
+          <div class="field full" style="margin:0;flex:1;min-width:0;">
+            <input type="text" id="adminUserSearch" placeholder="이메일/닉네임/UID/가입방식으로 검색" oninput="filterAdminUserList(this.value)" style="width:100%; padding:12px 14px; background:#090908; border:1px solid rgba(255,255,255,.10); border-radius:12px; color:var(--white); font-family:inherit; font-size:13.5px;">
+          </div>
+          <select id="adminMemberSort" class="admin-member-sort" onchange="setAdminMemberSort(this.value)" aria-label="회원 정렬">
+            <option value="recent_signup">최근 가입순</option>
+            <option value="recent_access">최근 접속순</option>
+            <option value="premium_first">프리미엄 우선</option>
+            <option value="credits_desc">질문권 많은순</option>
+            <option value="old_signup">오래된 가입순</option>
+            <option value="name">이름순</option>
+          </select>
+        </div>
+        <div class="price-note" style="margin-top:0; margin-bottom:14px;">⚠ 자가확인(대조 필요) — 서버 검증 없이 손님이 직접 "결제했다"고 눌러서 켜진 프리미엄이에요. 페이앱 결제현황에서 시간·금액이 실제로 맞는지 한 번 대조해보시는 걸 권해요. 표시가 없으면(서버 검증 또는 관리자 직접 지급) 대조하지 않으셔도 돼요.</div>
+        <div id="adminMembersStatus" class="admin-data-status" role="status" aria-live="polite"></div>
+        <div id="adminUserList" class="usecase-list"></div>
+        <div class="price-note" style="margin-top:20px;">※ 최근 접속시간은 이 버전 배포 후 로그인/재접속한 회원부터 기록됩니다. 문의 이력이 있으면 최근 문의가 표시됩니다. 프리미엄 회원 정보가 일부 누락되어도 서버의 결제 완료 기록(paymentOrders)을 기준으로 자동 복구하며, 관리자 회수 이력이 더 최신인 경우에는 복구하지 않습니다.</div>
+
+
+  </div>
+</div>
+
+<div class="admin-fold" id="adminFoldBans">
+  <button type="button" class="admin-fold-toggle" onclick="toggleAdminFold('adminFoldBans')" aria-expanded="false">
+    <span class="admin-fold-title"><small>BANNED</small><b>영구 밴 관리</b></span>
+    <span class="admin-fold-chevron">⌄</span>
+  </button>
+  <div class="admin-fold-body">
+        <div id="adminBanSection" class="admin-ban-section">
+          <div class="admin-ban-head">
+            <div>
+              <div class="section-kicker">BANNED</div>
+              <h2 class="section-title" style="font-size:22px;margin:3px 0 0;">영구 밴 목록</h2>
+            </div>
+            <button type="button" class="admin-ban-refresh" onclick="loadAdminBanList()">새로고침</button>
+          </div>
+          <div class="price-note" style="margin:10px 0 12px;">
+            강제탈퇴된 계정은 여기에 남고, 관리자가 직접 밴 해제하기 전까지 같은 Google 또는 Kakao 계정으로 다시 가입할 수 없습니다.
+          </div>
+          <div id="adminBanList" class="usecase-list">
+            <div class="empty-note">밴 목록을 불러오는 중…</div>
+          </div>
+        </div>
+
+
+  </div>
+</div>
+
+<div class="admin-fold" id="adminFoldSupport">
+  <button type="button" class="admin-fold-toggle" onclick="toggleAdminFold('adminFoldSupport')" aria-expanded="false">
+    <span class="admin-fold-title"><small>SUPPORT</small><b>1:1 문의 관리</b></span>
+    <span class="admin-fold-chevron">⌄</span>
+  </button>
+  <div class="admin-fold-body">
+        <div class="section-head" style="margin-top:40px;">
+          <div><div class="section-kicker">SUPPORT</div><h2 class="section-title" style="font-size:24px;">1:1 문의 관리</h2></div>
+        </div>
+        <div id="adminInquiryList"></div>
+  </div>
+</div>
+      </div>
+    </div>
+  </section>
+</section>
+
+
+<div class="admin-perm-backdrop" id="adminPermBackdrop" onclick="if(event.target===this) closeAdminPermissionModal()">
+  <div class="admin-perm-modal" role="dialog" aria-modal="true" aria-labelledby="adminPermTitle">
+    <div class="admin-perm-head">
+      <div>
+        <h3 id="adminPermTitle">회원 권한 관리</h3>
+        <small id="adminPermMember">-</small>
+      </div>
+      <button class="admin-perm-close" type="button" onclick="closeAdminPermissionModal()" aria-label="닫기">×</button>
+    </div>
+
+    <div class="admin-perm-tabs">
+      <button class="admin-perm-tab active" id="adminPermGrantTab" type="button" onclick="setAdminPermissionMode('grant')">지급</button>
+      <button class="admin-perm-tab" id="adminPermRevokeTab" type="button" onclick="setAdminPermissionMode('revoke')">회수</button>
+    </div>
+
+    <div class="admin-perm-options">
+      <button class="admin-perm-option active" id="adminPermPremiumOption" type="button" onclick="setAdminPermissionType('premium')">
+        <b>프리미엄</b>
+        <small id="adminPermPremiumDesc">30일 이용권을 지급합니다.</small>
+      </button>
+      <button class="admin-perm-option" id="adminPermCreditOption" type="button" onclick="setAdminPermissionType('credits')">
+        <b>AI 질문권</b>
+        <small id="adminPermCreditDesc">질문권을 선택한 개수만큼 지급합니다.</small>
+      </button>
+    </div>
+
+    <div class="admin-perm-counts" id="adminPermCounts">
+      <button class="admin-perm-count active" type="button" data-admin-count="1" onclick="setAdminPermissionCount(1)">1개</button>
+      <button class="admin-perm-count" type="button" data-admin-count="5" onclick="setAdminPermissionCount(5)">5개</button>
+      <button class="admin-perm-count" type="button" data-admin-count="10" onclick="setAdminPermissionCount(10)">10개</button>
+      <button class="admin-perm-count" type="button" data-admin-count="all" onclick="setAdminPermissionCount('all')">전부</button>
+    </div>
+
+    <p class="admin-perm-note" id="adminPermNote">선택한 회원에게 프리미엄 30일을 지급합니다.</p>
+
+    <div class="admin-perm-actions">
+      <button class="btn" type="button" onclick="closeAdminPermissionModal()">취소</button>
+      <button class="btn btn-primary" id="adminPermSubmit" type="button" onclick="submitAdminPermissionAction()">지급하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ LEGAL ============ -->
+<section id="view-legal" class="view">
+  <header class="hero hero-sm">
+    <div class="hero-inner">
+      <div class="eyebrow">약관 및 정책</div>
+      <h1 style="font-size:clamp(28px,4.6vw,46px);">이용약관 ·<br>개인정보처리방침</h1>
+    </div>
+  </header>
+  <section class="block" style="padding-top:10px;">
+    <div class="container" style="max-width:760px;">
+      <section class="legal-detail-section" id="terms-detail">
+<div class="section-kicker">TERMS OF SERVICE</div><h2>택일소 이용약관</h2><div class="legal-block">
+<h3>1. 목적 및 적용</h3><p>이 약관은 테일모라(대표 김도윤)가 운영하는 택일소에서 제공하는 사주 계산, 택일 계산, 오늘의 운세, 궁합, AI 사주 상담, 사주 프로필 저장, 유료 이용권 및 질문권 등 온라인 서비스의 이용조건과 운영자 및 이용자의 권리·의무를 정하는 것을 목적으로 합니다. 회원가입, 로그인, 결제 또는 서비스를 이용할 때에는 해당 기능에 적용되는 약관과 정책이 함께 적용됩니다.</p>
+<h3>2. 서비스의 성격</h3><p>사주·운세·궁합·택일 결과와 AI 답변은 전통 명리 해석, 이용자가 입력한 정보 및 자동 계산·생성 로직을 바탕으로 제공되는 참고용 콘텐츠입니다. 특정한 미래, 사건, 결과를 보증하지 않으며 의료 진단, 법률 자문, 투자·재무 자문 등 전문적 판단을 대신하지 않습니다.</p>
+<h3>3. 회원가입 및 계정</h3><p>회원은 택일소가 지원하는 Google, Kakao 등의 로그인 수단을 통해 계정을 이용할 수 있습니다. 계정 접근수단은 본인이 안전하게 관리해야 하며 타인의 계정을 무단 이용하거나 자신의 계정을 부정한 목적으로 제공해서는 안 됩니다. 외부 로그인 제공자의 장애 또는 정책변경으로 일부 로그인 기능이 일시 제한될 수 있습니다.</p>
+<h3>4. 무료 AI 상담</h3><p>일반 회원에게는 현재 계정 기준 최초 3개의 AI 질문이 무료로 제공됩니다. 무료 제공량은 계정 단위로 관리되며 탈퇴·재가입이나 다른 로그인 수단 등을 이용해 무료 혜택을 반복 취득하려는 행위는 제한될 수 있습니다.</p>
+<h3>5. 프리미엄 이용권</h3><p>현재 프리미엄 이용권은 8,900원이며 결제 확인 시점부터 30일 동안 적용됩니다. 프리미엄 회원의 AI 상담 한도는 하루 10개이고 대한민국 표준시(KST)를 기준으로 일일 이용량이 초기화됩니다. 프리미엄은 자동결제가 아니며 별도 재결제가 없으면 기간 종료 후 자동 갱신되지 않습니다.</p>
+<h3>6. AI 질문권</h3><p>추가 질문권은 현재 5개 1,900원, 10개 3,200원입니다. 계정에 귀속되는 소모성 이용권이며 정상적인 AI 답변 제공 시 사용량에서 차감될 수 있습니다. 시스템 장애로 정상 답변이 제공되지 않은 경우에는 시스템 정책과 거래 확인 결과에 따라 차감 복구 등 필요한 처리를 할 수 있습니다.</p>
+<h3>7. 결제 및 결제 확인</h3><p>유료상품 결제는 택일소가 연동한 외부 결제서비스를 통해 처리될 수 있습니다. 결제 완료 여부와 이용권 반영은 결제사업자의 결과 및 택일소 서버의 거래 확인을 기준으로 합니다. 중복결제나 결제 반영 오류가 의심되는 경우 사이트 내 문의 기능을 통해 확인을 요청할 수 있습니다.</p>
+<h3>8. 청약철회·환불 및 과오금</h3><p>유료 디지털 서비스의 청약철회와 환불은 관계 법령 및 실제 서비스 제공·사용 여부에 따라 처리합니다. 디지털콘텐츠 제공이 개시되었거나 구매한 질문권이 사용된 경우 관계 법령에 따라 청약철회가 제한될 수 있습니다. 서비스 미제공, 중복결제 또는 과오금이 확인된 경우 거래내역을 확인하여 필요한 환급 조치를 진행합니다. 법령에서 이용자에게 더 유리한 권리를 정한 경우 해당 법령이 우선합니다.</p>
+<h3>9. 이용자 입력정보와 AI 답변</h3><p>이용자는 본인 또는 상담 대상자의 생년월일, 출생시간, 성별, 질문 및 사주 관련 정보를 입력할 수 있습니다. 타인의 정보를 입력할 경우 해당 정보를 사용할 권한 또는 필요한 동의를 확보해야 합니다. AI 답변에는 오류·누락·해석상의 한계가 있을 수 있습니다.</p>
+<h3>10. 금지행위</h3><p>자동화된 비정상 대량 요청, 이용량·결제 조작, 타인 계정 침해, 보안기능 우회, 서비스 장애 유발, 불법적인 목적의 이용 및 타인의 권리 침해 행위를 금지합니다. 서비스 보호를 위해 필요한 경우 이용 제한 또는 계정 보호조치를 할 수 있습니다.</p>
+<h3>11. 회원탈퇴 및 재가입</h3><p>회원은 제공되는 회원탈퇴 기능을 통해 탈퇴할 수 있습니다. 현재 자진 탈퇴 후에는 무료혜택 반복 이용 등 부정사용 방지를 위해 30일 동안 재가입이 제한될 수 있습니다. 서비스 악용·보안침해 등 정당한 사유로 운영자가 계정을 강제 삭제하고 영구 이용제한한 경우에는 운영자가 제한을 해제하기 전까지 재가입이 제한될 수 있습니다.</p>
+<h3>12. 서비스 변경·중단</h3><p>품질 개선, 시스템 점검, 보안 대응, 외부 인증·결제·AI 사업자의 변경이나 장애, 불가항력 등의 사유로 서비스 일부가 변경 또는 일시 중단될 수 있습니다. 유료서비스 이용에 중대한 영향을 주는 변경은 가능한 범위에서 서비스 내 공지 등으로 안내합니다.</p>
+<h3>13. 책임의 범위</h3><p>택일소는 서비스의 정상적인 제공을 위해 합리적인 노력을 기울입니다. 다만 이용자의 입력 오류, 통신환경, 외부 서비스 장애 등 합리적으로 통제하기 어려운 사유에 대해서는 관계 법령이 허용하는 범위에서 책임이 제한될 수 있습니다. 고의·중대한 과실 등 법령상 제한할 수 없는 책임은 관계 법령을 따릅니다.</p>
+<h3>14. 약관 변경</h3><p>서비스 또는 관련 법령의 변경에 따라 약관이 수정될 수 있습니다. 변경 시 적용일과 주요 변경사항을 이용자가 확인할 수 있도록 공개하고, 법령에서 별도의 통지나 동의를 요구하면 그 절차를 따릅니다.</p>
+<h3>15. 문의 및 분쟁 처리</h3><p>서비스, 계정, 결제, 환불 및 개인정보 관련 문의는 홈페이지 문의 기능, <a href="mailto:contact@taekilso.com">contact@taekilso.com</a> 또는 <a href="tel:01021305797">010-2130-5797</a>로 접수할 수 있습니다. 분쟁 발생 시 당사자 간 협의를 우선하며 해결되지 않는 경우 관계 법령에 따른 분쟁조정 또는 관할 절차를 이용할 수 있습니다.</p>
+</div></section>
+
+<section class="legal-detail-section" id="privacy-detail">
+<div class="section-kicker">PRIVACY POLICY</div><h2>개인정보 처리방침</h2><div class="legal-block">
+<h3>1. 개인정보 처리 목적</h3><p>택일소의 개인정보처리자는 테일모라(대표 김도윤)입니다. 택일소는 회원 식별·로그인 유지, 사주 프로필 저장, AI 상담과 대화기록 관리, 무료·유료 이용량 관리, 결제 확인과 이용권 제공, 문의 처리, 부정이용·보안사고 방지, 서비스 이용 통계 및 품질 개선을 위해 필요한 범위에서 개인정보를 처리합니다.</p>
+<h3>2. 처리하는 개인정보 항목</h3><p>로그인 시 계정 식별자, 이메일(제공되는 경우), 닉네임 등 로그인 제공자가 전달하는 최소 정보가 처리될 수 있습니다. 서비스 이용 시 생년월일, 출생시간, 성별, 양력·음력 등 저장한 사주 프로필, AI 질문·답변과 최근 대화정보, 이용량·이용권 상태가 처리될 수 있습니다. 결제 시 주문 식별정보, 상품, 금액, 결제상태 및 거래 확인정보가 처리될 수 있으며 카드번호 등 핵심 결제 인증정보는 결제사업자가 직접 처리할 수 있습니다. 접속·오류·보안 관련 기술정보도 서비스 운영 과정에서 생성될 수 있습니다.</p>
+<h3>3. 개인정보 수집 방법</h3><p>소셜로그인, 이용자가 직접 입력·저장하는 사주정보와 AI 질문, 결제·문의 과정 및 서비스 이용 중 자동 생성되는 기록을 통해 정보를 수집할 수 있습니다. 서비스 제공에 필요한 범위의 최소한의 정보를 처리하는 것을 원칙으로 합니다.</p>
+<h3>4. 개인정보 처리 및 보유기간</h3><p>회원 계정과 회원이 저장한 서비스 데이터는 원칙적으로 회원탈퇴 또는 처리목적 달성 시까지 보유한 뒤 관계 법령상 보존의무 등 예외를 제외하고 삭제·파기합니다. 전자상거래 관련 법령에 따라 표시·광고 기록은 6개월, 계약 또는 청약철회 기록과 대금결제·서비스 공급 기록은 5년, 소비자 불만·분쟁처리 기록은 3년 보존될 수 있습니다. 자진탈퇴 후 재가입 제한정보는 현재 30일 동안 처리될 수 있고, 서비스 악용 등에 따른 영구 이용제한 식별정보는 제한 해제 시까지 보관될 수 있습니다.</p>
+<h3>5. 사주 및 AI 상담정보 처리</h3><p>AI 상담 요청 시 선택한 사주정보, 질문 및 답변 생성에 필요한 최근 대화 일부가 답변 생성을 위해 택일소 서버와 AI 서비스 제공 과정에서 처리될 수 있습니다. 주민등록번호, 계좌 비밀번호, 인증번호 등 상담에 불필요한 비밀정보를 질문에 입력하지 않는 것을 권장합니다.</p>
+<h3>6. 개인정보의 제3자 제공</h3><p>택일소는 개인정보를 수집·이용 목적 범위를 넘어 임의로 판매하거나 제공하지 않습니다. 다만 이용자가 별도 동의한 경우, 법령에 특별한 규정이 있는 경우 등 관계 법령에서 허용하는 경우에는 예외가 적용될 수 있습니다.</p>
+<h3>7. 개인정보 처리에 사용하는 외부 서비스</h3><p>회원 로그인에는 Google/Firebase Authentication과 Kakao를 사용합니다. 회원·사주 프로필·저장한 상담·문의·주문 상태는 Google Firebase에 보관하며, 현재 Firestore 데이터베이스 저장 위치는 대한민국 서울(asia-northeast3)입니다. 결제는 PayApp을 통해 진행하고 택일소는 주문번호·상품·금액·결제 결과를 확인합니다. 카드번호와 결제 비밀번호를 상담창이나 문의에 입력하지 마세요.</p><p>AI 상담과 신년 리포트 생성 요청은 대한민국 서울(asia-northeast3)의 Google Cloud Run에서 운영되는 택일소 서버를 거쳐 OpenAI GPT API로 우선 전달됩니다. 연결 오류나 시간 초과 등으로 요청을 처리하지 못하면 Anthropic Claude API로 전환할 수 있습니다. 전달 범위에는 선택한 사주의 계산 자료, 현재 질문과 답변에 필요한 최근 대화가 포함됩니다. 홈페이지 정적 파일은 Cloudflare Pages에서 제공합니다. 각 제공업체는 서비스 제공과 보안 운영에 필요한 기술정보를 처리할 수 있습니다.</p>
+<h3>8. AI·클라우드 서비스의 국외 처리</h3><p>Firebase 데이터베이스와 Cloud Run 서버의 서울 지역 설정과 별개로 Google 인증 및 OpenAI·Anthropic API 등 국외 사업자가 제공하는 기능에서 정보가 국외 처리될 수 있습니다. OpenAI 요청에는 응답 저장을 끄는 설정을 적용합니다. 이와 별개로 OpenAI의 기본 정책에 따라 입력·출력 일부가 포함될 수 있는 악용 모니터링 기록이 최대 30일 보관될 수 있으며, 법적 의무나 서비스 보호 등에 따른 예외가 있습니다. Anthropic의 표준 상용 API 정책은 입력·출력을 일반적으로 30일 이내 삭제하며, 별도 계약·정책 위반 조사·법적 의무에 따른 예외가 있습니다. 별도 무보관 계약이 적용된다고 안내하지 않습니다.</p><p>외부 AI 처리를 원하지 않으면 AI 상담을 전송하지 않고 기본 사주·택일 계산을 이용할 수 있습니다. 처리 내역·삭제·국외 처리 관련 문의는 <a href="mailto:contact@taekilso.com">contact@taekilso.com</a>으로 접수할 수 있습니다. <a href="https://developers.openai.com/api/docs/guides/your-data" target="_blank" rel="noopener noreferrer">OpenAI API 데이터 처리 안내</a> · <a href="https://privacy.anthropic.com/en/articles/7996866-how-long-do-you-store-my-organization-s-data" target="_blank" rel="noopener noreferrer">Anthropic API 보관 정책</a> · <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener noreferrer">Firebase 개인정보 안내</a> · <a href="https://cloud.google.com/terms/cloud-privacy-notice" target="_blank" rel="noopener noreferrer">Google Cloud 개인정보 안내</a></p>
+<h3>9. 개인정보 파기</h3><p>보유기간이 경과하거나 처리목적이 달성되어 개인정보가 불필요해진 경우 관계 법령에 따라 파기합니다. 전자적 파일은 복구 또는 재생이 어렵도록 안전한 방법으로 삭제하며 별도 보존의무가 있는 정보는 필요한 기간 동안 분리 보관한 후 파기합니다.</p>
+<h3>10. 정보주체의 권리와 행사방법</h3><p>이용자는 관계 법령이 정하는 범위에서 자신의 개인정보에 대한 열람, 정정·삭제, 처리정지 등을 요구할 수 있고 회원탈퇴 기능을 통해 계정 삭제를 요청할 수 있습니다. 법령상 보존의무 또는 다른 정당한 제한사유가 있으면 일부 요청이 제한될 수 있습니다.</p>
+<h3>11. 개인정보 안전성 확보조치</h3><p>택일소는 인증된 계정에 대한 접근통제, 회원별 데이터 접근 제한, 관리자 권한 분리, 서버 측 인증 확인, 결제정보 검증 및 필요한 보안설정 등 개인정보의 안전한 처리를 위한 기술적·관리적 조치를 적용하도록 노력합니다. 회원별 사주 프로필과 AI 대화는 해당 계정의 인증정보를 기준으로 접근을 제한하는 구조를 사용합니다.</p>
+<h3>12. 쿠키·브라우저 저장소</h3><p>로그인 유지, 서비스 편의기능 및 임시 데이터 복원을 위해 localStorage·sessionStorage 또는 로그인 제공자가 사용하는 쿠키 등이 이용될 수 있습니다. 브라우저에서 이를 삭제하거나 일부 쿠키를 제한할 수 있으나 로그인 유지 등 일부 기능에 영향을 줄 수 있습니다.</p>
+<h3>13. 방문 및 유입 통계</h3><p>서비스 개선을 위해 방문·무료 리포트·가입·첫 상담·구매 단계를 집계합니다. 광고 유입은 출처·매체·캠페인·소재 이름·시작 경로를 주문과 연결해 확인하며, 전체 방문 URL의 검색어·질문 내용·생년월일을 집계 이벤트에 보내지 않습니다. 출처 정보는 브라우저에서 최대 30일간 사용합니다. 방문 통계는 세션·날짜별로 중복을 제한하며 사람 수와 정확히 같지 않을 수 있습니다.</p><p>비정상 요청 방지를 위해 임시 세션 식별자와 접속 주소를 비밀키를 사용해 날짜별 해시로 바꾼 집계 보조 기록을 사용합니다. 원래 접속 주소는 이 집계 기록에 저장하지 않으며 보조 기록은 7일 후 삭제 대상이 되어 이후 정상 요청에서 순차 정리됩니다. 확정 구매 수와 매출은 서버가 확인한 주문을 기준으로 표시합니다.</p>
+<h3>14. 개인정보 관련 문의와 권리 행사</h3><p>테일모라(대표 김도윤)에 개인정보 열람·정정·삭제·처리정지 및 관련 불만을 요청할 수 있습니다. 문의 전화는 <a href="tel:01021305797">010-2130-5797</a>입니다. 접수 이메일은 <a href="mailto:contact@taekilso.com">contact@taekilso.com</a>이며 홈페이지의 문의 기능도 이용할 수 있습니다. 본인 확인에 필요한 최소한의 확인 절차 후 처리합니다. 문의에 주민등록번호·비밀번호·카드번호를 보내지 마세요.</p>
+<h3>15. 권익침해 구제</h3><p>개인정보 침해에 대한 상담이나 피해구제가 필요한 경우 개인정보 침해 신고·상담, 개인정보 분쟁조정 등 관계 법령에 따른 외부 구제절차를 이용할 수 있습니다.</p>
+<h3>16. 처리방침 변경</h3><p>서비스 기능, 외부 처리업체 또는 관계 법령 변경에 따라 본 처리방침을 수정할 수 있습니다. 변경 시 적용일과 변경사항을 공개하고 이전 처리방침의 적용기간도 필요한 범위에서 확인할 수 있도록 관리합니다.</p>
+</div></section>
+    </div>
+  </section>
+</section>
+
+
+  <!-- SEO INTERNAL LINKS: core landing pages -->
+
+
+</main>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<footer>
+  <div class="container footer-inner">
+    <div class="footer-brand"><svg class="taekilso-symbol" data-brand-symbol viewBox="0 0 40 40" fill="none" aria-hidden="true" focusable="false"><image href="/assets/brand-emblem-transparent.png?v=20261111-1" width="40" height="40"/></svg>택일소</div>
+    <div class="footer-copy">
+      <nav class="footer-links" aria-label="이용 정책과 문의">
+        <button type="button" class="footer-link" onclick="goTo('legal')">이용약관</button>
+        <button type="button" class="footer-link" onclick="goTo('legal')">개인정보처리방침</button>
+        <button type="button" class="footer-link" onclick="goTo('support')">문의하기</button>
+      </nav>
+<!-- BUSINESS_INFO_START -->
+<section class="business-info" aria-label="사업자 정보">
+  <dl>
+    <div><dt>상호</dt><dd>테일모라 <span class="business-service">택일소 운영</span></dd></div>
+    <div><dt>대표자</dt><dd>김도윤</dd></div>
+    <div><dt>사업자등록번호</dt><dd>804-03-03583</dd></div>
+    <div><dt>사업장 주소</dt><dd>전남광주통합특별시 북구 첨단연신로 216, 109동 1501호</dd></div>
+    <div><dt>고객 문의</dt><dd><a href="tel:01021305797">010-2130-5797</a><br><a href="mailto:contact@taekilso.com">contact@taekilso.com</a></dd></div>
+    <div><dt>통신판매업</dt><dd>신고 면제</dd></div>
+    <div><dt>호스팅 제공자</dt><dd>Cloudflare, Inc.</dd></div>
+  </dl>
+</section>
+<!-- BUSINESS_INFO_END -->
+      <div style="margin-top:14px; color:var(--muted-2);">© 2026 택일소. All rights reserved.</div>
+    </div>
+  </div>
+</footer>

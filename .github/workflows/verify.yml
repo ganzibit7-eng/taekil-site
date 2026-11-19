@@ -15,6 +15,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      - run: node render-home.cjs
       - run: node verify-ui-contract.cjs
       - run: node test-admin-analytics.cjs
       - run: node --test test-*.cjs

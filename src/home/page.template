@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ko" data-home-layout="directory">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="/home-layout.js?v=20261115-preview-topics"></script>
+<link rel="stylesheet" href="/home-layout.css?v=20261118-depth-arrival">
+<title>택일소 | AI 사주 상담 · 오늘의 운세 · 결혼·이사·개업 택일</title>
+<meta name="description" content="AI 사주 상담가 연우에게 오늘의 운세, 연애운, 재물운, 궁합을 묻고 결혼·이사·개업·계약 날짜까지 비교해보세요. 첫 질문 3개 무료.">
+<meta name="keywords" content="사주, 사주풀이, 무료사주, 사주궁합, 오늘의운세, 신년운세, 택일, 결혼택일, 이사택일, 개업택일, 손없는날, 만세력">
+<meta property="og:title" content="택일소 | AI 사주 상담과 중요한 날 택일">
+<meta property="og:description" content="오늘의 운세부터 연애·재물·직업 상담, 결혼·이사·개업·계약 택일까지 연우에게 물어보세요.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://taekilso.com/">
+<meta property="og:image" content="https://taekilso.com/assets/brand-emblem.png?v=20261111-share">
+<meta property="og:image:width" content="320">
+<meta property="og:image:height" content="320">
+<meta property="og:image:alt" content="택일소 · 이 날, 나에게 맞는 날일까요?">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:site_name" content="택일소">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="택일소 | AI 사주 상담 · 오늘의 운세 · 택일">
+<meta name="twitter:description" content="연우에게 오늘의 운세와 사주 고민을 묻고, 중요한 날짜까지 비교해보세요. 첫 질문 3개 무료.">
+<meta name="twitter:image" content="https://taekilso.com/assets/brand-emblem.png?v=20261111-share">
+<meta name="theme-color" content="#101715">
+<link rel="manifest" href="manifest.json?v=20261110-supplied">
+<link rel="icon" href="favicon.png?v=20261111-transparent" type="image/png" sizes="64x64">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261110-supplied" sizes="180x180">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://taekilso.com/#website",
+      "url": "https://taekilso.com/",
+      "name": "택일소",
+      "inLanguage": "ko-KR"
+    },
+    {
+      "@type": "WebApplication",
+      "@id": "https://taekilso.com/#app",
+      "name": "택일소",
+      "url": "https://taekilso.com/",
+      "description": "사주, 운세, 궁합과 결혼·이사·개업·계약 택일을 제공하는 AI 기반 서비스",
+      "applicationCategory": "LifestyleApplication",
+      "operatingSystem": "Web",
+      "inLanguage": "ko-KR",
+      "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}
+    }
+  ]
+}
+</script>
+
+<style>
+<!-- include base.css -->
+</style>
+<!-- include theme-and-metadata.fragment -->
+<body>
+<aside id="startupRecovery" role="alert" hidden>
+  <div><strong>택일소</strong><h1>화면을 열지 못했어요</h1><p>인터넷 연결을 확인한 뒤 다시 시도해 주세요.</p>
+  <button type="button" id="startupRetry">다시 시도</button> <a href="/">홈으로</a></div>
+</aside>
+<noscript><p>택일소 상담을 열려면 브라우저 설정에서 자바스크립트를 켠 후 새로고침해 주세요.</p></noscript>
+<script id="startup-recovery">
+<!-- include startup-recovery.js -->
+</script>
+
+<script>
+// 이 변수들은 HTML 어디서든(맨 위 로그인 버튼 포함) onclick으로 즉시 참조될 수 있어서,
+// 파이어베이스 SDK 스크립트(파일 뒷부분에서 로딩)가 다운로드되기 전에 미리 선언해둡니다.
+// 이렇게 안 하면, 페이지가 열리자마자 파이어베이스 스크립트가 아직 안 끝난 짧은 순간에
+// 로그인 버튼을 누르면 "아직 초기화되지 않았다"는 에러가 날 수 있습니다.
+let firebaseReady = false;
+let db = null;
+let firebaseAuthUser = null;
+let firebaseAuthReady = false;
+let firebaseAuthInitPromise = null;
+let resolveFirebaseAuthSettled;
+const firebaseAuthSettled = new Promise((resolve) => { resolveFirebaseAuthSettled = resolve; });
+const ADMIN_EMAIL = "green092432@gmail.com";
+</script>
+
+<div class="topbar">
+  <div class="container">
+    <div class="nav">
+      <a class="brand" href="/" data-site-home aria-label="택일소 홈"><span class="brand-mark"><svg class="taekilso-symbol" data-brand-symbol viewBox="0 0 40 40" fill="none" aria-hidden="true" focusable="false"><image href="/assets/brand-emblem-transparent.png?v=20261111-1" width="40" height="40"/></svg></span>택일소</a>
+      <div class="nav-right">
+        <div class="nav-links" id="navLinks">
+          <a data-route="home" onclick="goTo('home')" style="color:var(--gold-hi); font-weight:700;">✨ AI사주</a>
+          <div class="nav-dropdown" id="navTaekilDropdown">
+            <a class="nav-dropdown-trigger" onclick="toggleNavDropdown(event)">택일 <span class="nav-dropdown-caret">▾</span></a>
+            <div class="nav-dropdown-menu" id="navTaekilMenu">
+              <a onclick="goTo('wedding')">💍 결혼식</a>
+              <a onclick="goTo('moving')">🏠 이사</a>
+              <a onclick="goTo('opening')">🏮 개업</a>
+              <a onclick="goTo('contract')">📜 계약체결</a>
+            </div>
+          </div>
+          <a data-route="tool" onclick="goTo('tool')">사주</a>
+          <a data-route="history" onclick="goTo('history')">내 기록</a>
+        </div>
+        <a id="authNavBtn" class="nav-cta" onclick="handleAuthNavClick()">로그인</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ AUTH MODAL ============ -->
+<div id="authOverlay">
+  <div class="modal-box">
+    <div class="auth-brand"><svg class="taekilso-symbol" data-brand-symbol viewBox="0 0 40 40" fill="none" aria-hidden="true" focusable="false"><image href="/assets/brand-emblem-transparent.png?v=20261111-1" width="40" height="40"/></svg><span>택일소</span></div>
+    <div class="modal-title" id="authTitle">택일소 로그인</div>
+    <div class="auth-free-benefit">
+      <b>첫 질문 3개는 무료예요</b>
+      <span>Google 또는 카카오 계정으로 시작하세요.<br>카드 등록과 자동결제 없이 이용할 수 있어요.</span>
+    </div>
+    <div id="authSetupNotice" class="setup-notice" style="display:none;">
+      아직 계정 저장소가 연결되지 않았어요. Firebase 설정을 먼저 연결해야 실제로 저장됩니다.
+    </div>
+    <button class="btn" style="width:100%; margin-bottom:9px; gap:8px;" onclick="loginWithGoogle()">
+      <svg width="16" height="16" viewBox="0 0 48 48" style="margin-right:6px;"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3c-7.6 0-14.1 4.3-17.4 10.7z"/><path fill="#4CAF50" d="M24 45c5.4 0 10.3-1.8 14.1-5l-6.5-5.5C29.5 36 26.9 37 24 37c-5.3 0-9.7-3.3-11.3-8l-6.5 5C9.9 40.6 16.4 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.4-2.3 4.4-4.3 5.9l6.5 5.5C40.8 36.9 44 30.9 44 24c0-1.4-.1-2.4-.4-3.5z"/></svg>
+      Google로 시작하기
+    </button>
+    <button class="btn" style="width:100%; margin-bottom:9px; background:#FEE500; color:#181600; border:0;" onclick="loginWithKakao()">
+      💬 카카오로 시작하기
+    </button>
+    <div id="authError" class="auth-error" style="display:none;"></div>
+    <div class="auth-close" onclick="closeAuthModal()">닫기</div>
+  </div>
+</div>
+
+<div id="toastHost"></div>
+
+<div class="fortune-modal" id="fortuneModal" onclick="if(event.target===this) closeFortuneModal()">
+  <div class="fortune-box">
+    <button class="fortune-close" onclick="closeFortuneModal()" aria-label="닫기">×</button>
+    <div class="section-kicker">FREE · TODAY</div>
+    <h3>오늘의 사주 운세</h3>
+    <p class="sub">생년월일을 기준으로 오늘의 일진과 오행 흐름을 간단히 확인해보세요. 결과는 참고용입니다.</p>
+
+    <label class="couple-row" id="fortuneLockWrap" style="margin-bottom:10px;">
+      <span class="switch"><input type="checkbox" id="fortuneLock" onchange="onBirthLockToggle('fortune')"></span>
+      이 생년월일 고정하기 (다른 곳에서도 자동으로 채워져요)
+    </label>
+
+    <div class="field full" style="margin-bottom:8px;">
+      <label>달력 기준</label>
+      <div class="cal-type-toggle" id="fortuneCalType">
+        <span class="ct-btn active" data-type="solar">양력</span>
+        <span class="ct-btn" data-type="lunar">음력</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>생년월일</label>
+      <div class="ymd-row">
+        <select id="fortuneYear" class="ymd-select"></select>
+        <select id="fortuneMonth" class="ymd-select"></select>
+        <select id="fortuneDay" class="ymd-select"></select>
+      </div>
+    </div>
+    <label class="couple-row" id="fortuneLeapWrap" style="display:none;">
+      <span class="switch"><input type="checkbox" id="fortuneLeap"><span class="switch-track"><span class="switch-thumb"></span></span></span>
+      윤달이에요
+    </label>
+
+    <button class="btn btn-primary form-submit" style="margin-top:16px" onclick="calculateTodayFortune()">오늘의 운세 보기</button>
+    <div id="fortuneResult"></div>
+  </div>
+</div>
+
+
+<nav class="bottom-tabbar" id="bottomTabbar">
+  <span class="bt-item active" data-route="home" onclick="goTo('home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10.8 12 3l9 7.8"/><path d="M5.5 9.7V21h13V9.7"/><path d="M9.2 21v-6.5h5.6V21"/></svg>
+    <span>홈</span>
+  </span>
+  <span class="bt-item" data-route="tool" onclick="goTo('tool')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <span>사주</span>
+  </span>
+  <span class="bt-item" data-route="history" onclick="goTo('history')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 8v4l3 2"/></svg>
+    <span>기록</span>
+  </span>
+  <span class="bt-item" id="bottomProfileTab" onclick="handleAuthNavClick()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.8-4 5-6 8-6s6.2 2 8 6"/></svg>
+    <span id="bottomProfileLabel">로그인</span>
+  </span>
+</nav>
+
+<main>
+
+<!-- ============ HOME ============ -->
+<!-- include home.fragment -->
+
+<!-- include services.fragment -->
+<!-- include account-and-tools.fragment -->
+
+<script src="account-session-core.js?v=20261111-1"></script>
+<script src="checkout-availability.js?v=2"></script>
+<script src="https://lite.payapp.kr/public/api/v2/payapp-lite.js"></script>
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lunar-javascript/1.7.5/lunar.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+<!-- include navigation.js -->
+
+<!-- include saju-calendar.js -->
+
+<!-- include member-session.js -->
+
+<!-- include administrator.js -->
+
+<!-- include member-support.js -->
+
+<!-- include checkout.js -->
+</script>
+
+<!-- include motion.fragment -->
+
+<script id="taekilso-v3-upgrade-js">
+<!-- include consultation.js -->
+</script>
+<!-- include experience.fragment -->
+<script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=20261118-approved-payment-time"></script>
+<script src="admin-analytics.js?v=20261118-cloudrun"></script>
+
+<link rel="stylesheet" href="consultation-stage.css?v=20261117-chat-byline">
+<script src="consultation-personas.js?v=20261118-chat-films"></script>
+<link rel="stylesheet" href="consultation-stories.css?v=20261116-ijun-choices">
+<script src="consultation-additional-stories.js?v=20261118-questions"></script>
+<script src="consultation-stories.js?v=20261118-lazy-story-images"></script>
+<link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261118-continuous-arrival"></script><script src="premium-motion.js" defer></script>
+<script src="consultation-draft-core.js?v=20261117-added-topics"></script>
+<script src="consultation-stage.js?v=20261116-featured-stories"></script>
+<link rel="stylesheet" href="consultation-experience.css?v=20261113-library-1">
+<script src="consultation-experience-core.js?v=20261117-saved-evidence"></script>
+<script src="consultation-experience.js?v=20261117-saved-evidence"></script>
+
+<script src="navigation-stability.js?v=20261111-2"></script>
+<link rel="stylesheet" href="newyear-consultation.css?v=20261118-evidence">
+<script src="newyear-consultation.js?v=20261118-evidence"></script><script src="newyear-example.js?v=20261118-reading"></script>
+<link rel="stylesheet" href="free-report-handoff.css?v=20261110-1">
+<script src="free-report-handoff-core.js?v=20261111-operations"></script>
+<script src="free-report-handoff.js?v=20261111-operations"></script>
+<link rel="stylesheet" href="navigation-refinement.css?v=20261110-3">
+<script src="navigation-refinement.js?v=20261110-1"></script>
+<script src="profile-picker-controls.js?v=20261118-confirmed-delete"></script>
+<link rel="stylesheet" href="consultation-quality.css?v=20261111-2">
+<script src="support-channels.js?v=20261111-refund"></script>
+<script src="consultation-quality.js?v=20261117-saved-evidence"></script>
+<link rel="stylesheet" href="site-menu.css?v=20261116-home-logo"><script src="site-menu.js?v=20261116-home-logo"></script>
+<link rel="stylesheet" href="interaction-refinement.css?v=20261111-2">
+<script src="account-session.js?v=20261115-personas"></script>
+<script src="campaign-attribution-core.js?v=20261111-1"></script><script src="campaign-attribution.js?v=20261115-preview-conversion"></script>
+<script src="preview-funnel.js?v=20261115-preview-topics"></script>
+<link rel="stylesheet" href="date-comparison.css?v=20261116-1">
+<script src="date-comparison.js?v=20261116-1"></script>
+</body>
+</html>
