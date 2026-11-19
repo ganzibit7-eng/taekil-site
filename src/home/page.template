@@ -274,10 +274,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 <link rel="stylesheet" href="consultation-stage.css?v=20261117-chat-byline">
 <script src="consultation-personas.js?v=20261118-chat-films"></script>
-<link rel="stylesheet" href="consultation-stories.css?v=20261119-answer-jump">
+<link rel="stylesheet" href="consultation-stories.css?v=20261119-preview-buttons">
 <script src="consultation-additional-stories.js?v=20261118-questions"></script>
 <!-- story-reading-templates -->
-<script src="consultation-stories.js?v=20261119-answer-jump"></script>
+<script src="consultation-stories.js?v=20261119-preview-buttons"></script>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261118-continuous-arrival"></script><script src="premium-motion.js" defer></script>
 <script src="consultation-draft-core.js?v=20261117-added-topics"></script>
 <script src="consultation-stage.js?v=20261119-current-readings"></script>

@@ -648,6 +648,7 @@
       target.scrollIntoView({block:'start', behavior});
     });
     container.append(jump);
+    return jump;
   }
 
   const readingObserver = typeof IntersectionObserver === 'function' ? new IntersectionObserver((entries, observer) => {
@@ -747,7 +748,10 @@
     addJump(actions, '내 상황 먼저 고르기', entry, legend);
     if (isWedding) {
       const comparison = document.getElementById('weddingStoryComparison');
-      if (comparison) addJump(actions, '날짜 비교 예시 보기', comparison, comparison.querySelector('h3'));
+      if (comparison) {
+        const dateJump = addJump(actions, '날짜 비교 예시 보기', comparison, comparison.querySelector('h3'));
+        dateJump.classList.add('consultation-story-date-jump');
+      }
     }
     body.append(makeChapter(closing), entry);
     view.replaceChildren(hero, body, dock);
