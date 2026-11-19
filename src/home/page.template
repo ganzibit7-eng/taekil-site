@@ -273,7 +273,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=20261119-daily"></script>
 <script src="admin-analytics.js?v=20261119-daily"></script>
 
-<link rel="stylesheet" href="consultation-stage.css?v=20261119-guided-resume">
+<link rel="stylesheet" href="consultation-stage.css?v=20261120-history-filters">
 <script src="consultation-personas.js?v=20261118-chat-films"></script>
 <link rel="stylesheet" href="consultation-stories.css?v=20261119-preview-buttons">
 <script src="consultation-additional-stories.js?v=20261118-questions"></script>
@@ -282,6 +282,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261118-continuous-arrival"></script><script src="premium-motion.js" defer></script>
 <script src="consultation-draft-core.js?v=20261119-guided-resume"></script>
 <script src="consultation-stage.js?v=20261119-guided-resume"></script>
+<script src="consultation-history-filters.js?v=20261120-history-filters"></script>
 <link rel="stylesheet" href="consultation-experience.css?v=20261113-library-1">
 <script src="consultation-experience-core.js?v=20261117-saved-evidence"></script>
 <script src="consultation-experience.js?v=20261117-saved-evidence"></script>

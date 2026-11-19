@@ -12,7 +12,11 @@
     ""
   ],
   [
-    "    const consultantName = window.TaekilConsultationPersonas?.get(rec.consultantId).name || '연우';\n",
+    "    const consultant = window.TaekilConsultationPersonas?.get(rec.consultantId);\n    const consultantName = consultant?.name || '연우';\n",
+    ""
+  ],
+  [
+    " data-history-advisor=\"${escapeHtml(consultant?.id || 'yeonwoo')}\"",
     ""
   ],
   [

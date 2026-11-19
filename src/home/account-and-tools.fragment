@@ -323,7 +323,22 @@
             <small>상담사와 첫 질문을 확인하고, 지난 대화에서 이어서 질문할 수 있어요.</small>
           </div>
         </div>
+        <div id="aiHistoryFilters" class="ai-history-filters" hidden>
+          <div class="ai-history-filter-fields">
+            <label>질문 제목
+              <input type="search" id="aiHistoryQuery" placeholder="예: 이직, 재회" maxlength="100" autocomplete="off" enterkeyhint="search">
+            </label>
+            <label>상담사
+              <select id="aiHistoryAdvisor"><option value="">전체 상담사</option></select>
+            </label>
+          </div>
+          <div class="ai-history-filter-meta">
+            <p role="status" id="aiHistoryFilterCount"></p>
+            <button type="button" id="aiHistoryFilterReset" hidden>조건 초기화</button>
+          </div>
+        </div>
         <div id="aiConversationHistoryList" class="ai-history-list"></div>
+        <p id="aiHistoryNoMatches" class="history-empty-box ai-history-no-matches" hidden>조건에 맞는 상담 기록이 없어요. 검색어나 상담사를 바꿔보세요.</p>
         <div id="aiConversationHistoryEmpty" class="empty-note history-empty-box">
           아직 저장된 AI 상담이 없어요.<br>
           <button onclick="goTo('home')">고민별 상담 둘러보기</button>
