@@ -16,8 +16,8 @@
     ""
   ],
   [
-    "<b class=\"ai-history-consultant\">${escapeHtml(consultantName)} 상담</b> · ",
-    ""
+    "          <b class=\"ai-history-consultant\">${escapeHtml(consultantName)} 상담</b>\n          <div class=\"ai-history-title\">${escapeHtml(rec.title || 'AI 사주 상담')}</div>\n          <div class=\"ai-history-meta\">${escapeHtml(names || '상담 대상')} · ${escapeHtml(dt)}</div>",
+    "          <div class=\"ai-history-title\">${escapeHtml(rec.title || 'AI 사주 상담')}</div>\n          <div class=\"ai-history-meta\">${escapeHtml(names || '상담 대상')} · ${escapeHtml(dt)}</div>"
   ],
   [
     "  window.__aiConsultantId = window.TaekilConsultationPersonas?.get(rec.consultantId).id || 'yeonwoo';\n",

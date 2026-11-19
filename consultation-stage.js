@@ -366,6 +366,25 @@
   const concernHint = document.createElement('p'); concernHint.className = 'entry-field-hint';
   panes[4].prepend(concernChoices,concernHint);
   panes[5].append(signupNote,draftNote);
+  const restoreQuestion = document.createElement('button');
+  restoreQuestion.type = 'button';
+  restoreQuestion.className = 'entry-previous-question';
+  restoreQuestion.textContent = '이전 질문 가져오기';
+  restoreQuestion.hidden = true;
+  restoreQuestion.addEventListener('click', () => {
+    question.value = previousQuestion;
+    previousQuestion = '';
+    question.dispatchEvent(new Event('input', {bubbles:true}));
+    if (step === 5) {
+      updateReview();
+      heading.querySelector('h2').focus({preventScroll:true});
+    } else {
+      question.focus({preventScroll:true});
+    }
+  });
+  function syncPreviousQuestion() {
+    restoreQuestion.hidden = !previousQuestion || previousQuestion === question.value.trim();
+  }
   const progress = document.createElement('p');
   progress.className = 'consultation-entry-progress';
   heading.prepend(progress);
@@ -400,6 +419,7 @@
   const entryCount = document.createElement('span'); entryCount.className = 'entry-nav-count';
   entryNav.append(entryBack,entryTitle,entryCount); stage.append(entryNav);
   let selectedTopic = '';
+  let previousQuestion = '';
   const topics = new Map();
   function showTopic(topic) {
     selectedTopic = core.normalizeTopic(topic);
@@ -474,6 +494,9 @@
     error.textContent = '';
     count.textContent = `${question.value.length} / 200`;
     if (step === 5) updateReview();
+    if (step === 4) question.before(restoreQuestion);
+    if (step === 5) review.after(restoreQuestion);
+    syncPreviousQuestion();
     scroll.scrollTop = 0;
     if (focus) {
       document.activeElement?.blur();
@@ -541,9 +564,17 @@
     const { topic, storyQuestion } = requestedEntry;
     requestedEntry = null;
     const questionText = storyQuestion || topics.get(topic)?.question || '';
-    const replaceSuggestion = Boolean(storyQuestion) || topic !== selectedTopic;
+    const changedAdvisor = personas.forTopic(topic).id !== personas.forTopic(selectedTopic).id;
+    if (changedAdvisor) {
+      const outgoing = question.value.trim();
+      if (outgoing && outgoing !== questionText && (!previousQuestion || !suggestedConcerns.has(outgoing))) {
+        previousQuestion = outgoing;
+      }
+      question.value = questionText;
+    } else if (!question.value.trim() || (storyQuestion && suggestedConcerns.has(question.value))) {
+      question.value = questionText;
+    }
     showTopic(topic);
-    if (!question.value.trim() || (replaceSuggestion && suggestedConcerns.has(question.value))) question.value = questionText;
     render(step);
     persist();
   }
@@ -551,6 +582,8 @@
     const nextVisible = setup.style.display === 'block';
     if (nextVisible && !visible) {
       if (!restore()) {
+        question.value = '';
+        previousQuestion = '';
         showTopic('');
         render(0);
       }
@@ -561,6 +594,13 @@
   const key = 'taekilso_consultation_entry_v1';
   let awaitingAuth = false;
   let lastOwner = owner();
+  const authOverlay = document.getElementById('authOverlay');
+  new MutationObserver(() => {
+    if (!awaitingAuth || member() || authOverlay.style.display !== 'none') return;
+    awaitingAuth = false;
+    localStorage.removeItem('taekilso_pending_chat_start');
+    persist();
+  }).observe(authOverlay, {attributes:true,attributeFilter:['style']});
   function member() {
     return typeof firebaseAuthUser !== 'undefined' && firebaseAuthUser && !firebaseAuthUser.isAnonymous ? firebaseAuthUser : null;
   }
@@ -570,7 +610,7 @@
     core.fields.forEach(id => { values[id] = field(id).value; });
     try {
       const selections = Object.fromEntries(['SavedProfile','CompareProfile','CompareProfile2'].map(id => [id, owner() ? field(id).value : '']));
-      sessionStorage.setItem(key, JSON.stringify({version:1,at:Date.now(),owner:owner(),awaitingAuth,step,values,selections,leap:field('Leap').checked,question:question.value,birthText:birthInput.value,topic:selectedTopic}));
+      sessionStorage.setItem(key, JSON.stringify({version:1,at:Date.now(),owner:owner(),awaitingAuth,step,values,selections,leap:field('Leap').checked,question:question.value,previousQuestion,birthText:birthInput.value,topic:selectedTopic}));
       return true;
     } catch (_) { return false; }
   }
@@ -587,7 +627,7 @@
     fillAiChatDateSelects();
     ['SavedProfile','CompareProfile','CompareProfile2'].forEach(id => { field(id).value = draft.selections[id]; });
     core.fields.forEach(id => { field(id).value = draft.values[id]; });
-    field('Leap').checked = draft.leap; question.value = draft.question;
+    field('Leap').checked = draft.leap; question.value = draft.question; previousQuestion = draft.previousQuestion;
     showTopic(draft.topic);
     birthFromFields(); if (draft.birthText) birthInput.value = draft.birthText;
     awaitingAuth = draft.awaitingAuth;
@@ -597,6 +637,7 @@
   setup.addEventListener('input', () => {
     count.textContent = `${question.value.length} / 200`;
     syncConcernChoices();
+    syncPreviousQuestion();
     persist();
   });
   setup.addEventListener('change', () => persist());
@@ -622,7 +663,7 @@
       const input = document.getElementById('aiChatInput');
       input.value = question.value.trim(); input.dispatchEvent(new Event('input', {bubbles:true}));
       window.__pendingCategoryQuestion = '';
-      sessionStorage.removeItem(key); awaitingAuth = false;
+      sessionStorage.removeItem(key); awaitingAuth = false; previousQuestion = '';
     } catch (_) {
       error.textContent = '상담 연결을 확인하지 못했어요. 입력 내용은 유지됩니다. 잠시 후 다시 시도해 주세요.';
     } finally { submit.disabled = false; }
@@ -640,7 +681,10 @@
     const changed = lastOwner !== owner(); lastOwner = owner();
     if (!window.resumeGuidedConsultation()) {
       read();
-      if (changed) { question.value = ''; birthInput.value = ''; awaitingAuth = false; showTopic(''); }
+      if (changed) {
+        question.value = ''; previousQuestion = ''; birthInput.value = ''; awaitingAuth = false; showTopic('');
+        syncPreviousQuestion();
+      }
       updateHandoff();
     }
     syncChoices();

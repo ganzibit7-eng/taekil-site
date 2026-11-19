@@ -94,11 +94,11 @@
 
     <section class="directory-section" aria-labelledby="directoryNewyearTitle">
       <h2 id="directoryNewyearTitle" tabindex="-1">2027년 신년상담</h2>
-      <a class="directory-feature directory-feature-year" href="/?landing=yeonwoo">
-        <span class="directory-feature-copy"><strong>2027년 한 해의 흐름</strong><span>내 사주로 살펴보는 월별 운세</span><small>연우와 신년상담 알아보기</small></span>
+      <a class="directory-feature directory-feature-year" href="#newyear">
+        <span class="directory-feature-copy"><strong>2027년 한 해의 흐름</strong><span>내 사주로 살펴보는 월별 운세</span><small>2027 신년 리포트 보기</small></span>
         <img src="assets/yeonwoo-moonlight.jpg" width="1122" height="1402" alt="" loading="lazy" decoding="async">
       </a>
-      <a class="directory-text-link directory-year-preview" href="#newyear">신년 리포트 한 달 미리보기</a>
+      <a class="directory-text-link directory-year-preview" href="#newyear" data-newyear-preview>신년 리포트 한 달 미리보기</a>
     </section>
 
     <section class="directory-section" aria-labelledby="directoryRelationshipsTitle">

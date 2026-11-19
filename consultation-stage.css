@@ -182,6 +182,13 @@ body.consultation-open #aiChatSetup.consultation-guided-entry .ai-chat-setup-row
 #consultationEntryQuestion {width:100%;box-sizing:border-box;resize:vertical;min-height:132px;max-height:220px;padding:16px;background:#101715bd;border:1px solid #f0ebe133;border-radius:8px;color:#f0ebe1;font:400 16px/1.7 var(--sans)}
 #consultationEntryQuestion::placeholder {color:#aeb7ac}
 .consultation-entry-count {text-align:right;color:#b6bdb5;font-size:13px;margin:8px 0 0}
+.consultation-guided-entry .entry-previous-question {
+  display:inline-flex;align-items:center;min-height:44px;margin:4px 0 10px;padding:7px 12px;
+  background:#101715db;border:1px solid #c6aa7655;border-radius:6px;
+  color:#dfc69c;font:500 15px/1.5 var(--sans);cursor:pointer;
+}
+.consultation-guided-entry .entry-previous-question[hidden] {display:none}
+.consultation-guided-entry .entry-previous-question:focus-visible {outline:2px solid #dfc69c;outline-offset:3px}
 .consultation-guided-entry [hidden] {display:none!important}
 .consultation-gender-choices {display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .consultation-gender-choices button {min-height:58px;border:1px solid #f0ebe133;border-radius:8px;background:#101715a6;color:#f0ebe1;font:500 16px/1.6 var(--sans);cursor:pointer}
@@ -201,6 +208,7 @@ body.consultation-open .ai-chat-stage:has(.consultation-guided-entry[style*="blo
 #aiChatQuickActions button[hidden] { display: none !important; }
 .ai-history-consultant,
 .reading-consultant { color: #dfc69c; font-weight: 600; }
+.ai-history-consultant {display:block;margin-bottom:6px;font:600 14px/1.5 var(--sans)}
 .consultation-entry-nav > span:not(.entry-nav-count) {
   min-width: 0;
   overflow-wrap: anywhere;

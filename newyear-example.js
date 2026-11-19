@@ -25,6 +25,18 @@
     details
   );
   view.querySelector('.newyear-value').before(section);
+  document.addEventListener('click', event => {
+    const link = event.target.closest('[data-newyear-preview]');
+    if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    goTo('newyear');
+    requestAnimationFrame(() => {
+      const target = section.hidden ? view.querySelector('.newyear-account') : summary;
+      if (!section.hidden) details.open = true;
+      target.focus({preventScroll:true});
+      target.scrollIntoView({block:'start',behavior:'instant'});
+    });
+  });
 
   const updateVisibility = () => { section.hidden = view.classList.contains('has-report'); };
   new MutationObserver(updateVisibility).observe(view,{attributes:true,attributeFilter:['class']});

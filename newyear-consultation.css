@@ -74,7 +74,15 @@
 .newyear-report-section .newyear-calculation-note>summary,.newyear-months .newyear-calculation-note>summary{display:list-item;list-style:revert;cursor:pointer;color:#cbbb9b;font:500 14px/1.6 var(--sans);min-height:44px;padding:11px 0}
 .newyear-months .newyear-calculation-note>summary::after{content:none}
 .newyear-report-section .newyear-calculation-note p,.newyear-months .newyear-calculation-note p{font-size:14px;line-height:1.75;color:#b5bdb5}
-.newyear-example[hidden] { display: none !important; }
+.newyear-example[hidden], .newyear-account [data-year-refresh][hidden] { display: none !important; }
+.newyear-account, .newyear-example > details > summary { scroll-margin-top: 94px; }
+.newyear-account:focus { outline: none; }
+.newyear-account-link {
+  min-height:44px;padding:8px 0;border:0;background:transparent;color:#dfc69c;
+  font:550 16px/1.5 var(--sans);cursor:pointer;text-decoration:underline;text-underline-offset:5px;
+}
+.newyear-account-link:hover { color:#f0ebe1; }
+.newyear-account-link:focus-visible { outline:2px solid #dfc69c;outline-offset:4px; }
 .newyear-example-contents > summary { color: #dfc69c; cursor: pointer; padding: 12px 0; }
 .newyear-example-index { list-style: none; margin: 4px 0 22px; padding: 0; }
 .newyear-example-index li {
