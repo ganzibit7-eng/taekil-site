@@ -593,6 +593,13 @@
   const key = 'taekilso_consultation_entry_v1';
   let awaitingAuth = false;
   let lastOwner = owner();
+  const authOverlay = document.getElementById('authOverlay');
+  new MutationObserver(() => {
+    if (!awaitingAuth || member() || authOverlay.style.display !== 'none') return;
+    awaitingAuth = false;
+    localStorage.removeItem('taekilso_pending_chat_start');
+    persist();
+  }).observe(authOverlay, {attributes:true,attributeFilter:['style']});
   function member() {
     return typeof firebaseAuthUser !== 'undefined' && firebaseAuthUser && !firebaseAuthUser.isAnonymous ? firebaseAuthUser : null;
   }
