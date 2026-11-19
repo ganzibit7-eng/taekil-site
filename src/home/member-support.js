@@ -411,7 +411,10 @@ function getGoogleProvider(){
 }
 
 async function loginWithGoogle() {
-  if (!window.TaekilPrivacy?.confirmAge()) return;
+  if (!window.TaekilPrivacy?.confirmSignupAge()) {
+    showAuthError('만 14세 이상인지 확인해 주세요.');
+    return;
+  }
   if (!firebaseReady || !window.firebase || !firebase.auth) {
     document.getElementById('authSetupNotice').style.display = 'block';
     showAuthError('Firebase Authentication이 연결되지 않았어요. firebaseConfig와 Authentication 설정을 확인해주세요.');
@@ -602,7 +605,10 @@ function consumeKakaoLoginState(state) {
 }
 
 async function loginWithKakao() {
-  if (!window.TaekilPrivacy?.confirmAge()) return;
+  if (!window.TaekilPrivacy?.confirmSignupAge()) {
+    showAuthError('만 14세 이상인지 확인해 주세요.');
+    return;
+  }
   if (!kakaoReady) {
     showToast('카카오 로그인 설정이 아직 안 됐어요.');
     return;

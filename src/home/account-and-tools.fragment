@@ -72,6 +72,7 @@
 
         <div class="field full" style="margin-top:16px;">
           <label>생년월일</label>
+          <p class="privacy-input-note">만 14세 미만 아동 정보는 입력하지 마세요.</p>
           <div class="ymd-row">
             <select id="birthYear" class="ymd-select" aria-label="본인 출생연도"></select>
             <select id="birthMonth" class="ymd-select" aria-label="본인 출생월"></select>
@@ -700,7 +701,8 @@
 <h3>5. 사주 및 AI 상담정보 처리</h3><p>AI 상담 요청 시 선택한 사주정보, 질문 및 답변 생성에 필요한 최근 대화 일부가 답변 생성을 위해 택일소 서버와 AI 서비스 제공 과정에서 처리될 수 있습니다. 주민등록번호, 계좌 비밀번호, 인증번호 등 상담에 불필요한 비밀정보를 질문에 입력하지 않는 것을 권장합니다.</p>
 <h3>6. 개인정보의 제3자 제공</h3><p>택일소는 개인정보를 수집·이용 목적 범위를 넘어 임의로 판매하거나 제공하지 않습니다. 다만 이용자가 별도 동의한 경우, 법령에 특별한 규정이 있는 경우 등 관계 법령에서 허용하는 경우에는 예외가 적용될 수 있습니다.</p>
 <h3>7. 개인정보 처리에 사용하는 외부 서비스</h3><p>회원 로그인에는 Google/Firebase Authentication과 Kakao를 사용합니다. 회원·사주 프로필·저장한 상담·문의·주문 상태는 Google Firebase에 보관하며, 현재 Firestore 데이터베이스 저장 위치는 대한민국 서울(asia-northeast3)입니다. 결제는 PayApp을 통해 진행하고 택일소는 주문번호·상품·금액·결제 결과를 확인합니다. 카드번호와 결제 비밀번호를 상담창이나 문의에 입력하지 마세요.</p><p>AI 상담과 신년 리포트 생성 요청은 대한민국 서울(asia-northeast3)의 Google Cloud Run에서 운영되는 택일소 서버를 거쳐 OpenAI GPT API로 우선 전달됩니다. 연결 오류나 시간 초과 등으로 요청을 처리하지 못하면 Anthropic Claude API로 전환할 수 있습니다. 전달 범위에는 선택한 사주의 계산 자료, 현재 질문과 답변에 필요한 최근 대화가 포함됩니다. 홈페이지 정적 파일은 Cloudflare Pages에서 제공합니다. 각 제공업체는 서비스 제공과 보안 운영에 필요한 기술정보를 처리할 수 있습니다.</p>
-<h3>8. AI·클라우드 서비스의 국외 처리</h3>
+<h3 id="ai-transfer-policy">8. AI·클라우드 서비스의 국외 처리</h3>
+<p>AI 상담과 신년 리포트 생성에 필요한 개인정보의 국외 이전은 개인정보 보호법 제28조의8 제1항 제1호에 따라 서비스 이용 약관과 별도로 동의를 받습니다. 첫 AI 전송 화면에서 ‘취소’를 누르면 요청이 전송되지 않습니다. 동의 후 추가 전송을 중지하려면 로그아웃하거나 화면을 새로고침해 다시 표시되는 동의 화면에서 취소할 수 있습니다. 기본 사주·택일 계산은 계속 이용할 수 있습니다.</p>
 <p>질문을 전송하거나 신년 리포트 발급을 요청할 때 서울의 택일소 서버가 사주 계산값, 질문과 답변에 필요한 대화 맥락을 HTTPS로 전달합니다. 아래 안내는 택일소가 확인한 계정 설정과 각 업체의 공개 상용 API 정책을 기준으로 합니다. 수령 법인의 소재지는 미국이며, 실제 처리 국가와 보관 예외는 제공업체의 처리 지역 설정 및 재위탁 조건에 따라 달라질 수 있습니다.</p>
 <ul><li>OpenAI OpCo, LLC · 미국. 상담 답변과 리포트를 먼저 생성합니다. <a href="https://privacy.openai.com/" rel="noopener">개인정보 문의</a> · <a href="https://openai.com/policies/sub-processor-list/">재위탁 업체와 위치</a></li>
 <li>Anthropic, PBC · 미국. OpenAI 요청이 실패하여 Claude가 대신 답할 때 전달합니다. <a href="mailto:privacy@anthropic.com">privacy@anthropic.com</a> · <a href="https://www.anthropic.com/subprocessors">재위탁 업체와 위치</a></li></ul><p>Firebase 데이터베이스와 Cloud Run 서버의 서울 지역 설정과 별개로 Google 인증 및 OpenAI·Anthropic API 등 국외 사업자가 제공하는 기능에서 정보가 국외 처리될 수 있습니다. 2026년 11월 19일 확인한 OpenAI 조직의 활성 프로젝트 처리 지역은 Global이며 국가 하나로 한정되지 않습니다. 조직의 입력·출력 모델 개선 공유는 꺼져 있습니다. API 로그 저장은 호출별로 설정되며, 택일소는 요청에 응답 저장을 끄는 설정을 적용합니다. 이와 별개로 OpenAI의 기본 정책에 따라 입력·출력 일부가 포함될 수 있는 악용 모니터링 기록이 최대 30일 보관될 수 있으며, 법적 의무나 서비스 보호 등에 따른 예외가 있습니다. </p>

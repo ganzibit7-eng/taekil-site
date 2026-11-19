@@ -828,5 +828,25 @@
     "after": "  const item={event:name, at:Date.now()};\n",
     "before": "  const item={event:name, at:Date.now()}; // Analytics never stores raw questions or personal profile fields.\n  try{\n    const list=JSON.parse(localStorage.getItem(AI_FUNNEL_KEY)||'[]');\n    const safe=Array.isArray(list)?list.map(x=>({event:String(x.event||'').slice(0,60),at:Number(x.at||0)})):[];\n    safe.push(item);\n    localStorage.setItem(AI_FUNNEL_KEY,JSON.stringify(safe.slice(-200)));\n  }catch(e){}\n\n",
     "count": 1
+  },
+  {
+    "before": "async function sendAiChatMessage() {\n  if (!window.TaekilPrivacy?.confirmAI()) return;",
+    "after": "async function sendAiChatMessage() {",
+    "count": 1
+  },
+  {
+    "before": "  if (!conversationId || sendBtn.disabled) return;",
+    "after": "  if (!conversationId || sendBtn.disabled) return;\n  if (!await window.TaekilPrivacy?.confirmAI()) return;\n  if (!sameConversation() || sendBtn.disabled || input.value.trim() !== message) return;",
+    "count": 1
+  },
+  {
+    "before": "async function loginWithGoogle() {\n  if (!window.TaekilPrivacy?.confirmAge()) return;",
+    "after": "async function loginWithGoogle() {\n  if (!window.TaekilPrivacy?.confirmSignupAge()) {\n    showAuthError('만 14세 이상인지 확인해 주세요.');\n    return;\n  }",
+    "count": 1
+  },
+  {
+    "before": "async function loginWithKakao() {\n  if (!window.TaekilPrivacy?.confirmAge()) return;",
+    "after": "async function loginWithKakao() {\n  if (!window.TaekilPrivacy?.confirmSignupAge()) {\n    showAuthError('만 14세 이상인지 확인해 주세요.');\n    return;\n  }",
+    "count": 1
   }
 ]

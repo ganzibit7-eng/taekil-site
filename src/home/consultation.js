@@ -1544,7 +1544,6 @@ function focusAiChatInput() {
 }
 
 async function sendAiChatMessage() {
-  if (!window.TaekilPrivacy?.confirmAI()) return;
   const accountToken = accountStore.snapshot();
   const conversationId = window.__aiConversationId;
   const sameConversation = () => accountStore.current(accountToken) && window.__aiConversationId === conversationId;
@@ -1559,6 +1558,8 @@ async function sendAiChatMessage() {
   const uid = getCurrentUserKey();
   const sendBtn = document.getElementById('aiChatSendBtn');
   if (!conversationId || sendBtn.disabled) return;
+  if (!await window.TaekilPrivacy?.confirmAI()) return;
+  if (!sameConversation() || sendBtn.disabled || input.value.trim() !== message) return;
   input.value = '';
   sendBtn.disabled = true;
   input.dispatchEvent(new Event('input', {bubbles:true}));
