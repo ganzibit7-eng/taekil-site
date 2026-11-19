@@ -73,7 +73,15 @@
     const legal = document.getElementById('view-legal');
     const showSection = () => {
       if (!legal?.classList.contains('visible')) return false;
-      document.getElementById('ai-transfer-policy')?.scrollIntoView({block:'start',behavior:'instant'});
+      const scrollToPolicy = () => requestAnimationFrame(() => {
+        if (legal.classList.contains('visible')) {
+          document.getElementById('ai-transfer-policy')?.scrollIntoView({block:'start',behavior:'instant'});
+        }
+      });
+      scrollToPolicy();
+      const afterLayout = () => { document.fonts.ready.then(scrollToPolicy); };
+      if (document.readyState === 'complete') afterLayout();
+      else window.addEventListener('load', afterLayout, {once:true});
       return true;
     };
     if (legal && !showSection()) {
