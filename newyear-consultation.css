@@ -74,3 +74,15 @@
 .newyear-report-section .newyear-calculation-note>summary,.newyear-months .newyear-calculation-note>summary{display:list-item;list-style:revert;cursor:pointer;color:#cbbb9b;font:500 14px/1.6 var(--sans);min-height:44px;padding:11px 0}
 .newyear-months .newyear-calculation-note>summary::after{content:none}
 .newyear-report-section .newyear-calculation-note p,.newyear-months .newyear-calculation-note p{font-size:14px;line-height:1.75;color:#b5bdb5}
+.newyear-example[hidden] { display: none !important; }
+.newyear-example-contents > summary { color: #dfc69c; cursor: pointer; padding: 12px 0; }
+.newyear-example-index { list-style: none; margin: 4px 0 22px; padding: 0; }
+.newyear-example-index li {
+  display: grid; grid-template-columns: 46px 1fr; gap: 8px; align-items: start;
+  padding: 8px 0; border-bottom: 1px solid #344139; line-height: 1.6; color: #d2d8cf;
+}
+.newyear-example-index strong { color: #cfb785; font-weight: 500; }
+.newyear-example-body .directory-preview-action { margin-top: 14px; }
+@media(max-width:600px) {
+  #view-newyear .newyear-example { margin: 16px 0 26px; padding: 20px 0; }
+}

@@ -722,3 +722,40 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
  [data-home-opening] .directory-hero-copy { padding:22px; }
  [data-home-opening] .directory-hero-media::after { background:linear-gradient(180deg,#10171500 48%,#0a100c40 72%,#0a100cd9 100%); }
 }
+
+.directory-concern-shortcuts {
+  display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); margin: 12px 0 4px;
+  border-block: 1px solid var(--directory-line);
+}
+.directory-concern-shortcuts a {
+  display: grid; place-items: center; min-height: 48px; padding: 6px; text-align: center;
+  color: #eadbc0; font: 500 16px/1.35 var(--sans); word-break: keep-all;
+}
+.directory-concern-shortcuts a + a { border-inline-start: 1px solid var(--directory-line); }
+.directory-concern-shortcuts a:hover { background: #c6aa7611; }
+.directory-recent[hidden] { display: none; }
+.directory-recent { margin-top: 14px; }
+.directory-recent button {
+  width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  min-height: 62px; padding: 12px 15px; text-align: left; border: 1px solid var(--directory-line);
+  border-radius: 8px; background: #1b2420; color: #f0ebe1; cursor: pointer;
+}
+.directory-recent button > span:first-child { min-width: 0; }
+.directory-recent strong,.directory-recent small { display: block; }
+.directory-recent small {
+  margin-top: 3px; color: var(--directory-muted); font-size: 14px;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.directory-recent [data-recent-advisor] { color: #c6aa76; white-space: nowrap; font-size: 14px; }
+.directory-year-preview { display: inline-flex; min-height: 44px; align-items: center; }
+.public-reading-source { display: block; color: #b6bdb5; margin: 10px 0 0; font: 400 14px/1.6 var(--sans); }
+.public-reading-evidence { margin-top: 10px; color: #cfbe9a; font: 400 14px/1.7 var(--sans); }
+.public-reading-evidence summary { cursor: pointer; padding-block: 8px; }
+.public-reading-evidence ul { margin: 4px 0 0; padding-inline-start: 22px; }
+.consultation-example-question { color: #e5dccb; font-weight: 600; }
+@media(max-width:660px) {
+  .directory-hero[data-home-opening] { min-height: clamp(286px, 84vw, 356px); }
+  .directory-concern-shortcuts a { font-size: 15px; }
+  .directory-sections { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; }
+  .home-directory .directory-sections button { flex: 0 0 auto; padding-inline: 8px; }
+}

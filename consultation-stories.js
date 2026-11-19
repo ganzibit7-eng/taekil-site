@@ -219,7 +219,7 @@
             title: '예전에 같은 말로 돌아간 순간부터',
             paragraphs: [
               '이준은 그리웠던 날과 관계에서 긴장했던 날을 짧게 나눠 들여다봅니다. 연락 간격이 조금만 길어져도 이유를 묻게 됐는지, 서운한 말을 참다가 한 번에 전했는지처럼 구체적인 장면이 풀이의 출발점이 돼요.',
-              '예시 답변에서는 월지 지장간에 계산된 정관을 책임과 기준의 관점으로 풉니다. 그 해석을 실제 갈등에 대입해 내가 기대했던 약속이 무엇이고, 그 약속을 어떻게 이야기해 볼 수 있는지 정리합니다.'
+              '예시 답변에서는 내 뜻을 전하는 방식과 그 말을 상대가 어떻게 들을지를 함께 봅니다. 이번에 전하고 싶은 말이 있는지, 답을 받아야만 마음이 놓일 것 같은지를 구분해요.'
             ]
           },
           {
@@ -245,7 +245,6 @@
           }]
         ]
       },
-      example: 'directoryPreviewReunion'
     },
     marriage: {
       tone: '#dbc18d',
@@ -433,7 +432,6 @@
           }]
         ]
       },
-      example: 'directoryPreviewSaving'
     },
     'career-growth': {
       tone: '#b7bbd6',
@@ -690,10 +688,14 @@
     const [opening, reading, closing] = feature.chapters;
     body.append(makeScene(feature), makeChapter(opening), makeChapter(reading, feature, advisor.motion?.chapter));
 
-    const sample = story.example && document.getElementById(story.example)?.querySelector('figure');
+    const sample = document.querySelector('#homeDirectory [data-preview-panel="' + key + '"] figure') ||
+      document.getElementById('story-reading-' + key)?.content.querySelector('figure');
     if (sample) {
       const quote = make('section', '', 'consultation-story-example');
-      quote.append(make('h2', '가상 사주로 받은 실제 답변'), sample.cloneNode(true));
+      const copy = sample.cloneNode(true);
+      const question = make('p', document.querySelector('#homeDirectory [data-preview-panel="' + key + '"] h3')?.textContent ||
+        document.getElementById('story-reading-' + key)?.dataset.question, 'consultation-example-question');
+      quote.append(make('h2', '실제 상담은 이렇게 답해요'), question, copy);
       body.append(quote);
     }
 

@@ -1564,10 +1564,15 @@ async function sendAiChatMessage() {
   const sendBtn = document.getElementById('aiChatSendBtn');
   if (!conversationId || sendBtn.disabled) return;
   if (!window.TaekilPrivacy?.hasAIConsent()) {
-    document.getElementById('aiChatPanel').style.display = 'none';
-    showAiChatSetupStep();
-    showToast('상담 시작 화면에서 개인정보 국외 이전에 동의해 주세요.');
-    return;
+    const panel = document.getElementById('aiChatPanel');
+    sendBtn.disabled = true;
+    let consent;
+    try {
+      consent = await window.TaekilPrivacy?.confirmAI(panel);
+    } finally {
+      if (sameConversation()) sendBtn.disabled = false;
+    }
+    if (!consent || !sameConversation() || panel.style.display !== 'flex' || input.value.trim() !== message) return;
   }
   input.value = '';
   sendBtn.disabled = true;
