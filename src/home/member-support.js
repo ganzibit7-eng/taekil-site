@@ -173,6 +173,10 @@ function renderSupportList() {
         const ownerUid = getInquiryOwnerUid();
         if (!ownerUid || q.ownerUid !== ownerUid) return;
         const badge = listEl.querySelector(`[data-status-id="${item.id}"]`);
+        if (['dispute-kakao','dispute-firebase'].includes(q.source) || q.legalHold === true) {
+          const cancel = listEl.querySelector('[data-cancel-id="' + item.id + '"]');
+          if (cancel) cancel.hidden = true;
+        }
         if (badge && q.status === '답변완료') {
           badge.textContent = '답변완료';
           badge.className = 'inq-status answered';
@@ -216,7 +220,7 @@ function cancelInquiry(id) {
     if (!snap.exists) return;
     const data = snap.data();
     if (!accountStore.current(accountToken) || data.ownerUid !== accountToken.owner) return;
-    if (isRefundRequestTitle(data.title)) {
+    if (isRefundRequestTitle(data.title) || ['dispute-kakao','dispute-firebase'].includes(data.source) || data.legalHold === true) {
       showToast('환불 요청 문의는 취소할 수 없어요. 고객센터로 문의해주세요.');
       return;
     }

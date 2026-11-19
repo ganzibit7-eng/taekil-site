@@ -152,6 +152,8 @@ service cloud.firestore {
           signedIn()
           && resource.data.ownerUid == request.auth.uid
           && resource.data.status != '답변완료'
+          && resource.data.get('legalHold', false) != true
+          && !(resource.data.get('source', '') in ['dispute-kakao', 'dispute-firebase'])
           && resource.data.title != '프리미엄 결제 환불 요청'
         );
     }

@@ -798,5 +798,15 @@
     "before": "async function sendAiChatMessage() {\n  if (!window.TaekilPrivacy?.confirmAge()) return;",
     "after": "async function sendAiChatMessage() {\n  if (!window.TaekilPrivacy?.confirmAI()) return;",
     "count": 1
+  },
+  {
+    "before": "    if (isRefundRequestTitle(data.title)) {",
+    "after": "    if (isRefundRequestTitle(data.title) || ['dispute-kakao','dispute-firebase'].includes(data.source) || data.legalHold === true) {",
+    "count": 1
+  },
+  {
+    "before": "        if (badge && q.status === '답변완료') {",
+    "after": "        if (['dispute-kakao','dispute-firebase'].includes(q.source) || q.legalHold === true) {\n          const cancel = listEl.querySelector('[data-cancel-id=\"' + item.id + '\"]');\n          if (cancel) cancel.hidden = true;\n        }\n        if (badge && q.status === '답변완료') {",
+    "count": 1
   }
 ]
