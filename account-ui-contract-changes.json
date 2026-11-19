@@ -688,5 +688,115 @@
     "before": "sessionStorage.setItem('taekilso_'+box.id,open?'1':'0')",
     "after": "sessionStorage.setItem('taekilso_admin_fold_v2_'+box.id,open?'1':'0')",
     "count": 1
+  },
+  {
+    "before": "const token = accessToken || sessionStorage.getItem('taekilso_kakao_access_token');",
+    "after": "const token = accessToken;",
+    "count": 1
+  },
+  {
+    "before": "  const kakaoToken = sessionStorage.getItem('taekilso_kakao_access_token');\n  if (kakaoToken) headers['X-Kakao-Access-Token'] = kakaoToken;\n\n  return headers;",
+    "after": "  return headers; // Firebase verifies the existing member session.",
+    "count": 1
+  },
+  {
+    "before": "    sessionStorage.setItem('taekilso_kakao_access_token', tokenData.access_token);",
+    "after": "    // Only Firebase maintains the signed-in session after the token exchange.",
+    "count": 1
+  },
+  {
+    "before": "async function confirmDeleteAccount() {\n  const paymentUser = await ensureFirestorePaymentAuth();",
+    "after": "async function confirmDeleteAccount() {\n  const paymentUser = window.firebase?.auth().currentUser;",
+    "count": 1
+  },
+  {
+    "before": "  try {\n    const auth = await getVerifiedFirebaseBearer(paymentUser);",
+    "after": "  try {\n    if (paymentUser.uid.startsWith('kakao_')) {\n      if (!kakaoReady || location.origin !== 'https://taekilso.com') throw Error('택일소 공식 홈페이지에서 카카오 재인증을 시작해주세요.');\n      const state = createKakaoLoginState();\n      sessionStorage.setItem('taekilso_delete_intent', JSON.stringify({state, uid:paymentUser.uid}));\n      Kakao.Auth.authorize({redirectUri:'https://taekilso.com/', scope:'profile_nickname', prompt:'login', state});\n      return;\n    }\n    await paymentUser.reauthenticateWithPopup(getGoogleProvider());\n    await finishAccountDeletion(paymentUser);\n  } catch (_) {\n    showToast('본인 확인을 완료하지 못했어요. 회원정보는 그대로예요.');\n  }\n}\n\nasync function finishAccountDeletion(paymentUser, kakaoCode) {\n  try {\n    await paymentUser.getIdToken(true);\n    const auth = await getVerifiedFirebaseBearer(paymentUser);",
+    "count": 1
+  },
+  {
+    "before": "body: JSON.stringify({ confirm: true }),",
+    "after": "body: JSON.stringify({ confirm: true, kakaoCode }),",
+    "count": 1
+  },
+  {
+    "before": "  const validState = consumeKakaoLoginState(state);",
+    "after": "  const validState = consumeKakaoLoginState(state);\n  const deletion = sessionStorage.getItem('taekilso_delete_intent');\n  sessionStorage.removeItem('taekilso_delete_intent');",
+    "count": 1
+  },
+  {
+    "before": "    const body = new URLSearchParams({\n      grant_type:",
+    "after": "    if (deletion) {\n      const intent = JSON.parse(deletion);\n      if (intent.state === state) {\n        const user = await ensureFirestorePaymentAuth();\n        if (!user || user.uid !== intent.uid) { showToast('로그인한 계정을 다시 확인해주세요.'); return; }\n        if (confirm('본인 확인을 마쳤어요. 지금 회원탈퇴를 완료할까요?')) await finishAccountDeletion(user, code);\n        return;\n      }\n    }\n    const body = new URLSearchParams({\n      grant_type:",
+    "count": 1
+  },
+  {
+    "before": "async function loginWithGoogle() {",
+    "after": "async function loginWithGoogle() {\n  if (!window.TaekilPrivacy?.confirmAge()) return;",
+    "count": 1
+  },
+  {
+    "before": "async function loginWithKakao() {",
+    "after": "async function loginWithKakao() {\n  if (!window.TaekilPrivacy?.confirmAge()) return;",
+    "count": 1
+  },
+  {
+    "before": "    source: kakaoUser ? 'kakao' : 'firebase'",
+    "after": "    source: inquiryType + '-' + (kakaoUser ? 'kakao' : 'firebase')",
+    "count": 1
+  },
+  {
+    "before": "  const titleEl = document.getElementById('supportTitle');",
+    "after": "  const inquiryType = document.getElementById('supportType')?.value;\n  if (!['general','dispute'].includes(inquiryType)) { showSupportStatus('문의 종류를 선택해주세요.', 'error'); return; }\n  const titleEl = document.getElementById('supportTitle');",
+    "count": 1
+  },
+  {
+    "before": "    document.getElementById('supportTitle').value = '프리미엄 결제 환불 요청';",
+    "after": "    document.getElementById('supportType').value = 'dispute';\n    document.getElementById('supportTitle').value = '프리미엄 결제 환불 요청';",
+    "count": 1
+  },
+  {
+    "before": "  document.getElementById('supportTitle').value = t.title;",
+    "after": "  document.getElementById('supportType').value = 'dispute';\n  document.getElementById('supportTitle').value = t.title;",
+    "count": 1
+  },
+  {
+    "before": "  if (typeof PayApp === 'undefined') { showToast",
+    "after": "  if (!await window.TaekilCheckout.loadSdk()) return;\n  if (typeof PayApp === 'undefined') { showToast",
+    "count": 1
+  },
+  {
+    "before": "  if (typeof PayApp === 'undefined') {\n",
+    "after": "  if (!await window.TaekilCheckout.loadSdk()) return;\n  if (typeof PayApp === 'undefined') {\n",
+    "count": 1
+  },
+  {
+    "before": "    await paymentUser.getIdToken(true);\n    const auth = await getVerifiedFirebaseBearer(paymentUser);",
+    "after": "    const auth = 'Bearer ' + await paymentUser.getIdToken(true);",
+    "count": 1
+  },
+  {
+    "before": "function logout() {",
+    "after": "function logout() {\n  window.TaekilPrivacy?.resetAge();",
+    "count": 1
+  },
+  {
+    "before": "function startAiChat(reportOptions) {",
+    "after": "function startAiChat(reportOptions) {\n  if (!window.TaekilPrivacy?.confirmAge()) return;",
+    "count": 1
+  },
+  {
+    "before": "async function sendAiChatMessage() {",
+    "after": "async function sendAiChatMessage() {\n  if (!window.TaekilPrivacy?.confirmAge()) return;",
+    "count": 1
+  },
+  {
+    "before": "function showAiChatSetupStep() {",
+    "after": "function showAiChatSetupStep() {\n  if (!window.TaekilPrivacy?.confirmAge()) return;",
+    "count": 1
+  },
+  {
+    "before": "async function sendAiChatMessage() {\n  if (!window.TaekilPrivacy?.confirmAge()) return;",
+    "after": "async function sendAiChatMessage() {\n  if (!window.TaekilPrivacy?.confirmAI()) return;",
+    "count": 1
   }
 ]

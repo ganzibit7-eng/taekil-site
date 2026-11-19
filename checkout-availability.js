@@ -50,5 +50,21 @@
   window.addEventListener('pageshow', event => {
     if (event.persisted) unlock();
   });
-  window.TaekilCheckout = { watch, requireOpen, run };
+  let sdkPromise;
+  async function loadSdk() {
+    if (!requireOpen()) return false;
+    if (window.PayApp) return true;
+    if (!sdkPromise) sdkPromise = new Promise(resolve => {
+      const script = document.createElement('script');
+      const finish = ok => { clearTimeout(timer); script.onload = script.onerror = null; if (!ok) script.remove(); resolve(ok); };
+      const timer = setTimeout(() => finish(false), 12000);
+      script.onload = () => finish(Boolean(window.PayApp));
+      script.onerror = () => finish(false);
+      script.src = 'https://lite.payapp.kr/public/api/v2/payapp-lite.js';
+      document.head.append(script);
+    });
+    if (!await sdkPromise) { sdkPromise = null; showToast('결제 연결을 준비하지 못했어요. 다시 시도해주세요.'); return false; }
+    return requireOpen();
+  }
+  window.TaekilCheckout = { watch, requireOpen, run, loadSdk };
 })();

@@ -23,6 +23,7 @@ async function startQuestionPackCheckout(packId) {
     openAuthModal();
     return;
   }
+  if (!await window.TaekilCheckout.loadSdk()) return;
   if (typeof PayApp === 'undefined') { showToast('결제 모듈을 불러오지 못했어요. 잠시 후 다시 시도해주세요.'); return; }
 
   let paymentUser = null;
@@ -218,6 +219,7 @@ async function startPremiumCheckout() {
     return;
   }
 
+  if (!await window.TaekilCheckout.loadSdk()) return;
   if (typeof PayApp === 'undefined') {
     showToast('결제 모듈을 불러오지 못했어요. 잠시 후 다시 시도해주세요.');
     return;

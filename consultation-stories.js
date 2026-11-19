@@ -683,6 +683,7 @@
     view.setAttribute('aria-labelledby', title.id);
     const intro = make('div', '', 'consultation-story-intro');
     intro.append(make('p', advisor.name + ' · ' + advisor.specialty, 'consultation-story-label'), title, make('p', story.scene));
+    intro.append(make('small', 'AI 상담사 · AI로 제작한 장면'));
     hero.append(frame, intro);
 
     const body = make('div', '', 'consultation-story-body');

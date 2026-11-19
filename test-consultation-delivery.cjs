@@ -23,7 +23,7 @@ function fixture() {
   const button = {disabled:false};
   const history = [];
   const requests = [];
-  const window = {__aiConversationId:'fixture-conversation', __aiChatHistory:history, dispatchEvent() {}};
+  const window = {TaekilPrivacy:{confirmAI:()=>true}, __aiConversationId:'fixture-conversation', __aiChatHistory:history, dispatchEvent() {}};
   const nodes = {aiChatInput:input, aiChatSendBtn:button};
   const context = {
     window, document:{getElementById:id => nodes[id] || null, querySelector:() => null},

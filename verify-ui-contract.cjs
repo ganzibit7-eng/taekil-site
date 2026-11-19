@@ -3,7 +3,11 @@ const baselineRef='d7bd53ed709f19d5ffb633b622dcae97158de697';
 const baseline=cp.execFileSync('git',['show',baselineRef+':index.html'],{encoding:'utf8'}).replace(/\r\n/g,'\n');
 const current=fs.readFileSync('index.html','utf8').replace(/\r\n/g,'\n');
 const scripts=html=>[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].map(m=>[m[1],m[2]]);
-const originalScripts=scripts(current).filter(([attrs])=>attrs!==' id="startup-recovery"'&&!['consultation-experience-core.js','consultation-experience.js','checkout-availability.js','campaign-attribution-core.js','campaign-attribution.js','account-session-core.js','account-session.js','site-menu.js','yeonwoo-video.js','newyear-example.js','admin-payment-baseline.js','premium-motion.js','admin-analytics-core.js','admin-analytics.js','consultation-personas.js','consultation-draft-core.js','consultation-stage.js','navigation-stability.js','/home-layout.js','newyear-consultation.js','free-report-handoff-core.js','free-report-handoff.js','preview-funnel.js','date-comparison.js','consultation-stories.js','consultation-additional-stories.js','navigation-refinement.js','profile-picker-controls.js','consultation-quality.js','support-channels.js'].some(src=>new RegExp('src="'+src.replaceAll('.', '\\.')+'(?:\\?[^"]*)?"').test(attrs)));
+// The active payment SDK was replaced in place by local privacy controls.
+const paySdk='https://lite.payapp.kr/public/api/v2/payapp-lite.js';
+assert(!scripts(current).some(([attrs])=>attrs.includes(paySdk)));
+assert(fs.readFileSync('checkout-availability.js','utf8').includes(paySdk));
+const originalScripts=scripts(current.replace('<script src="privacy-controls.js?v=1"></script>','<script src="'+paySdk+'"></script>')).filter(([attrs])=>attrs!==' id="startup-recovery"'&&!['consultation-experience-core.js','consultation-experience.js','checkout-availability.js','campaign-attribution-core.js','campaign-attribution.js','account-session-core.js','account-session.js','site-menu.js','yeonwoo-video.js','newyear-example.js','admin-payment-baseline.js','premium-motion.js','admin-analytics-core.js','admin-analytics.js','consultation-personas.js','consultation-draft-core.js','consultation-stage.js','navigation-stability.js','/home-layout.js','newyear-consultation.js','free-report-handoff-core.js','free-report-handoff.js','preview-funnel.js','date-comparison.js','consultation-stories.js','consultation-additional-stories.js','navigation-refinement.js','profile-picker-controls.js','consultation-quality.js','support-channels.js'].some(src=>new RegExp('src="'+src.replaceAll('.', '\\.')+'(?:\\?[^"]*)?"').test(attrs)));
 const accountChanges=JSON.parse(fs.readFileSync('account-ui-contract-changes.json','utf8'));
 const normalizeAccounts=source=>accountChanges.slice().reverse().reduce((text,change)=>text.split(change.after).join(change.before),source);
 const consultationChanges=JSON.parse(fs.readFileSync('consultation-ui-contract-changes.json','utf8'));
@@ -34,7 +38,13 @@ const normalizeReport=source=>normalizeAccounts(normalizeConsultation(source))
 .replace("const storedTodayQuestion = reportManual ? '' : takeTodayFortunePendingQuestion();",'const storedTodayQuestion = takeTodayFortunePendingQuestion();')
 .replace("const pendingQuestion = reportManual ? '' : (window.__pendingCategoryQuestion || storedTodayQuestion);",'const pendingQuestion = window.__pendingCategoryQuestion || storedTodayQuestion;');
 const normalizeSeasonal=source=>normalizeReport(source).replace(/        \/\* NEWYEAR_SCOPE_START \*\/[\s\S]*?        \/\* NEWYEAR_SCOPE_END \*\/\n/,'').replace(/      \/\* NEWYEAR_RESPONSE_START \*\/[\s\S]*?      \/\* NEWYEAR_RESPONSE_END \*\/\n/,'').replace("goodname: '2027 신년상담 · 30일 이용권'","goodname: '택일소 프리미엄 30일 이용권'");
-assert.deepEqual(originalScripts.map(([a,b])=>[a,normalizeSeasonal(b)]),scripts(baseline),'Existing inline and external scripts must remain exactly unchanged');
+function historicalAttributes(attrs) {
+  if (!attrs.includes(' integrity=')) return attrs;
+  assert.match(attrs, /^ src="https:\/\/[^"]+" integrity="sha384-[\w+/]{64}" crossorigin="anonymous"$/);
+  const src = attrs.split(' integrity=')[0];
+  return src.includes('t1.kakaocdn.net') ? src + ' crossorigin="anonymous"' : src;
+}
+assert.deepEqual(originalScripts.map(([a,b])=>[historicalAttributes(a),normalizeSeasonal(b)]),scripts(baseline),'Existing inline and external scripts must remain exactly unchanged');
 new Function(fs.readFileSync('premium-motion.js','utf8'));
 new Function(fs.readFileSync('site-menu.js','utf8'));
 const hooks=html=>[...html.matchAll(/\bon(?:click|change|input|keydown|submit)="[^"]*"/g)].map(m=>m[0]);
@@ -57,7 +67,7 @@ const normalizedHeader=currentHeader.replace(homeLink,(_,contents)=>`<div class=
 assert.equal(normalizedHeader,segment(baseline,'<div class="topbar">','<!-- ============ AUTH MODAL'),'Other header actions remain unchanged');
 const profile=html=>segment(html,'<div class="ai-chat-topbar-overlay">','<!-- STEP 0:').replace('<small>당신의 운을 함께 봐드리는 AI예요.</small>','').replace(/^[\t ]+$/gm,'');
 assert.equal(profile(current),profile(baseline),'Original Yeonwoo profile image and name must remain unchanged');
-assert(current.includes('https://lite.payapp.kr/public/api/v2/payapp-lite.js'));
+assert(current.includes('privacy-controls.js?v=1'));
 assert(current.includes('api/ai-chat'));
 for(const [,source]of scripts(current)){if(source.trim()&&!source.trim().startsWith('{'))new Function(source);}
 assert(current.includes('id="view-plans"')&&current.includes('id="view-services"'));
