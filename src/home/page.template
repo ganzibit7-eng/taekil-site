@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="/home-layout.js?v=20261119-topic-index"></script>
+<script src="/home-layout.js?v=20261119-handoff-refine"></script>
 <link rel="stylesheet" href="/home-layout.css?v=20261119-topic-index">
 <title>택일소 | AI 사주 상담 · 오늘의 운세 · 결혼·이사·개업 택일</title>
 <meta name="description" content="AI 사주 상담가 연우에게 오늘의 운세, 연애운, 재물운, 궁합을 묻고 결혼·이사·개업·계약 날짜까지 비교해보세요. 첫 질문 3개 무료.">
@@ -273,22 +273,22 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=20261119-daily"></script>
 <script src="admin-analytics.js?v=20261119-daily"></script>
 
-<link rel="stylesheet" href="consultation-stage.css?v=20261117-chat-byline">
+<link rel="stylesheet" href="consultation-stage.css?v=20261119-handoff-refine">
 <script src="consultation-personas.js?v=20261118-chat-films"></script>
 <link rel="stylesheet" href="consultation-stories.css?v=20261119-preview-buttons">
 <script src="consultation-additional-stories.js?v=20261118-questions"></script>
 <!-- story-reading-templates -->
 <script src="consultation-stories.js?v=20261119-preview-buttons"></script>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261118-continuous-arrival"></script><script src="premium-motion.js" defer></script>
-<script src="consultation-draft-core.js?v=20261117-added-topics"></script>
-<script src="consultation-stage.js?v=20261119-current-readings"></script>
+<script src="consultation-draft-core.js?v=20261119-handoff-refine"></script>
+<script src="consultation-stage.js?v=20261119-handoff-refine"></script>
 <link rel="stylesheet" href="consultation-experience.css?v=20261113-library-1">
 <script src="consultation-experience-core.js?v=20261117-saved-evidence"></script>
 <script src="consultation-experience.js?v=20261117-saved-evidence"></script>
 
 <script src="navigation-stability.js?v=20261111-2"></script>
-<link rel="stylesheet" href="newyear-consultation.css?v=20261119-current-readings">
-<script src="newyear-consultation.js?v=20261119-before-chat"></script><script src="newyear-example.js?v=20261119-current-readings"></script>
+<link rel="stylesheet" href="newyear-consultation.css?v=20261119-handoff-refine">
+<script src="newyear-consultation.js?v=20261119-handoff-refine"></script><script src="newyear-example.js?v=20261119-handoff-refine"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=20261110-1">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
 <script src="free-report-handoff.js?v=20261119-before-chat"></script>

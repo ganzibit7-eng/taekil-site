@@ -85,7 +85,7 @@ test('the FAQ has a dedicated home link and the ad landing still opens the share
   }
 });
 
-test('the directory has a separate new-year section leading to the existing Yeonwoo landing', () => {
+test('the directory links straight to the annual report while the Yeonwoo landing still offers it', () => {
   const html = readFileSync(path.join(__dirname, 'index.html'), 'utf8');
   const directoryStart = html.indexOf('id="homeDirectory"');
   const adStart = html.indexOf('<div class="block home-first-block"', directoryStart);
@@ -95,7 +95,8 @@ test('the directory has a separate new-year section leading to the existing Yeon
   assert.doesNotMatch(hero, /연우의 AI 사주 상담|연애와 일, 돈과 관계|연우와 상담 시작하기|처음 가입하면 질문 3개 무료/);
   const season = directory.match(/<section class="directory-section" aria-labelledby="directoryNewyearTitle">([\s\S]+?)<\/section>/)?.[1];
   assert.match(season, /2027년 신년상담/);
-  assert.match(season, /href="\/\?landing=yeonwoo"/);
+  assert.match(season, /class="directory-feature directory-feature-year" href="#newyear"/);
+  assert.match(season, /href="#newyear" data-newyear-preview/);
   assert.match(html.slice(adStart), /<button class="btn newyear-home-entry" data-open-newyear>2027 신년상담 알아보기<\/button>/);
 });
 

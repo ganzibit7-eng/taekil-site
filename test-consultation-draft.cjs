@@ -55,3 +55,13 @@ test('topic guides survive authorized login and old drafts open without a guide'
   assert.equal(C.read({...draft, topic:'https://other.example/portrait'}, 2000, '').topic, '');
   assert.equal(C.read({...draft, owner:'member-a'}, 2000, 'member-b'), null);
 });
+
+test('an optional previous question is bounded and uses the same owner and expiry as the active draft', () => {
+  const draft = {...sample(),owner:'member-a',topic:'saving',question:'새 질문',previousQuestion:'가'.repeat(250)};
+  const restored = C.read(JSON.stringify(draft),2000,'member-a');
+  assert.equal(restored.previousQuestion.length,200);
+  assert.equal(restored.question,'새 질문');
+  assert.equal(C.read(sample(),2000,'').previousQuestion,'');
+  assert.equal(C.read(draft,2000,'member-b'),null);
+  assert.equal(C.read(draft,1000+C.ttl+1,'member-a'),null);
+});

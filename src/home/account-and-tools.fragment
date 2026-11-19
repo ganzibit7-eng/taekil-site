@@ -240,7 +240,7 @@
     <div class="hero-inner">
       <div class="eyebrow">내 기록</div>
       <h1 style="font-size:clamp(28px,4.6vw,46px);">찾아본 날짜와<br>저장한 사주를 한곳에</h1>
-      <p class="hero-copy">연우와 나눈 AI 상담을 먼저 이어보고, 택일 검색 기록과 저장한 사주도 한곳에서 관리할 수 있어요.</p>
+      <p class="hero-copy">상담사와 나눈 대화를 다시 열고, 택일 검색 기록과 저장한 사주를 한곳에서 관리할 수 있어요.</p>
     </div>
   </header>
 
@@ -251,7 +251,7 @@
         <button class="history-summary-card active" id="historySummaryAi" onclick="switchHistoryTab('ai')">
           <span>AI 상담</span>
           <strong id="historyAiCount">0</strong>
-          <small>연우와 나눈 상담 이어보기</small>
+          <small>상담사와 나눈 대화 이어보기</small>
         </button>
 
         <button class="history-summary-card" id="historySummarySearch" onclick="switchHistoryTab('search')">
@@ -320,13 +320,13 @@
         <div class="history-panel-head">
           <div>
             <b>AI 상담 기록</b>
-            <small>연우와 나눈 최근 상담을 다시 열어 이어서 질문할 수 있어요.</small>
+            <small>상담사와 첫 질문을 확인하고, 지난 대화에서 이어서 질문할 수 있어요.</small>
           </div>
         </div>
         <div id="aiConversationHistoryList" class="ai-history-list"></div>
         <div id="aiConversationHistoryEmpty" class="empty-note history-empty-box">
           아직 저장된 AI 상담이 없어요.<br>
-          <button onclick="goTo('home')">연우와 상담 시작하기 →</button>
+          <button onclick="goTo('home')">고민별 상담 둘러보기</button>
         </div>
       </div>
 

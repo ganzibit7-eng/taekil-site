@@ -31,7 +31,7 @@
       return {version:1,at:data.at,owner:String(data.owner || ''),awaitingAuth:data.awaitingAuth === true,
         step:Math.min(5,Math.max(0,Number.isInteger(data.step) ? data.step : 0)),values,
         leap:data.leap === true,question:String(data.question || '').slice(0,200),birthText:birth(data.birthText).text,
-        topic:normalizeTopic(data.topic),
+        topic:normalizeTopic(data.topic),previousQuestion:String(data.previousQuestion || '').slice(0,200),
         selections: Object.fromEntries(['SavedProfile','CompareProfile','CompareProfile2'].map(key => [key, data.owner ? String(data.selections?.[key] || '').slice(0,100) : '']))};
     } catch (_) { return null; }
   }

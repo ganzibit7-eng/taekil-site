@@ -30,6 +30,7 @@
         label.textContent = copy?.querySelector('strong').textContent || card.textContent.trim();
         if (card.localName === 'a') {
           target.href = card.getAttribute('href');
+          if (card.hasAttribute('data-newyear-preview')) target.setAttribute('data-newyear-preview', '');
         } else {
           target.type = 'button';
           target.addEventListener('click', () => card.click());

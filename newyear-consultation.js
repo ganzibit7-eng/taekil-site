@@ -4,6 +4,7 @@
   const view=document.getElementById('view-newyear');
   if(!view)return;
   const status=view.querySelector('[data-year-status]'),content=view.querySelector('[data-year-content]');
+  const account=view.querySelector('.newyear-account'),refresh=view.querySelector('[data-year-refresh]');
   let active=false,busy=false,timer=0,version=0,pendingChat=false,pendingQuestion='',profiles=[],progressClock=0,progressStarted=0,progressElapsed=null,draft=null,draftOwner=null;
   const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
   const button=(text,action,primary=false)=>{const b=el('button',text,'btn'+(primary?' btn-primary':''));b.type='button';b.addEventListener('click',action);return b;};
@@ -215,7 +216,7 @@
     if(!data.access){
       stopProgress();view.classList.remove('has-report');content.style.minHeight='';
       if(loggedIn()&&(data.paymentCheckRequired||(typeof isPremium==='function'&&isPremium()))){message('이용권 연결 상태를 확인해 주세요. 추가 결제부터 하실 필요는 없습니다.');content.replaceChildren(el('h2','구매하셨다면, 이용권을 다시 확인해 주세요.'),el('p','결제 직후에는 승인 기록이 계정에 연결되는 데 잠시 걸릴 수 있어요. 구매한 계정으로 로그인되어 있는지 확인해 주세요.','newyear-muted'),button('이용권 연결 다시 확인',load,true),button('문의하기',()=>goTo('support')));return;}
-      message('나의 2027 신년상담');
+      message('내 2027년 신년 리포트');
       content.replaceChildren(
         purchaseButton(loggedIn() ? '8,900원 · 신년상담 시작하기' : '로그인하고 신년상담 시작하기', true),
         pausedNotice(),
@@ -223,7 +224,6 @@
       );
       if (!loggedIn()) {
         const signIn = button('로그인하고 내 리포트 확인하기', openAuthModal);
-        signIn.setAttribute('data-checkout-paused', '');
         content.append(signIn);
       }
       return;
@@ -235,7 +235,9 @@
     stopProgress();message(data.status==='failed'?'리포트를 마치지 못했어요. 같은 이용권으로 다시 작성할 수 있으며 추가 결제는 필요하지 않습니다.':'이용권을 확인했습니다. 아래에서 사주를 확인하고 작성 버튼을 눌러 주세요.');selectProfile();
   }
   async function load(){
-    const token=++version;if(typeof waitForAuthSettled==='function')await waitForAuthSettled(4000).catch(()=>{});if(token!==version||!active)return;if(!loggedIn()){render({access:false,status:'none'});return;}
+    const token=++version;if(typeof waitForAuthSettled==='function')await waitForAuthSettled(4000).catch(()=>{});if(token!==version||!active)return;
+    refresh.hidden=!loggedIn();
+    if(!loggedIn()){render({access:false,status:'none'});return;}
     if(!view.classList.contains('is-generating'))message('나의 신년상담을 확인하고 있어요.');
     try{const data=await request('status');if(token===version&&active)render(data);}
     catch(e){
@@ -249,7 +251,11 @@
       message(e.message);content.replaceChildren(button('다시 확인하기',load));
     }
   }
-  view.querySelector('[data-year-refresh]').addEventListener('click',load);
+  refresh.addEventListener('click',load);
+  view.querySelector('[data-year-account-jump]').addEventListener('click',()=>{
+    account.focus({preventScroll:true});
+    account.scrollIntoView({block:'start',behavior:'instant'});
+  });
   document.querySelectorAll('[data-open-newyear]').forEach(b=>b.addEventListener('click',openYear));
   const observe=new MutationObserver(()=>{const next=view.classList.contains('visible');if(next!==active){active=next;if(active)load();else{++version;clearTimeout(timer);clearInterval(progressClock);progressClock=0;}}});observe.observe(view,{attributes:true,attributeFilter:['class']});
   const panel=document.getElementById('aiChatPanel'),intro=document.getElementById('homeIntroOverlay');

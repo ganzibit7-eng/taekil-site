@@ -182,8 +182,9 @@ function renderAiConversationHistory(){
     return `<div class="ai-history-item">
       <div class="ai-history-top">
         <div>
+          <b class="ai-history-consultant">${escapeHtml(consultantName)} 상담</b>
           <div class="ai-history-title">${escapeHtml(rec.title || 'AI 사주 상담')}</div>
-          <div class="ai-history-meta"><b class="ai-history-consultant">${escapeHtml(consultantName)} 상담</b> · ${escapeHtml(names || '상담 대상')} · ${escapeHtml(dt)}</div>
+          <div class="ai-history-meta">${escapeHtml(names || '상담 대상')} · ${escapeHtml(dt)}</div>
         </div>
       </div>
       <div class="ai-history-preview">${escapeHtml(rec.preview || '')}</div>
