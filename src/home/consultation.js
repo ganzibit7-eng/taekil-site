@@ -176,10 +176,11 @@ function renderAiConversationHistory(){
 
   if (empty) empty.style.display = 'none';
   host.innerHTML = list.map(rec => {
-    const consultantName = window.TaekilConsultationPersonas?.get(rec.consultantId).name || '연우';
+    const consultant = window.TaekilConsultationPersonas?.get(rec.consultantId);
+    const consultantName = consultant?.name || '연우';
     const names = (rec.subjects || []).map(s => s.name).filter(Boolean).join(' · ');
     const dt = rec.updatedAtMs ? new Date(rec.updatedAtMs).toLocaleString('ko-KR') : '';
-    return `<div class="ai-history-item">
+    return `<div class="ai-history-item" data-history-advisor="${escapeHtml(consultant?.id || 'yeonwoo')}">
       <div class="ai-history-top">
         <div>
           <b class="ai-history-consultant">${escapeHtml(consultantName)} 상담</b>

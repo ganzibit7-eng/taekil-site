@@ -209,6 +209,39 @@ body.consultation-open .ai-chat-stage:has(.consultation-guided-entry[style*="blo
 .ai-history-consultant,
 .reading-consultant { color: #dfc69c; font-weight: 600; }
 .ai-history-consultant {display:block;margin-bottom:6px;font:600 14px/1.5 var(--sans)}
+.ai-history-filters {
+  margin:12px 0 18px;padding:14px 0 0;border-block:1px solid #38453d;
+}
+.ai-history-filter-fields {
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(136px, .42fr);gap:12px;
+}
+.ai-history-filter-fields > div {display:grid;min-width:0;gap:6px}
+.ai-history-filter-fields label {color:#ddd8cb;font:500 14px/1.45 var(--sans)}
+.ai-history-filter-fields :is(input,select) {
+  box-sizing:border-box;width:100%;min-width:0;min-height:48px;padding:10px 12px;
+  color:#f0ebe1;background:#1b2420;border:1px solid #455249;border-radius:7px;
+  color-scheme:dark;font:400 16px/1.5 var(--sans);
+}
+.ai-history-filter-fields input::placeholder {color:#aeb7ad}
+.ai-history-filter-fields select option {background:#1b2420;color:#f0ebe1}
+.ai-history-filter-fields :is(input,select):focus-visible,.ai-history-filter-meta button:focus-visible {
+  outline:2px solid #d9bf91;outline-offset:2px;
+}
+.ai-history-filter-meta {
+  display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;
+}
+.ai-history-filter-meta p {margin:0;color:#b6bdb5;font:400 14px/1.5 var(--sans)}
+.ai-history-filter-meta button {
+  min-height:44px;padding:6px 4px;color:#ddc291;border:0;background:transparent;
+  font:500 14px/1.5 var(--sans);cursor:pointer;
+}
+.ai-history-filter-meta button:hover {color:#f0ebe1}
+.ai-history-no-matches {margin:0;padding:22px 16px;color:#d3d9d0;line-height:1.65;word-break:keep-all}
+:is(.ai-history-filters,.ai-history-item,.ai-history-no-matches,.ai-history-filter-meta button)[hidden] {display:none!important}
+@media(max-width:420px){
+  .ai-history-filter-fields {grid-template-columns:minmax(0,1fr) minmax(104px,.66fr);gap:8px}
+  .ai-history-filter-fields :is(input,select) {padding-inline:9px}
+}
 .entry-nav-identity {min-width:0;padding-inline:5px}
 .entry-nav-identity > span {display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .guided-draft-resume {

@@ -183,15 +183,13 @@ function goTo(route, presetEvent, navigationOptions) {
 function safeRoute(route) {
   return document.getElementById('view-' + route) ? route : 'home';
 }
-// setTimeout(0)으로 미뤄서, 아직 선언되지 않은 이후 코드(firebaseReady 등)를
-// 이 시점에서 참조하다가 스크립트 전체 실행이 멈추는 일이 없도록 합니다.
-// (예: #admin, #tool 같은 해시 주소로 바로 접속하거나 새로고침하는 경우)
-setTimeout(() => {
+// Direct links may need view handlers declared later in the document.
+document.addEventListener('DOMContentLoaded', () => {
   goTo(safeRoute(location.hash ? location.hash.slice(1) : 'home'), undefined, {skipHistory:true});
   /* STARTUP_READY */
   window.TaekilStartup?.routed();
   /* END_STARTUP_READY */
-}, 0);
+}, {once:true});
 function restoreRouteFromHistory(){
   const route = safeRoute(location.hash.slice(1));
   if (document.getElementById('view-' + route)?.classList.contains('visible')) return;
