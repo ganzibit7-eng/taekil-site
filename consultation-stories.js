@@ -675,6 +675,34 @@
     return jump;
   }
 
+  function makeShareControl(topic, label = '상담 링크 복사') {
+    const controls = make('div', '', 'consultation-public-share');
+    const button = make('button', label);
+    button.type = 'button';
+    button.addEventListener('click', async () => {
+      const url = 'https://taekilso.com/consultation/' + topic + '/';
+      try {
+        await navigator.clipboard.writeText(url);
+        showToast('공유 링크를 복사했어요.');
+      } catch (_) {
+        let input = controls.querySelector('input');
+        if (!input) {
+          input = make('input');
+          input.readOnly = true;
+          input.value = url;
+          input.setAttribute('aria-label', '공유 주소');
+          controls.append(input);
+        }
+        input.focus();
+        input.select();
+      }
+    });
+    controls.append(button);
+    return controls;
+  }
+
+  document.querySelector('#homeIntroOverlay .home-conversion-bubble')?.after(makeShareControl('yeonwoo'));
+  document.querySelector('.newyear-heading [data-year-account-jump]')?.after(makeShareControl('newyear', '리포트 링크 복사'));
   const yeonwooStage = document.getElementById('homeIntroOverlay')?.closest('.ai-chat-stage');
   const yeonwooAnswer = document.getElementById('uiDemoTitle');
   if (yeonwooStage && yeonwooAnswer) {
@@ -708,7 +736,7 @@
     intro.append(make('p', advisor.name + ' · ' + advisor.specialty, 'consultation-story-label'), title, make('p', story.scene));
     intro.append(make('small', 'AI 상담사 · AI로 제작한 장면'));
     const actions = make('div', '', 'consultation-story-actions');
-    intro.append(actions);
+    intro.append(actions, makeShareControl(key));
     hero.append(frame, intro);
 
     const body = make('div', '', 'consultation-story-body');

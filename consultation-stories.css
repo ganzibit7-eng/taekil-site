@@ -147,6 +147,21 @@
   text-underline-offset: 4px;
 }
 .consultation-story-actions .consultation-story-date-jump:hover { color: #f5e9d4; }
+.consultation-public-share {
+  display:flex;align-items:center;flex-wrap:wrap;gap:5px 9px;margin-top:6px;
+}
+.consultation-public-share button {
+  min-height:44px;padding:6px 0;border:0;background:none;color:#d4c29f;
+  font:500 14px/1.5 var(--sans);text-decoration:underline;text-underline-offset:4px;cursor:pointer;
+}
+.consultation-public-share button:hover {color:#f0ebe1}
+.consultation-public-share input {
+  width:min(100%,290px);min-height:42px;padding:7px 9px;border:1px solid #c6aa7666;
+  border-radius:6px;background:#1b2420;color:#f0ebe1;font:400 16px/1.5 var(--sans);
+}
+.consultation-public-share :is(button,input):focus-visible {outline:2px solid #dfc69c;outline-offset:3px}
+#homeIntroOverlay .consultation-public-share {justify-content:center;margin:0 0 12px}
+.newyear-heading .consultation-public-share {display:inline-flex;margin:0 0 0 14px}
 .yeonwoo-story-answer-link {
   position: absolute;
   z-index: 4;

@@ -157,7 +157,10 @@ function goTo(route, presetEvent, navigationOptions) {
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
   if (history.replaceState) {
     const u = new URL(location.href);
-    u.hash = route === 'home' ? '' : route;
+    const {sharePath, shareRoute} = document.documentElement.dataset;
+    const sameShare = sharePath && route === shareRoute;
+    if (sharePath) u.pathname = sameShare ? sharePath : '/';
+    u.hash = sameShare || route === 'home' ? '' : route;
     const nextUrl = u.pathname + u.search + u.hash;
     if (!navigationOptions?.skipHistory && nextUrl !== location.pathname + location.search + location.hash) history.pushState(null, '', nextUrl);
   }
@@ -183,15 +186,20 @@ function goTo(route, presetEvent, navigationOptions) {
 function safeRoute(route) {
   return document.getElementById('view-' + route) ? route : 'home';
 }
+function routeAtLocation() {
+  const { sharePath, shareRoute } = document.documentElement.dataset;
+  const onSharePage = sharePath && (location.pathname === sharePath || location.pathname + '/' === sharePath);
+  return safeRoute(location.hash.slice(1) || (onSharePage ? shareRoute : 'home'));
+}
 // Direct links may need view handlers declared later in the document.
 document.addEventListener('DOMContentLoaded', () => {
-  goTo(safeRoute(location.hash ? location.hash.slice(1) : 'home'), undefined, {skipHistory:true});
+  goTo(routeAtLocation(), undefined, {skipHistory:true});
   /* STARTUP_READY */
   window.TaekilStartup?.routed();
   /* END_STARTUP_READY */
 }, {once:true});
 function restoreRouteFromHistory(){
-  const route = safeRoute(location.hash.slice(1));
+  const route = routeAtLocation();
   if (document.getElementById('view-' + route)?.classList.contains('visible')) return;
   goTo(route, undefined, {skipHistory:true});
 }
