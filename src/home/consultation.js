@@ -876,7 +876,7 @@ function renderSajuVault(){
 }
 function openAiProfileCreator(){ goTo('home'); showAiChatSetupStep(); setTimeout(()=>{ const s=document.getElementById('aiChatSavedProfile'); if(s)s.value=''; const n=document.getElementById('aiChatProfileName'); if(n)n.value=''; },50); }
 
-function startAiChat(reportOptions) {
+async function startAiChat(reportOptions) {
   if (!window.TaekilPrivacy?.confirmAge()) return;
   /* REPORT_MANUAL_OPTION_START */
   const reportManual = reportOptions && ['free-report','newyear-report'].includes(reportOptions.source);
@@ -894,6 +894,11 @@ function startAiChat(reportOptions) {
   const isLeap = calType === 'lunar' && !!(leapEl && leapEl.checked);
   const birth = resolveBirthDate(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`, calType, isLeap);
   if (!birth) return;
+  const setup = document.getElementById('aiChatSetup');
+  if (setup.hasAttribute('data-awaiting-ai-consent')) return;
+  const accountToken = accountStore.snapshot();
+  if (!await window.TaekilPrivacy?.confirmAI(setup)) return;
+  if (!accountStore.current(accountToken) || !document.getElementById('view-home').classList.contains('visible')) return;
 
   const built = buildAiChatSajuSummary({y,m,d,calType,hourValue,gender,birth});
   const nameEl = document.getElementById('aiChatProfileName');
@@ -1558,8 +1563,12 @@ async function sendAiChatMessage() {
   const uid = getCurrentUserKey();
   const sendBtn = document.getElementById('aiChatSendBtn');
   if (!conversationId || sendBtn.disabled) return;
-  if (!await window.TaekilPrivacy?.confirmAI()) return;
-  if (!sameConversation() || sendBtn.disabled || input.value.trim() !== message) return;
+  if (!window.TaekilPrivacy?.hasAIConsent()) {
+    document.getElementById('aiChatPanel').style.display = 'none';
+    showAiChatSetupStep();
+    showToast('상담 시작 화면에서 개인정보 국외 이전에 동의해 주세요.');
+    return;
+  }
   input.value = '';
   sendBtn.disabled = true;
   input.dispatchEvent(new Event('input', {bubbles:true}));

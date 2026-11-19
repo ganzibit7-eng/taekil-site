@@ -62,7 +62,6 @@
       // Consume before navigation: repeated sign-in callbacks cannot open or send twice.
       await saveCurrentAiConversation();
       const finalPending=read();if(uid()!==actor.uid||finalPending?.id!==p.id||finalPending?.stage==='cancelled')return;
-      payload={...p,owner:actor.uid,stage:'handed',handedAt:Date.now()};persist();
       window.__freeReportSnapshot=p.reportSnapshot||window.__freeReportSnapshot;
       document.querySelector('.report-resume-question')?.remove();
       closeSajuInsight();closeAuthModal();document.body.classList.remove('report-auth-open');
@@ -75,7 +74,9 @@
       set('aiChatYear',p.profile.y);set('aiChatMonth',p.profile.m);set('aiChatDay',p.profile.d);set('aiChatHour','unknown');set('aiChatGender','unknown');
       const leap=document.getElementById('aiChatLeap');if(leap)leap.checked=p.profile.isLeap;
       ['aiChatCompareProfile','aiChatCompareProfile2'].forEach(id=>set(id,''));
-      startAiChat({source:'free-report'});
+      await startAiChat({source:'free-report'});
+      if (uid()!==actor.uid || document.getElementById('aiChatPanel').style.display!=='flex') return;
+      payload={...p,owner:actor.uid,stage:'handed',handedAt:Date.now()};persist();
       payload={...payload,conversationId:window.__aiConversationId};persist();
       const input=document.getElementById('aiChatInput');input.value=p.question;input.dispatchEvent(new Event('input',{bubbles:true}));
       updateAiChatStatus(Number(data.aiFreeUsed||0),3,state.kind==='premium',state.kind==='credits'?{usingCredit:true,questionCreditsLeft:Number(data.aiQuestionCredits||0)}:undefined);

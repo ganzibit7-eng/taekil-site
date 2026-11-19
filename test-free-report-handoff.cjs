@@ -36,16 +36,17 @@ test('CTA availability follows premium expiry, remaining lifetime free uses and 
  assert.equal(C.availability({aiFreeUsed:3,premium:true,premiumUntil:Date.now()+10000}).kind,'premium');
  assert(C.availability({aiFreeUsed:3,premium:true,premiumUntil:Date.now()+10000}).note.includes('하루 10개 질문'));
 });
-test('actual existing chat startup opens the selected profile without sending old paid/category/today questions in report mode',()=>{
- const html=fs.readFileSync('index.html','utf8'),start=html.indexOf('function startAiChat('),source=html.slice(start,html.indexOf('/* 빠른 질문 버튼',start));
+test('actual existing chat startup opens the selected profile without sending old paid/category/today questions in report mode',async()=>{
+ const html=fs.readFileSync('index.html','utf8'),start=html.indexOf('async function startAiChat('),source=html.slice(start,html.indexOf('/* 빠른 질문 버튼',start));
  const values={aiChatYear:1990,aiChatMonth:1,aiChatDay:1,aiChatCalType:'solar',aiChatHour:'unknown',aiChatGender:'unknown',aiChatProfileName:'나',aiChatRelation:'본인'};
  const nodes=new Map(Object.entries(values).map(([id,value])=>[id,{value,style:{},checked:false}]));
  for(const id of ['aiChatSetup','aiChatPanel','aiChatWindow','aiChatLeap','aiChatCompareProfile','aiChatCompareProfile2'])nodes.set(id,{value:'',checked:false,style:{},innerHTML:''});
  let sent=0,paidReads=0,todayReads=0,saved;
- const context={window:{TaekilPrivacy:{confirmAge:()=>true},__pendingCategoryQuestion:'기존 자동 질문'},document:{getElementById:id=>nodes.get(id)||null},showToast(){},resolveBirthDate:()=>new Date('1990-01-01T00:00:00+09:00'),buildAiChatSajuSummary:()=>({text:'기존 계산 요약',data:{}}),saveSajuProfileRecord:p=>(saved={...p,id:'profile'}),getSajuVault:()=>[],makeAiConversationId:()=>'session',setActiveAiSession(){},clearAiFollowupSuggestions(){},appendAiChatMessage(){},updateAiChatStatus(){},isPremium:()=>false,getPendingPaidAiQuestion(){paidReads++;return '과거 결제 질문';},takeTodayFortunePendingQuestion(){todayReads++;return '오늘 질문';},resumePendingPaidAiQuestion(){sent++;},quickAskAiChat(){sent++;},setTimeout:fn=>fn(),fetch(){sent++;}};
- vm.createContext(context);vm.runInContext(source,context);context.startAiChat({source:'free-report'});
+ nodes.get('aiChatSetup').hasAttribute=()=>false;nodes.set('view-home',{classList:{contains:()=>true}});
+ const context={accountStore:{snapshot(){},current:()=>true},window:{TaekilPrivacy:{confirmAge:()=>true,confirmAI:()=>true},__pendingCategoryQuestion:'기존 자동 질문'},document:{getElementById:id=>nodes.get(id)||null},showToast(){},resolveBirthDate:()=>new Date('1990-01-01T00:00:00+09:00'),buildAiChatSajuSummary:()=>({text:'기존 계산 요약',data:{}}),saveSajuProfileRecord:p=>(saved={...p,id:'profile'}),getSajuVault:()=>[],makeAiConversationId:()=>'session',setActiveAiSession(){},clearAiFollowupSuggestions(){},appendAiChatMessage(){},updateAiChatStatus(){},isPremium:()=>false,getPendingPaidAiQuestion(){paidReads++;return '과거 결제 질문';},takeTodayFortunePendingQuestion(){todayReads++;return '오늘 질문';},resumePendingPaidAiQuestion(){sent++;},quickAskAiChat(){sent++;},setTimeout:fn=>fn(),fetch(){sent++;}};
+ vm.createContext(context);vm.runInContext(source,context);await context.startAiChat({source:'free-report'});
  assert.equal(sent,0);assert.equal(paidReads,0);assert.equal(todayReads,0);assert.equal(saved.y,1990);assert.equal(saved.hourValue,'unknown');assert.equal(nodes.get('aiChatPanel').style.display,'flex');
- context.startAiChat();assert(sent>0,'Original automatic behavior outside this report route is preserved');
+ await context.startAiChat();assert(sent>0,'Original automatic behavior outside this report route is preserved');
 });
 test('controller has no AI request and analytics transmits only a fixed source',()=>{
  const source=fs.readFileSync('free-report-handoff.js','utf8');assert(!/\bfetch\s*\(|quickAskAiChat\s*\(|sendAiChatMessage\s*\(/.test(source));
