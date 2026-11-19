@@ -674,9 +674,13 @@
     return jump;
   }
 
-  const yeonwooIntro = document.querySelector('#homeIntroOverlay .home-conversion-bubble');
+  const yeonwooStage = document.getElementById('homeIntroOverlay')?.closest('.ai-chat-stage');
   const yeonwooAnswer = document.getElementById('uiDemoTitle');
-  if (yeonwooIntro && yeonwooAnswer) yeonwooIntro.after(makeAnswerJump(yeonwooAnswer));
+  if (yeonwooStage && yeonwooAnswer) {
+    const jump = makeAnswerJump(yeonwooAnswer);
+    jump.classList.add('yeonwoo-story-answer-link');
+    yeonwooStage.append(jump);
+  }
 
   for (const [key, story] of Object.entries({...stories, ...window.TaekilAdditionalStories})) {
     const isWedding = key === 'wedding';
