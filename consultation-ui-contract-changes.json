@@ -1,4 +1,8 @@
 [
+  [
+    "// Direct links may need view handlers declared later in the document.\ndocument.addEventListener('DOMContentLoaded', () => {\n  goTo(safeRoute(location.hash ? location.hash.slice(1) : 'home'), undefined, {skipHistory:true});\n  /* STARTUP_READY */\n  window.TaekilStartup?.routed();\n  /* END_STARTUP_READY */\n}, {once:true});\n",
+    "// setTimeout(0)으로 미뤄서, 아직 선언되지 않은 이후 코드(firebaseReady 등)를\n// 이 시점에서 참조하다가 스크립트 전체 실행이 멈추는 일이 없도록 합니다.\n// (예: #admin, #tool 같은 해시 주소로 바로 접속하거나 새로고침하는 경우)\nsetTimeout(() => {\n  goTo(safeRoute(location.hash ? location.hash.slice(1) : 'home'), undefined, {skipHistory:true});\n  /* STARTUP_READY */\n  window.TaekilStartup?.routed();\n  /* END_STARTUP_READY */\n}, 0);\n"
+  ],
   ["  html = html.replace(/^[ \\t]*\\*\\*([^*\\r\\n]+)\\*\\*[ \\t]*$/gm,'<div class=\"ai-chat-heading\">$1</div>');\n",""],
   ["    .map(m => {\n      const evidence = m.role === 'assistant' && window.TaekilExperienceCore?.normalizeEvidence(m.evidence);\n      return { role:m.role, content:String(m.content || '').slice(0,4000), ...(evidence?.length ? {evidence} : {}) };\n    });","    .map(m => ({ role:m.role, content:String(m.content || '').slice(0,4000) }));"],
   ["appendAiChatMessage(m.role, m.content, {scroll:'none',evidence:m.evidence})","appendAiChatMessage(m.role, m.content, {scroll:'none'})",2],
