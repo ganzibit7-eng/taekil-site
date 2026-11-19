@@ -58,7 +58,6 @@ async function startQuestionPackCheckout(packId) {
     if (PAYAPP_FEEDBACK_URL) {
       if (!db) { showToast('결제 요청 저장소에 연결하지 못했어요. 잠시 후 다시 시도해주세요.'); return; }
       await db.collection('paymentOrders').doc(orderId).set({
-        ...(window.TaekilCampaign ? {attribution: window.TaekilCampaign.order()} : {}),
         uid: uidForOrder,
         amount: pack.price,
         product: packId,
@@ -262,7 +261,6 @@ async function startPremiumCheckout() {
       // 처리되고, 이 문서는 그 요청이 맞는 주문인지 서버가 대조하는 용도로만 씁니다.
       if (!db) { showToast('결제 요청 저장소에 연결하지 못했어요. 잠시 후 다시 시도해주세요.'); return; }
       await db.collection('paymentOrders').doc(orderId).set({
-        ...(window.TaekilCampaign ? {attribution: window.TaekilCampaign.order()} : {}),
         uid: uidForOrder,
         amount: PREMIUM_PRICE,
         product: 'taekilso_premium_30days',

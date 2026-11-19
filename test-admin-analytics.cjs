@@ -41,8 +41,9 @@ for(const state of [8,32,9,64,70,71]){
 for(const patch of [{status:'cancelled'},{status:'refunded'},{status:'partially_refunded'},{refundedAmount:100},{cancelledAtMs:1},{entitlementRevokedAtMs:1}])assert.equal(A.settledPaid({status:'paid',pay_state:4,...patch}),false);
 assert.equal(A.settledPaid({status:'paid',pay_state:4,lastPayState:4}),true);
 const attributed=A.aggregate({...data,orders:[{status:'paid',pay_state:4,amount:1900,createdAt:ms('2026-11-10T00:00:00Z'),attribution:{source:'naver',medium:'cpc',campaign:'winter'}},{status:'partially_refunded',pay_state:4,amount:8900,refundedAmount:100,createdAt:ms('2026-11-10T00:00:00Z'),attribution:{source:'naver',medium:'cpc',campaign:'winter'}}]},'2026-11-10','2026-11-10');
-assert.deepEqual(attributed.campaigns,[{source:'naver',medium:'cpc',campaign:'winter',count:1,revenue:1900}]);assert.equal(attributed.revenue,1900);
-console.log('PASS: cancelled/partially-refunded payments excluded and campaign-attributed completed revenue reconciles.');
+assert.deepEqual(attributed.campaigns,[]);assert.equal(attributed.revenue,1900);
+const campaignRows=[{date:'2026-11-09',campaign:'winter',count:100},{date:'2026-11-10',campaign:'winter',count:4},{date:'2026-11-11',campaign:'winter',count:3},{date:'2026-11-10',campaign:'other',count:2}];
+assert.deepEqual(A.aggregate({...data,campaignVisits:campaignRows},'2026-11-10','2026-11-11').campaigns,[{campaign:'winter',count:7},{campaign:'other',count:2}]);
 
 const created=ms('2026-11-01T12:00:00Z'),approved=ms('2026-11-18T01:00:00Z');
 assert.equal(A.orderTime({paidAtMs:approved,createdAt:created}),approved);
