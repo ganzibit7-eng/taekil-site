@@ -20,6 +20,7 @@
   }
   function persist(){try{if(payload)sessionStorage.setItem(KEY,JSON.stringify(payload));else sessionStorage.removeItem(KEY);}catch(_){}}
   function event(name,id){
+    if(liveSite && !window.TaekilMetricsPreference?.enabled())return;
     if(!C.events[name]||!id)return;
     const key=id+':'+name;let sent=[];
     try{sent=JSON.parse(sessionStorage.getItem(EVENT_KEY)||'[]');if(!Array.isArray(sent))sent=[];}catch(_){}

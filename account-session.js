@@ -2,7 +2,7 @@
   'use strict';
   const store=window.accountStore;
   // Remove personal fields written by older analytics versions without touching conversations.
-  try{const rows=JSON.parse(localStorage.getItem('taekilso_ai_funnel_v1')||'[]');if(Array.isArray(rows))localStorage.setItem('taekilso_ai_funnel_v1',JSON.stringify(rows.slice(-200).map(row=>({event:String(row?.event||'').slice(0,60),at:Number(row?.at||0)}))));}catch(_){}
+  try{localStorage.removeItem('taekilso_ai_funnel_v1');}catch(_){}
   let owner=store.owner(), inquiryRequest=0;
   const clearIds=['aiChatWindow','aiChatStatus','aiConversationHistoryList','historyList','supportList','supportDetail','fortuneResult','sajuInsightResult','dateCards','bestResultHero','calendarWrap','dayDetail','resultsHeading','resultsSub','resultCount','profileName','profileMeta','profileUid','adminUserList','adminBanList','adminInquiryList'];
   function clearPrivateView(){

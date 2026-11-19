@@ -44,7 +44,7 @@ test('premium display requires the verified cache owner and preserves the cache 
 });
 test('local funnel drops existing/raw personal text and only retains event/time',()=>{
  const local=memory();local.setItem('funnel',JSON.stringify([{event:'old',at:1,question:'private'}]));let event;
- const ctx={localStorage:local,AI_FUNNEL_KEY:'funnel',DAILY_FUNNEL_EVENT_MAP:{},window:{dispatchEvent:e=>event=e},CustomEvent:class{constructor(type,opts){this.detail=opts.detail;}}};vm.createContext(ctx);vm.runInContext(source('trackAiFunnel'),ctx);ctx.trackAiFunnel('free_question_1',{question:'secret',pendingQuestion:'secret',birth:'private'});assert.deepEqual(Object.keys(event.detail).sort(),['at','event']);assert(!local.getItem('funnel').includes('private'));assert(!local.getItem('funnel').includes('secret'));
+ const ctx={localStorage:local,AI_FUNNEL_KEY:'funnel',DAILY_FUNNEL_EVENT_MAP:{},window:{TaekilMetricsPreference:{enabled:()=>true},dispatchEvent:e=>event=e},CustomEvent:class{constructor(type,opts){this.detail=opts.detail;}}};vm.createContext(ctx);vm.runInContext(source('trackAiFunnel'),ctx);ctx.trackAiFunnel('free_question_1',{question:'secret',pendingQuestion:'secret',birth:'private'});assert.deepEqual(Object.keys(event.detail).sort(),['at','event']);assert(!local.getItem('funnel')?.includes('free_question_1'));
 });
 test('navigation pushes a new route and browser back does not create new history',()=>{
  const classes={remove(){},add(){},toggle(){}},node={classList:classes};let pushes=0;const location={href:'https://fixture.invalid/',pathname:'/',search:'',hash:''};

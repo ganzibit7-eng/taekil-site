@@ -16,7 +16,7 @@ function fixture({ storage = new Map(), send, hostname = 'taekilso.com' } = {}) 
   const listeners = new Map();
   const excerpts = Array.from({ length: 3 }, () => ({hidden:false,closest(){return this.hidden ? this : null;}}));
   const window = {
-    TaekilCampaign: { emitPreview: async field => {
+    TaekilMetricsPreference: { enabled:()=>true }, TaekilCampaign: { activity: async field => {
       events.push(field);
       return send ? send(field) : 'RECORDED';
     }},
@@ -68,7 +68,7 @@ test('brief and hidden visits do not count, and a confirmed view is sent once', 
   f.intersect(0);
   f.intersect(.9);
   f.tick();
-  assert.deepEqual(f.events,['previewViews']);
+  assert.deepEqual(f.events,['exampleReads']);
 });
 
 test('switching to another example can qualify without counting hidden panels', async () => {
@@ -82,40 +82,17 @@ test('switching to another example can qualify without counting hidden panels', 
   await settle();
   f.intersect(.9,2);
   f.tick();
-  assert.deepEqual(f.events,['previewViews']);
+  assert.deepEqual(f.events,['exampleReads']);
 });
 
-test('the direct preview start qualifies and keeps event order even with a slow request', async () => {
-  let release;
-  const f = fixture({ send: field => field === 'previewViews' ? new Promise(resolve => { release = resolve; }) : 'RECORDED' });
-  f.window.TaekilPreviewFunnel.consultationOpened(true);
-  f.dispatch('taekilso:signupCreated');
-  assert.deepEqual(f.events,['previewViews']);
-  release('RECORDED');
-  await settle();
-  assert.deepEqual(f.events,['previewViews','previewStarts','previewSignups']);
+test('opening a consultation without reading counts independently and signup emits no preview event',()=>{
+ const f=fixture();
+ f.window.TaekilPreviewFunnel.consultationOpened();
+ f.dispatch('taekilso:signupCreated');
+ f.window.TaekilPreviewFunnel.consultationOpened();
+ assert.deepEqual(f.events,['consultationOpens','consultationOpens']);
+ assert.equal(f.storage.size,0);
 });
-
-test('the same-tab journey survives a full redirect and a different tab cannot join it', async () => {
-  const f = fixture();
-  f.window.TaekilPreviewFunnel.consultationOpened(true);
-  await settle();
-  const differentTab = fixture();
-  differentTab.dispatch('taekilso:signupCreated');
-  assert.deepEqual(differentTab.events,[]);
-  const returned = fixture({ storage: f.storage });
-  returned.dispatch('taekilso:signupCreated');
-  await settle();
-  assert.deepEqual(returned.events,['previewSignups']);
-});
-
-test('expired journeys and nonproduction hosts do not send conversions', async () => {
-  const f = fixture();
-  f.window.TaekilPreviewFunnel.consultationOpened(true);
-  await settle();
-  f.advance(30 * 60 * 1000);
-  f.dispatch('taekilso:signupCreated');
-  assert.deepEqual(f.events,['previewViews','previewStarts']);
-  const local = fixture({ hostname: 'localhost' });
-  assert.equal(local.window.TaekilPreviewFunnel,undefined);
+test('nonproduction hosts do not collect views',()=>{
+ assert.equal(fixture({hostname:'localhost'}).window.TaekilPreviewFunnel,undefined);
 });
