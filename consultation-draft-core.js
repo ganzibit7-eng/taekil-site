@@ -29,7 +29,7 @@
       const values = {};
       fields.forEach(key => { values[key] = String(data.values[key] ?? '').slice(0, key === 'ProfileName' ? 20 : 40); });
       return {version:1,at:data.at,owner:String(data.owner || ''),awaitingAuth:data.awaitingAuth === true,
-        step:Math.min(5,Math.max(0,Number.isInteger(data.step) ? data.step : 0)),values,
+        paused:data.paused === true,step:Math.min(5,Math.max(0,Number.isInteger(data.step) ? data.step : 0)),values,
         leap:data.leap === true,question:String(data.question || '').slice(0,200),birthText:birth(data.birthText).text,
         topic:normalizeTopic(data.topic),previousQuestion:String(data.previousQuestion || '').slice(0,200),
         selections: Object.fromEntries(['SavedProfile','CompareProfile','CompareProfile2'].map(key => [key, data.owner ? String(data.selections?.[key] || '').slice(0,100) : '']))};

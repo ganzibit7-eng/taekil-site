@@ -10,6 +10,11 @@
       </div>
     </section>
 
+    <button id="guidedDraftResume" class="guided-draft-resume" type="button" data-home-consultation hidden>
+      <strong>작성 중인 상담 이어가기</strong>
+      <span data-guided-draft-progress></span>
+    </button>
+
     <div class="directory-recent" id="directoryRecent" hidden>
       <button type="button" data-home-consultation>
         <span><strong>지난 상담 이어가기</strong><small data-recent-question></small></span>
