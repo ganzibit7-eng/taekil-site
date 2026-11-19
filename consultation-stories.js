@@ -658,6 +658,26 @@
     }
   }, {rootMargin: '0px 0px -104px 0px'}) : null;
 
+  function makeAnswerJump(heading, reveal = []) {
+    const jump = make('button', '실제 답변 먼저 보기', 'consultation-story-answer-link');
+    jump.type = 'button';
+    jump.setAttribute('aria-controls', heading.id);
+    heading.tabIndex = -1;
+    jump.addEventListener('click', () => {
+      for (const part of reveal) {
+        readingObserver?.unobserve(part);
+        delete part.dataset.storyReveal;
+      }
+      heading.focus({preventScroll:true});
+      heading.scrollIntoView({block:'start',behavior:'instant'});
+    });
+    return jump;
+  }
+
+  const yeonwooIntro = document.querySelector('#homeIntroOverlay .home-conversion-bubble');
+  const yeonwooAnswer = document.getElementById('uiDemoTitle');
+  if (yeonwooIntro && yeonwooAnswer) yeonwooIntro.after(makeAnswerJump(yeonwooAnswer));
+
   for (const [key, story] of Object.entries({...stories, ...window.TaekilAdditionalStories})) {
     const isWedding = key === 'wedding';
     const route = document.getElementById(isWedding ? 'view-wedding' : 'view-topic-' + key);
@@ -696,25 +716,12 @@
       const quote = make('section', '', 'consultation-story-example');
       const answerTitle = make('h2', '실제 상담은 이렇게 답해요');
       answerTitle.id = 'story-answer-' + key;
-      answerTitle.tabIndex = -1;
       const copy = sample.cloneNode(true);
       const question = make('p', document.querySelector('#homeDirectory [data-preview-panel="' + key + '"] h3')?.textContent ||
         document.getElementById('story-reading-' + key)?.dataset.question, 'consultation-example-question');
       quote.append(answerTitle, question, copy);
       body.append(quote);
-
-      const jump = make('button', '실제 답변 먼저 보기', 'consultation-story-answer-link');
-      jump.type = 'button';
-      jump.setAttribute('aria-controls', answerTitle.id);
-      jump.addEventListener('click', () => {
-        for (const part of quote.children) {
-          readingObserver?.unobserve(part);
-          delete part.dataset.storyReveal;
-        }
-        answerTitle.focus({preventScroll:true});
-        answerTitle.scrollIntoView({block:'start',behavior:'instant'});
-      });
-      actions.append(jump);
+      actions.append(makeAnswerJump(answerTitle,quote.children));
     }
 
     const entry = make('section', '', 'consultation-story-entry');
