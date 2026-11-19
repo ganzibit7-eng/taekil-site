@@ -49,6 +49,8 @@ async function submitInquiry(prefill) {
     return;
   }
 
+  const inquiryType = document.getElementById('supportType')?.value;
+  if (!['general','dispute'].includes(inquiryType)) { showSupportStatus('문의 종류를 선택해주세요.', 'error'); return; }
   const titleEl = document.getElementById('supportTitle');
   const messageEl = document.getElementById('supportMessage');
   const title = (titleEl?.value || '').trim();
@@ -90,7 +92,7 @@ async function submitInquiry(prefill) {
     reply: '',
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     createdAtMs: Date.now(),
-    source: kakaoUser ? 'kakao' : 'firebase'
+    source: inquiryType + '-' + (kakaoUser ? 'kakao' : 'firebase')
   };
 
   let timedOut = false;
@@ -171,6 +173,10 @@ function renderSupportList() {
         const ownerUid = getInquiryOwnerUid();
         if (!ownerUid || q.ownerUid !== ownerUid) return;
         const badge = listEl.querySelector(`[data-status-id="${item.id}"]`);
+        if (['dispute-kakao','dispute-firebase'].includes(q.source) || q.legalHold === true) {
+          const cancel = listEl.querySelector('[data-cancel-id="' + item.id + '"]');
+          if (cancel) cancel.hidden = true;
+        }
         if (badge && q.status === '답변완료') {
           badge.textContent = '답변완료';
           badge.className = 'inq-status answered';
@@ -214,7 +220,7 @@ function cancelInquiry(id) {
     if (!snap.exists) return;
     const data = snap.data();
     if (!accountStore.current(accountToken) || data.ownerUid !== accountToken.owner) return;
-    if (isRefundRequestTitle(data.title)) {
+    if (isRefundRequestTitle(data.title) || ['dispute-kakao','dispute-firebase'].includes(data.source) || data.legalHold === true) {
       showToast('환불 요청 문의는 취소할 수 없어요. 고객센터로 문의해주세요.');
       return;
     }
@@ -290,6 +296,7 @@ function fillCommonInquiry(kind) {
   };
   const t = templates[kind];
   if (!t) return;
+  document.getElementById('supportType').value = 'dispute';
   document.getElementById('supportTitle').value = t.title;
   document.getElementById('supportMessage').value = t.message;
   document.getElementById('supportMessage').focus();
@@ -325,6 +332,7 @@ async function requestRefund() {
   document.dispatchEvent(new CustomEvent('taekilso:openWebInquiry'));
   setTimeout(() => {
     if (!accountStore.current(accountToken)) return;
+    document.getElementById('supportType').value = 'dispute';
     document.getElementById('supportTitle').value = '프리미엄 결제 환불 요청';
     document.getElementById('supportMessage').value =
       '프리미엄(8,900원) 결제에 대한 환불을 요청합니다.\n\n' +
@@ -340,7 +348,7 @@ async function requestRefund() {
 }
 
 async function confirmDeleteAccount() {
-  const paymentUser = await ensureFirestorePaymentAuth();
+  const paymentUser = window.firebase?.auth().currentUser;
   if (!paymentUser || paymentUser.isAnonymous) {
     showToast('로그인 보안 연결을 확인하지 못했어요. 다시 로그인한 뒤 시도해주세요.');
     return;
@@ -348,12 +356,28 @@ async function confirmDeleteAccount() {
   if (!confirm('계정을 삭제하면 30일 동안 같은 계정으로 다시 가입할 수 없어요. 정말 탈퇴할까요?')) return;
 
   try {
-    const auth = await getVerifiedFirebaseBearer(paymentUser);
+    if (paymentUser.uid.startsWith('kakao_')) {
+      if (!kakaoReady || location.origin !== 'https://taekilso.com') throw Error('택일소 공식 홈페이지에서 카카오 재인증을 시작해주세요.');
+      const state = createKakaoLoginState();
+      sessionStorage.setItem('taekilso_delete_intent', JSON.stringify({state, uid:paymentUser.uid}));
+      Kakao.Auth.authorize({redirectUri:'https://taekilso.com/', scope:'profile_nickname', prompt:'login', state});
+      return;
+    }
+    await paymentUser.reauthenticateWithPopup(getGoogleProvider());
+    await finishAccountDeletion(paymentUser);
+  } catch (_) {
+    showToast('본인 확인을 완료하지 못했어요. 회원정보는 그대로예요.');
+  }
+}
+
+async function finishAccountDeletion(paymentUser, kakaoCode) {
+  try {
+    const auth = 'Bearer ' + await paymentUser.getIdToken(true);
     if (paymentUser.uid !== accountStore.owner()) return;
     const res = await fetch(MEMBER_SELF_DELETE_URL, {
       method: 'POST',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ confirm: true }),
+      body: JSON.stringify({ confirm: true, kakaoCode }),
       cache: 'no-store'
     });
     const data = await res.json().catch(() => ({}));
@@ -387,6 +411,7 @@ function getGoogleProvider(){
 }
 
 async function loginWithGoogle() {
+  if (!window.TaekilPrivacy?.confirmAge()) return;
   if (!firebaseReady || !window.firebase || !firebase.auth) {
     document.getElementById('authSetupNotice').style.display = 'block';
     showAuthError('Firebase Authentication이 연결되지 않았어요. firebaseConfig와 Authentication 설정을 확인해주세요.');
@@ -462,7 +487,7 @@ async function loginWithGoogle() {
 async function ensureKakaoFirebaseSession(accessToken) {
   if (!firebaseReady || !window.firebase || !firebase.auth || !KAKAO_TOKEN_FUNCTION_URL) return null;
 
-  const token = accessToken || sessionStorage.getItem('taekilso_kakao_access_token');
+  const token = accessToken;
   if (!token) return null;
 
   // 카카오 로그인을 시작한 경우 기존 Google Firebase 세션을 재사용하지 않습니다.
@@ -554,10 +579,7 @@ async function getAiRequestHeaders() {
     console.warn('Firebase ID 토큰 준비 실패', err);
   }
 
-  const kakaoToken = sessionStorage.getItem('taekilso_kakao_access_token');
-  if (kakaoToken) headers['X-Kakao-Access-Token'] = kakaoToken;
-
-  return headers;
+  return headers; // Firebase verifies the existing member session.
 }
 
 function createKakaoLoginState() {
@@ -580,6 +602,7 @@ function consumeKakaoLoginState(state) {
 }
 
 async function loginWithKakao() {
+  if (!window.TaekilPrivacy?.confirmAge()) return;
   if (!kakaoReady) {
     showToast('카카오 로그인 설정이 아직 안 됐어요.');
     return;
@@ -595,11 +618,22 @@ async function loginWithKakao() {
 
 async function exchangeKakaoCode(code, state) {
   const validState = consumeKakaoLoginState(state);
+  const deletion = sessionStorage.getItem('taekilso_delete_intent');
+  sessionStorage.removeItem('taekilso_delete_intent');
   const callbackUrl = new URL(window.location.href);
   for (const key of ['code', 'state', 'error', 'error_description']) callbackUrl.searchParams.delete(key);
   window.history.replaceState({}, document.title, callbackUrl.toString());
   if (!validState) { showToast('로그인 요청이 만료되었거나 일치하지 않아요. 카카오 로그인 버튼으로 다시 시작해주세요.'); return; }
   try {
+    if (deletion) {
+      const intent = JSON.parse(deletion);
+      if (intent.state === state) {
+        const user = await ensureFirestorePaymentAuth();
+        if (!user || user.uid !== intent.uid) { showToast('로그인한 계정을 다시 확인해주세요.'); return; }
+        if (confirm('본인 확인을 마쳤어요. 지금 회원탈퇴를 완료할까요?')) await finishAccountDeletion(user, code);
+        return;
+      }
+    }
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
       client_id: KAKAO_REST_KEY,
@@ -654,7 +688,7 @@ async function exchangeKakaoCode(code, state) {
 
     localStorage.setItem(KAKAO_USER_KEY, JSON.stringify(profile));
     sessionStorage.setItem(KAKAO_USER_KEY, JSON.stringify(profile));
-    sessionStorage.setItem('taekilso_kakao_access_token', tokenData.access_token);
+    // Only Firebase maintains the signed-in session after the token exchange.
 
     updateAuthNav();
     showToast('카카오로 로그인했어요');
@@ -706,6 +740,7 @@ async function exchangeKakaoCode(code, state) {
 })();
 
 function logout() {
+  window.TaekilPrivacy?.resetAge();
   localStorage.removeItem(KAKAO_USER_KEY);
   sessionStorage.removeItem(KAKAO_USER_KEY);
   sessionStorage.removeItem('taekilso_kakao_access_token');

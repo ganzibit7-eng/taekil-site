@@ -877,6 +877,7 @@ function renderSajuVault(){
 function openAiProfileCreator(){ goTo('home'); showAiChatSetupStep(); setTimeout(()=>{ const s=document.getElementById('aiChatSavedProfile'); if(s)s.value=''; const n=document.getElementById('aiChatProfileName'); if(n)n.value=''; },50); }
 
 function startAiChat(reportOptions) {
+  if (!window.TaekilPrivacy?.confirmAge()) return;
   /* REPORT_MANUAL_OPTION_START */
   const reportManual = reportOptions && ['free-report','newyear-report'].includes(reportOptions.source);
   /* REPORT_MANUAL_OPTION_END */
@@ -996,6 +997,7 @@ async function handleHomeChatStart(btn) {
    여기서 다시 한번 날짜 선택 목록을 채워서, 페이지 로드 타이밍 문제로
    비어있는 채로 남는 경우가 없게 합니다(이미 채워져 있으면 그냥 넘어갑니다). */
 function showAiChatSetupStep() {
+  if (!window.TaekilPrivacy?.confirmAge()) return;
   fillAiChatDateSelects();
   refreshAiProfileSelectors();
   const intro = document.getElementById('homeIntroOverlay');
@@ -1546,6 +1548,7 @@ function focusAiChatInput() {
 }
 
 async function sendAiChatMessage() {
+  if (!window.TaekilPrivacy?.confirmAI()) return;
   const accountToken = accountStore.snapshot();
   const conversationId = window.__aiConversationId;
   const sameConversation = () => accountStore.current(accountToken) && window.__aiConversationId === conversationId;

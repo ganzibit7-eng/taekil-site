@@ -10,6 +10,7 @@
   const loggedIn=()=>!!((typeof getKakaoUser==='function'&&getKakaoUser())||(typeof firebaseAuthUser!=='undefined'&&firebaseAuthUser&&!firebaseAuthUser.isAnonymous));
   const owner=()=>typeof getCurrentUserKey==='function'?getCurrentUserKey():null;
   async function request(operation,profile){
+    if (operation === 'generate' && !window.TaekilPrivacy?.confirmAI()) throw Error('AI 처리 안내를 확인한 후 리포트를 요청할 수 있어요.');
     const accountToken=window.accountStore.snapshot();
     const actor=owner(),headers=await getAiRequestHeaders();
     if(actor!==owner()||!window.accountStore.current(accountToken))throw new Error('계정이 변경되었어요. 이용권을 다시 확인해 주세요.');
@@ -132,6 +133,7 @@
   function showReport(data){
     const wasGenerating=view.classList.contains('is-generating');stopProgress();view.classList.add('has-report');content.style.minHeight='';
     content.replaceChildren();const r=data.report;
+    content.append(el('p','택일소 AI가 사주 계산값으로 작성한 신년 리포트','newyear-muted'));
     content.append(el('p',`${data.profile.name} 님 · ${data.profile.date} · ${data.profile.hourValue==='unknown'?'출생시간 미상':data.profile.hourValue+'시'}`,'newyear-report-owner'));
     const overview=section('한 해의 큰 흐름',r.overview);
     const foundation=section('나의 사주와 2027년',r.foundation);

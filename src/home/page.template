@@ -115,6 +115,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <b>첫 질문 3개는 무료예요</b>
       <span>Google 또는 카카오 계정으로 시작하세요.<br>카드 등록과 자동결제 없이 이용할 수 있어요.</span>
     </div>
+    <p class="auth-age-note">회원 가입과 상담은 만 14세 이상부터 이용할 수 있어요.</p>
     <div id="authSetupNotice" class="setup-notice" style="display:none;">
       아직 계정 저장소가 연결되지 않았어요. Firebase 설정을 먼저 연결해야 실제로 저장됩니다.
     </div>
@@ -199,15 +200,15 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <!-- include account-and-tools.fragment -->
 
 <script src="account-session-core.js?v=20261111-1"></script>
-<script src="checkout-availability.js?v=2"></script>
-<script src="https://lite.payapp.kr/public/api/v2/payapp-lite.js"></script>
-<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lunar-javascript/1.7.5/lunar.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="checkout-availability.js?v=3"></script>
+<script src="privacy-controls.js?v=1"></script>
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lunar-javascript/1.7.5/lunar.min.js" integrity="sha384-qgrj9Ih88CpqQEaDKCVdEY+GvClfNBHPQECl6AaMJnZm/lkMtciFybNl4K6WlT7E" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk" crossorigin="anonymous"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js" integrity="sha384-yuGdyIzzYtOBlBG6JOWn+Ey9kpq7HocusNuxEGyyohr1eEyXpeEyehIIXC/hznw4" crossorigin="anonymous"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js" integrity="sha384-lI+CxEx/bCvWP1b0OK13j5HTrTZP7yf1xle8TVOFq2smz6KC1RChTarRV/RHP5PP" crossorigin="anonymous"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js" integrity="sha384-nwX2Qpkhc2sv6L0ZPkLefLGguao67toSowvePuQvGF6cG+8MUphGI2uI94Ls3JF7" crossorigin="anonymous"></script>
 <script>
 <!-- include navigation.js -->
 
@@ -235,7 +236,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="consultation-personas.js?v=20261118-chat-films"></script>
 <link rel="stylesheet" href="consultation-stories.css?v=20261116-ijun-choices">
 <script src="consultation-additional-stories.js?v=20261118-questions"></script>
-<script src="consultation-stories.js?v=20261118-lazy-story-images"></script>
+<script src="consultation-stories.js?v=20261119-privacy"></script>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261118-continuous-arrival"></script><script src="premium-motion.js" defer></script>
 <script src="consultation-draft-core.js?v=20261117-added-topics"></script>
 <script src="consultation-stage.js?v=20261116-featured-stories"></script>
@@ -245,7 +246,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 <script src="navigation-stability.js?v=20261111-2"></script>
 <link rel="stylesheet" href="newyear-consultation.css?v=20261118-evidence">
-<script src="newyear-consultation.js?v=20261118-evidence"></script><script src="newyear-example.js?v=20261118-reading"></script>
+<script src="newyear-consultation.js?v=20261119-privacy"></script><script src="newyear-example.js?v=20261118-reading"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=20261110-1">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
 <script src="free-report-handoff.js?v=20261111-operations"></script>
