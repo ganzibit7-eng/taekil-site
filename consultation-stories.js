@@ -682,6 +682,8 @@
     const intro = make('div', '', 'consultation-story-intro');
     intro.append(make('p', advisor.name + ' · ' + advisor.specialty, 'consultation-story-label'), title, make('p', story.scene));
     intro.append(make('small', 'AI 상담사 · AI로 제작한 장면'));
+    const actions = make('div', '', 'consultation-story-actions');
+    intro.append(actions);
     hero.append(frame, intro);
 
     const body = make('div', '', 'consultation-story-body');
@@ -692,11 +694,27 @@
       document.getElementById('story-reading-' + key)?.content.querySelector('figure');
     if (sample) {
       const quote = make('section', '', 'consultation-story-example');
+      const answerTitle = make('h2', '실제 상담은 이렇게 답해요');
+      answerTitle.id = 'story-answer-' + key;
+      answerTitle.tabIndex = -1;
       const copy = sample.cloneNode(true);
       const question = make('p', document.querySelector('#homeDirectory [data-preview-panel="' + key + '"] h3')?.textContent ||
         document.getElementById('story-reading-' + key)?.dataset.question, 'consultation-example-question');
-      quote.append(make('h2', '실제 상담은 이렇게 답해요'), question, copy);
+      quote.append(answerTitle, question, copy);
       body.append(quote);
+
+      const jump = make('button', '실제 답변 먼저 보기', 'consultation-story-answer-link');
+      jump.type = 'button';
+      jump.setAttribute('aria-controls', answerTitle.id);
+      jump.addEventListener('click', () => {
+        for (const part of quote.children) {
+          readingObserver?.unobserve(part);
+          delete part.dataset.storyReveal;
+        }
+        answerTitle.focus({preventScroll:true});
+        answerTitle.scrollIntoView({block:'start',behavior:'instant'});
+      });
+      actions.append(jump);
     }
 
     const entry = make('section', '', 'consultation-story-entry');
@@ -715,10 +733,10 @@
     dockInner.append(dockContext, start);
     dock.append(dockInner);
     const legend = addChoices(entry, feature, key, question, start, context);
-    addJump(intro, '내 상황 먼저 고르기', entry, legend);
+    addJump(actions, '내 상황 먼저 고르기', entry, legend);
     if (isWedding) {
       const comparison = document.getElementById('weddingStoryComparison');
-      if (comparison) addJump(intro, '날짜 비교 예시 보기', comparison, comparison.querySelector('h3'));
+      if (comparison) addJump(actions, '날짜 비교 예시 보기', comparison, comparison.querySelector('h3'));
     }
     body.append(makeChapter(closing), entry);
     view.replaceChildren(hero, body, dock);
