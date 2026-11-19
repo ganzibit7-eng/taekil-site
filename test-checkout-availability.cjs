@@ -17,7 +17,7 @@ test('checkout opens only on an explicit server setting and closes again without
     hasAttribute: (name) => attributes.has(name)
   };
   const toast = [];
-  const context = vm.createContext({ window: {}, document: { documentElement }, showToast: (message) => toast.push(message) });
+  const context = vm.createContext({ window: {addEventListener() {}}, document: { documentElement }, showToast: (message) => toast.push(message) });
   vm.runInContext(client, context);
   const checkout = context.window.TaekilCheckout;
 
@@ -61,4 +61,45 @@ test('checkout opens only on an explicit server setting and closes again without
   publish({ enabled: true });
   fail();
   assert.equal(checkout.requireOpen(), false);
+});
+
+test('pack and premium share one lock through handoff, restoring on failure and browser back', async () => {
+  const root = new Set(['data-checkout-open']);
+  const button = {disabled: false};
+  const events = {};
+  const context = vm.createContext({
+    document: {
+      querySelectorAll: () => [button],
+      documentElement: {
+        hasAttribute: key => root.has(key), setAttribute: key => root.add(key),
+        removeAttribute: key => root.delete(key)
+      }
+    },
+    window: {addEventListener: (name, callback) => { events[name] = callback; }}
+  });
+  vm.runInContext(client, context);
+  for (const name of ['payPremium', 'purchaseQuestionPack']) {
+    vm.runInContext(app.match(new RegExp(`async function ${name}\\([^]*?\\n}`))[0], context);
+  }
+  let calls = 0, finish;
+  context.startQuestionPackCheckout = () => { calls++; return new Promise(resolve => {finish = resolve;}); };
+  context.startPremiumCheckout = () => { calls++; return true; };
+  const first = context.purchaseQuestionPack('ai_question_pack_5');
+  assert.equal(button.disabled, true);
+  await context.purchaseQuestionPack('ai_question_pack_5');
+  await context.payPremium();
+  assert.equal(calls, 1);
+  finish(true);
+  await first;
+  await context.payPremium();
+  assert.equal(calls, 1);
+  events.pageshow({persisted: true});
+  assert.equal(button.disabled, false);
+  context.startPremiumCheckout = () => { throw Error('test payment unavailable'); };
+  await assert.rejects(context.payPremium(), /unavailable/);
+  assert.equal(button.disabled, false);
+  context.startPremiumCheckout = () => { calls++; };
+  await context.payPremium();
+  assert.equal(button.disabled, false);
+  assert.equal(calls, 2);
 });
