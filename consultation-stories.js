@@ -658,6 +658,30 @@
     }
   }, {rootMargin: '0px 0px -104px 0px'}) : null;
 
+  function makeAnswerJump(heading, reveal = []) {
+    const jump = make('button', '실제 답변 먼저 보기', 'consultation-story-answer-link');
+    jump.type = 'button';
+    jump.setAttribute('aria-controls', heading.id);
+    heading.tabIndex = -1;
+    jump.addEventListener('click', () => {
+      for (const part of reveal) {
+        readingObserver?.unobserve(part);
+        delete part.dataset.storyReveal;
+      }
+      heading.focus({preventScroll:true});
+      heading.scrollIntoView({block:'start',behavior:'instant'});
+    });
+    return jump;
+  }
+
+  const yeonwooStage = document.getElementById('homeIntroOverlay')?.closest('.ai-chat-stage');
+  const yeonwooAnswer = document.getElementById('uiDemoTitle');
+  if (yeonwooStage && yeonwooAnswer) {
+    const jump = makeAnswerJump(yeonwooAnswer);
+    jump.classList.add('yeonwoo-story-answer-link');
+    yeonwooStage.append(jump);
+  }
+
   for (const [key, story] of Object.entries({...stories, ...window.TaekilAdditionalStories})) {
     const isWedding = key === 'wedding';
     const route = document.getElementById(isWedding ? 'view-wedding' : 'view-topic-' + key);
@@ -682,6 +706,8 @@
     const intro = make('div', '', 'consultation-story-intro');
     intro.append(make('p', advisor.name + ' · ' + advisor.specialty, 'consultation-story-label'), title, make('p', story.scene));
     intro.append(make('small', 'AI 상담사 · AI로 제작한 장면'));
+    const actions = make('div', '', 'consultation-story-actions');
+    intro.append(actions);
     hero.append(frame, intro);
 
     const body = make('div', '', 'consultation-story-body');
@@ -692,11 +718,14 @@
       document.getElementById('story-reading-' + key)?.content.querySelector('figure');
     if (sample) {
       const quote = make('section', '', 'consultation-story-example');
+      const answerTitle = make('h2', '실제 상담은 이렇게 답해요');
+      answerTitle.id = 'story-answer-' + key;
       const copy = sample.cloneNode(true);
       const question = make('p', document.querySelector('#homeDirectory [data-preview-panel="' + key + '"] h3')?.textContent ||
         document.getElementById('story-reading-' + key)?.dataset.question, 'consultation-example-question');
-      quote.append(make('h2', '실제 상담은 이렇게 답해요'), question, copy);
+      quote.append(answerTitle, question, copy);
       body.append(quote);
+      actions.append(makeAnswerJump(answerTitle,quote.children));
     }
 
     const entry = make('section', '', 'consultation-story-entry');
@@ -715,10 +744,10 @@
     dockInner.append(dockContext, start);
     dock.append(dockInner);
     const legend = addChoices(entry, feature, key, question, start, context);
-    addJump(intro, '내 상황 먼저 고르기', entry, legend);
+    addJump(actions, '내 상황 먼저 고르기', entry, legend);
     if (isWedding) {
       const comparison = document.getElementById('weddingStoryComparison');
-      if (comparison) addJump(intro, '날짜 비교 예시 보기', comparison, comparison.querySelector('h3'));
+      if (comparison) addJump(actions, '날짜 비교 예시 보기', comparison, comparison.querySelector('h3'));
     }
     body.append(makeChapter(closing), entry);
     view.replaceChildren(hero, body, dock);
