@@ -56,7 +56,7 @@ service cloud.firestore {
         && request.resource.data.premium == false;
 
       allow update: if
-        isAdmin()
+        (isAdmin() && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['aiTransferConsent']))
         ||
         (
           isOwner(uid)
