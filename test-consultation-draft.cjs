@@ -65,3 +65,15 @@ test('an optional previous question is bounded and uses the same owner and expir
   assert.equal(C.read(draft,2000,'member-b'),null);
   assert.equal(C.read(draft,1000+C.ttl+1,'member-a'),null);
 });
+
+test('explicitly paused drafts retain stage and topic within the existing account and time limits', () => {
+  const draft={...sample(),awaitingAuth:false,paused:true,topic:'reunion',step:2};
+  assert.equal(C.read(draft,2000,'').paused,true);
+  assert.equal(C.read(draft,2000,'').step,2);
+  assert.equal(C.read(draft,2000,'').topic,'reunion');
+  assert.equal(C.read(sample(),2000,'').paused,false);
+  assert.equal(C.read({...draft,paused:'true'},2000,'').paused,false);
+  assert.equal(C.read(draft,2000,'member-a'),null);
+  assert.equal(C.read({...draft,owner:'member-a'},2000,'member-b'),null);
+  assert.equal(C.read(draft,1000+C.ttl+1,''),null);
+});

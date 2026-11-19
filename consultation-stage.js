@@ -171,7 +171,7 @@
     document.body.classList.toggle('consultation-open',opened);
     if(opened){
       size();window.scrollTo({top:0,left:0,behavior:'instant'});
-      window.TaekilPreviewFunnel?.consultationOpened();
+      if (returnTrigger?.id !== 'guidedDraftResume') window.TaekilPreviewFunnel?.consultationOpened();
       if (returnTrigger?.hasAttribute('data-home-consultation')) {
         setup.querySelector('.consultation-setup-heading h2')?.focus({preventScroll:true});
       }
@@ -417,7 +417,16 @@
   entryBack.addEventListener('click', () => { if(step) render(step-1,true); else document.getElementById('consultationExit').click(); });
   const entryTitle = document.createElement('span'); entryTitle.textContent = '연우와의 첫 대화';
   const entryCount = document.createElement('span'); entryCount.className = 'entry-nav-count';
-  entryNav.append(entryBack,entryTitle,entryCount); stage.append(entryNav);
+  const entryIdentity = document.createElement('div'); entryIdentity.className = 'entry-nav-identity';
+  entryIdentity.append(entryTitle,entryCount);
+  const pause = document.createElement('button'); pause.type = 'button'; pause.className = 'entry-pause';
+  pause.textContent = '나중에 이어하기';
+  entryNav.append(entryBack,entryIdentity,pause); stage.append(entryNav);
+  const resumeCard = document.getElementById('guidedDraftResume');
+  const resumeProgress = resumeCard.querySelector('[data-guided-draft-progress]');
+  if (document.documentElement.dataset.homeLayout === 'consultation') {
+    document.querySelector('#homeIntroOverlay .home-conversion-bubble').after(resumeCard);
+  }
   let selectedTopic = '';
   let previousQuestion = '';
   const topics = new Map();
@@ -581,17 +590,22 @@
   new MutationObserver(() => {
     const nextVisible = setup.style.display === 'block';
     if (nextVisible && !visible) {
-      if (!restore()) {
+      const draft = read();
+      if (!restore(draft)) {
         question.value = '';
         previousQuestion = '';
         showTopic('');
         render(0);
       }
-      applyRequestedEntry();
+      if (requestedEntry) applyRequestedEntry();
+      else if (draft?.paused) persist();
     }
     visible = nextVisible;
+    refreshResumeCard();
   }).observe(setup, {attributes:true, attributeFilter:['style']});
   const key = 'taekilso_consultation_entry_v1';
+  let resumeTimer = 0;
+  let focusResume = false;
   let awaitingAuth = false;
   let lastOwner = owner();
   const authOverlay = document.getElementById('authOverlay');
@@ -605,12 +619,12 @@
     return typeof firebaseAuthUser !== 'undefined' && firebaseAuthUser && !firebaseAuthUser.isAnonymous ? firebaseAuthUser : null;
   }
   function owner() { return member()?.uid || ''; }
-  function persist() {
+  function persist(paused = false) {
     const values = {};
     core.fields.forEach(id => { values[id] = field(id).value; });
     try {
       const selections = Object.fromEntries(['SavedProfile','CompareProfile','CompareProfile2'].map(id => [id, owner() ? field(id).value : '']));
-      sessionStorage.setItem(key, JSON.stringify({version:1,at:Date.now(),owner:owner(),awaitingAuth,step,values,selections,leap:field('Leap').checked,question:question.value,previousQuestion,birthText:birthInput.value,topic:selectedTopic}));
+      sessionStorage.setItem(key, JSON.stringify({version:1,at:Date.now(),owner:owner(),awaitingAuth,paused,step,values,selections,leap:field('Leap').checked,question:question.value,previousQuestion,birthText:birthInput.value,topic:selectedTopic}));
       return true;
     } catch (_) { return false; }
   }
@@ -621,8 +635,45 @@
       return draft;
     } catch (_) { return null; }
   }
-  function restore() {
+  function refreshResumeCard() {
+    clearTimeout(resumeTimer);
+    const draft = firebaseReady && !firebaseAuthReady ? null : read();
+    const available = draft?.paused && setup.style.display !== 'block';
+    resumeCard.hidden = !available;
+    resumeProgress.textContent = available
+      ? [personas.forTopic(draft.topic).name + ' 상담', (draft.step + 1) + ' / ' + steps.length + '단계'].join(' · ')
+      : '';
+    if (!available) return;
+    resumeTimer = setTimeout(refreshResumeCard, Math.max(1, draft.at + core.ttl - Date.now() + 1));
+    if (focusResume) {
+      focusResume = false;
+      requestAnimationFrame(() => {
+        if (!resumeCard.getClientRects().length) return;
+        resumeCard.focus({preventScroll:true});
+        resumeCard.scrollIntoView({block:'nearest',behavior:'instant'});
+      });
+    }
+  }
+  pause.addEventListener('click', () => {
+    if (!persist(true)) {
+      error.textContent = '이 탭에 입력을 보관할 수 없어요. 브라우저 저장 공간 설정을 확인해 주세요.';
+      error.scrollIntoView({block:'nearest',behavior:'instant'});
+      return;
+    }
+    focusResume = true;
+    document.getElementById('consultationExit').click();
+    refreshResumeCard();
+  });
+  resumeCard.addEventListener('click', () => {
     const draft = read();
+    if (!draft?.paused) {
+      refreshResumeCard();
+      return;
+    }
+    requestedEntry = null;
+    showAiChatSetupStep();
+  });
+  function restore(draft = read()) {
     if (!draft) return false;
     fillAiChatDateSelects();
     ['SavedProfile','CompareProfile','CompareProfile2'].forEach(id => { field(id).value = draft.selections[id]; });
@@ -653,7 +704,7 @@
       return;
     }
     const actor = member();
-    submit.disabled = true;
+    submit.disabled = pause.disabled = true;
     try {
       if (typeof checkMemberAccess === 'function' && !await checkMemberAccess(actor, {strict:true})) return;
       if (member()?.uid !== actor.uid) return;
@@ -666,7 +717,7 @@
       sessionStorage.removeItem(key); awaitingAuth = false; previousQuestion = '';
     } catch (_) {
       error.textContent = '상담 연결을 확인하지 못했어요. 입력 내용은 유지됩니다. 잠시 후 다시 시도해 주세요.';
-    } finally { submit.disabled = false; }
+    } finally { submit.disabled = pause.disabled = false; }
   }, true);
   window.resumeGuidedConsultation = () => {
     const draft = read();
@@ -688,8 +739,14 @@
       updateHandoff();
     }
     syncChoices();
+    refreshResumeCard();
   });
+  window.addEventListener('pageshow', refreshResumeCard);
+  window.addEventListener('focus', refreshResumeCard);
   render(0);
-  Promise.resolve(typeof firebaseAuthSettled !== 'undefined' ? firebaseAuthSettled : null)
-    .then(() => window.resumeGuidedConsultation());
+  refreshResumeCard();
+  firebaseAuthSettled.then(() => {
+    window.resumeGuidedConsultation();
+    refreshResumeCard();
+  });
 })();

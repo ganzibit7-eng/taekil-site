@@ -209,10 +209,20 @@ body.consultation-open .ai-chat-stage:has(.consultation-guided-entry[style*="blo
 .ai-history-consultant,
 .reading-consultant { color: #dfc69c; font-weight: 600; }
 .ai-history-consultant {display:block;margin-bottom:6px;font:600 14px/1.5 var(--sans)}
-.consultation-entry-nav > span:not(.entry-nav-count) {
-  min-width: 0;
-  overflow-wrap: anywhere;
+.entry-nav-identity {min-width:0;padding-inline:5px}
+.entry-nav-identity > span {display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.guided-draft-resume {
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:3px 14px;
+  width:100%;min-height:56px;margin:14px 0 0;padding:12px 15px;
+  border:1px solid #c6aa7666;border-radius:8px;background:#1b2420;color:#f0ebe1;
+  font:500 16px/1.5 var(--sans);text-align:start;cursor:pointer;
 }
+.guided-draft-resume[hidden] {display:none}
+.guided-draft-resume strong {font-weight:600}
+.guided-draft-resume [data-guided-draft-progress] {color:#dec69a;font-size:14px}
+.guided-draft-resume:hover {background:#242e27;border-color:#b59b6f}
+.guided-draft-resume:focus-visible {outline:2px solid #dfc69c;outline-offset:3px}
+#homeIntroOverlay .guided-draft-resume {margin-block:0 16px;scroll-margin-bottom:90px}
 
 /* Immersive entry: one question at a time, with the same uninterrupted film. */
 .consultation-entry-nav {display:none}
@@ -281,13 +291,19 @@ body.consultation-open:has(#aiChatSetup[style*="block"]) #view-home {
 body.consultation-open:has(#aiChatSetup[style*="block"]) .ai-chat-topbar-overlay,
 body.consultation-open:has(#aiChatSetup[style*="block"]) #consultationExit {display:none!important}
 body.consultation-open:has(#aiChatSetup[style*="block"]) .consultation-entry-nav {
-  display:grid;grid-template-columns:44px 1fr 44px;align-items:center;
+  display:grid;grid-template-columns:44px minmax(0,1fr) max-content;align-items:center;
   position:absolute;top:max(16px,env(safe-area-inset-top));left:16px;right:16px;z-index:5;
   color:#f0ebe1;text-align:center;font:600 16px/1.5 var(--serif);
 }
 .consultation-entry-nav button {display:grid;place-items:center;min-width:44px;min-height:44px;background:none;border:0;color:#f0ebe1;cursor:pointer}
 .consultation-entry-nav button:focus-visible {outline:2px solid #c6aa76;outline-offset:2px;border-radius:4px}
 .entry-nav-count {font:400 12px/1.5 var(--sans);color:#d1d6cc}
+.consultation-entry-nav .entry-pause {
+  padding:7px 10px;border:1px solid #c6aa7666;border-radius:7px;
+  background:#111916de;color:#ecd6ac;white-space:nowrap;font:500 14px/1.45 var(--sans);
+}
+.consultation-entry-nav .entry-pause:hover {background:#242e27;border-color:#b59b6f}
+.consultation-entry-nav .entry-pause:disabled {opacity:.55;cursor:default}
 body.consultation-open .home-first-block #aiChatSetup.consultation-guided-entry {
   inset:76px 0 0!important;padding:0 24px max(24px,env(safe-area-inset-bottom))!important;
 }
