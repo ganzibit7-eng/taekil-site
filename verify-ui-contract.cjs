@@ -20,7 +20,6 @@ const normalizeReport=source=>normalizeAccounts(normalizeConsultation(source))
 .replace(/^ +<!-- CHECKOUT_START -->[\s\S]*?^ +<!-- CHECKOUT_END -->\n/gm,'')
 .replaceAll(' data-checkout-action','')
 .replace('authDomain: "auth.taekilso.com"','authDomain: "taekilso.firebaseapp.com"')
-.replaceAll('        ...(window.TaekilCampaign ? {attribution: window.TaekilCampaign.order()} : {}),\n','')
 .replaceAll('하루 10개','하루 15개') // Explicitly authorized daily premium policy change; retain all other script invariants.
 .replace('const limit = extra && Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 10;', 'const limit = extra && Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 15;')
 .replace(/\/\* VISITOR_POLICY_START \*\/[\s\S]*?\/\* VISITOR_POLICY_END \*\/\n/,'')

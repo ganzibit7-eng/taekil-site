@@ -16,18 +16,9 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
-    function validAttribution(a) {
-      return a is map && a.keys().hasAll(['version','source','medium','campaign','content','landingPath','capturedAtMs'])
-        && a.keys().hasOnly(['version','source','medium','campaign','content','landingPath','capturedAtMs'])
-        && a.version == 1
-        && a.source is string && a.source.size() <= 80
-        && a.medium is string && a.medium.size() <= 80
-        && a.campaign is string && a.campaign.size() <= 80
-        && a.content is string && a.content.size() <= 80
-        && a.landingPath is string && a.landingPath.matches('^/[a-zA-Z0-9/_-]{0,159}$')
-        && a.capturedAtMs is number && a.capturedAtMs > 0
-        && a.capturedAtMs <= request.time.toMillis() + 60000
-        && a.capturedAtMs >= request.time.toMillis() - 2592000000;
+    match /dailyCampaignVisits/{entryId} {
+      allow read: if isAdmin();
+      allow write: if false;
     }
 
     match /dailySeoLanding/{entryId} {
@@ -95,11 +86,10 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/siteSettings/checkout).data.enabled == true
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.keys().hasOnly([
-          'uid', 'amount', 'product', 'status', 'createdAt', 'attribution'
+          'uid', 'amount', 'product', 'status', 'createdAt'
         ])
         && request.resource.data.status == 'pending'
         && request.resource.data.createdAt == request.time
-        && (!request.resource.data.keys().hasAny(['attribution']) || validAttribution(request.resource.data.attribution))
         && (
           (request.resource.data.amount == 8900
             && request.resource.data.product == 'taekilso_premium_30days')

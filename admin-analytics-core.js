@@ -23,11 +23,12 @@
     const sum=(rows,key)=>rows.filter(r=>inRange(r.date||r.id)).reduce((n,r)=>n+number(r[key]),0);
     const paid=data.orders.filter(o=>settledPaid(o)&&orderTime(o)&&inRange(dateKey(orderTime(o))));
     const campaignMap=new Map();
-    for(const order of paid){
-      const a=order.attribution||{},source=String(a.source||'기록 없음').slice(0,80),medium=String(a.medium||'—').slice(0,80),campaign=String(a.campaign||'—').slice(0,120),id=JSON.stringify([source,medium,campaign]);
-      const row=campaignMap.get(id)||{source,medium,campaign,count:0,revenue:0};row.count++;row.revenue+=number(order.amount);campaignMap.set(id,row);
+    for (const row of data.campaignVisits || []) {
+      if (!inRange(row.date)) continue;
+      campaignMap.set(row.campaign,(campaignMap.get(row.campaign) || 0) + number(row.count));
     }
-    const campaigns=[...campaignMap.values()].sort((a,b)=>b.revenue-a.revenue);
+    const campaigns = Array.from(campaignMap, ([campaign,count]) => ({campaign,count}))
+      .sort((a,b) => b.count - a.count || a.campaign.localeCompare(b.campaign,'ko'));
     const revenue=paid.reduce((n,o)=>n+number(o.amount),0);
     const productRows=Object.keys(products).map(id=>({id,name:products[id],count:paid.filter(o=>o.product===id).length,revenue:paid.filter(o=>o.product===id).reduce((n,o)=>n+number(o.amount),0)}));
     const unknown=paid.filter(o=>!products[o.product]);if(unknown.length)productRows.push({id:'other',name:'기타 상품',count:unknown.length,revenue:unknown.reduce((n,o)=>n+number(o.amount),0)});

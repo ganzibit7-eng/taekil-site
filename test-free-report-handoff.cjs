@@ -54,12 +54,12 @@ test('controller has no AI request and analytics transmits only a fixed source',
 });
 test('client analytics are server-only and authenticated member records remain owner-scoped',()=>{
  const rules=fs.readFileSync('firebase/firestore.rules','utf8');
- for(const path of ['dailyFunnel','dailyVisits','dailyTrafficSources','dailySeoLanding','trafficVisitsV2']){
+ for(const path of ['dailyFunnel','dailyVisits','dailyTrafficSources','dailyCampaignVisits','dailySeoLanding','trafficVisitsV2']){
   const start=rules.indexOf('match /'+path+'/'),block=rules.slice(start,rules.indexOf('\n    }',start));
   assert(block.includes('allow write: if false'));assert(block.includes('allow read: if isAdmin()'));
  }
  assert(rules.includes('request.resource.data.uid == request.auth.uid'));
- assert(rules.includes('validAttribution(request.resource.data.attribution)'));
+ assert(!rules.includes('validAttribution'));
 });
 
 test('profile X delegates only the selected profile and preserves selection when deletion is cancelled',async()=>{
