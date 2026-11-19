@@ -611,7 +611,7 @@
       if (typeof checkMemberAccess === 'function' && !await checkMemberAccess(actor, {strict:true})) return;
       if (member()?.uid !== actor.uid) return;
       // Manual handoff prepares a draft question; never charge or call Claude on navigation.
-      startAiChat({source:'free-report', consultantId:personas.forTopic(selectedTopic).id});
+      await startAiChat({source:'free-report', consultantId:personas.forTopic(selectedTopic).id});
       if (document.getElementById('aiChatPanel').style.display !== 'flex') return;
       const input = document.getElementById('aiChatInput');
       input.value = question.value.trim(); input.dispatchEvent(new Event('input', {bubbles:true}));

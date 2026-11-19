@@ -848,5 +848,20 @@
     "before": "async function loginWithKakao() {\n  if (!window.TaekilPrivacy?.confirmAge()) return;",
     "after": "async function loginWithKakao() {\n  if (!window.TaekilPrivacy?.confirmSignupAge()) {\n    showAuthError('만 14세 이상인지 확인해 주세요.');\n    return;\n  }",
     "count": 1
+  },
+  {
+    "before": "function startAiChat(reportOptions) {",
+    "after": "async function startAiChat(reportOptions) {",
+    "count": 1
+  },
+  {
+    "before": "  if (!birth) return;\n\n  const built = buildAiChatSajuSummary({y,m,d,calType,hourValue,gender,birth});",
+    "after": "  if (!birth) return;\n  const setup = document.getElementById('aiChatSetup');\n  if (setup.hasAttribute('data-awaiting-ai-consent')) return;\n  const accountToken = accountStore.snapshot();\n  if (!await window.TaekilPrivacy?.confirmAI(setup)) return;\n  if (!accountStore.current(accountToken) || !document.getElementById('view-home').classList.contains('visible')) return;\n\n  const built = buildAiChatSajuSummary({y,m,d,calType,hourValue,gender,birth});",
+    "count": 1
+  },
+  {
+    "before": "  if (!await window.TaekilPrivacy?.confirmAI()) return;\n  if (!sameConversation() || sendBtn.disabled || input.value.trim() !== message) return;",
+    "after": "  if (!window.TaekilPrivacy?.hasAIConsent()) {\n    document.getElementById('aiChatPanel').style.display = 'none';\n    showAiChatSetupStep();\n    showToast('상담 시작 화면에서 개인정보 국외 이전에 동의해 주세요.');\n    return;\n  }",
+    "count": 1
   }
 ]

@@ -40,30 +40,57 @@
   }
   document.addEventListener('focusin', protectInput, true);
   document.addEventListener('beforeinput', protectInput, true);
-  const consentDialog = document.getElementById('aiTransferDialog');
+  const consentScreen = document.getElementById('aiTransferScreen');
   let consentOwner;
   let pendingConsent = null;
-  function confirmAI() {
+  let cancelConsent;
+  function currentOwner() { return window.accountStore?.owner() ?? null; }
+  function hasAIConsent() { return consentOwner !== undefined && consentOwner === currentOwner(); }
+  function confirmAI(host) {
     if (!confirmAge()) return false;
-    const owner = window.accountStore?.owner() ?? null;
-    if (consentOwner === owner) return true;
-    if (!consentDialog?.showModal) return false;
+    if (hasAIConsent()) return true;
+    if (!host || !consentScreen) return false;
     if (pendingConsent) return pendingConsent;
+    const owner = currentOwner(), view = host.closest('.view'), previousFocus = document.activeElement;
     pendingConsent = new Promise(resolve => {
-      consentDialog.returnValue = '';
-      consentDialog.addEventListener('close', () => {
-        const agreed = consentDialog.returnValue === 'agree' && (window.accountStore?.owner() ?? null) === owner;
+      const observer = new MutationObserver(() => {
+        if (!view?.classList.contains('visible')) finish(false);
+      });
+      const onChoice = event => {
+        const choice = event.target.closest('[data-ai-consent]');
+        if (choice) finish(choice.dataset.aiConsent === 'agree');
+      };
+      function finish(selected) {
+        const agreed = selected && owner===currentOwner() && view?.classList.contains('visible');
         if (agreed) consentOwner = owner;
+        observer.disconnect();
+        consentScreen.removeEventListener('click',onChoice);
+        consentScreen.hidden = true;
+        host.removeAttribute('data-awaiting-ai-consent');
+        if (!agreed && previousFocus?.isConnected) previousFocus.focus({preventScroll:true});
         pendingConsent = null;
-        resolve(agreed);
-      }, {once:true});
-      consentDialog.showModal();
+        cancelConsent = null;
+        resolve(!!agreed);
+      }
+      cancelConsent = () => finish(false);
+      if (view) observer.observe(view,{attributes:true,attributeFilter:['class']});
+      consentScreen.addEventListener('click',onChoice);
+      host.before(consentScreen);
+      host.setAttribute('data-awaiting-ai-consent','');
+      consentScreen.hidden = false;
+      consentScreen.querySelector('details').open = false;
+      consentScreen.querySelector('h2').focus({preventScroll:true});
+      consentScreen.scrollIntoView({block:'nearest',behavior:'instant'});
     });
     return pendingConsent;
   }
+  window.addEventListener('taekilso:authChanged',() => {
+    consentOwner = undefined;
+    cancelConsent?.();
+  });
   function resetAge() {
     consentOwner = undefined;
-    if (consentDialog?.open) consentDialog.close('cancel');
+    cancelConsent?.();
     confirmed = false;
     if (ageCheckbox) ageCheckbox.checked = false;
     try { sessionStorage.removeItem(ageKey); } catch (_) {}
@@ -89,5 +116,5 @@
       observer.observe(legal,{attributes:true,attributeFilter:['class']});
     }
   }
-  window.TaekilPrivacy = { confirmAge, confirmSignupAge, confirmAI, resetAge };
+  window.TaekilPrivacy = { confirmAge, confirmSignupAge, confirmAI, hasAIConsent, resetAge };
 })();

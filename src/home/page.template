@@ -131,10 +131,9 @@ const ADMIN_EMAIL = "green092432@gmail.com";
   </div>
 </div>
 
-<dialog id="aiTransferDialog" class="ai-transfer-dialog" aria-labelledby="aiTransferTitle" aria-describedby="aiTransferSummary">
-  <form method="dialog">
-    <h2 id="aiTransferTitle">AI 상담 국외 이전 동의</h2>
-    <p id="aiTransferSummary">답변을 만들기 위해 사주 계산값, 질문과 필요한 대화를 미국 소재 OpenAI에 보냅니다. 오류 시 Anthropic이 대신 처리할 수 있어요.</p>
+<section hidden id="aiTransferScreen" class="ai-transfer-screen" aria-labelledby="aiTransferTitle" aria-describedby="aiTransferSummary">
+    <h2 id="aiTransferTitle" tabindex="-1">AI 상담 국외 이전 동의</h2>
+    <p id="aiTransferSummary">답변에 필요한 사주 계산값과 현재 질문을 미국 소재 OpenAI에 보냅니다. 오류 시 Anthropic이 대신 처리할 수 있어요.</p>
     <details>
       <summary>이전 시기·처리 지역·보관 기간</summary>
       <p>질문 전송·신년 리포트 생성 요청 시 암호화해 전달합니다. 두 업체 모두 미국 외 지역에서 처리할 수 있어요.</p>
@@ -145,23 +144,23 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <p><a href="/?privacy=ai#legal" target="_blank" rel="noopener noreferrer">개인정보처리방침 8항 보기 <span aria-label="새 탭">↗</span></a></p>
     <p class="ai-transfer-choice">취소하면 AI 요청만 중단돼요. 기본 사주·택일 계산은 계속 이용할 수 있어요.</p>
     <div class="ai-transfer-actions">
-      <button class="btn" type="submit" value="cancel" autofocus>취소</button>
-      <button class="btn btn-primary" type="submit" value="agree">동의하고 AI 풀이</button>
+      <button class="btn" type="button" data-ai-consent="cancel">취소</button>
+      <button class="btn btn-primary" type="button" data-ai-consent="agree">동의하고 계속하기</button>
     </div>
-  </form>
-</dialog>
+</section>
 <style>
   .auth-age-check { display:flex; justify-content:center; align-items:center; gap:8px; color:var(--muted); }
   .auth-age-check input { width:18px; height:18px; accent-color:var(--gold-hi); }
-  .ai-transfer-dialog { width:min(460px, calc(100% - 28px)); max-height:calc(100dvh - 28px); box-sizing:border-box; padding:clamp(18px,4vw,28px); border:1px solid var(--line); border-radius:14px; color:var(--white); background:var(--panel); font-family:var(--sans); }
-  .ai-transfer-dialog::backdrop { background:rgba(8,12,10,.8); }
-  .ai-transfer-dialog h2 { font-family:var(--serif); font-size:clamp(20px,5vw,25px); margin:0 0 12px; }
-  .ai-transfer-dialog p, .ai-transfer-dialog summary { margin:0 0 12px; font-size:15px; line-height:1.6; }
-  .ai-transfer-dialog details { margin:0 0 12px; padding:8px 0; border-block:1px solid var(--line); }
-  .ai-transfer-dialog summary { cursor:pointer; margin:0; }
-  .ai-transfer-dialog details[open] summary { margin-bottom:8px; }
-  .ai-transfer-dialog details p:last-child { margin-bottom:0; }
-  .ai-transfer-dialog a { color:var(--gold-hi); text-decoration:underline; text-underline-offset:3px; }
+  [data-awaiting-ai-consent] { display:none !important; }
+  .ai-transfer-screen { position:relative; z-index:2; width:min(500px, calc(100% - 28px)); margin:clamp(24px,7vh,72px) auto; box-sizing:border-box; padding:clamp(18px,4vw,28px); border:1px solid var(--line); border-radius:14px; color:var(--white); background:var(--panel); font-family:var(--sans); }
+  .ai-chat-stage > .ai-transfer-screen { position:absolute; inset:86px 0 auto; z-index:4; max-height:calc(100% - 102px); margin:0 auto; overflow:auto; }
+  .ai-transfer-screen h2 { font-family:var(--serif); font-size:clamp(20px,5vw,25px); margin:0 0 12px; }
+  .ai-transfer-screen p, .ai-transfer-screen summary { margin:0 0 12px; font-size:15px; line-height:1.6; }
+  .ai-transfer-screen details { margin:0 0 12px; padding:8px 0; border-block:1px solid var(--line); }
+  .ai-transfer-screen summary { cursor:pointer; margin:0; }
+  .ai-transfer-screen details[open] summary { margin-bottom:8px; }
+  .ai-transfer-screen details p:last-child { margin-bottom:0; }
+  .ai-transfer-screen a { color:var(--gold-hi); text-decoration:underline; text-underline-offset:3px; }
   .ai-transfer-choice, .privacy-input-note { color:var(--muted); }
   .privacy-input-note { font-size:.83rem; line-height:1.45; margin:4px 0 6px; }
   .ai-transfer-actions { display:grid; grid-template-columns:minmax(72px, 1fr) 2fr; gap:8px; }
@@ -241,7 +240,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="account-session-core.js?v=20261111-1"></script>
 <script src="checkout-availability.js?v=3"></script>
 <script src="metrics-preference.js?v=1"></script>
-<script src="privacy-controls.js?v=3"></script>
+<script src="privacy-controls.js?v=4"></script>
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lunar-javascript/1.7.5/lunar.min.js" integrity="sha384-qgrj9Ih88CpqQEaDKCVdEY+GvClfNBHPQECl6AaMJnZm/lkMtciFybNl4K6WlT7E" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous"></script>
@@ -279,17 +278,17 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="consultation-stories.js?v=20261119-privacy"></script>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261118-continuous-arrival"></script><script src="premium-motion.js" defer></script>
 <script src="consultation-draft-core.js?v=20261117-added-topics"></script>
-<script src="consultation-stage.js?v=20261119-ai-privacy"></script>
+<script src="consultation-stage.js?v=20261119-before-chat"></script>
 <link rel="stylesheet" href="consultation-experience.css?v=20261113-library-1">
 <script src="consultation-experience-core.js?v=20261117-saved-evidence"></script>
 <script src="consultation-experience.js?v=20261117-saved-evidence"></script>
 
 <script src="navigation-stability.js?v=20261111-2"></script>
 <link rel="stylesheet" href="newyear-consultation.css?v=20261118-evidence">
-<script src="newyear-consultation.js?v=20261119-ai-privacy"></script><script src="newyear-example.js?v=20261118-reading"></script>
+<script src="newyear-consultation.js?v=20261119-before-chat"></script><script src="newyear-example.js?v=20261118-reading"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=20261110-1">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
-<script src="free-report-handoff.js?v=20261119-daily"></script>
+<script src="free-report-handoff.js?v=20261119-before-chat"></script>
 <link rel="stylesheet" href="navigation-refinement.css?v=20261110-3">
 <script src="navigation-refinement.js?v=20261110-1"></script>
 <script src="profile-picker-controls.js?v=20261118-confirmed-delete"></script>

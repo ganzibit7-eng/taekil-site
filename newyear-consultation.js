@@ -106,7 +106,7 @@
       const actor=owner(),accountToken=window.accountStore.snapshot(),requestVersion=++version;
       busy=true;generate.disabled=true;
       try {
-        const consent = await window.TaekilPrivacy?.confirmAI();
+        const consent = await window.TaekilPrivacy?.confirmAI(content);
         if (!consent || !check.checked || actor!==owner() || !window.accountStore.current(accountToken) || requestVersion!==version || !active) {
           generate.disabled=!check.checked;busy=false;return;
         }
