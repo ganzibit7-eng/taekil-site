@@ -260,7 +260,7 @@ function bumpStat(field) {
    전체 누적(visits)과 오늘 하루치(dailyVisits/오늘 날짜)를 각각 따로 기록합니다. */
 /* VISITOR_POLICY_START */
 function canRecordVisitorAnalytics(){
-  return ['taekilso.com','www.taekilso.com'].includes(location.hostname)&&firebaseAuthReady&&!isAdmin()&&String(firebaseAuthUser?.email||'').trim().toLowerCase()!==ADMIN_EMAIL;
+  return window.TaekilMetricsPreference?.enabled()&&['taekilso.com','www.taekilso.com'].includes(location.hostname)&&firebaseAuthReady&&!isAdmin()&&String(firebaseAuthUser?.email||'').trim().toLowerCase()!==ADMIN_EMAIL;
 }
 /* VISITOR_POLICY_END */
 function recordVisit() {

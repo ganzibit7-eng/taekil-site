@@ -3,15 +3,24 @@
  'use strict';
  const SESSION='taekilso_metrics_session_v1';
  const campaign=window.TaekilCampaignCore.campaignFromUrl(location.href);
- let session;
- try{localStorage.removeItem('taekilso_campaign_v1');}catch(_){}
- try{session=sessionStorage.getItem(SESSION);}catch(_){}
- if(!/^[a-f0-9]{32}$/.test(session||'')){const b=new Uint8Array(16);crypto.getRandomValues(b);session=[...b].map(x=>x.toString(16).padStart(2,'0')).join('');try{sessionStorage.setItem(SESSION,session);}catch(_){}}
+ const enabled=()=>window.TaekilMetricsPreference?.enabled()===true;
+ function randomId(){
+  return Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');
+ }
+ function sessionId(){
+  try{
+   const saved=sessionStorage.getItem(SESSION);
+   if(/^[a-f0-9]{32}$/.test(saved||''))return saved;
+   const id=randomId();sessionStorage.setItem(SESSION,id);return id;
+  }catch(_){return randomId();}
+ }
+ try{localStorage.removeItem('taekilso_campaign_v1');sessionStorage.removeItem('taekilso_preview_funnel_v1');}catch(_){}
  const sent=new Set(),pending=new Set();
  async function post(event,actor){
   const headers={'Content-Type':'application/json'};
   if(actor&&!actor.isAnonymous)headers.Authorization='Bearer '+await actor.getIdToken();
-  return fetch(AI_CHAT_URL.replace(/\/ai-chat$/,'/admin-report'),{method:'POST',referrerPolicy:'no-referrer',headers,body:JSON.stringify({session,...event}),keepalive:true});
+  if(!enabled())return null;
+  return fetch(AI_CHAT_URL.replace(/\/ai-chat$/,'/admin-report'),{method:'POST',credentials:'omit',referrerPolicy:'no-referrer',headers,body:JSON.stringify(event),keepalive:true});
  }
  async function emit(event){
   if(!['taekilso.com','www.taekilso.com'].includes(location.hostname))return;
@@ -19,19 +28,21 @@
   const actor=firebase.auth().currentUser,key=getKstDateKey()+'|'+(actor?.uid||'guest')+'|'+JSON.stringify(event);
   if(sent.has(key)||pending.has(key))return;pending.add(key);
   try{
-   const response=await post(event,actor);
+   const session=event.field==='signups'||event.field==='reportSignups'?randomId():sessionId();
+   const response=await post({session,...event},actor);if(!response)return;
    if(response.ok)sent.add(key);else console.warn('방문 집계가 지연되었습니다.',response.status);
   }catch(_){console.warn('방문 집계가 지연되었습니다.');}finally{pending.delete(key);}
  }
- async function emitPreview(field){
+ async function activity(field){
+  if(!enabled()||!['exampleReads','consultationOpens'].includes(field))return;
   await firebaseAuthSettled;
-  if(!canRecordVisitorAnalytics())return 'ADMIN_EXCLUDED';
-  try{
-   const response=await post({kind:'preview',field},firebase.auth().currentUser);
-   return response.ok?(await response.json()).reason:null;
-  }catch(_){return null;}
+  if(!canRecordVisitorAnalytics())return;
+  const event={kind:'activity',field,eventId:randomId()};
+  for(let i=0;i<2&&enabled();i++){
+   try{const r=await post(event,null);if(!r || r.status<500)return;}catch(_){}
+  }
  }
- window.TaekilCampaign={analytics:()=>({seoSlug:typeof getSeoAttribution==='function'?getSeoAttribution()?.slug||'':''}),emit,emitPreview};
+ window.TaekilCampaign={analytics:()=>enabled()?{seoSlug:typeof getSeoAttribution==='function'?getSeoAttribution()?.slug||'':''}:{disabled:true},emit,activity};
  recordVisit=()=>emit({kind:'visit',channel:detectTrafficSource().channel,...(campaign?{campaign}:{})});
  recordTrafficSource=()=>{}; // Included atomically with the visit; never count twice.
  bumpStat=field=>{if(field==='visits')recordVisit();else if(field==='signups')emit({kind:'funnel',field});};

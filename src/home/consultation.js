@@ -1215,9 +1215,11 @@ function clearPendingPaidAiQuestion(){
 const TAEKILSO_SEO_ATTR_KEY='taekilso_seo_attribution_v1';
 const TAEKILSO_SEO_GUIDE_SLUGS=new Set(['2026-fortune','job-change-fortune','reunion-fortune','gapmok-day-master','eulmok-day-master','byeonghwa-day-master','jeonghwa-day-master','mujeong-day-master','gito-day-master','gyeonggeum-day-master','singeum-day-master','imsu-day-master','gyesu-day-master','employment-fortune','business-fortune','marriage-fortune','daewoon-guide','sewoon-guide','love-fortune','career-fortune','money-fortune','relationship-fortune','monthly-fortune','saju-compatibility-guide','marriage-date-guide','moving-date-guide','opening-date-guide','saju-guide','blog-index','blog-gunghap-worst-combo','blog-isa-sonobneun-nal-guide','blog-jaehoe-timing','blog-gyeolhon-taekil-checklist','blog-ai-saju-vs-jeontong','2027-fortune','2027-business-fortune','2027-career-fortune','2027-compatibility','2027-contract-date','2027-day-master-fortune','2027-employment-fortune','2027-love-fortune','2027-money-fortune','2027-monthly-fortune','2027-moving-date','2027-opening-date','2027-reunion-fortune','2027-samjae','2027-wedding-date','2027-zodiac-fortune','birth-time-unknown-saju','contract-date','free-saju','saju-question-guide','today-fortune','dream-guide-index','dream-snake','dream-money','dream-water','dream-teeth','dream-pregnancy','dream-deceased']);
 function getSeoAttribution(){
+  if (!window.TaekilMetricsPreference?.enabled()) return;
   try{const x=JSON.parse(localStorage.getItem(TAEKILSO_SEO_ATTR_KEY)||'null');if(!x||!x.slug||Date.now()-Number(x.at||0)>30*24*60*60*1000)return null;return x;}catch(e){return null;}
 }
 function captureSeoAttributionFromUrl(){
+  if (!window.TaekilMetricsPreference?.enabled()) return;
   try{
     const p=new URLSearchParams(location.search), slug=String(p.get('seo_landing')||'').trim();
     if(!TAEKILSO_SEO_GUIDE_SLUGS.has(slug))return;
@@ -1267,16 +1269,10 @@ function bumpDailyFunnel(field){
 }
 
 function trackAiFunnel(eventName, extra){
+  if (!window.TaekilMetricsPreference?.enabled()) return;
   const name=String(eventName||'').slice(0,60);
   if(!name) return;
-  const item={event:name, at:Date.now()}; // Analytics never stores raw questions or personal profile fields.
-  try{
-    const list=JSON.parse(localStorage.getItem(AI_FUNNEL_KEY)||'[]');
-    const safe=Array.isArray(list)?list.map(x=>({event:String(x.event||'').slice(0,60),at:Number(x.at||0)})):[];
-    safe.push(item);
-    localStorage.setItem(AI_FUNNEL_KEY,JSON.stringify(safe.slice(-200)));
-  }catch(e){}
-
+  const item={event:name, at:Date.now()};
   // 운영 퍼널에는 질문 내용/사주/UID를 저장하지 않고 단계별 숫자만 +1 합니다.
   const funnelField = DAILY_FUNNEL_EVENT_MAP[name];
   if (funnelField) bumpDailyFunnel(funnelField);

@@ -808,5 +808,25 @@
     "before": "        if (badge && q.status === '답변완료') {",
     "after": "        if (['dispute-kakao','dispute-firebase'].includes(q.source) || q.legalHold === true) {\n          const cancel = listEl.querySelector('[data-cancel-id=\"' + item.id + '\"]');\n          if (cancel) cancel.hidden = true;\n        }\n        if (badge && q.status === '답변완료') {",
     "count": 1
+  },
+  {
+    "before": "function captureSeoAttributionFromUrl(){\n",
+    "after": "function captureSeoAttributionFromUrl(){\n  if (!window.TaekilMetricsPreference?.enabled()) return;\n",
+    "count": 1
+  },
+  {
+    "before": "function getSeoAttribution(){\n",
+    "after": "function getSeoAttribution(){\n  if (!window.TaekilMetricsPreference?.enabled()) return;\n",
+    "count": 1
+  },
+  {
+    "before": "function trackAiFunnel(eventName, extra){\n",
+    "after": "function trackAiFunnel(eventName, extra){\n  if (!window.TaekilMetricsPreference?.enabled()) return;\n",
+    "count": 1
+  },
+  {
+    "after": "  const item={event:name, at:Date.now()};\n",
+    "before": "  const item={event:name, at:Date.now()}; // Analytics never stores raw questions or personal profile fields.\n  try{\n    const list=JSON.parse(localStorage.getItem(AI_FUNNEL_KEY)||'[]');\n    const safe=Array.isArray(list)?list.map(x=>({event:String(x.event||'').slice(0,60),at:Number(x.at||0)})):[];\n    safe.push(item);\n    localStorage.setItem(AI_FUNNEL_KEY,JSON.stringify(safe.slice(-200)));\n  }catch(e){}\n\n",
+    "count": 1
   }
 ]

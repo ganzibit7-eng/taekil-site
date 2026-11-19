@@ -37,17 +37,14 @@
     const reportFields=['freeReportViews','freeReportCompleted','reportCtaClicks','reportQuestionClicks','reportSignupStarts','reportSignups','reportFirstQuestions'];
     const reportEvents=reportFields.map((key,i)=>({name:['무료 기본 결과 확인','결과 하단 도달','연우 CTA 선택','추천 질문 선택','리포트에서 로그인 시작','리포트 유입 신규 가입','이어진 첫 상담 성공'][i],value:sum(data.funnel,key)}));
     const reportInstrumented=data.funnel.some(r=>inRange(r.date||r.id)&&reportFields.some(k=>Object.prototype.hasOwnProperty.call(r,k)));
-    const previewValues=['previewViews','previewStarts','previewSignups'].map(key=>sum(data.funnel,key));
-    const percent=(n,d)=>d>0?Math.round(n/d*1000)/10:null;
-    const previewEvents=previewValues.map((value,i)=>({
-      name:['미리보기 확인','상담 준비 시작','신규 회원가입'][i],value,
-      fromPrevious:i?percent(value,previewValues[i-1]):null,
-      fromPreview:percent(value,previewValues[0])
-    }));
+    const dailyActivities=keys(end,Math.round((Date.parse(end)-Date.parse(start))/86400000)+1).reverse().map(date=>{
+      const rows=data.funnel.filter(r=>(r.date||r.id)===date);
+      return {date, reads:date<'2026-11-19'?null:sum(rows,'exampleReads'), starts:date<'2026-11-19'?null:sum(rows,'consultationOpens'), signups:sum(rows,'signups')};
+    });
     const seoMap=new Map();data.seo.filter(r=>inRange(r.date)).forEach(r=>{const id=String(r.slug||'미분류');const row=seoMap.get(id)||{name:id,visits:0,signups:0,answers:0,purchases:0};row.visits+=number(r.visits);row.signups+=number(r.signups);row.answers+=number(r.firstAiAnswers);row.purchases+=number(r.purchases);seoMap.set(id,row);});
     const days=Math.round((Date.parse(end)-Date.parse(start))/86400000)+1;
     const series=keys(end,days).map(date=>({date,visits:sum(data.visits.filter(r=>(r.date||r.id)===date),'count'),revenue:paid.filter(o=>dateKey(orderTime(o))===date).reduce((n,o)=>n+number(o.amount),0),orders:paid.filter(o=>dateKey(orderTime(o))===date).length}));
-    return {visits:sum(data.visits,'count'),signups:sum(data.funnel,'signups'),paid:paid.length,revenue,aov:paid.length?Math.round(revenue/paid.length):null,products:productRows,campaigns,traffic,events,reportEvents,reportInstrumented,previewEvents,series,seo:[...seoMap.values()].sort((a,b)=>b.purchases-a.purchases||b.visits-a.visits)};
+    return {visits:sum(data.visits,'count'),signups:sum(data.funnel,'signups'),paid:paid.length,revenue,aov:paid.length?Math.round(revenue/paid.length):null,products:productRows,campaigns,traffic,events,reportEvents,reportInstrumented,dailyActivities,series,seo:[...seoMap.values()].sort((a,b)=>b.purchases-a.purchases||b.visits-a.visits)};
   }
   function change(current,previous){return previous>0?Math.round((current-previous)/previous*1000)/10:null;}
   function baseline(counters){const count=number(counters.purchases),revenue=number(counters.revenue);return count>=13&&revenue>=33200?{count:count-13,revenue:revenue-33200}:null;}
