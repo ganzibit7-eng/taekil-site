@@ -39,6 +39,39 @@
         for (const button of exampleChoices) button.setAttribute('aria-pressed', String(button === choice));
       });
     }
+    const recent = document.getElementById('directoryRecent');
+    if (recent && recent.querySelector && window.accountStore) {
+      const button = recent.querySelector('button');
+      const question = recent.querySelector('[data-recent-question]');
+      const advisor = recent.querySelector('[data-recent-advisor]');
+      let selected = null;
+      let loadedOwner = null;
+      const refresh = () => {
+        const owner = window.accountStore.owner();
+        const records = owner ? getAiConversationStore() : [];
+        const latest = records.filter(rec => rec?.id && Array.isArray(rec.messages) && rec.messages.some(message => message?.role === 'assistant'))
+          .sort((a,b) => Number(b.updatedAtMs || 0) - Number(a.updatedAtMs || 0))[0];
+        const prompt = latest?.messages.findLast(message => message?.role === 'user')?.content || latest?.title;
+        recent.hidden = !latest;
+        selected = latest ? {id:latest.id, account:window.accountStore.snapshot()} : null;
+        question.textContent = String(prompt || '').slice(0,120);
+        advisor.textContent = latest ? (window.TaekilConsultationPersonas?.get(latest.consultantId).name || '연우') + ' 상담' : '';
+        if (owner !== loadedOwner) {
+          loadedOwner = owner;
+          if (owner) syncAiConversationHistoryFromCloud().then(refresh);
+        }
+      };
+      button.addEventListener('click', () => {
+        if (selected && window.accountStore.current(selected.account)) resumeAiConversation(selected.id);
+      });
+      window.addEventListener('taekilso:authChanged', refresh);
+      window.addEventListener('taekilso:aiQuestionAccepted', () => queueMicrotask(refresh));
+      window.addEventListener('storage', event => {
+        if (event.key === null || event.key === window.accountStore.key(AI_CONVERSATION_KEY)) refresh();
+      });
+      new MutationObserver(refresh).observe(document.getElementById('view-home'), {attributes:true, attributeFilter:['class']});
+      refresh();
+    }
     for (const rail of document.querySelectorAll('#homeDirectory :is(.directory-characters, .directory-cards)')) {
       let frame = 0;
       let current = null;

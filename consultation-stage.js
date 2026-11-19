@@ -518,6 +518,12 @@
     const key = core.normalizeTopic(button.dataset.consultationExample);
     if (topics.has(key)) button.addEventListener('click', () => startTopic(button, key));
   }
+  document.addEventListener('click', event => {
+    const button = event.target.closest('[data-open-example-question]');
+    if (!button) return;
+    suggestedConcerns.add(button.dataset.openExampleQuestion);
+    startTopic(button, '', button.dataset.openExampleQuestion);
+  });
   for (const button of document.querySelectorAll('[data-story-start]')) {
     const key = core.normalizeTopic(button.dataset.storyStart);
     if (topics.has(key)) button.addEventListener('click', () => startTopic(button, key, button.dataset.storyQuestion));

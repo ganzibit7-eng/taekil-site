@@ -93,12 +93,12 @@ for(const file of detailFiles){
 console.log('PASS: '+detailFiles.length+' detail pages retain their original content, links, structured data and scripts.');
 const actualExamples=JSON.parse(fs.readFileSync('content/consultation-examples.json','utf8'));
 assert.equal(actualExamples.examples.length,3);
-assert.deepEqual(actualExamples.birth,{calendar:'solar',year:1990,month:1,day:1,time:'unknown',gender:'unknown'});
-const answers=[...home.matchAll(/<div class="ui-real-answer">([\s\S]*?)<\/div><\/details><\/details>/g)].map(m=>m[1]);
+assert.deepEqual(actualExamples.birth,{calendar:'solar',year:1990,month:4,day:2,time:'unknown',gender:'unknown'});
+const answers=[...home.matchAll(/<div class="ui-real-answer">([\s\S]*?)<\/div><\/details>/g)].map(m=>m[1]);
 assert.equal(answers.length,3);
 const entities={'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&#39;':"'",'&nbsp;':' '};
 const textOnly=html=>html.replace(/<[^>]+>/g,' ').replace(/&(amp|lt|gt|quot|#39|nbsp);/g,m=>entities[m]);
-const words=text=>text.replace(/^#+\s*/gm,'').replace(/---/g,'').replace(/\s+/g,'');
+const words=text=>text.replace(/^#+\s*/gm,'').replace(/---|\*\*/g,'').replace(/\s+/g,'');
 actualExamples.examples.forEach((example,i)=>assert.equal(words(textOnly(answers[i])),words(example.answer),'Actual answer wording changed: '+example.topic));
 for(const name of ['welcome','reading','moonlight'])assert(fs.statSync('assets/yeonwoo-'+name+'.jpg').size>0);
 assert.equal((current.match(/src="premium-motion.js"/g)||[]).length,1);

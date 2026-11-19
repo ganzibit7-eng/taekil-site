@@ -52,7 +52,7 @@ test('directory shortcuts focus and scroll to their headings without changing th
     documentElement: { dataset: {} },
     addEventListener(type, handle) { assert.equal(type, 'DOMContentLoaded'); handle(); },
     querySelectorAll(selector) { return selector.includes('[data-directory-jump]') ? [button] : []; },
-    getElementById(id) { assert.equal(id, headingId); return heading; }
+    getElementById(id) { return id === headingId ? heading : null; }
   };
   runInNewContext(entry, { URLSearchParams, location, document });
   assert.deepEqual(calls, [['focus', true], ['scroll', 'start', 'instant']]);
@@ -99,33 +99,36 @@ test('the directory has a separate new-year section leading to the existing Yeon
   assert.match(html.slice(adStart), /<button class="btn newyear-home-entry" data-open-newyear>2027 신년상담 알아보기<\/button>/);
 });
 
-test('the public preview quotes the existing demonstration and opens the existing career topic', () => {
+test('the public career preview identifies the same specialist as its action', () => {
   const html = readFileSync(path.join(__dirname, 'index.html'), 'utf8');
   const preview = html.match(/<section class="directory-section directory-preview"[\s\S]+?<\/section>/)?.[0];
   assert.ok(preview);
-  const excerpt = preview.match(/<blockquote>([^<]+)<\/blockquote>/)?.[1];
-  assert.ok(excerpt);
-  assert.ok(html.includes('<div class="ui-real-lead"><p>' + excerpt + '</p>'));
+  assert.match(preview, /<figcaption>무진의 답변<\/figcaption>/);
+  assert.match(preview, /무진에게 직업·이직 상담하기/);
   assert.match(preview, /data-consultation-example="career"/);
   assert.equal([...html.matchAll(/data-consultation-topic="career"/g)].length, 1);
   assert.match(preview, /href="\/\?landing=yeonwoo#uiDemoTitle"/);
   assert.match(html, /id="uiDemoTitle"/);
 });
 
-test('new home previews quote recorded answers and hand off to their original specialist topics', () => {
+test('home and story previews quote current recorded answers for all specialist topics', () => {
   const html = readFileSync(path.join(__dirname, 'index.html'), 'utf8');
   const { examples } = JSON.parse(readFileSync(path.join(__dirname, 'content/home-consultation-previews.json'), 'utf8'));
-  assert.deepEqual(examples.map(e => e.topic), ['reunion', 'saving']);
-  for (const {topic,advisor,answer} of examples) {
-    const panel = html.match(new RegExp('data-preview-panel="' + topic + '" hidden>([\\s\\S]*?)</div>'))?.[1];
+  assert.equal(examples.length,22);
+  for (const {topic,advisor,excerpt:original} of examples) {
+    const featured = ['career','reunion','saving'].includes(topic);
+    const section = featured ? 'data-preview-panel="' + topic + '"[^>]*>' : '<template id="story-reading-' + topic + '"[^>]*>';
+    const panel = html.match(new RegExp(section + '([\\s\\S]*?)</figure>'))?.[1];
     assert.ok(panel, topic);
     assert.ok(panel.includes('<figcaption>' + advisor + '의 답변</figcaption>'));
     const excerpt = panel.match(/<blockquote>([\s\S]+?)<\/blockquote>/)?.[1];
     assert.ok(excerpt);
     const paragraphs = [...excerpt.matchAll(/<p>(.+?)<\/p>/g)].map(match => match[1]);
     assert.ok(paragraphs.length >= 2);
-    paragraphs.forEach(text => assert.ok(answer.includes(text), text));
-    assert.ok(panel.includes('data-consultation-example="' + topic + '"'));
+    const decode = text => text.replaceAll('&amp;','&').replaceAll('&lt;','<').replaceAll('&gt;','>').replaceAll('&quot;','"').replaceAll('&#39;',"'");
+    assert.deepEqual(paragraphs.map(decode),original);
+    assert.ok(panel.includes('풀이에 사용한 계산 근거'));
+    if (featured) assert.match(html,new RegExp('data-consultation-example="' + topic + '"'));
     assert.equal([...html.matchAll(new RegExp('data-consultation-topic="' + topic + '"','g'))].length, 1);
   }
 });
