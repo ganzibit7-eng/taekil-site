@@ -605,6 +605,7 @@
   }).observe(setup, {attributes:true, attributeFilter:['style']});
   const key = 'taekilso_consultation_entry_v1';
   let resumeTimer = 0;
+  let focusResume = false;
   let awaitingAuth = false;
   let lastOwner = owner();
   const authOverlay = document.getElementById('authOverlay');
@@ -642,7 +643,16 @@
     resumeProgress.textContent = available
       ? [personas.forTopic(draft.topic).name + ' 상담', (draft.step + 1) + ' / ' + steps.length + '단계'].join(' · ')
       : '';
-    if (available) resumeTimer = setTimeout(refreshResumeCard, Math.max(1, draft.at + core.ttl - Date.now() + 1));
+    if (!available) return;
+    resumeTimer = setTimeout(refreshResumeCard, Math.max(1, draft.at + core.ttl - Date.now() + 1));
+    if (focusResume) {
+      focusResume = false;
+      requestAnimationFrame(() => {
+        if (!resumeCard.getClientRects().length) return;
+        resumeCard.focus({preventScroll:true});
+        resumeCard.scrollIntoView({block:'nearest',behavior:'instant'});
+      });
+    }
   }
   pause.addEventListener('click', () => {
     if (!persist(true)) {
@@ -650,12 +660,9 @@
       error.scrollIntoView({block:'nearest',behavior:'instant'});
       return;
     }
+    focusResume = true;
     document.getElementById('consultationExit').click();
     refreshResumeCard();
-    if (!resumeCard.hidden) {
-      resumeCard.focus({preventScroll:true});
-      resumeCard.scrollIntoView({block:'nearest',behavior:'instant'});
-    }
   });
   resumeCard.addEventListener('click', () => {
     const draft = read();
