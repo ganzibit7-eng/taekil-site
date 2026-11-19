@@ -31,7 +31,7 @@
   let informed = false;
   function confirmAI() {
     if (!confirmAge()) return false;
-    if (!informed) informed = window.confirm('AI 풀이를 위해 사주 계산값, 질문과 필요한 대화를 OpenAI에 암호화해 보냅니다. 오류가 나면 Anthropic에서 대신 처리할 수 있어요. 두 업체는 미국 소재이며 국외 처리가 있을 수 있습니다. 기본 보관 기간은 최대 30일이며 보안·법적 예외가 있어요. 자세한 내용은 개인정보처리방침 8항에서 확인할 수 있어요. AI 풀이를 시작할까요? 취소해도 기본 사주·택일 계산은 이용할 수 있어요.');
+    if (!informed) informed = window.confirm('AI 풀이를 위해 사주 계산값, 질문과 필요한 대화를 OpenAI에 암호화해 보냅니다. 오류가 나면 Anthropic에서 대신 처리할 수 있어요. OpenAI는 보안 기록을 기본 최대 30일 보관할 수 있어요. Claude로 전달되면 입력과 답변은 미국에 기본 30일 보관되며, 답변은 다른 국가에서도 생성될 수 있어요. 보안·법적 사유로 더 오래 보관되는 경우가 있어요. 자세한 내용은 개인정보처리방침 8항에서 확인할 수 있어요. AI 풀이를 시작할까요? 취소해도 기본 사주·택일 계산은 이용할 수 있어요.');
     return informed;
   }
   function resetAge() {
