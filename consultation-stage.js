@@ -494,7 +494,8 @@
     error.textContent = '';
     count.textContent = `${question.value.length} / 200`;
     if (step === 5) updateReview();
-    if (step === 4 || step === 5) panes[step].append(restoreQuestion);
+    if (step === 4) question.before(restoreQuestion);
+    if (step === 5) review.after(restoreQuestion);
     syncPreviousQuestion();
     scroll.scrollTop = 0;
     if (focus) {

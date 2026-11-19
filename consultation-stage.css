@@ -183,9 +183,9 @@ body.consultation-open #aiChatSetup.consultation-guided-entry .ai-chat-setup-row
 #consultationEntryQuestion::placeholder {color:#aeb7ac}
 .consultation-entry-count {text-align:right;color:#b6bdb5;font-size:13px;margin:8px 0 0}
 .consultation-guided-entry .entry-previous-question {
-  display:inline-flex;align-items:center;min-height:44px;margin:8px 0 0;padding:6px 2px;
-  background:transparent;border:0;color:#dfc69c;font:500 15px/1.5 var(--sans);
-  cursor:pointer;text-decoration:underline;text-underline-offset:4px;
+  display:inline-flex;align-items:center;min-height:44px;margin:4px 0 10px;padding:7px 12px;
+  background:#101715db;border:1px solid #c6aa7655;border-radius:6px;
+  color:#dfc69c;font:500 15px/1.5 var(--sans);cursor:pointer;
 }
 .consultation-guided-entry .entry-previous-question[hidden] {display:none}
 .consultation-guided-entry .entry-previous-question:focus-visible {outline:2px solid #dfc69c;outline-offset:3px}
