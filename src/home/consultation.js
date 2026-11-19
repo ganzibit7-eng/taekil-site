@@ -1642,6 +1642,11 @@ async function sendAiChatMessage() {
 
     if (!hasAnswer) {
       restoreQuestion();
+      if (data.error === 'AI_TRANSFER_CONSENT_REQUIRED') {
+        window.TaekilPrivacy?.forgetAIConsent();
+        showToast('국외 이전 동의가 필요해요. 내 프로필의 개인정보 설정에서 확인해 주세요.');
+        return;
+      }
       /* NEWYEAR_RESPONSE_START */
       if (data.error === 'NEWYEAR_PASS_REQUIRED' || data.error === 'NEWYEAR_PROFILE_REQUIRED') {
         appendAiChatMessage('system-note', data.message);

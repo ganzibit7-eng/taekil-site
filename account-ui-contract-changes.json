@@ -863,5 +863,10 @@
     "before": "  if (!await window.TaekilPrivacy?.confirmAI()) return;\n  if (!sameConversation() || sendBtn.disabled || input.value.trim() !== message) return;",
     "after": "  if (!window.TaekilPrivacy?.hasAIConsent()) {\n    document.getElementById('aiChatPanel').style.display = 'none';\n    showAiChatSetupStep();\n    showToast('상담 시작 화면에서 개인정보 국외 이전에 동의해 주세요.');\n    return;\n  }",
     "count": 1
+  },
+  {
+    "before": "    if (!hasAnswer) {\n      restoreQuestion();",
+    "after": "    if (!hasAnswer) {\n      restoreQuestion();\n      if (data.error === 'AI_TRANSFER_CONSENT_REQUIRED') {\n        window.TaekilPrivacy?.forgetAIConsent();\n        showToast('국외 이전 동의가 필요해요. 내 프로필의 개인정보 설정에서 확인해 주세요.');\n        return;\n      }",
+    "count": 1
   }
 ]
