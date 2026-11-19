@@ -215,9 +215,8 @@ body.consultation-open .ai-chat-stage:has(.consultation-guided-entry[style*="blo
 .ai-history-filter-fields {
   display:grid;grid-template-columns:minmax(0,1fr) minmax(136px, .42fr);gap:12px;
 }
-.ai-history-filter-fields label {
-  display:grid;min-width:0;gap:6px;color:#ddd8cb;font:500 14px/1.45 var(--sans);
-}
+.ai-history-filter-fields > div {display:grid;min-width:0;gap:6px}
+.ai-history-filter-fields label {color:#ddd8cb;font:500 14px/1.45 var(--sans)}
 .ai-history-filter-fields :is(input,select) {
   box-sizing:border-box;width:100%;min-width:0;min-height:48px;padding:10px 12px;
   color:#f0ebe1;background:#1b2420;border:1px solid #455249;border-radius:7px;

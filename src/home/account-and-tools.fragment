@@ -325,12 +325,14 @@
         </div>
         <div id="aiHistoryFilters" class="ai-history-filters" hidden>
           <div class="ai-history-filter-fields">
-            <label>질문 제목
+            <div>
+              <label for="aiHistoryQuery">질문 제목</label>
               <input type="search" id="aiHistoryQuery" placeholder="예: 이직, 재회" maxlength="100" autocomplete="off" enterkeyhint="search">
-            </label>
-            <label>상담사
+            </div>
+            <div>
+              <label for="aiHistoryAdvisor">상담사</label>
               <select id="aiHistoryAdvisor"><option value="">전체 상담사</option></select>
-            </label>
+            </div>
           </div>
           <div class="ai-history-filter-meta">
             <p role="status" id="aiHistoryFilterCount"></p>
