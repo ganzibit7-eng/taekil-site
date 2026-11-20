@@ -11,13 +11,15 @@
   const results = output.querySelector('.tool-exact-results');
   const title = dates.querySelector('h2');
   const dateFields = ['exactDateFirst', 'exactDateSecond'].map(id => document.getElementById(id));
+  const extras = document.getElementById('exactDateExtras');
+  const addDate = document.getElementById('addExactDate');
   const dateFormat = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'full' });
   const field = id => document.getElementById(id);
   const eventType = () => form.querySelector('.event-opt.active').dataset.val;
 
   function resetComparison() {
     error.textContent = '';
-    dateFields.forEach(input => input.removeAttribute('aria-invalid'));
+    [...dateFields, ...extras.querySelectorAll('input')].forEach(input => input.removeAttribute('aria-invalid'));
     results.hidden = true;
   }
 
@@ -56,7 +58,7 @@
     return element;
   }
 
-  function render(candidates, withPartner) {
+  function render(candidates, comparison) {
     const heading = item('h2', '후보일 비교 결과');
     heading.id = 'toolExactResultTitle';
     heading.tabIndex = -1;
@@ -81,9 +83,10 @@
       ? '예식장 예약과 하객 일정도 함께 살펴보세요.' : '실제로 가능한 시간과 준비 일정도 함께 살펴보세요.';
     results.replaceChildren(
       heading,
-      item('p', withPartner ? '두 사람의 생년월일을 함께 반영했어요.' : '입력한 한 분의 생년월일을 반영했어요.'),
+      item('p', comparison.partner ? '두 사람의 생년월일을 함께 반영했어요.' : '입력한 한 분의 생년월일을 반영했어요.'),
       cards,
-      item('p', summary + ' ' + practical, 'tool-exact-note')
+      item('p', summary + ' ' + practical, 'tool-exact-note'),
+      window.TaekilDateReport.offer(comparison)
     );
     results.hidden = false;
     heading.focus({ preventScroll: true });
@@ -92,22 +95,50 @@
 
   field('compareExactDates').addEventListener('click', () => {
     resetComparison();
-    const selected = dateFields.map(input => parseDate(input.value));
+    const active = [...dateFields, ...[...extras.querySelectorAll('input')].filter(input => input.value)];
+    const selected = active.map(input => parseDate(input.value));
     const invalid = selected.indexOf(null);
     if (invalid !== -1) {
-      dateFields[invalid].setAttribute('aria-invalid', 'true');
-      return stop('비교할 후보일 두 개를 모두 입력해 주세요.', dateFields[invalid]);
+      active[invalid].setAttribute('aria-invalid', 'true');
+      return stop('비교할 후보일을 확인해 주세요. 처음 두 날짜는 꼭 입력해 주세요.', active[invalid]);
     }
-    if (+selected[0] === +selected[1]) {
-      dateFields[1].setAttribute('aria-invalid', 'true');
-      return stop('서로 다른 날짜를 골라 주세요.', dateFields[1]);
+    const duplicate = active.findIndex((input,index) => active.findIndex(other=>other.value===input.value)!==index);
+    if (duplicate !== -1) {
+      active[duplicate].setAttribute('aria-invalid', 'true');
+      return stop('서로 다른 날짜를 골라 주세요.', active[duplicate]);
     }
     const mine = birthElement('birth');
     if (!mine) return stop('본인의 생년월일을 확인해 주세요.', field('birthYear'));
     const withPartner = field('coupleToggle').checked;
     const partner = withPartner ? birthElement('partnerBirth') : null;
     if (withPartner && !partner) return stop('상대방 생년월일을 확인해 주세요.', field('partnerYear'));
-    render(selected.map(date => buildTaekilCandidate(date, eventType(), mine, partner)), withPartner);
+    const comparison = { event:eventType(), days:active.map(input=>input.value), mine, partner };
+    render(selected.slice(0,2).map(date => buildTaekilCandidate(date, comparison.event, mine, partner)), comparison);
+  });
+
+  let nextDateId = 0;
+  addDate.addEventListener('click', () => {
+    if (extras.childElementCount >= 3) return;
+    const wrap = item('div','','field date-report-extra');
+    const label = item('label','추가 후보일');
+    const input = item('input');
+    input.type = 'date';
+    input.id = 'exactDateExtra' + ++nextDateId;
+    label.htmlFor = input.id;
+    const remove = item('button','삭제','date-report-text-button');
+    remove.type = 'button';
+    remove.setAttribute('aria-label','추가 후보일 삭제');
+    remove.addEventListener('click', () => {
+      wrap.remove();
+      addDate.hidden = false;
+      addDate.focus();
+      resetComparison();
+    });
+    wrap.append(label,input,remove);
+    extras.append(wrap);
+    addDate.hidden = extras.childElementCount === 3;
+    input.focus();
+    resetComparison();
   });
 
   modes.forEach(button => button.addEventListener('click', () => {
