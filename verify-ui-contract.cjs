@@ -43,7 +43,16 @@ function historicalAttributes(attrs) {
   const src = attrs.split(' integrity=')[0];
   return src.includes('t1.kakaocdn.net') ? src + ' crossorigin="anonymous"' : src;
 }
-assert.deepEqual(originalScripts.map(([a,b])=>[historicalAttributes(a),normalizeSeasonal(b)]),scripts(baseline),'Existing inline and external scripts must remain exactly unchanged');
+// Exact approved changes to pricing and premium quota displays.
+const pricingChanges=JSON.parse(fs.readFileSync('pricing-ui-contract-changes.json','utf8'));
+const normalizedScripts=originalScripts.map(([a,b])=>[historicalAttributes(a),normalizeSeasonal(b)]);
+for(const [after,before] of pricingChanges){
+ const entries=normalizedScripts.filter(([,body])=>body.includes(after));
+ assert.equal(entries.length,1,'Expected one approved pricing or quota change');
+ assert.equal(entries[0][1].split(after).length,2,'Approved change must match only once');
+ entries[0][1]=entries[0][1].replace(after,()=>before);
+}
+assert.deepEqual(normalizedScripts,scripts(baseline),'Existing inline and external scripts must remain exactly unchanged');
 new Function(fs.readFileSync('premium-motion.js','utf8'));
 new Function(fs.readFileSync('site-menu.js','utf8'));
 const hooks=html=>[...html.matchAll(/\bon(?:click|change|input|keydown|submit)="[^"]*"/g)].map(m=>m[0]);

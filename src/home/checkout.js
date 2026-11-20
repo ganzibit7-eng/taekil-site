@@ -264,6 +264,7 @@ async function startPremiumCheckout() {
         uid: uidForOrder,
         amount: PREMIUM_PRICE,
         product: 'taekilso_premium_30days',
+        planVersion: 2,
         status: 'pending',
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
@@ -289,7 +290,7 @@ async function startPremiumCheckout() {
       checkretry: 'y',
       returnurl: PAYAPP_RETURN_URL,
       var1: orderId,
-      memo: '30일 이용권 · AI 상담 하루 10개 · 365일 택일 · 정밀사주·궁합·재물 분석',
+      memo: '30일 이용권 · AI 질문 총 30개·하루 최대 10개 · 365일 택일',
       redirectpay: '1'
     };
     // 서버 검증 함수가 연결되어 있으면 feedbackurl도 처음부터 같이 보냅니다. setParam을
@@ -554,7 +555,7 @@ function updatePremiumUI() {
   const priceNote = document.getElementById('profilePremiumPriceNote');
   if (priceNote) {
     priceNote.style.display = premium ? 'none' : 'block';
-    priceNote.textContent = '8,900원 / 30일 · 자동결제 없음 · AI 상담 하루 10개';
+    priceNote.textContent = '8,900원 / 30일 · 질문 총 30개 · 하루 최대 10개 · 자동결제 없음';
   }
 }
 
@@ -563,7 +564,7 @@ function buildPremiumProgramPanel() {
   if (!panel) return;
   if (!isPremium()) {
     panel.style.display='block';
-    panel.innerHTML = `<div class="premium-lock-card"><b>🔒 여기부터 프리미엄 분석입니다</b><p>30일 동안 AI 상담 하루 10개, 365일 전체 후보 · TOP 20 · 월별 베스트 · 두 사람 궁합 · 상세 리포트를 이용할 수 있어요.</p><button class="btn btn-primary" data-checkout-action onclick="payPremium()">8,900원으로 30일 이용하기</button></div>`;
+    panel.innerHTML = `<div class="premium-lock-card"><b>🔒 여기부터 프리미엄 분석입니다</b><p>30일 동안 AI 질문 총 30개(하루 최대 10개)와 365일 택일 후보, 두 사람 궁합, 상세 리포트를 이용할 수 있어요.</p><button class="btn btn-primary" data-checkout-action onclick="payPremium()">8,900원으로 30일 이용하기</button></div>`;
     return;
   }
   const list = window.__chronological || [];

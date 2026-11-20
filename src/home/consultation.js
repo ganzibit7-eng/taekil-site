@@ -231,6 +231,7 @@ function resumeAiConversation(id){
     const quick = document.getElementById('aiChatQuickActions');
     if (quick) quick.style.display = 'none';
     updateAiChatStatus(null, null, isPremium());
+    window.refreshAiChatPremiumStatus?.();
   }, 80);
 }
 
@@ -530,7 +531,7 @@ function appendAiChatServiceCta(userMessage) {
   // (답변은 위에서 이미 "시작 지점"에 맞춰 스크롤해 둔 상태를 유지합니다.)
 }
 
-/* 무료 질문을 다 쓰면 보여주는 화면: 질문권 2종(할인가 표시) + 프리미엄 구독. */
+/* 무료 질문을 다 쓰면 질문권과 30일 신년상담을 안내합니다. */
 function appendQuestionPackOffers() {
   const win = document.getElementById('aiChatWindow');
   if (!win) return;
@@ -554,16 +555,16 @@ function appendQuestionPackOffers() {
         <b>AI 질문권 5개</b>
         <span>질문 1개당 약 380원</span>
       </div>
-      <div class="ai-offer-price"><s>2,900원</s><em>1,900원</em></div>
+      <div class="ai-offer-price"><em>1,900원</em></div>
     </button>
 
     <button type="button" class="ai-chat-offer-card" data-checkout-action data-ai-buy-pack="ai_question_pack_10">
       <div class="ai-offer-copy">
-        <small>질문권만 넉넉하게 추가할 때</small>
+        <small>묶음 특가 · 약 34% 절약</small>
         <b>AI 질문권 10개</b>
-        <span>질문 1개당 320원</span>
+        <span>질문 1개당 250원 · 5개권 두 번(3,800원) 구매 기준</span>
       </div>
-      <div class="ai-offer-price"><s>4,900원</s><em>3,200원</em></div>
+      <div class="ai-offer-price"><em>2,500원</em></div>
     </button>
 
     <button type="button" class="ai-chat-offer-card ai-chat-offer-premium ai-offer-premium ai-offer-best" data-checkout-action data-ai-buy-premium="1">
@@ -571,7 +572,7 @@ function appendQuestionPackOffers() {
       <div class="ai-offer-copy">
         <small>매일 자주 상담하고 택일까지 볼 때</small>
         <b>프리미엄 30일</b>
-        <span>AI 하루 10개 · 프리미엄 전체 서비스</span>
+        <span>AI 질문 총 30개 · 하루 최대 10개 · 신년 리포트와 정밀 택일</span>
       </div>
       <div class="ai-offer-price"><em>8,900원</em></div>
     </button>
@@ -712,18 +713,35 @@ function updateAiChatStatus(freeUsed, freeLimit, isPremiumNow, extra) {
   if (!el) return;
 
   if (extra && extra.isAdmin) {
-    const used = Number.isFinite(Number(extra.premiumDailyUsed)) ? Number(extra.premiumDailyUsed) : null;
+    const used = Number.isInteger(extra.premiumDailyUsed) ? extra.premiumDailyUsed : null;
     const limit = Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 100;
     el.textContent = used == null ? `✦ 관리자 AI (하루 ${limit}개까지)` : `✦ 관리자 AI 오늘 ${used}/${limit}개 사용`;
   } else if (isPremiumNow) {
-    const used = extra && Number.isFinite(Number(extra.premiumDailyUsed)) ? Number(extra.premiumDailyUsed) : null;
-    const limit = extra && Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 10;
-    el.textContent = used == null ? `✦ 프리미엄 이용 중 (하루 ${limit}개까지)` : `✦ 프리미엄 오늘 ${used}/${limit}개 사용`;
+    const used = Number.isInteger(extra?.premiumDailyUsed) ? extra.premiumDailyUsed : null;
+    const limit = extra?.premiumDailyLimit || 10;
+    const totalLimit = extra?.premiumTotalLimit;
+    if (Number.isInteger(totalLimit) && Number.isInteger(extra.premiumTotalUsed)) {
+      const remaining = Math.max(0, totalLimit - extra.premiumTotalUsed);
+      el.textContent = `✦ 신년상담 ${totalLimit}개 중 ${remaining}개 남음 · ${used == null ? `하루 최대 ${limit}개` : `오늘 ${used}/${limit}개 사용`}`;
+    } else {
+      el.textContent = used == null ? `✦ 프리미엄 이용 중 (하루 ${limit}개까지)` : `✦ 프리미엄 오늘 ${used}/${limit}개 사용`;
+    }
   } else if (extra && extra.usingCredit) {
     el.textContent = `질문권 ${extra.questionCreditsLeft}개 남음`;
   } else if (freeUsed != null) {
     el.textContent = `무료 질문 ${freeUsed}/${freeLimit}개 사용`;
   }
+}
+
+async function refreshAiChatPremiumStatus() {
+  const uid = accountStore.owner();
+  const conversationId = window.__aiConversationId;
+  const status = document.getElementById('aiChatStatus');
+  if (!uid || !isPremium() || isAdmin() || !status) return;
+  const initialText = status.textContent;
+  const data = await recoverPremiumFromVerifiedServer(uid);
+  if (data?.active && uid === accountStore.owner() && conversationId === window.__aiConversationId &&
+      status.textContent === initialText) updateAiChatStatus(null, null, true, data);
 }
 
 const SAJU_VAULT_PREFIX = 'taekilso_saju_vault_';
@@ -945,6 +963,7 @@ async function startAiChat(reportOptions) {
   clearAiFollowupSuggestions();
   appendAiChatMessage('system-note', subjects.length > 1 ? `${subjects.length}명의 사주를 함께 불러왔어요. 관계·궁합·공동 일정처럼 여러 사람을 함께 비교해 질문할 수 있어요.` : `${name}님의 사주를 저장했어요. 이번 상담에서 계속 기억하고 볼게요.`);
   updateAiChatStatus(null, 3, isPremium());
+  window.refreshAiChatPremiumStatus?.();
 
   // 결제 후 돌아온 경우 상담 화면이 준비되는 즉시, 사용자가 눌렀던 잠금 질문을 자동으로 이어갑니다.
   if (!reportManual && getPendingPaidAiQuestion()) setTimeout(() => resumePendingPaidAiQuestion(), 650);
@@ -1664,8 +1683,9 @@ async function sendAiChatMessage() {
       if (data.error === 'FREE_LIMIT_REACHED') {
         appendAiChatMessage('system-note', data.message || '무료 질문을 모두 사용하셨어요.');
         appendQuestionPackOffers();
-      } else if (data.error === 'DAILY_LIMIT_REACHED') {
+      } else if (data.error === 'DAILY_LIMIT_REACHED' || data.error === 'PREMIUM_TOTAL_LIMIT_REACHED') {
         appendAiChatMessage('system-note', data.message || '오늘 상담 가능 횟수를 모두 사용하셨어요.');
+        updateAiChatStatus(null, null, true, data);
       } else {
         (window.TaekilExperience?.failure || ((text) => appendAiChatMessage('system-note',text)))(typeof data.message === 'string' ? data.message.slice(0, 300) : '답변을 받아오지 못했어요. 잠시 후 다시 시도해주세요.', message);
       }

@@ -461,3 +461,9 @@ body:has(#view-home.visible #aiChatSetup[style*="block"]) #homeFaqSection,body:h
 /* Supplied celestial emblem: reserve its box to avoid layout shifts. */
 .brand-mark,.taekilso-symbol{width:44px;height:44px}
 .auth-brand .taekilso-symbol{width:48px;height:48px}
+
+.payment-pack .payment-pack-price{display:grid;justify-items:end;align-content:center;flex:none;gap:8px}
+.payment-pack-price strong{color:var(--gold-hi);font-size:1.2rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.payment-editorial .payment-pack-savings{color:var(--gold-hi);font-weight:600}
+.ai-chat-conversion-chooser [data-ai-buy-pack="ai_question_pack_10"] .ai-offer-copy small{color:var(--gold-hi)}
+@media(max-width:370px){.payment-pack .payment-pack-price{justify-items:start}}
