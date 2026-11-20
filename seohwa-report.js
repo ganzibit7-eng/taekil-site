@@ -65,6 +65,19 @@
     return head;
   }
 
+  function lockIcon() {
+    const namespace='http://www.w3.org/2000/svg';
+    const icon=document.createElementNS(namespace,'svg');
+    icon.setAttribute('class','sr-lock');
+    icon.setAttribute('role','img');
+    icon.setAttribute('aria-label','잠긴 장');
+    icon.setAttribute('viewBox','0 0 20 20');
+    const shape=document.createElementNS(namespace,'path');
+    shape.setAttribute('d','M6.5 8V6a3.5 3.5 0 1 1 7 0v2M5 8h10a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Zm5 4v2');
+    icon.append(shape);
+    return icon;
+  }
+
   function toc(first,locked) {
     const list=el('nav',null,'sr-toc');
     list.setAttribute('aria-label','리포트 목차');
@@ -73,7 +86,10 @@
     for(const [index,title] of [first.title,...core.chapters].entries()){
       const row=el('li');
       if(locked&&index>0){
-        row.append(el('span','잠금','sr-lock'),el('strong',title),el('small',core.guide[index-1]));
+        const chapter=el('div');
+        chapter.append(el('strong',title),el('small',core.guide[index-1]));
+        row.className='sr-locked-row';
+        row.append(lockIcon(),chapter);
       }else{
         row.append(button(title,'sr-jump',()=>{
           const heading=by('seohwa-report-chapter-'+index)?.querySelector('h3');
@@ -108,8 +124,16 @@
     paused.dataset.checkoutPaused='';
     const paymentNote=el('p','1회 결제 · 자동 갱신 없음','sr-payment-note');
     paymentNote.dataset.checkoutAction='';
-    gate.append(el('h3','이어지는 다섯 장과 서화 상담 3회'),
-      el('p','본편까지 읽고 문단에서 바로 서화에게 물어볼 수 있어요. 구입한 리포트는 내 기록에서 다시 열 수 있어요.'),
+    const benefits=el('ul',null,'sr-benefits');
+    for(const [title,description] of [
+      ['리포트 6장 분량','무료 첫 장을 포함한 전체 리포트를 내 기록에서 다시 읽을 수 있어요.'],
+      ['서화와 채팅 상담 3회','마음에 남은 대목에서 바로 이어서 물어볼 수 있어요.']
+    ]){
+      const benefit=el('li');
+      benefit.append(el('strong',title),el('span',description));
+      benefits.append(benefit);
+    }
+    gate.append(el('h3','전체 리포트와 서화 상담'),benefits,
       pay,paused,paymentNote,
       button('일반 서화 상담으로 이어가기','sr-secondary',()=>{close();data.chat();}),status);
     const samples=el('section',null,'sr-samples');

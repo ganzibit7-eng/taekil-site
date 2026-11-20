@@ -130,8 +130,9 @@
       return;
     }
     const calendar = profile.calType === 'lunar' ? (profile.isLeap ? '음력 윤달' : '음력') : '양력';
-    const hour = profile.hourValue == null || profile.hourValue === 'unknown' || profile.hourValue === ''
-      ? '시간 모름' : String(profile.hourValue).padStart(2, '0') + '시대';
+    const hour = window.TaekilBirthTime?.range(profile.hourValue)?.label ||
+      (profile.hourValue == null || profile.hourValue === 'unknown' || profile.hourValue === ''
+      ? '시간 모름' : String(profile.hourValue).padStart(2, '0') + '시대');
     const count = (window.__aiChatSubjects || []).length - 1;
     const parts = [profile.name || '나', `${calendar} ${profile.y}.${String(profile.m).padStart(2, '0')}.${String(profile.d).padStart(2, '0')}`, hour];
     if (count > 0) parts.push(`비교 ${count}명`);
@@ -309,7 +310,7 @@
   unknownTime.addEventListener('click', () => { field('Hour').value = 'unknown'; field('Hour').dispatchEvent(new Event('change',{bubbles:true})); render(3,true); });
   field('Hour').parentElement.classList.add('entry-time-line');
   field('Hour').parentElement.append(unknownTime);
-  field('Hour').previousElementSibling.textContent = '출생시간 · 시 단위';
+  field('Hour').previousElementSibling.textContent = '출생시간 · 한국 시간';
   scroll.querySelector('.ai-chat-birth-extra')?.remove();
   const review = document.createElement('dl');
   review.className = 'consultation-entry-review';
@@ -383,7 +384,7 @@
     }
   });
   function syncPreviousQuestion() {
-    restoreQuestion.hidden = !previousQuestion || previousQuestion === question.value.trim();
+    restoreQuestion.hidden = selectedTopic==='love' || !previousQuestion || previousQuestion === question.value.trim();
   }
   const progress = document.createElement('p');
   progress.className = 'consultation-entry-progress';
@@ -433,7 +434,7 @@
   function showTopic(topic) {
     selectedTopic = core.normalizeTopic(topic);
     const card = topics.get(selectedTopic);
-    entryTitle.textContent = card?.title || '연우와의 첫 대화';
+    entryTitle.textContent = selectedTopic==='love'?'서화의 연애 리포트':card?.title || '연우와의 첫 대화';
     if (card) {
       setup.dataset.entryTopic = selectedTopic;
     } else {
@@ -463,7 +464,10 @@
       ['생일', `${field('Year').value}.${field('Month').value}.${field('Day').value} · ${selected('CalType')}${field('CalType').value === 'lunar' && field('Leap').checked ? ' 윤달' : ''}`],
       ['출생시간', selected('Hour')]
     ];
-    if (question.value.trim()) entries.push(['첫 질문', question.value.trim()]);
+    if (selectedTopic==='love') {
+      const choice=window.TaekilSeohwaReading?.stories[seohwaChoice];
+      if(choice)entries.push(['고른 고민',choice.label]);
+    } else if (question.value.trim()) entries.push(['첫 질문', question.value.trim()]);
     review.replaceChildren();
     entries.forEach(([label, value]) => {
       const dt = document.createElement('dt'), dd = document.createElement('dd');
@@ -482,18 +486,22 @@
     }
   }
   function render(index, focus = false) {
+    const report=selectedTopic==='love';
+    if(report&&index===4)index=step===5?3:5;
     step = Math.max(0, Math.min(steps.length - 1, index));
     const consultant = personas.forTopic(selectedTopic).name;
+    const position=step===5&&report?5:step+1;
+    const total=report?5:steps.length;
     panes.forEach((pane, i) => { pane.hidden = i !== step; });
-    progress.textContent = `${step + 1} / ${steps.length} · ${consultant} 상담 준비`;
+    progress.textContent = `${position} / ${total} · ${consultant} ${report?'리포트':'상담'} 준비`;
     syncChoices();
     syncCalendar();
-    entryCount.textContent = `${step + 1} / ${steps.length}`;
+    entryCount.textContent = `${position} / ${total}`;
     setup.dataset.entryStep = String(step);
-    heading.querySelector('h2').textContent = step === 4 && selectedTopic
+    heading.querySelector('h2').textContent = report&&step===5?'리포트에 사용할 정보를 확인해요':step === 4 && selectedTopic
       ? '이 질문으로 시작할까요?' : steps[step][0];
     heading.querySelector('p:not(.consultation-entry-progress)').textContent = step === 0 && selectedTopic
-      ? consultant + ' 상담에 사용할 사주 정보를 알려주세요.' : steps[step][1];
+      ? consultant + (report?' 리포트에 사용할 사주 정보를 알려주세요.':' 상담에 사용할 사주 정보를 알려주세요.') : steps[step][1];
     if (step === 4) renderConcernChoices();
     concernHint.textContent = '예시를 골라 내 상황을 덧붙이거나 직접 작성해 보세요.';
     back.hidden = step === 0;
@@ -505,7 +513,7 @@
     count.textContent = `${question.value.length} / 200`;
     if (step === 5) updateReview();
     if (step === 4) question.before(restoreQuestion);
-    if (step === 5) review.after(restoreQuestion);
+    if (step === 5 && !report) review.after(restoreQuestion);
     syncPreviousQuestion();
     scroll.scrollTop = 0;
     if (focus) {
@@ -644,7 +652,8 @@
     const available = draft?.paused && setup.style.display !== 'block';
     resumeCard.hidden = !available;
     resumeProgress.textContent = available
-      ? [personas.forTopic(draft.topic).name + ' 상담', (draft.step + 1) + ' / ' + steps.length + '단계'].join(' · ')
+      ? [personas.forTopic(draft.topic).name + (draft.topic==='love'?' 리포트':' 상담'),
+        (draft.topic==='love'?Math.min(5,draft.step+1):draft.step+1) + ' / ' + (draft.topic==='love'?5:steps.length) + '단계'].join(' · ')
       : '';
     if (!available) return;
     resumeTimer = setTimeout(refreshResumeCard, Math.max(1, draft.at + core.ttl - Date.now() + 1));
@@ -686,7 +695,7 @@
     seohwaChoice=draft.seohwaChoice??0;
     birthFromFields(); if (draft.birthText) birthInput.value = draft.birthText;
     awaitingAuth = draft.awaitingAuth;
-    render(draft.step);
+    render(draft.topic==='love'&&draft.step===4?5:draft.step);
     return true;
   }
   setup.addEventListener('input', () => {

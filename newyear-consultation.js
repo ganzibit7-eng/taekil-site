@@ -86,7 +86,7 @@
     const year=picker('newyearYear','년',1900,new Date().getFullYear()),month=picker('newyearMonth','월',1,12),day=picker('newyearDay','일',1,31);
     dateGroup.append(field('출생연도',year),field('월',month),field('일',day));
     const leapLabel=el('label',null,'newyear-leap'),leap=el('input');leap.type='checkbox';leap.id='newyearLeap';leapLabel.append(leap,document.createTextNode('음력 윤달에 태어났어요'));leapLabel.hidden=true;
-    const hour=el('select');hour.id='newyearHour';const unknown=el('option','출생시간 모름');unknown.value='unknown';hour.append(unknown);for(let n=0;n<24;n++){const o=el('option',n+'시');o.value=String(n);hour.append(o);}
+    const hour=el('select');hour.id='newyearHour';window.TaekilBirthTime.addOptions(hour);
     const gender=el('select');gender.id='newyearGender';for(const [value,title]of [['unknown','선택 안 함'],['female','여성'],['male','남성']]){const o=el('option',title);o.value=value;gender.append(o);}
     const extra=el('div',null,'newyear-extra-fields');extra.append(field('출생시간 (선택)',hour),field('성별 (선택)',gender));
     form.append(field('이름·호칭',name),field('달력 기준',calendar),dateGroup,leapLabel,extra,el('p','시간을 몰라도 리포트를 만들 수 있어요. 확인되지 않은 시주나 대운 시작 시점은 임의로 채우지 않습니다.','newyear-muted'));
@@ -146,7 +146,7 @@
     const wasGenerating=view.classList.contains('is-generating');stopProgress();view.classList.add('has-report');content.style.minHeight='';
     content.replaceChildren();const r=data.report;
     content.append(el('p','택일소 AI가 사주 계산값으로 작성한 신년 리포트','newyear-muted'));
-    content.append(el('p',`${data.profile.name} 님 · ${data.profile.date} · ${data.profile.hourValue==='unknown'?'출생시간 미상':data.profile.hourValue+'시'}`,'newyear-report-owner'));
+    content.append(el('p',`${data.profile.name} 님 · ${data.profile.date} · ${window.TaekilBirthTime.label(data.profile.hourValue)}`,'newyear-report-owner'));
     const overview=section('한 해의 큰 흐름',r.overview);
     const foundation=section('나의 사주와 2027년',r.foundation);
     appendCalculationNote(foundation,r.calculationNotes?.foundation);

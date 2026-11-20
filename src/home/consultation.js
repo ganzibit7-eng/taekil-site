@@ -353,14 +353,24 @@ function fillAiChatDateSelects(){
   for(let mm=1;mm<=12;mm++){const o=document.createElement('option');o.value=mm;o.textContent=mm+'월';m.appendChild(o);}
   for(let dd=1;dd<=31;dd++){const o=document.createElement('option');o.value=dd;o.textContent=dd+'일';d.appendChild(o);}
   if(h && !h.options.length){
+    /* BIRTH_TIME_START */
+    if(window.TaekilBirthTime) window.TaekilBirthTime.addOptions(h);
+    else {
+    /* BIRTH_TIME_END */
     const unknown=document.createElement('option'); unknown.value='unknown'; unknown.textContent='시간 모름'; h.appendChild(unknown);
     for(let hh=0;hh<24;hh++){const o=document.createElement('option');o.value=hh;o.textContent=String(hh).padStart(2,'0')+'시';h.appendChild(o);}
+    /* BIRTH_TIME_START */
+    }
+    /* BIRTH_TIME_END */
     h.value='unknown';
   }
   y.value = m.value = d.value = '';
 }
 
 function getAiEightCharData(birthDate, hourValue){
+  /* BIRTH_TIME_START */
+  hourValue=window.TaekilBirthTime?.range(hourValue)?.pillarHour??hourValue;
+  /* BIRTH_TIME_END */
   const result = { pillars:{}, fiveElements:{}, tenGods:{}, hiddenStems:{} };
   try {
     if (typeof Solar === 'undefined' || !Solar.fromYmdHms) return result;
@@ -418,6 +428,10 @@ function buildAiChatSajuSummary({y,m,d,calType,hourValue,gender,birth}){
     `일진 기준 일주: ${ganjiFull(idx)}`,
     `일주 기준 핵심 오행: ${oh} 기운`
   ];
+  /* BIRTH_TIME_START */
+  const selectedRange=window.TaekilBirthTime?.range(hourValue);
+  if(selectedRange)lines[1]='출생시간: '+selectedRange.label;
+  /* BIRTH_TIME_END */
   if (data.lunar) lines.push(`변환 음력 날짜: ${data.lunar}`);
   if (Object.keys(data.pillars).length) {
     lines.push(`사주 팔자(계산 라이브러리 결과): ${Object.entries(data.pillars).map(([k,v])=>`${k}=${v}`).join(', ')}`);
@@ -921,7 +935,7 @@ function deleteSajuProfile(id){ if(!confirm('이 사주를 보관함에서 삭�
 function useSajuProfileInChat(id){ goTo('home'); showAiChatSetupStep(); setTimeout(()=>{refreshAiProfileSelectors(); const el=document.getElementById('aiChatSavedProfile'); if(el){el.value=id;loadAiSavedProfile(id)}},50); }
 function renderSajuVault(){
   const list=getSajuVault(), host=document.getElementById('sajuVaultList'), empty=document.getElementById('sajuVaultEmpty'); if(!host)return;
-  host.innerHTML=list.map(p=>`<div class="saju-vault-item"><div><strong>${escapeHtml(p.name||'이름 없음')}</strong><small>${escapeHtml(p.relation||'')} · ${p.y}.${p.m}.${p.d} · ${p.hourValue==='unknown'?'시간 모름':String(p.hourValue).padStart(2,'0')+'시'}</small></div><div class="saju-vault-actions"><button onclick="useSajuProfileInChat('${p.id}')">상담</button><button onclick="deleteSajuProfile('${p.id}')">삭제</button></div></div>`).join('');
+  host.innerHTML=list.map(p=>`<div class="saju-vault-item"><div><strong>${escapeHtml(p.name||'이름 없음')}</strong><small>${escapeHtml(p.relation||'')} · ${p.y}.${p.m}.${p.d} · ${window.TaekilBirthTime?.range(p.hourValue)?.label || (p.hourValue==='unknown'?'시간 모름':String(p.hourValue).padStart(2,'0')+'시')}</small></div><div class="saju-vault-actions"><button onclick="useSajuProfileInChat('${p.id}')">상담</button><button onclick="deleteSajuProfile('${p.id}')">삭제</button></div></div>`).join('');
   if(empty) empty.style.display=list.length?'none':'block';
 }
 function openAiProfileCreator(){ goTo('home'); showAiChatSetupStep(); setTimeout(()=>{ const s=document.getElementById('aiChatSavedProfile'); if(s)s.value=''; const n=document.getElementById('aiChatProfileName'); if(n)n.value=''; },50); }
