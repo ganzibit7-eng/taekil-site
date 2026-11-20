@@ -540,11 +540,11 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
   if (rangeEnd < rangeStart) { showToast('기간의 끝이 시작보다 빠릅니다.'); return; }
 
   let rangeTruncated = false;
-  const spanDays = Math.round((rangeEnd - rangeStart) / 86400000);
+  const spanDays = Math.round((rangeEnd - rangeStart) / 86400000) + 1;
   const maxDays = isPremium() ? 365 : 30;
   if (spanDays > maxDays) {
     const capped = new Date(rangeStart);
-    capped.setDate(capped.getDate() + maxDays);
+    capped.setDate(capped.getDate() + maxDays - 1);
     rangeEnd = capped;
     rangeTruncated = true;
     showToast(isPremium() ? '프리미엄은 최대 365일까지 검색할 수 있어요.' : '무료 회원은 최대 30일까지 검색돼요. 프리미엄은 365일까지 검색할 수 있어요.');

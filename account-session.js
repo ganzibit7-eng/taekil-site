@@ -37,7 +37,10 @@
   }
   const originalAuthNav=window.updateAuthNav;
   window.updateAuthNav=function(){
-    const next=store.owner(),changed=next!==owner;if(changed){owner=next;clearPrivateView();}
+    const next=store.owner(),changed=next!==owner;if(changed){
+      if(owner) window.TaekilDateEntry?.clearDrafts();
+      owner=next;clearPrivateView();
+    }
     const result=originalAuthNav.apply(this,arguments);
     if(changed&&document.getElementById('view-profile')?.classList.contains('visible')&&typeof renderProfile==='function')renderProfile();
     window.dispatchEvent(new CustomEvent('taekilso:authChanged',{detail:{owner}}));
@@ -49,7 +52,7 @@
     return result;
   };
   const originalLogout=window.logout;
-  window.logout=function(){store.beginSignOut();clearPrivateView();return originalLogout.apply(this,arguments);};
+  window.logout=function(){window.TaekilDateEntry?.clearDrafts();store.beginSignOut();clearPrivateView();return originalLogout.apply(this,arguments);};
   window.clearDeletedAccountCache=function(uid){
     if(!uid)return;
     store.removeOwner(['taekilso_reading_library_v1','taekilso_locked_birth','taekilso_history','taekilso_my_inquiries','taekilso_ai_conversations_v1','taekilso_ai_active_session_v1','taekilso_pending_paid_ai_question_v1','taekilso_pending_today_fortune_question_v1','taekilso_pending_date_report','taekilso_pending_relationship_report','taekilso_last_order_id','taekilso_last_purchase_at'],uid);

@@ -30,5 +30,25 @@
     return true;
   }
 
-  window.TaekilAccountReport = {request,pay};
+  function showResume(status,data,pendingKey){
+    const url=new URL(data.resumeUrl);
+    if(url.protocol!=='https:' || !['payapp.kr','www.payapp.kr','lite.payapp.kr'].includes(url.hostname) ||
+        url.username || url.password || url.port) throw new Error('결제 주소를 확인하지 못했어요. 잠시 후 다시 확인해 주세요.');
+    const owner=accountStore.snapshot();
+    const link=document.createElement('a');
+    link.href=url.href;
+    link.className='btn';
+    link.textContent='결제 이어하기';
+    link.rel='noreferrer';
+    link.addEventListener('click',event=>{
+      if(!accountStore.current(owner) || !checkout.requireOpen()){event.preventDefault();return;}
+      accountStore.setItem(pendingKey,data.id);
+    });
+    status.replaceChildren(document.createTextNode('기존 주문의 결제창을 다시 열 수 있어요. '),link);
+  }
+  function pendingMessage(data){
+    if(data.waiting==='deposit') return '가상계좌 입금을 기다리고 있어요. 입금 후 내 기록을 다시 확인해 주세요.';
+    return '기존 주문의 결제 상태를 확인 중이에요. 내 기록에서 잠시 후 다시 확인해 주세요.';
+  }
+  window.TaekilAccountReport = {request,pay,showResume,pendingMessage};
 })();

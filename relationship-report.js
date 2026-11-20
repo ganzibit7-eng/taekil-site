@@ -227,15 +227,17 @@
     try {
       await checkout.run(async () => {
         if (!await checkout.loadSdk() || comparison !== selected || !view.classList.contains('visible')) return false;
-        const data=await client.request(endpoint,{operation:'prepare',comparison:selected,checkout:true},token);
+        const data=await client.request(endpoint,{operation:'prepare',comparison:selected,checkout:true,allowResume:true},token);
         if (!accountStore.current(token) || comparison !== selected || !view.classList.contains('visible')) return false;
         if (data.state==='ready') {
           output.replaceChildren(reportCard(data.report));
           output.scrollIntoView({block:'start',behavior:'instant'});
           purchaseStatus.textContent='내 기록에 저장된 리포트를 열었어요.';
+        } else if (data.state==='resume') {
+          client.showResume(purchaseStatus,data,pendingKey);
         } else if (data.state==='pending') {
           accountStore.setItem(pendingKey,data.id);
-          purchaseStatus.textContent='이 리포트의 결제를 확인 중이에요. 내 기록에서 확인해 주세요.';
+          purchaseStatus.textContent=client.pendingMessage(data);
         } else if (data.state==='paused') {
           purchaseStatus.textContent='신규 결제를 잠시 중단했어요.';
         }
@@ -247,15 +249,29 @@
     }
   });
 
-  function libraryItem({report,createdAtMs},open = false) {
+  function libraryItem({id,report,days,createdAtMs},open = false) {
     const row=el('details');
     const date=new Intl.DateTimeFormat('ko-KR',{dateStyle:'medium',timeZone:'Asia/Seoul'}).format(createdAtMs);
-    row.append(el('summary',date+' · '+report.people[0].day+'과 '+report.people[1].day));
-    if (open) row.append(reportCard(report));
-    else row.addEventListener('toggle',function renderWhenOpened(){
-      if (!row.open) return;
-      row.append(reportCard(report));
-      row.removeEventListener('toggle',renderWhenOpened);
+    const labels=days || report.people.map(person=>person.day);
+    row.append(el('summary',date+' · '+labels.join(' · ')));
+    const token=accountStore.snapshot();
+    let busy=false;
+    row.addEventListener('toggle',async function renderWhenOpened(){
+      if (!row.open || busy) return;
+      busy=true;
+      const status=el('p','본문을 불러오고 있어요.');
+      status.setAttribute('role','status');
+      row.querySelector('[role="status"]')?.remove();
+      row.append(status);
+      try {
+        const result=report ? {state:'ready',report} : await client.request(endpoint,{operation:'open',id},token);
+        if(!row.isConnected || !accountStore.current(token)) return;
+        if(result.state!=='ready') throw new Error('현재 열람할 수 없는 리포트예요. 목록을 다시 확인해 주세요.');
+        status.replaceWith(reportCard(result.report));
+        row.removeEventListener('toggle',renderWhenOpened);
+      } catch(error) {
+        if(accountStore.current(token)) status.textContent=error.message+' 접었다가 다시 열면 재시도해요.';
+      } finally {busy=false;}
     });
     row.open=open;
     return row;
@@ -270,7 +286,7 @@
     libraryStatus.textContent='저장한 관계 리포트를 불러오고 있어요.';
     try {
       const pending=accountStore.getItem(pendingKey);
-      const {reports,next}=await client.request(endpoint,{operation:'list',before},token);
+      const {reports,next}=await client.request(endpoint,{operation:'list',before,summaryOnly:true},token);
       if (!current()) return;
       const rows=reports.map(record=>libraryItem(record,record.id===pending));
       if (!before) library.replaceChildren();
@@ -288,10 +304,11 @@
           accountStore.removeItem(pendingKey);
           libraryStatus.textContent='관계 리포트를 내 기록에 저장했어요.';
         } else {
-          const record=await client.request(endpoint,{operation:'open',id:pending},token);
+          const record=await client.request(endpoint,{operation:'open',id:pending,allowResume:true},token);
           if (!current()) return;
           if (record.state==='ready') library.prepend(libraryItem(record,true));
-          libraryStatus.textContent=record.state==='pending'?'결제를 확인하고 있어요. 잠시 후 다시 확인해 주세요.'
+          if(record.state==='resume'){client.showResume(libraryStatus,record,pendingKey);return;}
+          libraryStatus.textContent=record.state==='pending'?client.pendingMessage(record)
             :record.state==='ready'?'관계 리포트를 내 기록에 저장했어요.':'이전 결제는 취소되었거나 환불됐어요.';
           if (record.state!=='pending') accountStore.removeItem(pendingKey);
         }

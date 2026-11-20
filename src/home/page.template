@@ -301,17 +301,17 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="consultation-quality.js?v=20261117-saved-evidence"></script>
 <link rel="stylesheet" href="site-menu.css?v=20261116-home-logo"><script src="site-menu.js?v=20261119-topic-index"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=20261111-2">
-<script src="account-session.js?v=20261120-relationship-report"></script>
+<script src="account-session.js?v=nov20-resume"></script>
 <script src="campaign-attribution-core.js?v=20261119-campaign-visits"></script><script src="campaign-attribution.js?v=20261119-daily"></script>
 <script src="preview-funnel.js?v=20261119-daily"></script>
 <link rel="stylesheet" href="date-comparison.css?v=20261120-decision">
-<script src="account-report-client.js?v=20261120-1"></script>
+<script src="account-report-client.js?v=nov20-resume"></script>
 <script src="report-decision-core.js?v=20261120-1"></script>
-<script src="date-report.js?v=20261120-decision"></script>
+<script src="date-report.js?v=nov20-resume"></script>
 <script src="date-comparison.js?v=20261120-direct"></script>
 <link rel="stylesheet" href="date-entry.css?v=20261120-direct">
-<script src="date-entry.js?v=20261120-direct"></script>
+<script src="date-entry.js?v=nov20-resume"></script>
 <link rel="stylesheet" href="relationship-report.css?v=20261120-expanded">
-<script src="relationship-report.js?v=20261120-expanded"></script>
+<script src="relationship-report.js?v=nov20-resume"></script>
 </body>
 </html>

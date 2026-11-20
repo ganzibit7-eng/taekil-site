@@ -142,7 +142,7 @@
         status.textContent = '로그인한 뒤 아래 버튼을 다시 눌러 주세요.';
         return false;
       }
-      const data = await request({operation:'prepare',comparison,checkout:purchase},token);
+      const data = await request({operation:'prepare',comparison,checkout:purchase,allowResume:true},token);
       if (!accountStore.current(token) || !card.isConnected || !card.closest('#view-tool.visible')) return false;
       if (data.state === 'ready') {
         card.replaceChildren(reportCard(data),node('p','내 기록에 저장했어요.'));
@@ -157,8 +157,12 @@
         return false;
       }
       if (data.state === 'pending') {
-        status.textContent = '같은 후보일의 결제를 확인 중이에요. 새로 결제하기 전에 내 기록에서 확인해 주세요.';
+        status.textContent = client.pendingMessage(data);
         accountStore.setItem(pendingKey,data.id);
+        return false;
+      }
+      if(data.state==='resume') {
+        client.showResume(status,data,pendingKey);
         return false;
       }
       return client.pay(data,{price:3900,name:'정밀 택일 1건권',pendingKey,
@@ -213,11 +217,12 @@
         accountStore.removeItem(pendingKey);
         libraryStatus.textContent = '정밀 택일 리포트를 내 기록에 저장했어요.';
       } else if (pending && !before) {
-        const record = await request({operation:'open',id:pending},token);
+        const record = await request({operation:'open',id:pending,allowResume:true},token);
         if (!accountStore.current(token) || current !== requestId) return;
         if (record.state==='ready') library.prepend(libraryItem(record,true));
+        if(record.state==='resume'){client.showResume(libraryStatus,record,pendingKey);return;}
         libraryStatus.textContent = record.state === 'pending'
-          ? '결제 확인 전이에요. 완료한 뒤 잠시 기다렸다가 다시 확인해 주세요.'
+          ? client.pendingMessage(record)
           : record.state === 'ready' ? '정밀 택일 리포트를 내 기록에 저장했어요.' : '이전 결제는 취소되었거나 환불됐어요.';
         if (record.state !== 'pending') accountStore.removeItem(pendingKey);
       } else {
