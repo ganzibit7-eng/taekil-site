@@ -5,6 +5,7 @@ const vm = require('node:vm');
 
 const app = fs.readFileSync('index.html', 'utf8');
 const client = fs.readFileSync('checkout-availability.js', 'utf8');
+const annual = fs.readFileSync('newyear-consultation.js','utf8').match(/async function purchase\(\)\{[\s\S]*?\n  \}/)[0];
 
 test('checkout opens only on an explicit server setting and closes again without a reload', async () => {
   const attributes = new Set();
@@ -50,9 +51,8 @@ test('checkout opens only on an explicit server setting and closes again without
   publish({ enabled: false });
   assert.equal(checkout.requireOpen(), false);
 
-  for (const name of ['payPremium', 'purchaseQuestionPack']) {
-    const source = app.match(new RegExp(`async function ${name}\\([^]*?\\n}`))?.[0];
-    assert(source, `Missing payment entry point ${name}`);
+  for (const source of [annual,app.match(/async function purchaseQuestionPack\([^]*?\n}/)?.[0]]) {
+    assert(source, 'Missing payment entry point');
     // Authentication, order writes, and PayApp are intentionally absent in this VM.
     await vm.runInContext(`(${source})('ai_question_pack_5')`, context);
     assert.match(toast.at(-1), /신규 결제를 잠시 중단/);
@@ -63,7 +63,7 @@ test('checkout opens only on an explicit server setting and closes again without
   assert.equal(checkout.requireOpen(), false);
 });
 
-test('pack and premium share one lock through handoff, restoring on failure and browser back', async () => {
+test('pack and annual report share one lock through handoff, restoring on failure and browser back', async () => {
   const root = new Set(['data-checkout-open']);
   const button = {disabled: false};
   const events = {};
@@ -78,28 +78,32 @@ test('pack and premium share one lock through handoff, restoring on failure and 
     window: {addEventListener: (name, callback) => { events[name] = callback; }}
   });
   vm.runInContext(client, context);
-  for (const name of ['payPremium', 'purchaseQuestionPack']) {
-    vm.runInContext(app.match(new RegExp(`async function ${name}\\([^]*?\\n}`))[0], context);
-  }
-  let calls = 0, finish;
+  vm.runInContext(app.match(/async function purchaseQuestionPack\([^]*?\n}/)[0], context);
+  vm.runInContext(annual,context);
+  let calls = 0, annualCalls=0, finish;
+  Object.assign(context,{
+    loggedIn:()=>true,active:true,accountStore:{snapshot:()=>({}),current:()=>true},
+    content:{querySelector:()=>({disabled:false})},load:async()=>{},message:()=>{},
+    request:async()=>{annualCalls++;return {state:'owned'};}
+  });
   context.startQuestionPackCheckout = () => { calls++; return new Promise(resolve => {finish = resolve;}); };
-  context.startPremiumCheckout = () => { calls++; return true; };
   const first = context.purchaseQuestionPack('ai_question_pack_5');
   assert.equal(button.disabled, true);
   await context.purchaseQuestionPack('ai_question_pack_5');
-  await context.payPremium();
+  await context.purchase();
   assert.equal(calls, 1);
+  assert.equal(annualCalls,0);
   finish(true);
   await first;
-  await context.payPremium();
-  assert.equal(calls, 1);
+  await context.purchase();
+  assert.equal(annualCalls,0);
   events.pageshow({persisted: true});
   assert.equal(button.disabled, false);
-  context.startPremiumCheckout = () => { throw Error('test payment unavailable'); };
-  await assert.rejects(context.payPremium(), /unavailable/);
+  context.request=async()=>{throw new Error('test payment unavailable');};
+  await context.purchase();
   assert.equal(button.disabled, false);
-  context.startPremiumCheckout = () => { calls++; };
-  await context.payPremium();
+  context.request=async()=>{annualCalls++;return {state:'owned'};};
+  await context.purchase();
   assert.equal(button.disabled, false);
-  assert.equal(calls, 2);
+  assert.equal(annualCalls,1);
 });

@@ -7,7 +7,7 @@
   let data=null,busy=false,request=0,active=false,days=30,metric='visits',asOf=0;
   function syncPaymentTotals(){
     const paid=data?.ok.orders?data.orders.filter(A.settledPaid):null;
-    const values={statPurchases:paid?fmt(paid.length):'—',statRevenue:paid?fmt(paid.reduce((n,o)=>n+A.number(o.amount),0))+'원':'—',statPurchasesPremium:paid?fmt(paid.filter(o=>o.product==='taekilso_premium_30days').length):'—',statPurchasesQuestionPacks:paid?fmt(paid.filter(o=>/^ai_question_pack_/.test(o.product)).length):'—'};
+    const values={statPurchases:paid?fmt(paid.length):'—',statRevenue:paid?fmt(paid.reduce((n,o)=>n+A.number(o.amount),0))+'원':'—',statPurchasesPremium:paid?fmt(paid.filter(o=>o.product==='taekilso_premium_30days').length):'—',statPurchasesNewyear:paid?fmt(paid.filter(o=>o.product==='taekilso_newyear_2027_report').length):'—',statPurchasesQuestionPacks:paid?fmt(paid.filter(o=>/^ai_question_pack_/.test(o.product)).length):'—'};
     values.funnelPurchase=paid?fmt(paid.filter(o=>A.dateKey(A.orderTime(o))===A.dateKey(Date.now())).length):'—';values.funnelPurchaseRate='주문 기준';
     if(A.dateKey(Date.now())<='2026-11-11'){values.seoPurchases=paid?.length===0?'0':'—';values.seoPurchaseRate='초기화 당일 구분 불가';}
     for(const [id,value]of Object.entries(values)){const e=document.getElementById(id);if(e&&e.textContent!==value)e.textContent=value;}

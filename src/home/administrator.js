@@ -611,8 +611,10 @@ function renderAdmin() {
     const premiumCount = byProduct.taekilso_premium_30days || 0;
     const qpCount = (byProduct.ai_question_pack_5 || 0) + (byProduct.ai_question_pack_10 || 0);
     const premiumEl = document.getElementById('statPurchasesPremium');
+    const annualEl = document.getElementById('statPurchasesNewyear');
     const qpEl = document.getElementById('statPurchasesQuestionPacks');
     if (premiumEl) premiumEl.textContent = premiumCount;
+    if (annualEl) annualEl.textContent = byProduct.taekilso_newyear_2027_report || 0;
     if (qpEl) qpEl.textContent = qpCount;
   }, (err) => {
     console.error('통계 실시간 조회 실패', err);

@@ -94,22 +94,18 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/siteSettings/checkout).data.enabled == true
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.keys().hasOnly([
-          'uid', 'amount', 'product', 'status', 'createdAt', 'planVersion'
+          'uid', 'amount', 'product', 'status', 'createdAt'
         ])
         && request.resource.data.status == 'pending'
         && request.resource.data.createdAt == request.time
         && (
-          (request.resource.data.amount == 8900
-            && request.resource.data.product == 'taekilso_premium_30days'
-            && request.resource.data.get('planVersion', 0) == 2)
-          ||
           (request.resource.data.amount == 1900
             && request.resource.data.product == 'ai_question_pack_5'
-            && !request.resource.data.keys().hasAny(['planVersion']))
+          )
           ||
           (request.resource.data.amount == 2500
             && request.resource.data.product == 'ai_question_pack_10'
-            && !request.resource.data.keys().hasAny(['planVersion']))
+          )
         );
 
       allow read: if isAdmin()

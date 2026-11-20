@@ -104,17 +104,21 @@ html.site-menu-open{overflow:hidden!important;scrollbar-gutter:stable}
 #view-profile .pf-avatar{width:66px;height:66px;border:1px solid #786749;background:#403237;color:#e2c591;font-size:26px}
 #view-profile .pf-name{font-size:clamp(24px,4vw,33px);line-height:1.4;white-space:normal;overflow-wrap:anywhere}
 #view-profile .pf-meta{margin-top:4px;font-size:14px;color:#c2cbc1}
+#view-profile .pf-meta{overflow-wrap:anywhere}
+#view-profile .pf-uid-disclosure{margin-top:10px;color:#c9beb9;font-size:13px}
+#view-profile .pf-uid-disclosure:has(#profileUidRow[style*="none"]){display:none}
+#view-profile .pf-uid-disclosure > summary{display:list-item;width:fit-content;padding:5px 0;cursor:pointer}
+#view-profile .pf-uid-disclosure > summary:focus-visible{outline:2px solid #dfc69c;outline-offset:3px}
 #view-profile .pf-badge-row{justify-content:flex-start;margin-top:12px}
 #view-profile .pf-badge{padding:4px 11px;border-radius:5px;background:#443a42;color:#e3e8df;font-size:13px;font-weight:600;letter-spacing:0}
 #view-profile .pf-badge.gold{background:#c6aa7624;color:#edcf9b}
 #view-profile .pf-uid{align-items:center;flex-wrap:wrap;gap:2px 8px;margin-top:6px;color:#b6bfb5;font-size:12px}
 #view-profile .pf-uid code{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#b6bfb5;font-size:12px}
 #view-profile .pf-uid button{min-height:36px;padding:0 7px;background:none;border:0;color:#e3c58e;font:inherit;cursor:pointer}
-#view-profile .pf-panels{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
-#view-profile .pf-panel{min-width:0;padding:24px;border:1px solid #514b48;border-radius:10px;background:#292629}
-#view-profile .reading-library{background:#2d272d}
-#view-profile .pf-plan{background:#302923}
-#view-profile #profilePrivacySettings{background:#282830}
+#view-profile .pf-panels{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;align-items:start}
+#view-profile .pf-panel{min-width:0;padding:22px;border:1px solid #514b48;border-radius:10px;background:#292528}
+#view-profile .reading-library{background:#292528}
+#view-profile #profilePrivacySettings{margin-top:16px}
 #view-profile :is(.pf-panel,.pf-account-actions) h2{margin:0 0 12px;font:600 22px/1.5 var(--serif)}
 #view-profile #profilePremiumPriceNote{margin:0 0 18px;font-size:14px!important;overflow-wrap:anywhere}
 #view-profile .pf-upgrade{margin:0;padding:12px 16px;min-height:50px;border:1px solid #c6aa76;border-radius:7px;font-size:15px;font-weight:650;word-break:keep-all}
@@ -126,7 +130,10 @@ html.site-menu-open{overflow:hidden!important;scrollbar-gutter:stable}
 #view-profile .profile-plan-guide:hover{text-decoration:underline;text-underline-offset:4px}
 #view-profile .pf-menu{margin:0;overflow:visible}
 #view-profile .pf-menu-item{
-  display:block;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
   width:100%;
   min-height:49px;
   padding:11px 10px;
@@ -138,6 +145,7 @@ html.site-menu-open{overflow:hidden!important;scrollbar-gutter:stable}
   text-align:left;
   word-break:keep-all;
 }
+#view-profile .pf-menu-item::after{content:"";width:7px;height:7px;flex:none;border:solid #c6aa76;border-width:1px 1px 0 0;transform:rotate(45deg);margin-right:3px}
 #view-profile .pf-menu-item:hover{background:#382e35;color:#f4dbaa}
 #view-profile .pf-account-actions{margin-top:28px;padding:20px 0 0;border-top:1px solid #514b48}
 #view-profile .pf-account-actions h2{font-size:18px}

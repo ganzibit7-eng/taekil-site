@@ -82,7 +82,7 @@ test('integration loads owner store before legacy scripts and removes only hidde
 test('each approved legacy change has exactly its recorded scope',()=>{
  const checkoutCreditRefresh=/^ +\/\* CHECKOUT_START \*\/\n +void (?:window\.)?refreshQuestionCreditUI(?:\?\.)?\((?:accountToken\.owner|accountStore\.owner\(\))\);\n +\/\* CHECKOUT_END \*\/\n/gm;
  assert.equal([...html.matchAll(checkoutCreditRefresh)].length,3);
- const withoutSeohwa=html.replace(/^ +\/\* (?:SEOHWA_SCOPE|BIRTH_TIME)_START \*\/[\s\S]*?^ +\/\* (?:SEOHWA_SCOPE|BIRTH_TIME)_END \*\/\n/gm,'').replaceAll("window.TaekilBirthTime?.range(p.hourValue)?.label || (p.hourValue==='unknown'?'시간 모름':String(p.hourValue).padStart(2,'0')+'시')","p.hourValue==='unknown'?'시간 모름':String(p.hourValue).padStart(2,'0')+'시'");
+ const withoutSeohwa=require('./standalone-checkout-ui-contract.cjs')(html).replace(/^ +\/\* (?:SEOHWA_SCOPE|BIRTH_TIME)_START \*\/[\s\S]*?^ +\/\* (?:SEOHWA_SCOPE|BIRTH_TIME)_END \*\/\n/gm,'').replaceAll("window.TaekilBirthTime?.range(p.hourValue)?.label || (p.hourValue==='unknown'?'시간 모름':String(p.hourValue).padStart(2,'0')+'시')","p.hourValue==='unknown'?'시간 모름':String(p.hourValue).padStart(2,'0')+'시'");
  let text=require('./payment-return-ui-contract.cjs')(require('./inquiry-ui-contract.cjs')(withoutSeohwa)).replace(checkoutCreditRefresh,'');
  for(const [after,before,expected=1] of JSON.parse(fs.readFileSync('consultation-ui-contract-changes.json','utf8'))){
   assert.equal(text.split(after).length-1,expected,after.slice(0,80));
@@ -116,6 +116,6 @@ test('owned report handoffs cannot reappear after logout; an intentional guest h
  const H=require('./free-report-handoff-core'),p={id:'flow',createdAt:Date.now(),profile:{y:1990,m:1,d:1,calType:'solar',isLeap:false},question:'fixture',stage:'awaiting-auth',owner:'A'};assert.equal(H.pending(p,Date.now(),null),null);assert(H.pending({...p,owner:null},Date.now(),'B'));
 });
 test('newyear payment-return response is rejected after switching accounts',async()=>{
- const f=fixture(),pending=deferred(),text=fs.readFileSync('newyear-consultation.js','utf8'),request=text.match(/async function request\(operation,profile\)\{[\s\S]*?\n  }/)[0];
+ const f=fixture(),pending=deferred(),text=fs.readFileSync('newyear-consultation.js','utf8'),request=text.match(/async function request\(operation,profile,extra=\{\}\)\{[\s\S]*?\n  }/)[0];
  const ctx={window:{accountStore:f.store},owner:()=>f.store.owner(),getAiRequestHeaders:async()=>({}),fetch:()=>pending.promise,AI_CHAT_URL:'fixture://no-network',AbortSignal:{timeout:()=>null}};vm.createContext(ctx);vm.runInContext(request,ctx);const result=ctx.request('status');await Promise.resolve();f.as('B');pending.resolve({ok:true,json:async()=>({profile:{name:'A private'},status:'ready'})});await assert.rejects(result,/계정이 변경/);
 });

@@ -629,30 +629,10 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
         <p>${buildPremiumCoupleReport(userOhaeng, partnerOhaeng, coupleRelation, eventType)}</p>
       `;
     } else {
-      upsellEl.style.display = 'block';
-      upsellEl.className = 'premium-locked premium-convert';
-      upsellEl.innerHTML = `
-        <div class="pr-tag">🔒 여기서부터 정밀 분석</div>
-        <p><b>무료 결과는 핵심 후보만 보여드렸어요.</b><br>프리미엄에서는 두 분의 기운을 더 깊이 비교하고, 전체 후보·점수·월별 BEST·상세 이유까지 한 번에 확인할 수 있어요.</p>
-        <div class="pp-list" style="margin-top:12px"><div><strong>무료</strong><br>TOP 5 · 기본 점수 · 손없는 날</div><div><strong>30일 프리미엄</strong><br>365일 · TOP 20 · 상세 리포트 · 궁합 택일</div></div>
-        <button class="btn btn-primary" style="margin-top:14px;width:100%" data-checkout-action onclick="payPremium()">8,900원으로 30일 전체 결과 보기 →</button>
-        <div style="font-size:10px;color:var(--muted-2);margin-top:9px;text-align:center">자동결제 없음 · 30일 후 자동 만료</div>
-      `;
-    }
-  } else {
-    if (!isPremium()) {
-      upsellEl.style.display = 'block';
-      upsellEl.className = 'premium-locked premium-convert';
-      upsellEl.innerHTML = `
-        <div class="pr-tag">✦ 무료 결과 확인 완료</div>
-        <p><b>지금 고른 기간 안에서 더 좋은 날짜가 있는지 확인해보세요.</b><br>무료는 TOP 5를 보여드리고, 프리미엄에서는 최대 365일 전체 후보를 다시 비교해 TOP 20과 월별 BEST까지 확인할 수 있어요.</p>
-        <div class="pp-list" style="margin-top:12px"><div><strong>무료로 확인한 것</strong><br>추천 TOP 5 · 일진 · 오행 · 손없는 날</div><div><strong>프리미엄에서 추가</strong><br>365일 · TOP 20 · 상세 이유 · 월별 BEST</div></div>
-        <button class="btn btn-primary" style="margin-top:14px;width:100%" data-checkout-action onclick="payPremium()">8,900원으로 30일 전체 분석 열기 →</button>
-        <div style="font-size:10px;color:var(--muted-2);margin-top:9px;text-align:center">자동결제 없음 · 결제일로부터 30일</div>
-      `;
-    } else {
       upsellEl.style.display = 'none';
     }
+  } else {
+    upsellEl.style.display = 'none';
   }
 
   if (rangeTruncated) {

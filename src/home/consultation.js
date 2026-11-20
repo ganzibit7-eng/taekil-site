@@ -603,20 +603,10 @@ function appendQuestionPackOffers() {
     </button>
     <p class="ai-offer-savings" data-checkout-action>10개권은 5개권 두 번 구매보다 약 34% 저렴해요.</p>
 
-    <button type="button" class="ai-chat-offer-card ai-chat-offer-premium ai-offer-premium ai-offer-best" data-checkout-action data-ai-buy-premium="1">
-      <span class="ai-offer-badge">가성비 추천 · PREMIUM</span>
-      <div class="ai-offer-copy">
-        <small>매일 자주 상담하고 택일까지 볼 때</small>
-        <b>프리미엄 30일</b>
-        <span>AI 질문 총 30개 · 하루 최대 10개 · 신년 리포트와 정밀 택일</span>
-      </div>
-      <div class="ai-offer-price"><em>8,900원</em></div>
-    </button>
-
     <!-- CHECKOUT_START -->
-    <p class="checkout-pause-note" data-checkout-paused>질문권과 프리미엄 신규 구매를 잠시 중단했습니다.</p>
+    <p class="checkout-pause-note" data-checkout-paused>질문권 신규 구매를 잠시 중단했습니다.</p>
     <!-- CHECKOUT_END -->
-    <div class="ai-paywall-note" data-checkout-action>자동결제 없이 1회 결제 · 질문권은 프리미엄 없이도 구매할 수 있어요.</div>
+    <div class="ai-paywall-note" data-checkout-action>자동결제 없이 1회 결제</div>
   `;
 
   wrap.querySelectorAll('[data-ai-buy-pack]').forEach((btn) => {
@@ -636,25 +626,6 @@ function appendQuestionPackOffers() {
       }
     });
   });
-
-  const premiumBtn = wrap.querySelector('[data-ai-buy-premium]');
-  if (premiumBtn) {
-    premiumBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (premiumBtn.disabled) return;
-      premiumBtn.disabled = true;
-      showToast('프리미엄 결제창을 준비하고 있어요…');
-      try {
-        await payPremium();
-      } catch (err) {
-        console.error('프리미엄 결제 시작 실패', err);
-        showToast('결제창을 열지 못했어요. 잠시 후 다시 시도해주세요.');
-      } finally {
-        setTimeout(() => { premiumBtn.disabled = false; }, 1200);
-      }
-    });
-  }
 
   win.appendChild(wrap);
   /* CHECKOUT_START */
@@ -1430,7 +1401,7 @@ function resumePendingPaidAiQuestion(){
 function openAiFollowupPurchase(question){
   savePendingPaidAiQuestion(question);
   trackAiFunnel('locked_followup_click',{question:String(question||'')});
-  appendAiChatMessage('system-note','무료 질문 3개를 모두 사용했어요. 이 질문이 궁금하다면 질문권 또는 프리미엄으로 상담을 이어갈 수 있어요.');
+  appendAiChatMessage('system-note','무료 질문 3개를 모두 사용했어요. 이 질문이 궁금하다면 질문권으로 상담을 이어갈 수 있어요.');
   if (typeof appendQuestionPackOffers === 'function') appendQuestionPackOffers();
   if (typeof appendAiChatUpsell === 'function') appendAiChatUpsell(question);
 }
