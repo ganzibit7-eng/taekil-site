@@ -38,5 +38,9 @@ for (const file of published) {
   bytes += size;
 }
 // Do not index the alternate Pages hostname; the existing public domain remains canonical.
+const sitemapPath=path.join(destination,'sitemap.xml');
+const sitemap=fs.readFileSync(sitemapPath,'utf8');
+const consultationEntries=Object.keys(pages).map(topic=>'  <url><loc>https://taekilso.com/consultation/'+topic+'/</loc></url>');
+fs.writeFileSync(sitemapPath,sitemap.replace('</urlset>',consultationEntries.join('\n')+'\n</urlset>'));
 fs.writeFileSync(path.join(destination, '_headers'), 'https://:project.pages.dev/*\n  X-Robots-Tag: noindex\n\nhttps://:hash.:project.pages.dev/*\n  X-Robots-Tag: noindex\n');
 console.log(JSON.stringify({files: published.length + Object.keys(pages).length + 2, bytes, output: destination}));

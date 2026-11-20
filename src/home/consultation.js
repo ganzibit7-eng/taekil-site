@@ -1843,9 +1843,10 @@ function takeTodayFortunePendingQuestion(){
   }
 }
 
+const TODAY_FORTUNE_HIGH_SCORE = 73;
 function buildTodayFortuneQuestions(score, todayOh, userOh){
   const s = Number(score || 0);
-  const high = s >= 78;
+  const high = s >= TODAY_FORTUNE_HIGH_SCORE;
   const low = s < 65;
   const relation = todayOh === userOh
     ? '오늘은 내 기운과 같은 오행이 겹치는 날'
@@ -1912,7 +1913,7 @@ function calculateTodayFortune(){
   else if(OVERCOMES[userOh]===todayOh || OVERCOMES[todayOh]===userOh){score-=12;reasons.push('상극 관계 · 속도 조절')}
   if(today.getDay()===0||today.getDay()===6) score+=3;
   score=Math.max(35,Math.min(95,score));
-  if(score>=78) advice='오늘은 새로운 일을 시작하거나 중요한 대화를 정리하기에 비교적 좋은 흐름입니다. 다만 결정은 현실 조건을 함께 확인하세요.';
+  if(score>=TODAY_FORTUNE_HIGH_SCORE) advice='오늘은 새로운 일을 시작하거나 중요한 대화를 정리하기에 비교적 좋은 흐름입니다. 다만 결정은 현실 조건을 함께 확인하세요.';
   else if(score>=65) advice='전체적으로 무난한 편입니다. 해야 할 일을 하나씩 정리하고 중요한 약속은 시간을 넉넉하게 잡아보세요.';
   else advice='오늘은 속도보다 점검이 중요한 날입니다. 큰 결정은 서두르지 말고 한 번 더 확인하는 것을 권합니다.';
   document.getElementById('fortuneResult').innerHTML=`

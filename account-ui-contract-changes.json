@@ -873,5 +873,30 @@
     "before": "  if (!window.TaekilPrivacy?.hasAIConsent()) {\n    document.getElementById('aiChatPanel').style.display = 'none';\n    showAiChatSetupStep();\n    showToast('상담 시작 화면에서 개인정보 국외 이전에 동의해 주세요.');\n    return;\n  }",
     "after": "  if (!window.TaekilPrivacy?.hasAIConsent()) {\n    const panel = document.getElementById('aiChatPanel');\n    sendBtn.disabled = true;\n    let consent;\n    try {\n      consent = await window.TaekilPrivacy?.confirmAI(panel);\n    } finally {\n      if (sameConversation()) sendBtn.disabled = false;\n    }\n    if (!consent || !sameConversation() || panel.style.display !== 'flex' || input.value.trim() !== message) return;\n  }",
     "count": 1
+  },
+  {
+    "before": "const spanDays = Math.round((rangeEnd - rangeStart) / 86400000);",
+    "after": "const spanDays = Math.round((rangeEnd - rangeStart) / 86400000) + 1;",
+    "count": 1
+  },
+  {
+    "before": "capped.setDate(capped.getDate() + maxDays);",
+    "after": "capped.setDate(capped.getDate() + maxDays - 1);",
+    "count": 1
+  },
+  {
+    "before": "function buildTodayFortuneQuestions(score, todayOh, userOh){",
+    "after": "const TODAY_FORTUNE_HIGH_SCORE = 73;\nfunction buildTodayFortuneQuestions(score, todayOh, userOh){",
+    "count": 1
+  },
+  {
+    "before": "const high = s >= 78;",
+    "after": "const high = s >= TODAY_FORTUNE_HIGH_SCORE;",
+    "count": 1
+  },
+  {
+    "before": "if(score>=78) advice=",
+    "after": "if(score>=TODAY_FORTUNE_HIGH_SCORE) advice=",
+    "count": 1
   }
 ]

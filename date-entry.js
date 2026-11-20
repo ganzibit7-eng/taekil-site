@@ -118,5 +118,14 @@
       mountNative(document.getElementById(id),label);
     }
   }
-  return {parse,gregorian,mountParts,mountNative};
+  function clearDrafts(){
+    for(const entry of document.querySelectorAll('.date-quick-entry')){
+      entry.open=false;
+      const input=entry.querySelector('input');
+      input.value='';
+      input.removeAttribute('aria-invalid');
+      entry.querySelector('[role="status"]').textContent='';
+    }
+  }
+  return {parse,gregorian,mountParts,mountNative,clearDrafts};
 });
