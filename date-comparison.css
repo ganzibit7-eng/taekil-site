@@ -47,6 +47,63 @@
 .tool-exact-card p { margin: 8px 0; }
 .tool-exact-card ul { padding-left: 18px; margin: 8px 0 0; color: #b6bdb5; font-size: 15px; line-height: 1.6; word-break: keep-all; }
 .tool-exact-note { margin: 0; }
+#exactDateExtras:empty { display:none; }
+.date-report-extra { position:relative; padding-bottom:8px; }
+.date-report-extra .date-report-text-button { margin-top:4px; }
+.date-report-text-button {
+  min-height:44px;
+  padding:7px 4px;
+  color:#dfc69c;
+  background:none;
+  border:0;
+  text-decoration:underline;
+  text-underline-offset:4px;
+  font:500 15px/1.5 var(--sans);
+  cursor:pointer;
+}
+.tool-exact-dates .date-report-input-note { margin:4px 0 0; }
+.date-report-offer,.date-report-plan,.date-report-library {
+  margin-top:30px;
+  padding:22px 0;
+  border-top:1px solid #47554b;
+}
+.date-report-offer h3,.date-report-plan h3,.date-report-library h2,.date-report-result h3 {
+  margin:6px 0 12px;
+  color:#f0ebe1;
+  font:600 clamp(22px,4vw,28px)/1.45 var(--serif);
+  word-break:keep-all;
+}
+.date-report-plan h3 strong,.date-report-score { color:#dfc69c; }
+.date-report-plan p,.date-report-library p,.date-report-result p,
+.date-report-selection,.date-report-checklist {
+  color:#b6bdb5;
+  font-size:16px;
+  line-height:1.65;
+  word-break:keep-all;
+}
+.date-report-selection,.date-report-checklist { padding-left:20px; }
+.date-report-library h2 { scroll-margin-top:92px; }
+.date-report-offer .btn,.date-report-plan .btn,.date-report-library .btn {
+  min-height:44px;
+  margin:8px 10px 0 0;
+  white-space:normal;
+}
+.date-report-ranked { list-style:none; padding:0; margin:20px 0; }
+.date-report-ranked>li,#dateReportList>details { padding:16px 0; border-bottom:1px solid #344139; }
+.date-report-ranked>li>strong { margin-right:12px; }
+.date-report-ranked>li>p,.date-report-method { margin:8px 0; }
+.date-report-breakdown {
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px 16px;
+  padding:0;
+  list-style:none;
+  color:#e0d6c4;
+  font-size:15px;
+}
+#dateReportList summary { cursor:pointer; padding:8px 0; }
+#dateReportList details[open] .date-report-result { margin-top:14px; }
 @media (max-width: 520px) {
   .tool-exact-cards { grid-template-columns: minmax(0,1fr); }
+  .date-report-offer .btn,.date-report-library .btn { width:100%; margin-right:0; }
 }
