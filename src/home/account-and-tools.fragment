@@ -463,15 +463,16 @@
           <input type="text" id="supportTitle" placeholder="예: 결제가 안 돼요">
         </div>
         <div class="field full" style="margin-bottom:8px;">
-          <label>내용</label>
+          <label for="supportMessage">내용</label>
           <textarea id="supportMessage" rows="5" placeholder="자세한 상황을 알려주세요." style="width:100%; padding:14px 15px; background:#090908; border:1px solid rgba(255,255,255,.10); border-radius:14px; color:var(--white); font-family:inherit; font-size:14px; resize:vertical;"></textarea>
         </div>
-        <button class="btn btn-primary form-submit" onclick="submitInquiry()">문의 등록하기</button>
-        <div id="supportStatus" style="display:none; margin-top:12px; padding:12px 14px; border-radius:12px; font-size:13px; line-height:1.6;"></div>
+        <button class="btn btn-primary form-submit" id="supportSubmit" type="button" onclick="submitInquiry()">문의 등록하기</button>
+        <div id="supportStatus" role="status" style="display:none; margin-top:12px; padding:12px 14px; border-radius:12px; font-size:13px; line-height:1.6;"></div>
       </div>
 
       <div class="section-head" style="margin-top:40px;">
         <div><div class="section-kicker">MY INQUIRIES</div><h2 class="section-title" style="font-size:22px;">내 문의 내역</h2></div>
+        <button type="button" class="inquiry-refresh" onclick="renderSupportList()">새로고침</button>
       </div>
       <div id="supportList" class="usecase-list"></div>
       <div id="supportEmpty" class="empty-note" style="display:none;">아직 등록한 문의가 없어요.</div>

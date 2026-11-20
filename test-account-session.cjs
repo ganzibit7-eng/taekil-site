@@ -82,7 +82,7 @@ test('integration loads owner store before legacy scripts and removes only hidde
 test('each approved legacy change has exactly its recorded scope',()=>{
  const checkoutCreditRefresh=/^ +\/\* CHECKOUT_START \*\/\n +void (?:window\.)?refreshQuestionCreditUI(?:\?\.)?\((?:accountToken\.owner|accountStore\.owner\(\))\);\n +\/\* CHECKOUT_END \*\/\n/gm;
  assert.equal([...html.matchAll(checkoutCreditRefresh)].length,3);
- let text=require('./payment-return-ui-contract.cjs')(html).replace(checkoutCreditRefresh,'');
+ let text=require('./payment-return-ui-contract.cjs')(require('./inquiry-ui-contract.cjs')(html)).replace(checkoutCreditRefresh,'');
  for(const [after,before,expected=1] of JSON.parse(fs.readFileSync('consultation-ui-contract-changes.json','utf8'))){
   assert.equal(text.split(after).length-1,expected,after.slice(0,80));
   text=text.split(after).join(before);
@@ -94,7 +94,7 @@ test('each approved legacy change has exactly its recorded scope',()=>{
 function adapterFixture(){
  const f=fixture(),pending=deferred(),nodes=new Map(),docEvents={},winEvents={},seen=[];let query;
  const classes={contains:()=>false,remove(){},add(){}};
- const ctx={accountStore:f.store,document:{getElementById:id=>nodes.get(id)||null,querySelector:()=>null,querySelectorAll:()=>[],body:{classList:classes},addEventListener:(key,fn)=>docEvents[key]=fn},updateAuthNav(){},logout(){},renderSupportList(){seen.push(JSON.parse(f.store.getItem('taekilso_my_inquiries')||'[]'));},showSupportStatus(){},CustomEvent:class{constructor(type,options){this.type=type;this.detail=options.detail;}},db:{collection:name=>({where:(field,op,owner)=>{query={name,field,op,owner};return {limit:()=>({get:()=>pending.promise})};}})},console,requestAnimationFrame:fn=>fn()};
+ const ctx={accountStore:f.store,document:{getElementById:id=>nodes.get(id)||null,querySelector:()=>null,querySelectorAll:()=>[],body:{classList:classes},addEventListener:(key,fn)=>docEvents[key]=fn},updateAuthNav(){},logout(){},renderSupportList(){seen.push(JSON.parse(f.store.getItem('taekilso_my_inquiries')||'[]'));},showSupportStatus(){},CustomEvent:class{constructor(type,options){this.type=type;this.detail=options.detail;}},db:{collection:name=>({where:(field,op,owner)=>{query={name,field,op,owner};return {get:()=>pending.promise};}})},console,requestAnimationFrame:fn=>fn()};
  ctx.window=ctx;ctx.addEventListener=(key,fn)=>winEvents[key]=fn;ctx.dispatchEvent=e=>winEvents[e.type]?.(e);
  const load=()=>{vm.createContext(ctx);vm.runInContext(fs.readFileSync('account-session.js','utf8'),ctx);};
  return {...f,ctx,nodes,docEvents,winEvents,seen,pending,query:()=>query,load};
