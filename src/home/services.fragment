@@ -218,7 +218,7 @@
         <fieldset>
           <legend>본인</legend>
           <label for="relationshipMineDate">생년월일</label>
-          <input id="relationshipMineDate" type="date" required min="1900-01-01">
+          <input id="relationshipMineDate" class="relationship-date-input" type="text" inputmode="numeric" maxlength="14" autocomplete="off" placeholder="예 19900101" required>
           <label for="relationshipMineCalendar">달력 기준</label>
           <select id="relationshipMineCalendar"><option value="solar">양력</option><option value="lunar">음력</option></select>
           <label class="relationship-leap" hidden><input type="checkbox" id="relationshipMineLeap"> 음력 윤달</label>
@@ -226,7 +226,7 @@
         <fieldset>
           <legend>상대방</legend>
           <label for="relationshipPartnerDate">생년월일</label>
-          <input id="relationshipPartnerDate" type="date" required min="1900-01-01">
+          <input id="relationshipPartnerDate" class="relationship-date-input" type="text" inputmode="numeric" maxlength="14" autocomplete="off" placeholder="예 19920418" required>
           <label for="relationshipPartnerCalendar">달력 기준</label>
           <select id="relationshipPartnerCalendar"><option value="solar">양력</option><option value="lunar">음력</option></select>
           <label class="relationship-leap" hidden><input type="checkbox" id="relationshipPartnerLeap"> 음력 윤달</label>

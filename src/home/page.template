@@ -289,7 +289,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 <script src="navigation-stability.js?v=20261111-2"></script>
 <link rel="stylesheet" href="newyear-consultation.css?v=20261119-handoff-refine">
-<script src="newyear-consultation.js?v=20261119-handoff-refine"></script><script src="newyear-example.js?v=20261119-handoff-refine"></script>
+<script src="newyear-consultation.js?v=20261120-direct"></script><script src="newyear-example.js?v=20261119-handoff-refine"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=20261110-1">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
 <script src="free-report-handoff.js?v=20261119-before-chat"></script>
@@ -308,8 +308,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="account-report-client.js?v=20261120-1"></script>
 <script src="report-decision-core.js?v=20261120-1"></script>
 <script src="date-report.js?v=20261120-decision"></script>
-<script src="date-comparison.js?v=20261120-decision"></script>
-<link rel="stylesheet" href="relationship-report.css?v=20261120-decision">
-<script src="relationship-report.js?v=20261120-decision"></script>
+<script src="date-comparison.js?v=20261120-direct"></script>
+<link rel="stylesheet" href="date-entry.css?v=20261120-direct">
+<script src="date-entry.js?v=20261120-direct"></script>
+<link rel="stylesheet" href="relationship-report.css?v=20261120-expanded">
+<script src="relationship-report.js?v=20261120-expanded"></script>
 </body>
 </html>

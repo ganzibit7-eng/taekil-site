@@ -45,6 +45,39 @@
     return section;
   }
 
+  function chapterGuide(report) {
+    const section=el('section','','relationship-chapters');
+    section.append(el('h4','상황별로 읽는 두 사람의 관계'),
+      el('p','열두 장면 중 두 사람에게 가까운 것부터 펼쳐보세요. 두 사람이 태어난 날의 비교를 바탕으로 각 상황에서 확인할 점을 담았어요.'));
+    report.chapters.forEach((chapter,index)=>{
+      const panel=el('details','','relationship-chapter');
+      panel.open=index===0;
+      panel.append(el('summary',chapter.title),el('p',chapter.scene),el('p',chapter.reading));
+      const dialogue=el('div','','relationship-dialogue');
+      let opening;
+      for (const [speaker,line] of [['본인',chapter.first],['상대방',chapter.second]]) {
+        const quote=el('blockquote'), text=el('p',line);
+        quote.append(el('b',speaker),text);
+        dialogue.append(quote);
+        if (!opening) opening=text;
+      }
+      const controls=el('div','','relationship-copy-controls');
+      controls.append(...copyControl(opening,chapter.first));
+      dialogue.append(controls);
+      const action=el('p','','relationship-next-step');
+      action.append(el('strong','함께 해볼 일'),document.createTextNode(' '+chapter.action));
+      panel.append(dialogue,action);
+      const basis=report.evidence[chapter.basis];
+      if (basis) {
+        const reason=el('details','','relationship-scene-basis');
+        reason.append(el('summary','풀이 근거 보기'),el('p',basis.title+' · '+basis.detail));
+        panel.append(reason);
+      }
+      section.append(panel);
+    });
+    return section;
+  }
+
   function copyControl(quote,line) {
     const button=el('button','첫 문장 복사','relationship-copy');
     button.type='button';
@@ -70,8 +103,7 @@
 
   function reportCard(report) {
     const card = el('article','','relationship-reading');
-    card.append(el('h3','두 사람 관계 리포트'),el('p',report.summary,'relationship-summary'),
-      el('p','본인 '+label(report.people[0])+' · 상대방 '+label(report.people[1]),'relationship-pillars'));
+    card.append(el('h3','두 사람 관계 리포트'),el('p',report.summary,'relationship-summary'));
     const practice = el('section');
     const practiceTitle=el('h4','실제로 써볼 대화');
     practiceTitle.tabIndex=-1;
@@ -82,6 +114,7 @@
       practiceTitle.scrollIntoView({block:'start',behavior:'instant'});
     });
     card.append(jump,entries('잘 맞는 점',report.strengths),entries('자주 엇갈릴 수 있는 상황',report.friction));
+    if (report.chapters?.length) card.append(chapterGuide(report));
     practice.append(practiceTitle);
     report.conversations.forEach((conversation,index) => {
       const scene = el('div','','relationship-dialogue');
@@ -114,9 +147,12 @@
     practice.append(el('p',report.nextStep,'relationship-next-step'));
     const evidence = el('details');
     evidence.append(el('summary','풀이에 사용한 계산 근거'),
+      el('p','본인 '+label(report.people[0])+' · 상대방 '+label(report.people[1]),'relationship-pillars'),
       entries('두 사람의 오행 비교',report.evidence.map(item=>({...item,detail:item.relation+' · '+item.detail}))),
       el('p',report.note,'relationship-method'));
-    card.append(practice,evidence);
+    card.append(practice);
+    if (report.routine?.length) card.append(entries('4주 동안 함께 해볼 일',report.routine));
+    card.append(evidence);
     return card;
   }
 
@@ -148,7 +184,9 @@
 
   // Only the two day-cycle indices leave this form. Raw dates stay in the tab.
   function dayIndex({birth,calendar,leap}) {
-    const date=resolveBirthDate(birth.value,calendar.value,leap.checked);
+    const parsed=window.TaekilDateEntry.parse(birth.value);
+    if (!parsed) return null;
+    const date=resolveBirthDate(parsed.iso,calendar.value,leap.checked);
     const korea=new Date(Date.now()+9*3600000);
     const year=korea.getUTCFullYear()-14, month=korea.getUTCMonth();
     const cutoff=new Date(year,month,Math.min(korea.getUTCDate(),new Date(year,month+1,0).getDate()));
@@ -212,7 +250,13 @@
   function libraryItem({report,createdAtMs},open = false) {
     const row=el('details');
     const date=new Intl.DateTimeFormat('ko-KR',{dateStyle:'medium',timeZone:'Asia/Seoul'}).format(createdAtMs);
-    row.append(el('summary',date+' · '+report.people[0].day+'과 '+report.people[1].day),reportCard(report));
+    row.append(el('summary',date+' · '+report.people[0].day+'과 '+report.people[1].day));
+    if (open) row.append(reportCard(report));
+    else row.addEventListener('toggle',function renderWhenOpened(){
+      if (!row.open) return;
+      row.append(reportCard(report));
+      row.removeEventListener('toggle',renderWhenOpened);
+    });
     row.open=open;
     return row;
   }
