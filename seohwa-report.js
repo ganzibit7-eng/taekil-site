@@ -1,24 +1,44 @@
 (() => {
   'use strict';
-  const core=window.TaekilSeohwaReading, client=window.TaekilAccountReport, checkout=window.TaekilCheckout;
-  const endpoint='https://taekilso-api-jhqz3vlila-du.a.run.app/api/seohwa-report';
-  const pendingKey='seohwa-pending-report-v1';
+  const catalog=window.TaekilFeaturedReports, client=window.TaekilAccountReport, checkout=window.TaekilCheckout;
+  const defaultReading=catalog.forId('seohwa');
+  const endpoint='https://taekilso-api-jhqz3vlila-du.a.run.app/api/';
+  const pendingKey=reading=>reading===defaultReading?'seohwa-pending-report-v1':'featured-pending-report-v1-'+reading.id;
   const restoreKey='taekilso_resume_seohwa_report_v1';
   const by=id=>document.getElementById(id);
   const dialog=by('seohwaReportDialog'), body=by('seohwaReportBody');
   const writingVisual=by('seohwaWritingVisual');
-  const writingFilm=writingVisual.querySelector('video');
+  let writingFilm=writingVisual.querySelector('video');
   const writingFilmToggle=by('seohwaWritingFilmToggle');
   const progress=by('seohwaReportProgress');
   const library=by('seohwaReportList'), libraryStatus=by('seohwaLibraryStatus');
   const returnView=by('view-seohwa-report'), returnHost=by('seohwaReturnHost');
   const returnStatus=by('seohwaReturnStatus'), returnRetry=by('seohwaReturnRetry'), returnAuth=by('seohwaReturnAuth');
+  const returnLink=by('seohwaReturnLink');
   let active, loadingLibrary=0, accountOwner=accountStore.owner(), waitingLogin=false;
   let returnAttempt=null;
   let progressTimer=0, statusTimer=0;
   const typicalWriteSeconds=60;
   const estimatedWriteMs=(typicalWriteSeconds+10)*1000;
-  const money=new Intl.NumberFormat('ko-KR').format(core.PRICE)+'원';
+  const won=new Intl.NumberFormat('ko-KR');
+  const withName=reading=>reading.name+(reading===defaultReading?'와':'과');
+  function request(reading,payload,owner,timeout){
+    if(reading===defaultReading)return client.request(endpoint+'seohwa-report',payload,owner,timeout);
+    return client.request(endpoint+'featured-report',{...payload,...(reading&&{consultantId:reading.id})},owner,timeout);
+  }
+  function displayTitle(reading){
+    dialog.setAttribute('aria-label',reading.title);
+    dialog.querySelector('.sr-toolbar span').textContent=reading.title;
+    dialog.dataset.advisor=reading.id;
+  }
+  function checkoutPath(reading,orderId){
+    const query=reading===defaultReading?new URLSearchParams({seohwaReport:'1'}):new URLSearchParams({featuredReport:reading.id});
+    if(orderId)query.set(reading===defaultReading?'seohwaOrder':'reportOrder',orderId);
+    return '/?'+query+'#seohwa-report';
+  }
+  function readingAtReturn(url){
+    return catalog.forId(url.searchParams.get('featuredReport'))||defaultReading;
+  }
   function el(tag,text,cls) {
     const node=document.createElement(tag);
     if(text!=null)node.textContent=text;
@@ -59,7 +79,7 @@
     progress.value=dialog.scrollTop/Math.max(1,dialog.scrollHeight-dialog.clientHeight);
   },{passive:true});
 
-  function paper(chapter,index,followup) {
+  function paper(chapter,index,followup,reading) {
     const page=el('article',null,'sr-paper');
     page.id='seohwa-report-chapter-'+index;
     const h=el('h3',chapter.title);
@@ -77,19 +97,19 @@
         el('p',basis.meaning+'으로 풀었어요.'));
       page.append(details);
     }
-    if(followup) page.append(button('이 대목으로 서화에게 묻기','sr-ask',followup));
+    if(followup) page.append(button('이 대목으로 '+reading.name+'에게 묻기','sr-ask',followup));
     return page;
   }
 
-  function header(choice,day,known) {
+  function header(reading,choice,day,known) {
     const head=el('header',null,'sr-cover');
     const image=el('img');
-    image.src='/assets/portrait-love.jpg'; image.alt='';
+    image.src='/'+window.TaekilConsultationPersonas.get(reading.id).portrait; image.alt='';
     image.width=640; image.height=800;
     head.append(image);
     const title=el('div',null,'sr-cover-text');
-    title.append(el('p','서화의 연애 리포트','sr-kicker'),el('h2','마음이 가까워지는 순간과 엇갈리는 이유'),
-      el('p',core.stories[choice].label+(day?' · '+day+'일주':'')+
+    title.append(el('p',reading.title,'sr-kicker'),el('h2',reading.cover),
+      el('p',reading.stories[choice].label+(day?' · '+day+'일주':'')+
         (known===false?' · 출생시간 미상, 공통 근거로 풀이':'')));
     head.append(title);
     return head;
@@ -108,16 +128,16 @@
     return icon;
   }
 
-  function toc(first,locked) {
+  function toc(reading,first,locked) {
     const list=el('nav',null,'sr-toc');
     list.setAttribute('aria-label','리포트 목차');
     list.append(el('h3','리포트 목차'));
     const rows=el('ol');
-    for(const [index,title] of [first.title,...core.chapters].entries()){
+    for(const [index,title] of [first.title,...reading.chapters].entries()){
       const row=el('li');
       if(locked&&index>0){
         const chapter=el('div');
-        chapter.append(el('strong',title),el('small',core.guide[index-1]));
+        chapter.append(el('strong',title),el('small',reading.guide[index-1]));
         row.className='sr-locked-row';
         row.append(lockIcon(),chapter);
       }else{
@@ -144,11 +164,12 @@
   }
 
   function drawPreview(data) {
-    const {first,context,choice,excerpts}=data;
+    const {first,context,choice,excerpts,reading}=data;
+    displayTitle(reading);
     const layout=el('div',null,'sr-layout'), contents=el('div',null,'sr-pages'), gate=el('section',null,'sr-gate');
     const status=el('p',null,'sr-status');
     status.setAttribute('role','status');
-    const pay=button(money+'에 전체 리포트 열기','sr-primary',()=>buy(data,status));
+    const pay=button(won.format(reading.PRICE)+'원에 전체 리포트 열기','sr-primary',()=>buy(data,status));
     pay.dataset.checkoutAction='';
     const paused=el('p','현재 전체 리포트 구매를 잠시 중단했어요.','sr-payment-note');
     paused.dataset.checkoutPaused='';
@@ -157,15 +178,15 @@
     const benefits=el('ul',null,'sr-benefits');
     for(const [title,description] of [
       ['리포트 6장 분량','무료 첫 장을 포함한 전체 리포트를 내 기록에서 다시 읽을 수 있어요.'],
-      ['서화와 채팅 상담 3회','마음에 남은 대목에서 바로 이어서 물어볼 수 있어요.']
+      [withName(reading)+' 채팅 상담 3회','마음에 남은 대목에서 바로 이어서 물어볼 수 있어요.']
     ]){
       const benefit=el('li');
       benefit.append(el('strong',title),el('span',description));
       benefits.append(benefit);
     }
-    gate.append(el('h3','전체 리포트와 서화 상담'),benefits,
+    gate.append(el('h3','전체 리포트와 '+reading.name+' 상담'),benefits,
       pay,status,paused,paymentNote,
-      button('일반 서화 상담으로 이어가기','sr-secondary',()=>{close();data.chat();}));
+      button('일반 '+reading.name+' 상담으로 이어가기','sr-secondary',()=>{close();data.chat();}));
     const samples=el('section',null,'sr-samples');
     samples.setAttribute('aria-labelledby','sr-sample-title');
     const label=el('h3','이어지는 장 미리보기');
@@ -173,28 +194,31 @@
     samples.append(label);
     for(const {index,text} of excerpts){
       const sample=el('article',null,'sr-sample');
-      sample.append(el('h4',core.chapters[index]),el('p',text),
+      sample.append(el('h4',reading.chapters[index]),el('p',text),
         el('p','이 장의 첫 문단을 공개했어요.','sr-excerpt-label'));
       samples.append(sample);
     }
     contents.append(paper(first,0),samples,gate);
-    layout.append(toc(first,true),contents);
-    show([header(choice,context.day,context.known),layout]);
+    layout.append(toc(reading,first,true),contents);
+    show([header(reading,choice,context.day,context.known),layout]);
   }
 
-  function openPreview({profile,choice,chat,auth}) {
+  function openPreview({profile,choice,chat,auth,topic='love'}) {
+    const reading=catalog.forTopic(topic);
+    if(!reading)return;
     const birth=resolveBirthDate([profile.y,String(profile.m).padStart(2,'0'),String(profile.d).padStart(2,'0')].join('-'),profile.calType,profile.isLeap);
     if(!birth)return;
     const day=[birth.getFullYear(),String(birth.getMonth()+1).padStart(2,'0'),String(birth.getDate()).padStart(2,'0')].join('-');
     const today=new Date(Date.now()+9*3600000);
     const cutoff=new Date(Date.UTC(today.getUTCFullYear()-14,today.getUTCMonth(),today.getUTCDate()));
     if(day>cutoff.toISOString().slice(0,10))throw Error('만 14세 미만의 출생 정보는 사용할 수 없어요.');
-    const context=core.timeSlots(day,profile.hourValue,window.Solar,window.LunarUtil);
-    const data={profile,choice,chat,auth,context,first:core.first(context,choice),excerpts:core.excerpts(context,choice),host:by('aiChatSetup'),owner:accountStore.snapshot()};
+    const context=reading.timeSlots(day,profile.hourValue,window.Solar,window.LunarUtil);
+    const data={reading,profile,choice,chat,auth,context,first:reading.first(context,choice),excerpts:reading.excerpts(context,choice),host:by('aiChatSetup'),owner:accountStore.snapshot()};
     active=data;
     drawPreview(data);
   }
   async function buy(data,status) {
+    const {reading}=data;
     if(!checkout.requireOpen()) {setStatus(status,'현재는 무료 첫 장을 읽을 수 있어요. 신규 결제는 잠시 중단했어요.');return;}
     const owner=accountStore.snapshot();
     if(!owner.owner){
@@ -213,10 +237,10 @@
       let closedForConsent=false;
       try {
         setStatus(status,'저장된 리포트와 결제 상태를 확인하고 있어요.');
-        const result=await client.request(endpoint,{operation:'prepare',comparison:{profile:data.profile,choice:data.choice},allowResume:true},owner);
+        const result=await request(reading,{operation:'prepare',comparison:{profile:data.profile,choice:data.choice},allowResume:true},owner);
         if(!current()) return false;
         if(result.id && ['paid','generating','ready'].includes(result.state)){
-          await renderPurchased(result,data.host,owner);return false;
+          await renderPurchased(result,data.host,owner,false,reading);return false;
         }
         if(result.state==='paused'){setStatus(status,'신규 결제를 잠시 중단했어요.');return false;}
         dialog.close();
@@ -232,19 +256,21 @@
           return false;
         }
         if(!current())return false;
-        const order=await client.request(endpoint,{operation:'prepare',comparison:{profile:data.profile,choice:data.choice},checkout:true,allowResume:true},owner);
+        const order=await request(reading,{operation:'prepare',comparison:{profile:data.profile,choice:data.choice},checkout:true,allowResume:true},owner);
         if(!current())return false;
-        if(order.id && ['paid','generating','ready'].includes(order.state)){await renderPurchased(order,data.host,owner);return false;}
-        if(order.state==='resume'){client.showResume(status,order,pendingKey);return false;}
+        if(order.id && ['paid','generating','ready'].includes(order.state)){await renderPurchased(order,data.host,owner,false,reading);return false;}
+        if(order.state==='resume'){client.showResume(status,order,pendingKey(reading));return false;}
         if(order.state==='pending'){
-          accountStore.setItem(pendingKey,order.id);
+          accountStore.setItem(pendingKey(reading),order.id);
           close();
           goTo('seohwa-report');
+          history.replaceState(history.state,'',checkoutPath(reading));
           return false;
         }
         if(order.state==='paused'){setStatus(status,'신규 결제를 잠시 중단했어요.');return false;}
-        const returnPath='/?seohwaReport=1&seohwaOrder='+encodeURIComponent(order.orderId)+'#seohwa-report';
-        const opened=client.pay(order,{price:core.PRICE,name:core.NAME,payAppName:'서화 연애 리포트 상담 3회',pendingKey,returnPath,memo:'서화 연애 리포트 및 후속 상담 3회'});
+        const returnPath=checkoutPath(reading,order.orderId);
+        const opened=client.pay(order,{price:reading.PRICE,name:reading.NAME,payAppName:reading.paymentName,
+          pendingKey:pendingKey(reading),returnPath,memo:reading.title+' 및 후속 상담 3회'});
         if(!opened)setStatus(status,'결제창을 열지 못했어요. 결제 상태를 다시 확인해 주세요.');
         return opened;
       }catch(error){
@@ -254,24 +280,60 @@
       }
     });
   }
-  function drawPurchased(result,host,owner) {
-    const {report}=result;
-    const now={id:result.id,host,owner};active=now;
-    const layout=el('div',null,'sr-layout'), contents=el('div',null,'sr-pages');
-    const balance=el('p','서화 상담 '+result.questionsLeft+'회 남음','sr-balance');
-    contents.append(balance);
-    for(const [index,chapter] of [report.first,...report.body].entries()){
-      contents.append(paper(chapter,index,result.questionsLeft>0?()=>followup(result,chapter,index-1,owner):null));
+  function calendarArticle(calendar) {
+    const article=el('section',null,'sr-wealth-calendar');
+    article.append(el('h4',calendar.year+'년 재물 흐름'),el('p','달마다 가장 긴 절기 구간을 기준으로 봤어요. 시기는 수입이나 손실을 보장하는 예측이 아니라, 무엇을 확인하고 준비할지 살펴보는 기준이에요.'));
+    const chart=el('dl',null,'sr-wealth-pillars');
+    for(const [key,label] of [['year','연주'],['month','월주'],['day','일주'],['hour','시주']]){
+      const pair=el('div');
+      pair.append(el('dt',label),el('dd',calendar.pillars?.[key]||'미확인'));
+      chart.append(pair);
     }
-    layout.append(toc(report.first,false),contents);
-    show([header(report.choice,report.day,report.profile.hourValue!=='unknown'),layout],true);
+    article.append(chart);
+    const focuses=el('div',null,'sr-wealth-focuses');
+    for(const item of calendar.focuses){
+      const focus=el('section');
+      focus.append(el('h5',item.title),el('p',item.reason),el('p',item.action),el('p',item.check));
+      focuses.append(focus);
+    }
+    article.append(el('h4','특히 눈여겨볼 시기'),focuses);
+    const months=el('details',null,'sr-evidence');
+    months.open=true;
+    months.append(el('summary','열두 달 장부'));
+    const list=el('dl',null,'sr-wealth-months');
+    for(const row of calendar.rows){
+      const group=el('div'), description=el('dd');
+      description.append(el('strong',row.label),el('p',row.action),el('small',row.ganZhi+' · '+row.term+(row.clash?' · 변화가 잦을 때 조건 재확인':'')));
+      group.append(el('dt',row.month+'월'),description);
+      list.append(group);
+    }
+    months.append(list);
+    article.append(months);
+    return article;
   }
 
-  async function renderPurchased(result,host,owner,autoGenerate=false) {
+  function drawPurchased(result,host,owner,reading) {
+    const {report}=result;
+    displayTitle(reading);
+    const now={id:result.id,host,owner,reading};active=now;
+    const layout=el('div',null,'sr-layout'), contents=el('div',null,'sr-pages');
+    const balance=el('p',reading.name+' 상담 '+result.questionsLeft+'회 남음','sr-balance');
+    contents.append(balance);
+    for(const [index,chapter] of [report.first,...report.body].entries()){
+      const page=paper(chapter,index,result.questionsLeft>0?()=>followup(result,chapter,index-1,owner,reading):null,reading);
+      if(index===2&&report.calendar)page.querySelector('.sr-evidence')?.before(calendarArticle(report.calendar));
+      contents.append(page);
+    }
+    layout.append(toc(reading,report.first,false),contents);
+    show([header(reading,report.choice,report.day,report.known??report.profile.hourValue!=='unknown'),layout],true);
+  }
+
+  async function renderPurchased(result,host,owner,autoGenerate,reading) {
     if(!accountStore.current(owner))return;
     clearGenerationTimers();
-    if(result.state==='ready'){drawPurchased(result,host,owner);return;}
-    const state={id:result.id,host,owner};active=state;
+    if(result.state==='ready'){drawPurchased(result,host,owner,reading);return;}
+    displayTitle(reading);
+    const state={id:result.id,host,owner,reading};active=state;
     const stillCurrent=()=>active===state&&accountStore.current(owner);
     const panel=el('section',null,'sr-generation');
     const content=el('div',null,'sr-generation-copy');
@@ -290,11 +352,14 @@
     bar.setAttribute('aria-label','리포트 작성 진행률');
     meterLine.append(meterLabel,number);
     meter.append(meterLine,bar,eta);
-    const after=el('p','리포트 6장 분량 · 서화와 채팅 상담 3회','sr-generation-next');
+    const after=el('p','리포트 6장 분량 · '+withName(reading)+' 채팅 상담 3회','sr-generation-next');
     const action=button('전체 리포트 만들기','sr-secondary sr-generation-action',generate);
     action.hidden=autoGenerate||result.state==='generating';
     content.append(heading,message,meter,after,action);
     writingVisual.hidden=false;
+    pauseWritingFilm();
+    writingFilm=writingVisual.querySelector('video[data-advisor="'+reading.id+'"]');
+    for(const poster of writingVisual.querySelectorAll('img[data-advisor]'))poster.hidden=poster.dataset.advisor!==reading.id;
     pauseWritingFilm();
     writingVisual.removeAttribute('data-film-paused');
     writingFilmToggle.textContent='영상 멈추기';
@@ -314,7 +379,7 @@
       clearInterval(progressTimer);
       panel.setAttribute('data-writing','');
       if(!writingVisual.hasAttribute('data-film-paused'))writingFilm.hidden=false;
-      heading.textContent='서화가 본편을 쓰고 있어요';
+      heading.textContent=reading.name+(reading===defaultReading?'가':'이')+' 본편을 쓰고 있어요';
       setStatus(message,'고른 고민을 바탕으로 사주 풀이를 엮고 있어요.');
       eta.textContent='예상 소요 시간 약 '+typicalWriteSeconds+'초';
       const initial=Math.min(Date.now(),Number.isFinite(startedAt)?startedAt:Date.now());
@@ -339,7 +404,7 @@
       bar.setAttribute('aria-label','리포트 작성 완료');
       setProgress(100);
       setStatus(message,'잠시 후 본편이 열려요.');
-      setTimeout(()=>{if(stillCurrent())drawPurchased(ready,host,owner);},650);
+      setTimeout(()=>{if(stillCurrent())drawPurchased(ready,host,owner,reading);},650);
     }
     function offerRetry(text) {
       clearGenerationTimers();
@@ -356,7 +421,7 @@
       const poll=async()=>{
         if(!stillCurrent())return;
         try{
-          const latest=await client.request(endpoint,{operation:'open',id:state.id},owner);
+          const latest=await request(reading,{operation:'open',id:state.id},owner);
           if(!stillCurrent())return;
           if(latest.state==='ready'){showReady(latest);return;}
           if(latest.state!=='generating'||Date.now()-initial>155000){
@@ -379,7 +444,7 @@
       let hiddenForConsent=false;
       let loading=false;
       try{
-        const latest=await client.request(endpoint,{operation:'open',id:state.id},owner);
+        const latest=await request(reading,{operation:'open',id:state.id},owner);
         if(!stillCurrent())return;
         if(latest.state==='ready'){showReady(latest);return;}
         if(latest.state==='generating'){watchCompletion(latest.startedAtMs);return;}
@@ -397,7 +462,7 @@
         }
         loading=true;
         startProgress();
-        const generated=await client.request(endpoint,{operation:'generate',id:state.id},owner,150000);
+        const generated=await request(reading,{operation:'generate',id:state.id},owner,150000);
         if(stillCurrent()){
           if(generated.state==='ready')showReady(generated);
           else if(generated.state==='generating')watchCompletion(generated.startedAtMs);
@@ -412,7 +477,7 @@
     }
   }
 
-  async function followup(result,chapter,index,owner) {
+  async function followup(result,chapter,index,owner,reading) {
     if(!accountStore.current(owner))return;
     close();
     goTo('home');
@@ -424,24 +489,24 @@
       by('aiChat'+id).value=value;
     }
     by('aiChatLeap').checked=profile.isLeap;
-    await startAiChat({source:'free-report',consultantId:'seohwa'});
-    if(!accountStore.current(owner)||window.__aiConsultantId!=='seohwa'||by('aiChatPanel').style.display!=='flex')return;
-    window.__seohwaReportSession={owner,id:result.id,chapter:index,conversationId:window.__aiConversationId};
+    await startAiChat({source:'free-report',consultantId:reading.id});
+    if(!accountStore.current(owner)||window.__aiConsultantId!==reading.id||by('aiChatPanel').style.display!=='flex')return;
+    window.__seohwaReportSession={owner,id:result.id,chapter:index,conversationId:window.__aiConversationId,reading};
     window.TaekilSeohwaReport.setBalance(result.questionsLeft);
     prepareAiQuestion('리포트의 “'+chapter.highlight+'” 부분을 제 상황에 맞춰 좀 더 풀어주세요.');
   }
 
-  async function reopen(id,owner,status) {
+  async function reopen(id,owner,status,reading) {
     const visible=()=>accountStore.current(owner)&&by('view-history').classList.contains('visible');
     try{
-      const result=await client.request(endpoint,{operation:'open',id,allowResume:true},owner);
+      const result=await request(reading,{operation:'open',id,allowResume:true},owner);
       if(!visible())return;
-      if(result.state==='resume'){client.showResume(status,result,pendingKey);return;}
+      if(result.state==='resume'){client.showResume(status,result,pendingKey(reading));return;}
       if(result.state==='pending'){setStatus(status,client.pendingMessage(result));return;}
       if(!['paid','ready','generating'].includes(result.state)) throw Error('현재 열 수 있는 리포트가 아니에요. 결제 상태를 확인해 주세요.');
-      if(accountStore.getItem(pendingKey)===id)accountStore.removeItem(pendingKey);
-      setStatus(status,'결제한 서화 리포트를 열었어요.');
-      await renderPurchased(result,by('seohwaLibrary'),owner);
+      if(accountStore.getItem(pendingKey(reading))===id)accountStore.removeItem(pendingKey(reading));
+      setStatus(status,'결제한 리포트를 열었어요.');
+      await renderPurchased(result,by('seohwaLibrary'),owner,false,reading);
     }catch(error){if(accountStore.current(owner))setStatus(status,error.message);}
   }
   async function list() {
@@ -450,18 +515,21 @@
     const version=++loadingLibrary, trigger=by('loadSeohwaReports');
     trigger.disabled=true;
     const current=()=>accountStore.current(owner)&&version===loadingLibrary;
-    setStatus(libraryStatus,'서화 리포트를 불러오고 있어요.');
+    setStatus(libraryStatus,'구매한 리포트를 불러오고 있어요.');
     try{
-      const {reports}=await client.request(endpoint,{operation:'list'},owner);
+      const {reports}=await request(null,{operation:'list'},owner);
       if(!current())return;
       const rows=reports.map(record=>{
         const date=new Intl.DateTimeFormat('ko-KR',{dateStyle:'medium',timeZone:'Asia/Seoul'}).format(record.createdAtMs);
-        return button(date+' · '+core.stories[record.choice].label+' 보기','sr-library-button',()=>reopen(record.id,owner,libraryStatus));
+        const reading=catalog.forId(record.consultantId);
+        return button(reading.name+' · '+reading.stories[record.choice].label+' · '+date,'sr-library-button',()=>reopen(record.id,owner,libraryStatus,reading));
       });
-      const pending=accountStore.getItem(pendingKey);
-      if(pending&&!reports.some(item=>item.id===pending))rows.unshift(button('최근 결제 상태 확인하기','sr-library-button',()=>reopen(pending,owner,libraryStatus)));
+      for(const reading of catalog.all){
+        const pending=accountStore.getItem(pendingKey(reading));
+        if(pending&&!reports.some(item=>item.id===pending&&item.consultantId===reading.id))rows.unshift(button(reading.title+' 결제 상태 확인','sr-library-button',()=>reopen(pending,owner,libraryStatus,reading)));
+      }
       library.replaceChildren(...rows);
-      setStatus(libraryStatus,reports.length?'최근 리포트부터 표시해요.':'저장한 서화 리포트가 아직 없어요.');
+      setStatus(libraryStatus,reports.length?'최근 리포트부터 표시해요.':'저장한 리포트가 아직 없어요.');
     }catch(error){if(current())setStatus(libraryStatus,error.message);}
     finally{if(current())trigger.disabled=false;}
   }
@@ -472,16 +540,20 @@
     if(returnAttempt&&accountStore.current(returnAttempt.owner))return;
     returnAuth.hidden=true;
     returnRetry.hidden=true;
+    const url=new URL(location.href);
+    const reading=readingAtReturn(url);
+    by('seohwaReturnName').textContent=reading.title;
+    returnLink.href='#topic-'+reading.topic;
+    returnLink.textContent=reading.name+' 이야기로 돌아가기';
     if(!owner.owner){
       if(firebaseReady&&!firebaseAuthReady)return;
       setStatus(returnStatus,'결제하신 계정으로 로그인하면 리포트 준비를 이어갈 수 있어요.');
       returnAuth.hidden=false;
       return;
     }
-    const url=new URL(location.href);
-    const orderId=url.searchParams.get('seohwaOrder');
-    const pending=accountStore.getItem(pendingKey);
-    const request=orderId?{operation:'checkout-status',orderId}:{operation:'open',id:pending,allowResume:true};
+    const orderId=url.searchParams.get(reading===defaultReading?'seohwaOrder':'reportOrder');
+    const pending=accountStore.getItem(pendingKey(reading));
+    const payload=orderId?{operation:'checkout-status',orderId}:{operation:'open',id:pending,allowResume:true};
     if(!orderId&&!pending){
       setStatus(returnStatus,'이 결제 주소에서 주문을 찾지 못했어요. 이미 구매한 리포트는 내 기록에서 열 수 있어요.');
       return;
@@ -493,13 +565,13 @@
     setStatus(returnStatus,'페이앱의 결제 결과를 확인하고 있어요. 확인되면 이 화면에서 리포트가 시작돼요.');
     try{
       while(current()){
-        const result=await client.request(endpoint,request,owner);
+        const result=await request(reading,payload,owner);
         if(!current())return;
         if(['paid','generating','ready'].includes(result.state)){
-          if(orderId&&accountStore.getItem(pendingKey)===result.id)accountStore.removeItem(pendingKey);
+          if(orderId&&accountStore.getItem(pendingKey(reading))===result.id)accountStore.removeItem(pendingKey(reading));
           setStatus(returnStatus,result.state==='ready'?'완성된 리포트를 다시 열 수 있어요.':'결제가 확인됐어요. 리포트 준비를 이어갈 수 있어요.');
           returnRetry.textContent='리포트 다시 열기';
-          await renderPurchased(result,returnHost,owner,true);
+          await renderPurchased(result,returnHost,owner,true,reading);
           return;
         }
         if(['cancelled','refunded','partially_refunded','superseded'].includes(result.state)){
@@ -526,7 +598,7 @@
   }
   // Older PayApp receipts pointed to the archive. Normalize before the router starts.
   const returnUrl=new URL(location.href);
-  if(returnUrl.searchParams.get('seohwaReport')==='1'&&(!returnUrl.hash||returnUrl.hash==='#history')){
+  if((returnUrl.searchParams.get('seohwaReport')==='1'||catalog.forId(returnUrl.searchParams.get('featuredReport')))&&(!returnUrl.hash||returnUrl.hash==='#history')){
     returnUrl.hash='seohwa-report';
     history.replaceState(history.state,'',returnUrl);
   }
@@ -536,9 +608,9 @@
     void checkCheckoutReturn();
   });
   returnAuth.addEventListener('click',()=>openAuthModal());
-  returnHost.querySelector('a[href="#topic-love"]').addEventListener('click',event=>{
+  returnLink.addEventListener('click',event=>{
     event.preventDefault();
-    goTo('topic-love');
+    goTo(returnLink.hash.slice(1));
   });
   window.addEventListener('DOMContentLoaded',()=>{
     void checkCheckoutReturn();
@@ -550,9 +622,11 @@
       returnAttempt=null;
       if(active?.host===returnHost)close();
       const url=new URL(location.href);
-      if(url.hash!=='#seohwa-report'&&url.searchParams.get('seohwaReport')==='1'){
+      if(url.hash!=='#seohwa-report'&&(url.searchParams.get('seohwaReport')==='1'||url.searchParams.has('featuredReport'))){
         url.searchParams.delete('seohwaReport');
         url.searchParams.delete('seohwaOrder');
+        url.searchParams.delete('featuredReport');
+        url.searchParams.delete('reportOrder');
         history.replaceState(history.state,'',url);
       }
     }
@@ -565,34 +639,42 @@
     if(active&&!accountStore.current(active.owner))close();
     window.__seohwaReportSession=null;
     loadingLibrary++; library.replaceChildren(); by('loadSeohwaReports').disabled=false;
-    libraryStatus.textContent='구매한 서화 리포트를 여기서 다시 읽을 수 있어요.';
+    libraryStatus.textContent='구매한 리포트를 여기서 다시 읽을 수 있어요.';
     void checkCheckoutReturn();
   });
 
   function session() {
     const locked=window.__seohwaReportSession;
-    return locked && locked.conversationId===window.__aiConversationId && window.__aiConsultantId==='seohwa' &&
+    return locked && locked.conversationId===window.__aiConversationId && window.__aiConsultantId===locked.reading.id &&
       accountStore.current(locked.owner) ? locked : null;
   }
-  function setBalance(count) {by('aiChatStatus').textContent='서화 리포트 상담 '+count+'회 남음';}
+  function setBalance(count) {
+    const linked=session();
+    if(linked)by('aiChatStatus').textContent=linked.reading.name+' 리포트 상담 '+count+'회 남음';
+  }
   function recordScope() {
     const linked=session();
-    return linked?{seohwaReportId:linked.id,seohwaChapter:linked.chapter}:{};
+    if(!linked)return {};
+    return linked.reading===defaultReading?{seohwaReportId:linked.id,seohwaChapter:linked.chapter}:
+      {featuredReportId:linked.id,featuredReportChapter:linked.chapter};
   }
   function restoreScope(record,owner) {
-    window.__seohwaReportSession=record.consultantId==='seohwa'&&/^[a-f0-9]{64}$/.test(record.seohwaReportId)
-      ? {owner,id:record.seohwaReportId,chapter:record.seohwaChapter,conversationId:record.id}:null;
+    const reading=catalog.forId(record.consultantId);
+    const legacy=reading===defaultReading;
+    const id=legacy?record.seohwaReportId:record.featuredReportId;
+    window.__seohwaReportSession=reading&&/^[a-f0-9]{64}$/.test(id)
+      ? {owner,reading,id,chapter:legacy?record.seohwaChapter:record.featuredReportChapter,conversationId:record.id}:null;
   }
   async function showRestoredBalance() {
     const linked=session();
     if(!linked)return;
     const status=by('aiChatStatus');
-    status.textContent='서화 리포트 상담 · 남은 횟수 확인 중';
+    status.textContent=linked.reading.name+' 리포트 상담 · 남은 횟수 확인 중';
     try{
-      const data=await client.request(endpoint,{operation:'open',id:linked.id},linked.owner);
+      const data=await request(linked.reading,{operation:'open',id:linked.id},linked.owner);
       if(session()===linked&&Number.isInteger(data.questionsLeft)&&status.textContent.endsWith('확인 중'))setBalance(data.questionsLeft);
     }catch{
-      if(session()===linked&&status.textContent.endsWith('확인 중'))status.textContent='서화 리포트 상담 · 내 기록에서 이용 상태 확인';
+      if(session()===linked&&status.textContent.endsWith('확인 중'))status.textContent=linked.reading.name+' 리포트 상담 · 내 기록에서 이용 상태 확인';
     }
   }
   function shouldResume() {

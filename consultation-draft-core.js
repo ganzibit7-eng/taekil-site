@@ -33,6 +33,8 @@
         leap:data.leap === true,question:String(data.question || '').slice(0,200),birthText:birth(data.birthText).text,
         topic:normalizeTopic(data.topic),previousQuestion:String(data.previousQuestion || '').slice(0,200),
         ...(data.topic==='love' && [0,1,2].includes(data.seohwaChoice)?{seohwaChoice:data.seohwaChoice}:{}),
+        ...(typeof data.reportMode==='boolean'?{reportMode:data.reportMode}:{}),
+        ...([0,1,2].includes(data.reportChoice)?{reportChoice:data.reportChoice}:{}),
         selections: Object.fromEntries(['SavedProfile','CompareProfile','CompareProfile2'].map(key => [key, data.owner ? String(data.selections?.[key] || '').slice(0,100) : '']))};
     } catch (_) { return null; }
   }

@@ -94,3 +94,7 @@
 @media(max-width:600px) {
   #view-newyear .newyear-example { margin: 16px 0 26px; padding: 20px 0; }
 }
+.newyear-focus-list {display:grid;gap:10px;margin:12px 0;padding-inline-start:22px}
+.newyear-focus-list li {padding:8px 0;border-bottom:1px solid #9c80674d;word-break:keep-all}
+.newyear-focus-list li p {margin:4px 0}
+.newyear-focus-list li small {color:var(--gold-hi,#dcbb8f)}

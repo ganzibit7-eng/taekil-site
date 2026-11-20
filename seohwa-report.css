@@ -122,6 +122,7 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 .sr-generation-visual :is(img,video) {position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:67% 50%}
 .sr-generation-visual video {opacity:0}
 .sr-generation-visual video.yeonwoo-playing {opacity:1}
+.sr-generation-visual :is(img,video)[hidden] {display:none}
 .sr-generation-visual::after {content:"";position:absolute;inset:0;background:linear-gradient(90deg,#261d25a8,transparent 26%);pointer-events:none}
 .sr-generation-film-toggle {
   display:none;
@@ -177,6 +178,21 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 .sr-primary:disabled {opacity:.58;cursor:wait}
 .sr-secondary {border-radius:7px;color:#e8cdbd;padding-inline:1px;font-size:14px;text-decoration:underline;text-underline-offset:4px}
 .sr-balance {color:#f4d3a4;margin:0}
+.sr-wealth-calendar {margin-top:24px;border-top:1px solid #cfb8ae}
+.sr-wealth-pillars {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:10px 0 16px}
+.sr-wealth-pillars div {padding:8px 3px;border:1px solid #d8c1b2;border-radius:7px;background:#f3e7d7;text-align:center}
+.sr-wealth-pillars dt {color:#785a4c;font-size:12px}
+.sr-wealth-pillars dd {margin:2px 0 0;color:#764333;font-weight:700;font-size:14px}
+.sr-wealth-focuses {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));gap:10px}
+.sr-wealth-focuses section {padding:13px 15px;background:#f3e7d7;border-radius:8px}
+.sr-wealth-focuses h5 {margin:0;color:#764333;font-size:15px}
+.sr-wealth-focuses p {margin:8px 0 0;font-size:14px}
+.sr-wealth-months {margin:8px 0 0}
+.sr-wealth-months>div {display:grid;grid-template-columns:3rem minmax(0,1fr);gap:12px;padding:10px 0;border-top:1px solid #d9c2b3}
+.sr-wealth-months dt {font-weight:750;color:#764333}
+.sr-wealth-months dd {margin:0}
+.sr-wealth-months dd p {margin:3px 0}
+.sr-wealth-months small {color:#785a4c}
 #seohwaReportList {display:grid;gap:5px;margin-top:10px}
 .sr-library-button {text-align:left;border:1px solid #79616e;border-radius:7px;color:#efd4ad}
 @media(max-width:650px) {
