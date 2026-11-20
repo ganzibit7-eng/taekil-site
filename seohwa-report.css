@@ -123,6 +123,23 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 .sr-generation-visual video {opacity:0}
 .sr-generation-visual video.yeonwoo-playing {opacity:1}
 .sr-generation-visual::after {content:"";position:absolute;inset:0;background:linear-gradient(90deg,#261d25a8,transparent 26%);pointer-events:none}
+.sr-generation-film-toggle {
+  display:none;
+  position:absolute;
+  z-index:1;
+  inset-inline-end:10px;
+  inset-block-end:9px;
+  min-height:44px;
+  padding:5px 10px;
+  border:1px solid #f4d4b770;
+  border-radius:6px;
+  background:#271c25e6;
+  color:#fff0de;
+  font:500 13px/1.35 var(--sans,sans-serif);
+  cursor:pointer;
+}
+.sr-generation[data-writing] .sr-generation-visual:is(:has(video.yeonwoo-playing),[data-film-paused],:focus-within) .sr-generation-film-toggle {display:block}
+.sr-generation-film-toggle:focus-visible {outline:2px solid #ffdfac;outline-offset:2px}
 .sr-generation-copy {grid-area:copy;align-self:center;min-width:0;padding:clamp(24px,4vw,44px);word-break:keep-all}
 .sr-generation h2 {margin:0;color:#fff1e1;font:700 clamp(25px,3.9vw,38px)/1.27 var(--serif,"Batang",serif);letter-spacing:-.045em;text-wrap:balance}
 .sr-generation .sr-status {margin:10px 0 0;color:#e6d3ca;font-size:15px;line-height:1.55}

@@ -8,6 +8,7 @@
   const dialog=by('seohwaReportDialog'), body=by('seohwaReportBody');
   const writingVisual=by('seohwaWritingVisual');
   const writingFilm=writingVisual.querySelector('video');
+  const writingFilmToggle=by('seohwaWritingFilmToggle');
   const progress=by('seohwaReportProgress');
   const library=by('seohwaReportList'), libraryStatus=by('seohwaLibraryStatus');
   const returnView=by('view-seohwa-report'), returnHost=by('seohwaReturnHost');
@@ -34,8 +35,20 @@
     clearInterval(progressTimer);
     clearTimeout(statusTimer);
   }
+  function pauseWritingFilm() {
+    writingFilm.hidden=true;
+    writingFilm.pause();
+  }
+  writingFilmToggle.addEventListener('click',()=>{
+    const paused=!writingVisual.hasAttribute('data-film-paused');
+    writingVisual.toggleAttribute('data-film-paused',paused);
+    if(paused)pauseWritingFilm();
+    else writingFilm.hidden=false;
+    writingFilmToggle.textContent=paused?'영상 재생':'영상 멈추기';
+  });
   function close() {
     clearGenerationTimers();
+    pauseWritingFilm();
     if(dialog.open)dialog.close();
     active=null;
     body.replaceChildren();
@@ -268,21 +281,24 @@
     const meter=el('div',null,'sr-generation-meter');
     meter.hidden=true;
     const meterLine=el('div',null,'sr-generation-meter-label');
-    const meterLabel=el('span','예상 진행률');
+    const meterLabel=el('span','진행률');
     const eta=el('p','예상 소요 시간 약 '+typicalWriteSeconds+'초','sr-generation-eta');
     const number=el('strong','0%');
     number.setAttribute('aria-hidden','true');
     const bar=el('progress');
     bar.max=100;bar.value=0;
-    bar.setAttribute('aria-label','리포트의 예상 작성 진행률');
+    bar.setAttribute('aria-label','리포트 작성 진행률');
     meterLine.append(meterLabel,number);
     meter.append(meterLine,bar,eta);
-    const after=el('p','리포트 6장 · 서화와 채팅 상담 3회','sr-generation-next');
+    const after=el('p','리포트 6장 분량 · 서화와 채팅 상담 3회','sr-generation-next');
     const action=button('전체 리포트 만들기','sr-secondary sr-generation-action',generate);
     action.hidden=autoGenerate||result.state==='generating';
     content.append(heading,message,meter,after,action);
     writingVisual.hidden=false;
-    if(writingFilm.ended)writingFilm.currentTime=0;
+    pauseWritingFilm();
+    writingVisual.removeAttribute('data-film-paused');
+    writingFilmToggle.textContent='영상 멈추기';
+    if(writingFilm.currentTime>0)writingFilm.currentTime=0;
     panel.append(writingVisual,content);
     show([panel]);
     if(autoGenerate&&result.state==='paid')void generate();
@@ -296,6 +312,8 @@
     }
     function startProgress(startedAt=Date.now()) {
       clearInterval(progressTimer);
+      panel.setAttribute('data-writing','');
+      if(!writingVisual.hasAttribute('data-film-paused'))writingFilm.hidden=false;
       heading.textContent='서화가 본편을 쓰고 있어요';
       setStatus(message,'고른 고민을 바탕으로 사주 풀이를 엮고 있어요.');
       eta.textContent='예상 소요 시간 약 '+typicalWriteSeconds+'초';
@@ -312,6 +330,8 @@
     }
     function showReady(ready) {
       clearGenerationTimers();
+      panel.removeAttribute('data-writing');
+      pauseWritingFilm();
       heading.textContent='리포트가 완성됐어요';
       action.hidden=true;
       meterLabel.textContent='리포트 작성 완료';
@@ -323,6 +343,8 @@
     }
     function offerRetry(text) {
       clearGenerationTimers();
+      panel.removeAttribute('data-writing');
+      pauseWritingFilm();
       meter.hidden=true;
       heading.textContent='리포트를 이어서 준비할 수 있어요';
       setStatus(message,text);
