@@ -286,6 +286,18 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="consultation-additional-stories.js?v=20261118-questions"></script>
 <!-- story-reading-templates -->
 <script src="consultation-stories.js?v=seohwa-report-2"></script>
+<dialog id="seohwaReportDialog" class="seohwa-report-dialog" aria-label="서화의 연애 리포트">
+  <div class="sr-toolbar">
+    <span>서화의 연애 리포트</span>
+    <button type="button" id="closeSeohwaReport">닫기</button>
+    <progress id="seohwaReportProgress" aria-label="읽은 분량" value="0" max="1"></progress>
+  </div>
+  <div id="seohwaReportBody"></div>
+  <div id="seohwaWritingVisual" class="sr-generation-visual" aria-hidden="true" hidden>
+    <img src="/assets/consultant-seohwa-chapter-film.webp" alt="" width="960" height="540" loading="lazy" decoding="async">
+    <video data-story-preview-video data-story-choice-video data-video-src="/assets/consultant-seohwa-chapter-film.mp4" muted playsinline preload="none"></video>
+  </div>
+</dialog>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261118-continuous-arrival"></script><script src="premium-motion.js" defer></script>
 <script src="consultation-draft-core.js?v=seohwa-report-1"></script>
 <script src="consultation-stage.js?v=seohwa-checkout-3"></script>
@@ -320,16 +332,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="date-entry.js?v=nov20-resume"></script>
 <link rel="stylesheet" href="relationship-report.css?v=surfaces-1120">
 <script src="relationship-report.js?v=nov20-resume"></script>
-<dialog id="seohwaReportDialog" class="seohwa-report-dialog" aria-label="서화의 연애 리포트">
-  <div class="sr-toolbar">
-    <span>서화의 연애 리포트</span>
-    <button type="button" id="closeSeohwaReport">닫기</button>
-    <progress id="seohwaReportProgress" aria-label="읽은 분량" value="0" max="1"></progress>
-  </div>
-  <div id="seohwaReportBody"></div>
-</dialog>
-<link rel="stylesheet" href="seohwa-report.css?v=5">
+<link rel="stylesheet" href="seohwa-report.css?v=6">
 <script src="seohwa-reading-core.js?v=2"></script>
-<script src="seohwa-report.js?v=6"></script>
+<script src="seohwa-report.js?v=7"></script>
 </body>
 </html>

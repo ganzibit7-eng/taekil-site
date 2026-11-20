@@ -6,6 +6,8 @@
   const restoreKey='taekilso_resume_seohwa_report_v1';
   const by=id=>document.getElementById(id);
   const dialog=by('seohwaReportDialog'), body=by('seohwaReportBody');
+  const writingVisual=by('seohwaWritingVisual');
+  const writingFilm=writingVisual.querySelector('video');
   const progress=by('seohwaReportProgress');
   const library=by('seohwaReportList'), libraryStatus=by('seohwaLibraryStatus');
   const returnView=by('view-seohwa-report'), returnHost=by('seohwaReturnHost');
@@ -258,9 +260,11 @@
     if(result.state==='ready'){drawPurchased(result,host,owner);return;}
     const state={id:result.id,host,owner};active=state;
     const stillCurrent=()=>active===state&&accountStore.current(owner);
-    const message=el('p',result.state==='generating'?'서화가 리포트 본편을 쓰고 있어요.':'결제를 확인했어요. 서화가 사주와 고른 고민을 이어서 풀이해요.','sr-status');
+    const panel=el('section',null,'sr-generation');
+    const content=el('div',null,'sr-generation-copy');
+    const heading=el('h2','리포트를 준비하고 있어요');
+    const message=el('p','결제를 확인했어요.','sr-status');
     message.setAttribute('role','status');
-    const panel=el('section',null,'sr-gate sr-generation');
     const meter=el('div',null,'sr-generation-meter');
     meter.hidden=true;
     const meterLine=el('div',null,'sr-generation-meter-label');
@@ -273,17 +277,13 @@
     bar.setAttribute('aria-label','리포트의 예상 작성 진행률');
     meterLine.append(meterLabel,number);
     meter.append(meterLine,bar,eta);
-    const after=el('ul',null,'sr-benefits sr-generation-next');
-    for(const [title,description] of [
-      ['리포트 6장 읽기','완성되면 이 화면에서 읽을 수 있고 내 기록에도 저장돼요.'],
-      ['서화에게 이어 묻기','읽다가 궁금한 대목에서 채팅을 열어 3회까지 질문할 수 있어요.']
-    ]){
-      const item=el('li');
-      item.append(el('strong',title),el('span',description));
-      after.append(item);
-    }
-    const action=button(result.state==='generating'?'완성 여부 확인하기':'전체 리포트 만들기','sr-primary',generate);
-    panel.append(el('p','서화의 연애 리포트','sr-kicker'),el('h2','전체 리포트 준비'),message,meter,after,action);
+    const after=el('p','리포트 6장 · 서화와 채팅 상담 3회','sr-generation-next');
+    const action=button('전체 리포트 만들기','sr-secondary sr-generation-action',generate);
+    action.hidden=autoGenerate||result.state==='generating';
+    content.append(heading,message,meter,after,action);
+    writingVisual.hidden=false;
+    if(writingFilm.ended)writingFilm.currentTime=0;
+    panel.append(writingVisual,content);
     show([panel]);
     if(autoGenerate&&result.state==='paid')void generate();
     if(result.state==='generating')watchCompletion(result.startedAtMs);
@@ -296,6 +296,9 @@
     }
     function startProgress(startedAt=Date.now()) {
       clearInterval(progressTimer);
+      heading.textContent='서화가 본편을 쓰고 있어요';
+      setStatus(message,'고른 고민을 바탕으로 사주 풀이를 엮고 있어요.');
+      eta.textContent='예상 소요 시간 약 '+typicalWriteSeconds+'초';
       const initial=Math.min(Date.now(),Number.isFinite(startedAt)?startedAt:Date.now());
       const update=()=>{
         if(!stillCurrent()){clearInterval(progressTimer);return;}
@@ -309,12 +312,22 @@
     }
     function showReady(ready) {
       clearGenerationTimers();
+      heading.textContent='리포트가 완성됐어요';
+      action.hidden=true;
       meterLabel.textContent='리포트 작성 완료';
       eta.hidden=true;
       bar.setAttribute('aria-label','리포트 작성 완료');
       setProgress(100);
-      setStatus(message,'전체 리포트가 완성됐어요.');
+      setStatus(message,'잠시 후 본편이 열려요.');
       setTimeout(()=>{if(stillCurrent())drawPurchased(ready,host,owner);},650);
+    }
+    function offerRetry(text) {
+      clearGenerationTimers();
+      meter.hidden=true;
+      heading.textContent='리포트를 이어서 준비할 수 있어요';
+      setStatus(message,text);
+      action.textContent='작성 상태 다시 확인';
+      action.hidden=false;
     }
     function watchCompletion(startedAt) {
       const initial=startProgress(startedAt);
@@ -325,19 +338,13 @@
           if(!stillCurrent())return;
           if(latest.state==='ready'){showReady(latest);return;}
           if(latest.state!=='generating'||Date.now()-initial>155000){
-            clearGenerationTimers();
-            meter.hidden=true;
-            setStatus(message,latest.state==='paid'?'본편 작성이 아직 끝나지 않았어요. 생성 상태를 다시 확인해 주세요.':'내 기록에서 리포트 상태를 다시 확인해 주세요.');
+            offerRetry(latest.state==='paid'?'본편 작성이 아직 끝나지 않았어요. 작성 상태를 다시 확인해 주세요.':'내 기록에서 리포트 상태를 다시 확인해 주세요.');
             return;
           }
         }catch{}
         if(!stillCurrent())return;
         if(Date.now()-initial<=155000)statusTimer=setTimeout(poll,5500);
-        else{
-          clearGenerationTimers();
-          meter.hidden=true;
-          setStatus(message,'작성 상태를 바로 확인하지 못했어요. 잠시 뒤 다시 확인해 주세요.');
-        }
+        else offerRetry('작성 상태를 바로 확인하지 못했어요. 잠시 뒤 다시 확인해 주세요.');
       };
       statusTimer=setTimeout(poll,5500);
     }
@@ -346,13 +353,14 @@
       if(action.disabled||!stillCurrent())return;
       clearTimeout(statusTimer);
       action.disabled=true;
+      action.hidden=true;
       let hiddenForConsent=false;
       let loading=false;
       try{
         const latest=await client.request(endpoint,{operation:'open',id:state.id},owner);
         if(!stillCurrent())return;
         if(latest.state==='ready'){showReady(latest);return;}
-        if(latest.state==='generating'){setStatus(message,'서화가 리포트 본편을 쓰고 있어요.');watchCompletion(latest.startedAtMs);return;}
+        if(latest.state==='generating'){watchCompletion(latest.startedAtMs);return;}
         if(latest.state!=='paid')throw Error('현재 열람할 수 없는 리포트예요. 내 기록에서 결제 상태를 확인해 주세요.');
         dialog.close();
         hiddenForConsent=true;
@@ -360,24 +368,25 @@
         if(!stillCurrent()||!host.closest('.view')?.classList.contains('visible')){if(active===state)active=null;return;}
         dialog.showModal();
         hiddenForConsent=false;
-        if(!agreed){setStatus(message,'AI 이용에 동의하면 전체 리포트를 만들 수 있어요. 결제한 리포트는 내 기록에서 다시 열 수 있어요.');return;}
+        if(!agreed){
+          offerRetry('AI 이용에 동의하면 전체 리포트를 만들 수 있어요. 결제한 리포트는 내 기록에서 다시 열 수 있어요.');
+          action.textContent='동의하고 작성 시작하기';
+          return;
+        }
         loading=true;
-        setStatus(message,'서화가 본편을 작성하고 있어요. 완성되면 내 기록에 저장돼요.');
-        action.textContent='리포트 생성 중';
         startProgress();
         const generated=await client.request(endpoint,{operation:'generate',id:state.id},owner,150000);
         if(stillCurrent()){
           if(generated.state==='ready')showReady(generated);
           else if(generated.state==='generating')watchCompletion(generated.startedAtMs);
+          else offerRetry('작성 상태를 다시 확인해 주세요.');
         }
       }catch(error){
         if(stillCurrent()){
-          clearGenerationTimers();
-          meter.hidden=true;
           if(hiddenForConsent&&host.closest('.view')?.classList.contains('visible'))dialog.showModal();
-          setStatus(message,loading&&['TimeoutError','AbortError'].includes(error.name)?'작성 상태를 바로 확인하지 못했어요. 내 기록에서 다시 열어 주세요.':error.message);
+          offerRetry(loading&&['TimeoutError','AbortError'].includes(error.name)?'작성 상태를 바로 확인하지 못했어요. 잠시 뒤 이 화면이나 내 기록에서 다시 확인해 주세요.':error.message);
         }
-      }finally{action.disabled=false;action.textContent='리포트 상태 확인하기';}
+      }finally{action.disabled=false;}
     }
   }
 
