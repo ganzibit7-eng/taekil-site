@@ -178,15 +178,13 @@
     const benefits=el('ul',null,'sr-benefits');
     for(const [title,description] of [
       ['리포트 6장 분량','무료 첫 장을 포함한 전체 리포트를 내 기록에서 다시 읽을 수 있어요.'],
-      [withName(reading)+' 채팅 상담 3회','마음에 남은 대목에서 바로 이어서 물어볼 수 있어요.']
+      [withName(reading)+' 채팅 상담 3회','리포트 구매 후, 마음에 남은 대목에서 바로 이어서 물어볼 수 있어요.']
     ]){
       const benefit=el('li');
       benefit.append(el('strong',title),el('span',description));
       benefits.append(benefit);
     }
-    gate.append(el('h3','전체 리포트와 '+reading.name+' 상담'),benefits,
-      pay,status,paused,paymentNote,
-      button('일반 '+reading.name+' 상담으로 이어가기','sr-secondary',()=>{close();data.chat();}));
+    gate.append(el('h3','전체 리포트와 '+reading.name+' 상담'),benefits,pay,status,paused,paymentNote);
     const samples=el('section',null,'sr-samples');
     samples.setAttribute('aria-labelledby','sr-sample-title');
     const label=el('h3','이어지는 장 미리보기');
@@ -203,7 +201,7 @@
     show([header(reading,choice,context.day,context.known),layout]);
   }
 
-  function openPreview({profile,choice,chat,auth,topic='love'}) {
+  function openPreview({profile,choice,auth,topic='love'}) {
     const reading=catalog.forTopic(topic);
     if(!reading)return;
     const birth=resolveBirthDate([profile.y,String(profile.m).padStart(2,'0'),String(profile.d).padStart(2,'0')].join('-'),profile.calType,profile.isLeap);
@@ -213,7 +211,7 @@
     const cutoff=new Date(Date.UTC(today.getUTCFullYear()-14,today.getUTCMonth(),today.getUTCDate()));
     if(day>cutoff.toISOString().slice(0,10))throw Error('만 14세 미만의 출생 정보는 사용할 수 없어요.');
     const context=reading.timeSlots(day,profile.hourValue,window.Solar,window.LunarUtil);
-    const data={reading,profile,choice,chat,auth,context,first:reading.first(context,choice),excerpts:reading.excerpts(context,choice),host:by('aiChatSetup'),owner:accountStore.snapshot()};
+    const data={reading,profile,choice,auth,context,first:reading.first(context,choice),excerpts:reading.excerpts(context,choice),host:by('aiChatSetup'),owner:accountStore.snapshot()};
     active=data;
     drawPreview(data);
   }
@@ -280,9 +278,28 @@
       }
     });
   }
+  const wealthTimingLabels={income:'수입을 넓혀보기 좋은 구간',margin:'번 돈을 남기기 좋은 구간',risk:'내 몫이 줄기 쉬운 구간'};
+  function wealthJudgment(judgment) {
+    const article=el('section',null,'sr-wealth-judgment');
+    article.append(el('h4','도겸이 먼저 짚은 재물 흐름'),el('p',judgment.route.title,'sr-wealth-route'),el('p',judgment.route.description));
+    const routeBasis=el('details',null,'sr-evidence');
+    routeBasis.append(el('summary','재물 흐름을 읽은 근거'),el('p',judgment.route.basis));
+    article.append(routeBasis);
+    for(const item of judgment.timing){
+      const card=el('section',null,'sr-wealth-timing');
+      const basis=el('details',null,'sr-evidence');
+      basis.append(el('summary','이 시기를 고른 근거'),el('p',item.ganZhi+' 월운 · '+item.basis),
+        el('p',item.from+'부터 '+item.untilExclusive+' 직전까지'));
+      card.append(el('h5',wealthTimingLabels[item.kind]),el('p',item.title,'sr-wealth-window'),el('p',item.talk),el('p',item.action),basis);
+      article.append(card);
+    }
+    article.append(el('p','시기는 명식과 2027년 절기를 대조한 전통 명리 해석이에요.','sr-wealth-caption'));
+    return article;
+  }
+
   function calendarArticle(calendar) {
     const article=el('section',null,'sr-wealth-calendar');
-    article.append(el('h4',calendar.year+'년 재물 흐름'),el('p','달마다 가장 긴 절기 구간을 기준으로 봤어요. 시기는 수입이나 손실을 보장하는 예측이 아니라, 무엇을 확인하고 준비할지 살펴보는 기준이에요.'));
+    article.append(el('h4',calendar.year+'년 재물 달력'),el('p','달마다 가장 긴 절기 구간을 기준으로, 돈을 벌고 지키는 데 살펴볼 점을 정리했어요.'));
     const chart=el('dl',null,'sr-wealth-pillars');
     for(const [key,label] of [['year','연주'],['month','월주'],['day','일주'],['hour','시주']]){
       const pair=el('div');
@@ -290,13 +307,15 @@
       chart.append(pair);
     }
     article.append(chart);
-    const focuses=el('div',null,'sr-wealth-focuses');
-    for(const item of calendar.focuses){
-      const focus=el('section');
-      focus.append(el('h5',item.title),el('p',item.reason),el('p',item.action),el('p',item.check));
-      focuses.append(focus);
+    if(!calendar.judgment){
+      const focuses=el('div',null,'sr-wealth-focuses');
+      for(const item of calendar.focuses){
+        const focus=el('section');
+        focus.append(el('h5',item.title),el('p',item.reason),el('p',item.action),el('p',item.check));
+        focuses.append(focus);
+      }
+      article.append(el('h4','특히 눈여겨볼 시기'),focuses);
     }
-    article.append(el('h4','특히 눈여겨볼 시기'),focuses);
     const months=el('details',null,'sr-evidence');
     months.open=true;
     months.append(el('summary','열두 달 장부'));
@@ -321,6 +340,7 @@
     contents.append(balance);
     for(const [index,chapter] of [report.first,...report.body].entries()){
       const page=paper(chapter,index,result.questionsLeft>0?()=>followup(result,chapter,index-1,owner,reading):null,reading);
+      if(index===0&&report.calendar?.judgment)page.querySelector('.sr-highlight').after(wealthJudgment(report.calendar.judgment));
       if(index===2&&report.calendar)page.querySelector('.sr-evidence')?.before(calendarArticle(report.calendar));
       contents.append(page);
     }
@@ -489,7 +509,7 @@
       by('aiChat'+id).value=value;
     }
     by('aiChatLeap').checked=profile.isLeap;
-    await startAiChat({source:'free-report',consultantId:reading.id});
+    await startAiChat({source:'free-report',paidReport:true,consultantId:reading.id});
     if(!accountStore.current(owner)||window.__aiConsultantId!==reading.id||by('aiChatPanel').style.display!=='flex')return;
     window.__seohwaReportSession={owner,id:result.id,chapter:index,conversationId:window.__aiConversationId,reading};
     window.TaekilSeohwaReport.setBalance(result.questionsLeft);
@@ -652,6 +672,15 @@
     const linked=session();
     if(linked)by('aiChatStatus').textContent=linked.reading.name+' 리포트 상담 '+count+'회 남음';
   }
+  function showChatAccess(reading,message){
+    if(!reading||by('aiChatWindow').querySelector('[data-report-chat-access]'))return;
+    const note=appendAiChatMessage('system-note',message||reading.name+'에게는 해당 리포트에 포함된 채팅 상담 3회를 사용할 수 있어요.');
+    note.dataset.reportChatAccess='';
+    const links=el('div',null,'sr-chat-access');
+    links.append(button('리포트 첫 장 보기','sr-secondary',()=>goTo('topic-'+reading.topic)),
+      button('구매한 리포트 보기','sr-secondary',()=>goTo('history')));
+    note.append(links);
+  }
   function recordScope() {
     const linked=session();
     if(!linked)return {};
@@ -667,14 +696,17 @@
   }
   async function showRestoredBalance() {
     const linked=session();
-    if(!linked)return;
+    if(!linked){showChatAccess(catalog.forId(window.__aiConsultantId));return;}
     const status=by('aiChatStatus');
     status.textContent=linked.reading.name+' 리포트 상담 · 남은 횟수 확인 중';
     try{
       const data=await request(linked.reading,{operation:'open',id:linked.id},linked.owner);
       if(session()===linked&&Number.isInteger(data.questionsLeft)&&status.textContent.endsWith('확인 중'))setBalance(data.questionsLeft);
     }catch{
-      if(session()===linked&&status.textContent.endsWith('확인 중'))status.textContent=linked.reading.name+' 리포트 상담 · 내 기록에서 이용 상태 확인';
+      if(session()===linked&&status.textContent.endsWith('확인 중')){
+        status.textContent=linked.reading.name+' 리포트 상담 · 내 기록에서 이용 상태 확인';
+        showChatAccess(linked.reading,'내 기록에서 구매한 리포트의 이용 상태를 확인해 주세요.');
+      }
     }
   }
   function shouldResume() {
@@ -695,5 +727,5 @@
     pay.focus({preventScroll:true});
     pay.scrollIntoView({block:'center',behavior:'instant'});
   }
-  window.TaekilSeohwaReport={openPreview,session,setBalance,recordScope,restoreScope,showRestoredBalance,shouldResume,focusCheckoutAfterLogin};
+  window.TaekilSeohwaReport={openPreview,session,setBalance,recordScope,restoreScope,showChatAccess,showRestoredBalance,shouldResume,focusCheckoutAfterLogin};
 })();

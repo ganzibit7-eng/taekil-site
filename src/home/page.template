@@ -280,7 +280,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=20261119-daily"></script>
 <script src="admin-analytics.js?v=surfaces-1120"></script>
 
-<link rel="stylesheet" href="consultation-stage.css?v=surfaces-1120">
+<link rel="stylesheet" href="consultation-stage.css?v=chat-layers-1121">
 <script src="consultation-personas.js?v=20261118-chat-films"></script>
 <link rel="stylesheet" href="consultation-stories.css?v=surfaces-1120">
 <script src="consultation-additional-stories.js?v=20261118-questions"></script>
@@ -309,7 +309,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 </dialog>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261118-continuous-arrival"></script><script src="premium-motion.js" defer></script>
 <script src="consultation-draft-core.js?v=featured-report-1"></script>
-<script src="consultation-stage.js?v=featured-report-1"></script>
+<script src="consultation-stage.js?v=featured-report-2"></script>
 <script src="consultation-history-filters.js?v=20261120-history-filters"></script>
 <link rel="stylesheet" href="consultation-experience.css?v=ink-1120">
 <script src="consultation-experience-core.js?v=20261117-saved-evidence"></script>
@@ -341,7 +341,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="date-entry.js?v=nov20-resume"></script>
 <link rel="stylesheet" href="relationship-report.css?v=surfaces-1120">
 <script src="relationship-report.js?v=nov20-resume"></script>
-<link rel="stylesheet" href="seohwa-report.css?v=8">
-<script src="seohwa-report.js?v=9"></script>
+<link rel="stylesheet" href="seohwa-report.css?v=9">
+<script src="seohwa-report.js?v=10"></script>
 </body>
 </html>
