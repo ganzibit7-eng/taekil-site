@@ -130,7 +130,7 @@
     const layout=el('div',null,'sr-layout'), contents=el('div',null,'sr-pages'), gate=el('section',null,'sr-gate');
     const status=el('p',null,'sr-status');
     status.setAttribute('role','status');
-    const pay=button(money+'에 전체 리포트 열기','sr-primary',()=>buy(data,pay,status));
+    const pay=button(money+'에 전체 리포트 열기','sr-primary',()=>buy(data,status));
     pay.dataset.checkoutAction='';
     const paused=el('p','현재 전체 리포트 구매를 잠시 중단했어요.','sr-payment-note');
     paused.dataset.checkoutPaused='';
@@ -146,8 +146,8 @@
       benefits.append(benefit);
     }
     gate.append(el('h3','전체 리포트와 서화 상담'),benefits,
-      pay,paused,paymentNote,
-      button('일반 서화 상담으로 이어가기','sr-secondary',()=>{close();data.chat();}),status);
+      pay,status,paused,paymentNote,
+      button('일반 서화 상담으로 이어가기','sr-secondary',()=>{close();data.chat();}));
     const samples=el('section',null,'sr-samples');
     samples.setAttribute('aria-labelledby','sr-sample-title');
     const label=el('h3','이어지는 장 미리보기');
@@ -172,11 +172,11 @@
     const cutoff=new Date(Date.UTC(today.getUTCFullYear()-14,today.getUTCMonth(),today.getUTCDate()));
     if(day>cutoff.toISOString().slice(0,10))throw Error('만 14세 미만의 출생 정보는 사용할 수 없어요.');
     const context=core.timeSlots(day,profile.hourValue,window.Solar,window.LunarUtil);
-    const data={profile,choice,chat,auth,context,first:core.first(context,choice),excerpts:core.excerpts(context,choice),host:by('aiChatSetup')};
+    const data={profile,choice,chat,auth,context,first:core.first(context,choice),excerpts:core.excerpts(context,choice),host:by('aiChatSetup'),owner:accountStore.snapshot()};
     active=data;
     drawPreview(data);
   }
-  async function buy(data,pay,status) {
+  async function buy(data,status) {
     if(!checkout.requireOpen()) {setStatus(status,'현재는 무료 첫 장을 읽을 수 있어요. 신규 결제는 잠시 중단했어요.');return;}
     const owner=accountStore.snapshot();
     if(!owner.owner){
@@ -208,7 +208,12 @@
         dialog.showModal();
         closedForConsent=false;
         if(!agreed){setStatus(status,'본편은 AI 풀이로 만들어져요. 동의하시면 결제를 이어갈 수 있어요.');return false;}
-        if(!await checkout.loadSdk()||!current())return false;
+        setStatus(status,'페이앱 결제창에 연결하고 있어요.');
+        if(!await checkout.loadSdk()){
+          if(current())setStatus(status,'결제창에 연결하지 못했어요. 잠시 후 다시 눌러 주세요.');
+          return false;
+        }
+        if(!current())return false;
         const order=await client.request(endpoint,{operation:'prepare',comparison:{profile:data.profile,choice:data.choice},checkout:true,allowResume:true},owner);
         if(!current())return false;
         if(order.id && ['paid','generating','ready'].includes(order.state)){await renderPurchased(order,data.host,owner);return false;}
@@ -218,7 +223,9 @@
           setStatus(status,client.pendingMessage(order));return false;
         }
         if(order.state==='paused'){setStatus(status,'신규 결제를 잠시 중단했어요.');return false;}
-        return client.pay(order,{price:core.PRICE,name:core.NAME,pendingKey,returnFlag:'seohwaReport',memo:'서화 연애 리포트 및 후속 상담 3회'});
+        const opened=client.pay(order,{price:core.PRICE,name:core.NAME,pendingKey,returnFlag:'seohwaReport',memo:'서화 연애 리포트 및 후속 상담 3회'});
+        if(!opened)setStatus(status,'결제창을 열지 못했어요. 결제 상태를 다시 확인해 주세요.');
+        return opened;
       }catch(error){
         if(sameUser()&&closedForConsent)dialog.showModal();
         if(current())setStatus(status,error.message);
@@ -442,7 +449,9 @@
   window.addEventListener('taekilso:authChanged',()=>{
     const next=accountStore.owner();
     if(next===accountOwner)return;
-    accountOwner=next; close(); window.__seohwaReportSession=null;
+    accountOwner=next;
+    if(active&&!accountStore.current(active.owner))close();
+    window.__seohwaReportSession=null;
     loadingLibrary++; library.replaceChildren(); by('loadSeohwaReports').disabled=false;
     libraryStatus.textContent='구매한 서화 리포트를 여기서 다시 읽을 수 있어요.';
     finishCheckout();
@@ -483,5 +492,14 @@
     }catch{}
     return resume;
   }
-  window.TaekilSeohwaReport={openPreview,session,setBalance,recordScope,restoreScope,showRestoredBalance,shouldResume};
+  function focusCheckoutAfterLogin() {
+    if(!dialog.open||!active?.owner.owner||!accountStore.current(active.owner))return;
+    const status=body.querySelector('.sr-gate .sr-status');
+    const pay=body.querySelector('.sr-gate button[data-checkout-action]');
+    if(!status||!pay?.getClientRects().length)return;
+    setStatus(status,'로그인됐어요. 결제창을 열어 이어서 진행해 주세요.');
+    pay.focus({preventScroll:true});
+    pay.scrollIntoView({block:'center',behavior:'instant'});
+  }
+  window.TaekilSeohwaReport={openPreview,session,setBalance,recordScope,restoreScope,showRestoredBalance,shouldResume,focusCheckoutAfterLogin};
 })();

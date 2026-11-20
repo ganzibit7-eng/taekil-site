@@ -288,7 +288,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="consultation-stories.js?v=seohwa-report-2"></script>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261118-continuous-arrival"></script><script src="premium-motion.js" defer></script>
 <script src="consultation-draft-core.js?v=seohwa-report-1"></script>
-<script src="consultation-stage.js?v=seohwa-report-2"></script>
+<script src="consultation-stage.js?v=seohwa-checkout-3"></script>
 <script src="consultation-history-filters.js?v=20261120-history-filters"></script>
 <link rel="stylesheet" href="consultation-experience.css?v=ink-1120">
 <script src="consultation-experience-core.js?v=20261117-saved-evidence"></script>
@@ -330,6 +330,6 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 </dialog>
 <link rel="stylesheet" href="seohwa-report.css?v=4">
 <script src="seohwa-reading-core.js?v=2"></script>
-<script src="seohwa-report.js?v=4"></script>
+<script src="seohwa-report.js?v=5"></script>
 </body>
 </html>

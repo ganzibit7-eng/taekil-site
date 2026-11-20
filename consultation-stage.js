@@ -708,7 +708,7 @@
   function authForHandoff() {
       awaitingAuth = true;
       if (!persist()) { error.textContent = '입력을 보관하지 못했어요. 브라우저의 저장 공간 설정을 확인해 주세요.'; return false; }
-      localStorage.setItem('taekilso_pending_chat_start', '1');
+      try { localStorage.setItem('taekilso_pending_chat_start', '1'); } catch {}
       openAuthModal();
       return true;
   }
@@ -749,8 +749,11 @@
     goTo('home'); showAiChatSetupStep(); restore();
     awaitingAuth = false; render(5); persist();
     closeAuthModal();
-    localStorage.removeItem('taekilso_pending_chat_start');
-    if(selectedTopic==='love'&&window.TaekilSeohwaReport?.shouldResume())submit.click();
+    try { localStorage.removeItem('taekilso_pending_chat_start'); } catch {}
+    if(selectedTopic==='love'&&window.TaekilSeohwaReport?.shouldResume()){
+      submit.click();
+      window.TaekilSeohwaReport.focusCheckoutAfterLogin();
+    }
     return true;
   };
   window.addEventListener('taekilso:authChanged', () => {
