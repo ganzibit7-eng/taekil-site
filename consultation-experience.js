@@ -59,18 +59,16 @@
  function report(content,data,ask){
   if(!store.owner())return;const captured=token(),key='year:'+core.hash(JSON.stringify([data.profile,data.report.overview]));
   const sections=[...content.querySelectorAll(':scope > .newyear-report-section,:scope > .newyear-areas,:scope > .newyear-months')];
-  const old=content.querySelector('.newyear-report-contents');if(old)old.remove();
-  const nav=el('nav',null,'newyear-report-contents reading-report-nav');nav.setAttribute('aria-label','신년 리포트 목차');
+  const nav=content.querySelector('.newyear-report-contents');
   const jump=i=>{const h=sections[i]?.querySelector('h2');if(h){current=i;interacted=true;save();h.tabIndex=-1;h.focus({preventScroll:true});h.scrollIntoView({block:'start',behavior:'instant'});}};
-  sections.forEach((s,i)=>{const title=s.querySelector('h2')?.textContent||'풀이';nav.append(btn(title,()=>jump(i)));if(data.access){s.append(btn('이 부분을 연우에게 물어보기',()=>ask('신년 리포트의 「'+title+'」 내용을 제 상황에 어떻게 적용하면 좋을까요?'),'reading-report-ask'));}});
-  const cover=el('header',null,'reading-report-cover');cover.append(el('small','연우가 전하는 한 해의 기록'),el('h1','2027, 나의 한 해'));content.prepend(cover);
-  content.querySelector('.newyear-report-owner')?.after(nav);
-  const previous=read().positions?.[key];if(Number.isInteger(previous?.section)&&sections[previous.section])nav.prepend(btn('읽던 부분 이어보기',()=>{for(const [i,d]of [...content.querySelectorAll('.newyear-months details')].entries())d.open=(previous.open||[]).includes(i);jump(previous.section);}));
-  const note=el('details',null,'reading-report-note');note.append(el('summary','올해의 실천 메모'));editNote(note,key,'내가 선택한 계획');content.append(note,el('p','메모와 읽던 위치는 이 기기에 저장됩니다. 이어 묻기는 질문을 입력창에 준비하며, 전송할 때 현재 상담 이용 한도가 적용됩니다.','reading-muted'));
+  if(data.access)sections.forEach(s=>{const title=s.querySelector('h2').textContent;s.append(btn('이 부분을 연우에게 물어보기',()=>ask('신년 리포트의 「'+title+'」 내용을 제 상황에 어떻게 적용하면 좋을까요?'),'reading-report-ask'));});
+  const previous=read().positions?.[key];if(Number.isInteger(previous?.section)&&sections[previous.section])nav.prepend(btn('읽던 부분 이어보기',()=>{for(const [i,d]of [...content.querySelectorAll('.newyear-months details')].entries())d.open=(previous.open||[]).includes(i);jump(previous.section);},'annual-report-resume'));
+  const note=el('details',null,'reading-report-note');note.append(el('summary','올해의 실천 메모'));editNote(note,key,'내가 선택한 계획');content.append(note,el('p',data.access?'메모와 읽던 위치는 이 기기에 저장됩니다. 이어 묻기는 질문을 입력창에 준비하며, 전송할 때 현재 상담 이용 한도가 적용됩니다.':'메모와 읽던 위치는 이 기기에 저장됩니다.','reading-muted'));
   let current=previous?.section||0,interacted=false;
   window.__readingReportEvents?.abort();const events=new AbortController();window.__readingReportEvents=events;
   for(const event of ['wheel','touchstart','keydown','pointerdown'])content.addEventListener(event,()=>{interacted=true;},{signal:events.signal,passive:true});
   const save=()=>{if(!store.current(captured))return;const value=read();value.positions={...value.positions,[key]:{section:current,open:[...content.querySelectorAll('.newyear-months details')].flatMap((d,i)=>d.open?[i]:[])}};write(value);};
+  nav.addEventListener('click',event=>{const index=event.target.closest('[data-newyear-jump]')?.dataset.newyearJump;if(index!==undefined){current=Number(index);interacted=true;save();}},{signal:events.signal});
   window.__readingReportObserver?.disconnect();const observer=new IntersectionObserver(entries=>{if(!document.getElementById('view-newyear').classList.contains('visible')||!interacted)return;for(const e of entries)if(e.isIntersecting){current=sections.indexOf(e.target);save();}},{rootMargin:'-15% 0px -65% 0px'});sections.forEach(s=>observer.observe(s));window.__readingReportObserver=observer;
   content.querySelectorAll('.newyear-months details').forEach(d=>d.addEventListener('toggle',save));
  }

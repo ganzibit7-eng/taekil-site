@@ -311,13 +311,13 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="consultation-draft-core.js?v=featured-report-1"></script>
 <script src="consultation-stage.js?v=featured-report-2"></script>
 <script src="consultation-history-filters.js?v=20261120-history-filters"></script>
-<link rel="stylesheet" href="consultation-experience.css?v=ink-1120">
+<link rel="stylesheet" href="consultation-experience.css?v=annual-reading-1">
 <script src="consultation-experience-core.js?v=20261117-saved-evidence"></script>
-<script src="consultation-experience.js?v=profile-library-1"></script>
+<script src="consultation-experience.js?v=annual-reading-1"></script>
 
 <script src="navigation-stability.js?v=20261111-2"></script>
-<link rel="stylesheet" href="newyear-consultation.css?v=annual-progress-1">
-<script src="newyear-consultation.js?v=standalone-progress-1"></script><script src="newyear-example.js?v=20261119-handoff-refine"></script>
+<link rel="stylesheet" href="newyear-consultation.css?v=annual-reading-1">
+<script src="newyear-consultation.js?v=annual-reading-1"></script><script src="newyear-example.js?v=20261119-handoff-refine"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=ink-1120">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
 <script src="free-report-handoff.js?v=nov20-fortune"></script>
@@ -342,6 +342,6 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <link rel="stylesheet" href="relationship-report.css?v=surfaces-1120">
 <script src="relationship-report.js?v=nov20-resume"></script>
 <link rel="stylesheet" href="seohwa-report.css?v=9">
-<script src="seohwa-report.js?v=10"></script>
+<script src="seohwa-report.js?v=report-offer-1"></script>
 </body>
 </html>

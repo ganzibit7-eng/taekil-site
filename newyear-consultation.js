@@ -243,18 +243,42 @@
   function showReport(data){
     const wasGenerating=view.classList.contains('is-generating');stopProgress();view.classList.add('has-report');content.style.minHeight='';
     content.replaceChildren();const r=data.report;
-    content.append(el('p','택일소 AI가 사주 계산값으로 작성한 신년 리포트','newyear-muted'));
-    content.append(el('p',`${data.profile.name} 님 · ${data.profile.date} · ${window.TaekilBirthTime.label(data.profile.hourValue)}`,'newyear-report-owner'));
+    const cover=el('header',null,'annual-report-cover');
+    const portrait=el('img');
+    portrait.src='assets/yeonwoo-moonlight.jpg';
+    portrait.alt='';
+    portrait.decoding='async';
+    const coverText=el('div',null,'annual-report-cover-text');
+    const reportTitle=el('h1','2027 신년운세');
+    reportTitle.tabIndex=-1;
+    coverText.append(el('p','택일소 · 연우','annual-report-label'),reportTitle,
+      el('strong',`${data.profile.name} 님의 한 해`),
+      el('p',`${data.profile.date} · ${window.TaekilBirthTime.label(data.profile.hourValue)}`,'newyear-report-owner'));
+    cover.append(portrait,coverText);
     const overview=section('한 해의 큰 흐름',r.overview);
+    overview.classList.add('annual-report-overview');
     const foundation=section('나의 사주와 2027년',r.foundation);
     appendCalculationNote(foundation,r.calculationNotes?.foundation);
     const areas=el('section',null,'newyear-areas');
-    areas.append(el('h2','분야별 풀이'));
-    r.areas.forEach((a,index)=>{const s=section(a.title,a.reading);s.append(el('p',a.action,'newyear-action'));appendCalculationNote(s,r.calculationNotes?.areas?.[index]);areas.append(s);});
+    const areaGrid=el('div',null,'annual-report-area-grid');
+    areas.append(el('h2','분야별 풀이'),areaGrid);
+    r.areas.forEach((a,index)=>{
+      const card=el('section',null,'newyear-report-section annual-report-area');
+      card.append(el('h3',a.title));
+      appendReading(card,a.reading);
+      card.append(el('p',a.action,'newyear-action'));
+      appendCalculationNote(card,r.calculationNotes?.areas?.[index]);
+      areaGrid.append(card);
+    });
     const months=el('section',null,'newyear-months');months.append(el('h2','열두 달, 나의 흐름'));
     const contents=el('nav',null,'newyear-report-contents');
     contents.setAttribute('aria-label','신년 리포트 목차');
     const guide=data.decisionGuide?decisionGuide(data.decisionGuide,data.year):null;
+    const opportunities=section('기회를 살리는 방법',r.opportunities);
+    const cautions=section('조금 더 신중할 때',r.cautions);
+    const closing=section('연우가 전하는 말',r.closing);
+    closing.classList.add('annual-report-closing');
+    const sections=[overview,foundation,areas,months,...(guide?[guide.focus,guide.decade]:[]),opportunities,cautions,closing];
     const links=[['한 해의 흐름',overview],['분야별 풀이',areas],['월별 풀이',months]];
     if(guide)links.push(['주요 시기',guide.focus],['10년 흐름',guide.decade]);
     for (const [label, target] of links) {
@@ -262,33 +286,37 @@
       heading.tabIndex=-1;
       const jump=el('button',label);
       jump.type='button';
+      jump.dataset.newyearJump=String(sections.indexOf(target));
       jump.addEventListener('click',()=>{
         heading.focus({preventScroll:true});
         heading.scrollIntoView({block:'start',behavior:'instant'});
       });
       contents.append(jump);
     }
-    content.append(contents,overview,foundation,areas);
+    content.append(cover,contents,...sections);
     const monthIndex=el('nav',null,'newyear-month-index');
     monthIndex.setAttribute('aria-label','월별 풀이 바로가기');
     months.append(monthIndex);
     for(const m of r.months){
       const d=el('details'),summary=el('summary');
       summary.append(el('span',String(m.month).padStart(2,'0')+'월'),el('strong',m.theme));
-      d.append(summary);
-      appendReading(d,m.reading);
-      d.append(el('p',m.action,'newyear-action'));
-      appendCalculationNote(d,m.calculationNote);
+      d.id='annual-report-month-'+m.month;
+      const reading=el('div',null,'annual-report-month-body');
+      d.append(summary,reading);
+      appendReading(reading,m.reading);
+      reading.append(el('p',m.action,'newyear-action'));
+      appendCalculationNote(reading,m.calculationNote);
       months.append(d);
-      monthIndex.append(button(m.month+'월',()=>{
+      const shortcut=button(m.month+'월',()=>{
         d.open=true;
         summary.focus({preventScroll:true});
         summary.scrollIntoView({block:'start',behavior:'instant'});
-      }));
+      });
+      shortcut.setAttribute('aria-controls',d.id);
+      shortcut.setAttribute('aria-expanded','false');
+      d.addEventListener('toggle',()=>shortcut.setAttribute('aria-expanded',String(d.open)));
+      monthIndex.append(shortcut);
     }
-    content.append(months);
-    if(guide)content.append(guide.focus,guide.decade);
-    content.append(section('기회를 살리는 방법',r.opportunities),section('조금 더 신중할 때',r.cautions),section('연우가 전하는 말',r.closing));
     const calculation=el('details',null,'newyear-calculation');calculation.append(el('summary','계산 기준과 해석 범위'));
     calculation.append(el('p',`사주에서는 입춘부터 한 해의 기준이 바뀌어요. 2027년 입춘은 ${data.calculation.annual.startsAt}이고, 이때부터 정미(丁未), 그전까지는 병오(丙午)의 해로 봐요. 열두 달은 양력 순서로 보여드리며, 각 달에서 절기로 기준이 바뀌는 시점도 반영했어요.`));
     data.calculation.limitations.forEach(t=>calculation.append(el('p',t)));content.append(calculation);
@@ -307,9 +335,9 @@
     if(data.chatAccess??data.access)content.append(button('리포트가 궁금하다면, 연우에게 이어 묻기',()=>askReport(),true));
     window.TaekilExperience?.report(content,{...data,access:data.chatAccess??data.access},askReport);
     if(wasGenerating)requestAnimationFrame(()=>{
-      if(!active||!overview.isConnected)return;
-      overview.querySelector('h2').focus({preventScroll:true});
-      content.querySelector('.newyear-report-contents')?.scrollIntoView({block:'start',behavior:'instant'});
+      if(!active||!cover.isConnected)return;
+      reportTitle.focus({preventScroll:true});
+      cover.scrollIntoView({block:'start',behavior:'instant'});
     });
   }
   function render(data){
