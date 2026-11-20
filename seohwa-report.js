@@ -173,8 +173,9 @@
     pay.dataset.checkoutAction='';
     const paused=el('p','현재 전체 리포트 구매를 잠시 중단했어요.','sr-payment-note');
     paused.dataset.checkoutPaused='';
-    const paymentNote=el('p','1회 결제 · 자동 갱신 없음','sr-payment-note');
+    const paymentNote=el('p',null,'sr-payment-note report-offer-price');
     paymentNote.dataset.checkoutAction='';
+    paymentNote.append(el('strong',won.format(reading.PRICE)+'원'),el('span','1회 결제 · 자동 갱신 없음'));
     const benefits=el('ul',null,'sr-benefits');
     for(const [title,description] of [
       ['리포트 6장 분량','무료 첫 장을 포함한 전체 리포트를 내 기록에서 다시 읽을 수 있어요.'],
@@ -184,7 +185,7 @@
       benefit.append(el('strong',title),el('span',description));
       benefits.append(benefit);
     }
-    gate.append(el('h3','전체 리포트와 '+reading.name+' 상담'),benefits,pay,status,paused,paymentNote);
+    gate.append(el('h3','전체 리포트와 '+reading.name+' 상담'),benefits,paymentNote,pay,status,paused);
     const samples=el('section',null,'sr-samples');
     samples.setAttribute('aria-labelledby','sr-sample-title');
     const label=el('h3','이어지는 장 미리보기');

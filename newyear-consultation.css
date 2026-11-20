@@ -97,3 +97,116 @@
 .newyear-focus-list li {padding:8px 0;border-bottom:1px solid #9c80674d;word-break:keep-all}
 .newyear-focus-list li p {margin:4px 0}
 .newyear-focus-list li small {color:var(--gold-hi,#dcbb8f)}
+
+.report-offer-price {
+  display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;
+  margin:16px 0 12px;font:400 14px/1.5 var(--sans);color:#d2c4bb;
+}
+.report-offer-price strong {
+  color:#f0d2a5;font:650 clamp(24px,5vw,33px)/1.2 var(--sans);
+  letter-spacing:-.045em;font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.payment-premium .report-offer-price {margin:14px 0 24px}
+.relationship-hero .report-offer-price strong {color:#f0d2a5;font-size:clamp(24px,5vw,33px)}
+.sr-gate .report-offer-price {margin-bottom:14px}
+
+#view-newyear.has-report {
+  --annual-paper: #f4ede3;
+  --annual-ink: #382b2c;
+  --annual-wine: #784758;
+  --annual-gold: #dfc6a1;
+  --annual-line: #63504d;
+  background: #211b20;
+  padding-top: 28px;
+}
+#view-newyear.has-report :is(.newyear-heading,.newyear-value,.newyear-account > .newyear-muted) {display:none}
+#view-newyear.has-report .newyear-account {max-width:900px;padding-top:0}
+#view-newyear.has-report .newyear-account .newyear-status {position:absolute;width:1px;height:1px;min-height:0;overflow:hidden;clip-path:inset(50%)}
+#view-newyear.has-report .newyear-content {padding-top:0;overflow-wrap:anywhere;word-break:keep-all}
+.annual-report-cover {
+  display:flex;
+  align-items:center;
+  isolation:isolate;
+  position:relative;
+  min-height:clamp(250px,42vw,360px);
+  padding:clamp(22px,6vw,58px);
+  overflow:hidden;
+  border:1px solid var(--annual-line);
+  border-radius:18px;
+  background:#33262e;
+  scroll-margin-top:92px;
+}
+.annual-report-cover img {
+  position:absolute;inset:0 0 0 auto;width:66%;height:100%;object-fit:cover;object-position:center 30%;z-index:-2;
+}
+.annual-report-cover::after {
+  content:'';position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(90deg,#33262e 12%,#33262e 29%,#33262edb 43%,#33262e16 76%);
+}
+.annual-report-cover-text {max-width:60%;color:#f6ede4}
+.annual-report-cover-text h1 {
+  margin:14px 0 26px;color:#fff5e7;font:600 clamp(28px,5.6vw,52px)/1.35 var(--serif);letter-spacing:-.04em;
+}
+.annual-report-cover-text strong {font-size:clamp(15px,2.3vw,21px);font-weight:600}
+.annual-report-label {margin:0;color:var(--annual-gold);font-size:14px;letter-spacing:.05em}
+.annual-report-cover .newyear-report-owner {
+  margin:8px 0 0;padding:0;border:0;color:#ead8c7;font-size:14px;font-variant-numeric:tabular-nums;
+}
+#view-newyear.has-report .newyear-report-contents {margin:18px 0 24px;padding:0;border:0;gap:8px}
+#view-newyear.has-report .newyear-report-contents button {
+  padding:8px 13px;border-radius:8px;border:1px solid var(--annual-line);
+  background:#2e232c;color:#f4debd;font-size:14px;
+}
+#view-newyear.has-report .newyear-report-contents .annual-report-resume {border-color:#a58866;background:#423036}
+#view-newyear.has-report .newyear-content :is(button,summary,h1,h2):focus-visible {outline:2px solid #bd8250;outline-offset:3px}
+#view-newyear.has-report .newyear-report-section {padding-block:30px}
+#view-newyear.has-report .newyear-report-section :is(h2,h3),#view-newyear.has-report :is(.newyear-areas,.newyear-months)>h2 {
+  color:#f8ebdc;font:600 clamp(23px,4vw,30px)/1.4 var(--serif);
+}
+#view-newyear.has-report .newyear-content :is(.annual-report-overview,.annual-report-area,.annual-report-closing) {
+  padding:clamp(20px,5vw,38px);
+  border:1px solid #dfcab8;
+  border-radius:14px;
+  background:var(--annual-paper);
+  color:var(--annual-ink);
+}
+#view-newyear.has-report :is(.annual-report-overview,.annual-report-area,.annual-report-closing) :is(h2,h3) {color:var(--annual-wine)}
+#view-newyear.has-report :is(.annual-report-overview,.annual-report-area,.annual-report-closing) p {color:var(--annual-ink)}
+.annual-report-overview > h2 + p {font-weight:650}
+.newyear-report-section > p:last-child {margin-bottom:0}
+.annual-report-area-grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  margin-top:18px;
+}
+#view-newyear.has-report .annual-report-area {padding:clamp(18px,3vw,26px)}
+#view-newyear.has-report .annual-report-area h3 {font-size:22px;margin:0 0 16px}
+#view-newyear.has-report .annual-report-area .newyear-action {color:#673d4b!important;border-color:#ac788a}
+.annual-report-area .newyear-calculation-note>summary {color:#754455}
+#view-newyear.has-report :is(.annual-report-overview,.annual-report-closing) .reading-report-ask {
+  color:#643647;border-color:#ae8793;
+}
+.annual-report-month-body {padding:0 16px 12px}
+#view-newyear.has-report .newyear-month-index .btn {background:#30242e;color:#f3ddba}
+#view-newyear.has-report .newyear-month-index .btn[aria-expanded=true] {background:#dbc19a;color:#362733;border-color:#dbc19a}
+#view-newyear.has-report .newyear-months > details {
+  border:1px solid var(--annual-line);margin-block:8px;border-radius:10px;background:#2b222a;
+}
+#view-newyear.has-report .newyear-months > details > summary {padding:14px 40px 14px 16px}
+#view-newyear.has-report .newyear-months > details > summary::after {right:16px}
+#view-newyear.has-report .newyear-months summary span {color:var(--annual-gold)}
+#view-newyear.has-report .newyear-focus-list {padding-left:0;list-style:none;grid-template-columns:repeat(2,minmax(0,1fr))}
+#view-newyear.has-report .newyear-focus-list li {
+  padding:16px;border:1px solid var(--annual-line);border-radius:9px;background:#2b222a;
+}
+#view-newyear.has-report .newyear-focus-list li strong {color:var(--annual-gold)}
+#view-newyear.has-report .annual-report-closing {margin-top:24px}
+@media(max-width:600px) {
+  #view-newyear.has-report {padding:18px 14px 90px}
+  .annual-report-cover {min-height:245px}
+  .annual-report-cover img {width:83%;object-position:center 26%}
+  .annual-report-cover::after {background:linear-gradient(90deg,#33262e 3%,#33262eea 25%,#33262e78 58%,#33262e08)}
+  .annual-report-cover-text {max-width:68%}
+  .annual-report-area-grid,#view-newyear.has-report .newyear-focus-list {grid-template-columns:minmax(0,1fr)}
+}
