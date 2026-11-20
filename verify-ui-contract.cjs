@@ -12,11 +12,12 @@ const accountChanges=JSON.parse(fs.readFileSync('account-ui-contract-changes.jso
 const normalizeAccounts=source=>accountChanges.slice().reverse().reduce((text,change)=>text.split(change.after).join(change.before),source);
 const consultationChanges=JSON.parse(fs.readFileSync('consultation-ui-contract-changes.json','utf8'));
 const normalizeConsultation=source=>consultationChanges.reduce((text,[after,before])=>text.split(after).join(before),source);
-const normalizeReport=source=>normalizeAccounts(normalizeConsultation(source))
+const normalizePaymentReturn=require('./payment-return-ui-contract.cjs');
+const stripCheckout=source=>source.replace(/^ +\/\* CHECKOUT_START \*\/[\s\S]*?^ +\/\* CHECKOUT_END \*\/\n/gm,'');
+const normalizeReport=source=>normalizeAccounts(normalizeConsultation(stripCheckout(normalizePaymentReturn(source))))
 .replace(/^[ ]*\/\* STARTUP_READY \*\/[\s\S]*?\/\* END_STARTUP_READY \*\/\n/gm,'')
 .replaceAll('https://taekilso-api-jhqz3vlila-du.a.run.app','https://taekilso-backend-lemon.vercel.app') // Approved host migration only; API paths and handler logic remain invariant.
 .replace('// 서버의 ADMIN_DELETE_PASSWORD Secret과 서버에서만 비교합니다.','// Vercel의 ADMIN_DELETE_PASSWORD Secret과 서버에서만 비교합니다.')
-.replace(/^ +\/\* CHECKOUT_START \*\/[\s\S]*?^ +\/\* CHECKOUT_END \*\/\n/gm,'')
 .replace(/^ +<!-- CHECKOUT_START -->[\s\S]*?^ +<!-- CHECKOUT_END -->\n/gm,'')
 .replaceAll(' data-checkout-action','')
 .replace('authDomain: "auth.taekilso.com"','authDomain: "taekilso.firebaseapp.com"')

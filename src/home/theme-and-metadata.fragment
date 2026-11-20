@@ -311,23 +311,80 @@
 
 
 <style id="ai-paywall-conversion-style">
-.ai-chat-conversion-chooser{display:flex!important;flex-direction:column!important;gap:8px!important;padding:13px!important;border:1px solid rgba(215,180,106,.16);border-radius:17px;background:rgba(10,10,9,.92);}
-.ai-paywall-head{padding:2px 2px 7px;}
-.ai-paywall-kicker{font-size:9px;letter-spacing:.16em;color:var(--gold);margin-bottom:5px;}
-.ai-paywall-head>b{display:block;font-family:var(--serif);font-size:16px;font-weight:400;color:var(--white);line-height:1.45;}
-.ai-paywall-head>span{display:block;margin-top:5px;color:var(--muted-2);font-size:9.8px;line-height:1.55;}
-.ai-chat-conversion-chooser .ai-chat-offer-card{position:relative;width:100%;display:flex!important;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:12px!important;border-radius:13px!important;}
-.ai-offer-copy{display:flex;flex-direction:column;min-width:0;}
-.ai-offer-copy small{font-size:8.8px;color:var(--muted-2);margin-bottom:3px;}
-.ai-offer-copy b{font-size:12px!important;color:var(--white);}
-.ai-offer-copy span{font-size:9px!important;color:var(--muted-2);margin-top:3px;}
-.ai-offer-price{display:flex;flex-direction:column;align-items:flex-end;flex:0 0 auto;}
-.ai-offer-price s{font-size:8.5px;color:var(--muted-2);}
-.ai-offer-price em{font-style:normal;font-size:13px!important;color:var(--gold-hi);margin-top:2px;}
-.ai-offer-best{border-color:rgba(215,180,106,.35)!important;background:rgba(215,180,106,.08)!important;padding-top:18px!important;}
-.ai-offer-badge{position:absolute;top:-7px;right:10px;padding:3px 7px;border-radius:999px;background:#cdb06e;color:#111;font-size:7.8px;font-weight:700;letter-spacing:.04em;}
-.ai-offer-premium{margin-top:2px;background:rgba(255,255,255,.035)!important;}
-.ai-paywall-note{text-align:center;color:var(--muted-2);font-size:8.5px;line-height:1.5;padding:2px 4px 0;}
+.ai-chat-conversion-chooser {
+  align-self: stretch;
+  flex: none;
+  min-width: 0;
+  padding: clamp(14px, 4vw, 22px);
+  border: 1px solid #3d473d;
+  border-radius: 12px;
+  background: #151e1a;
+  color: #f0ebe1;
+}
+.ai-paywall-head { padding-bottom: 14px; }
+.ai-paywall-kicker, .ai-offer-badge, .ai-offer-copy small { display: none; }
+.ai-paywall-head > b {
+  display: block;
+  font: 600 clamp(1.2rem, 4.6vw, 1.5rem)/1.45 var(--serif);
+  word-break: keep-all;
+}
+.ai-paywall-head > span, .ai-paywall-note {
+  display: block;
+  margin-top: 6px;
+  color: #bdc6bd;
+  font-size: .875rem;
+  line-height: 1.55;
+  word-break: keep-all;
+}
+.ai-chat-conversion-chooser .ai-chat-offer-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 8px;
+  border: 0;
+  border-top: 1px solid #3a473e;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ai-offer-copy { display: grid; gap: 3px; min-width: 0; }
+.ai-offer-copy b { grid-row: 1; font-size: 1rem; font-weight: 700; line-height: 1.4; }
+.ai-offer-copy span { color: #bdc6bd; font-size: .875rem; line-height: 1.5; }
+.ai-offer-copy :is(b, span, small) { word-break: keep-all; overflow-wrap: anywhere; }
+.ai-chat-conversion-chooser [data-ai-buy-pack="ai_question_pack_10"] small {
+  display: block;
+  color: #dfc597;
+  font-size: .8125rem;
+  line-height: 1.5;
+}
+.ai-offer-price em {
+  color: #e8d2a5;
+  font-size: clamp(1rem, 4.4vw, 1.25rem);
+  font-style: normal;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ai-chat-conversion-chooser .ai-chat-offer-premium {
+  margin-top: 6px;
+  padding: 11px 9px;
+  border: 1px solid #716147;
+  border-radius: 8px;
+  background: #24291f;
+}
+.ai-chat-conversion-chooser .ai-chat-offer-card:focus-visible { outline: 2px solid #e2c892; outline-offset: 2px; }
+.ai-chat-conversion-chooser .ai-chat-offer-card:active:not(:disabled) { background: #313b2e; }
+.ai-chat-conversion-chooser .ai-chat-offer-card:disabled { opacity: .66; cursor: wait; }
+.ai-paywall-note { margin-top: 11px; }
+@media (hover: hover) {
+  .ai-chat-conversion-chooser .ai-chat-offer-card:hover:not(:disabled) { background: #293429; }
+}
 </style>
 
 

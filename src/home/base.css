@@ -887,19 +887,6 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .ai-chat-followup-note{width:100%;font-size:10.5px;color:#c7b991;margin:2px 0 1px}
 
 .ai-chat-cta-row{display:flex; flex-wrap:wrap; gap:6px; align-self:flex-start; max-width:100%;}
-.ai-chat-offer-grid{display:flex; flex-direction:column; gap:8px; align-self:stretch; margin-top:4px;}
-.ai-chat-offer-card{
-  display:flex; flex-direction:column; gap:4px; text-align:left; cursor:pointer;
-  background:rgba(16,14,11,.82); border:1px solid rgba(215,180,106,.35); border-radius:14px;
-  padding:11px 14px; color:#fff; backdrop-filter:blur(4px);
-}
-.ai-chat-offer-card b{font-size:12.5px; font-family:var(--serif); font-weight:400; color:var(--gold-hi);}
-.ai-chat-offer-card span{font-size:11px; color:rgba(255,255,255,.75);}
-.ai-chat-offer-card span s{color:rgba(255,255,255,.4); margin-right:5px;}
-.ai-chat-offer-card span em{font-style:normal; font-weight:700; color:#fff;}
-.ai-chat-offer-card:hover{border-color:rgba(215,180,106,.6); background:rgba(215,180,106,.1)}
-.ai-chat-offer-premium{border-color:rgba(255,255,255,.2)}
-.ai-chat-offer-premium b{color:#fff}
 .ai-chat-cta-row button{
   background:linear-gradient(135deg,var(--gold-hi),var(--gold)); color:#17130b; border:0;
   font-size:11px; font-weight:700; padding:8px 13px; border-radius:999px; cursor:pointer;
