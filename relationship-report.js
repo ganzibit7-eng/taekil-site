@@ -4,7 +4,9 @@
   const endpoint = 'https://taekilso-api-jhqz3vlila-du.a.run.app/api/relationship-report';
   const checkout = window.TaekilCheckout;
   const client = window.TaekilAccountReport;
+  const decision = window.TaekilReportDecision;
   const pendingKey = 'taekilso_pending_relationship_report';
+  const view = field('view-relationship-report');
   const form = field('relationshipReportForm');
   const review = field('relationshipReview');
   const output = field('relationshipReportOutput');
@@ -43,21 +45,70 @@
     return section;
   }
 
+  function copyControl(quote,line) {
+    const button=el('button','첫 문장 복사','relationship-copy');
+    button.type='button';
+    const status=el('span','','relationship-copy-status');
+    status.setAttribute('role','status');
+    button.addEventListener('click',async()=>{
+      status.textContent='';
+      try {
+        await navigator.clipboard.writeText(line);
+        status.textContent='복사했어요.';
+      } catch (_) {
+        const selection=window.getSelection();
+        if (!selection) { status.textContent='첫 문장을 직접 길게 눌러 복사해 주세요.'; return; }
+        const range=document.createRange();
+        range.selectNodeContents(quote);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        status.textContent='첫 문장을 선택했어요. 복사를 눌러 주세요.';
+      }
+    });
+    return [button,status];
+  }
+
   function reportCard(report) {
     const card = el('article','','relationship-reading');
     card.append(el('h3','두 사람 관계 리포트'),el('p',report.summary,'relationship-summary'),
       el('p','본인 '+label(report.people[0])+' · 상대방 '+label(report.people[1]),'relationship-pillars'));
-    card.append(entries('잘 맞는 점',report.strengths),entries('자주 엇갈릴 수 있는 상황',report.friction));
     const practice = el('section');
-    practice.append(el('h4','실제로 써볼 대화'));
-    report.conversations.forEach(conversation => {
+    const practiceTitle=el('h4','실제로 써볼 대화');
+    practiceTitle.tabIndex=-1;
+    const jump=el('button','대화 예시 바로 보기','relationship-copy');
+    jump.type='button';
+    jump.addEventListener('click',()=>{
+      practiceTitle.focus({preventScroll:true});
+      practiceTitle.scrollIntoView({block:'start',behavior:'instant'});
+    });
+    card.append(jump,entries('잘 맞는 점',report.strengths),entries('자주 엇갈릴 수 있는 상황',report.friction));
+    practice.append(practiceTitle);
+    report.conversations.forEach((conversation,index) => {
       const scene = el('div','','relationship-dialogue');
       scene.append(el('h5',conversation.title));
+      const guide=decision.conversationGuide(report,index);
+      if (guide) scene.append(el('p',guide.useWhen,'relationship-use-when'));
+      let openingLine;
       for(const [speaker,line] of [['본인',conversation.first],['상대방',conversation.second]]) {
         const quote = el('blockquote');
-        quote.append(el('b',speaker),el('p',line));
+        const text=el('p',line);
+        quote.append(el('b',speaker),text);
         scene.append(quote);
+        if (!openingLine) openingLine=text;
       }
+      if (guide) {
+        const agreement=el('p','','relationship-agreement');
+        agreement.append(el('strong','대화 끝에 정할 것'),document.createTextNode(' '+guide.agree));
+        scene.append(agreement);
+        if (guide.basis) {
+          const reason=el('details','','relationship-scene-basis');
+          reason.append(el('summary','이 대화의 사주 근거'),el('p',guide.basis.title+' · '+guide.basis.detail));
+          scene.append(reason);
+        }
+      }
+      const controls=el('div','','relationship-copy-controls');
+      controls.append(...copyControl(openingLine,conversation.first));
+      scene.append(controls);
       practice.append(scene);
     });
     practice.append(el('p',report.nextStep,'relationship-next-step'));
@@ -129,7 +180,7 @@
   field('buyRelationshipReport').addEventListener('click',async () => {
     const token=accountStore.snapshot();
     const selected=comparison;
-    if (!selected || !checkout.requireOpen()) return;
+    if (!selected || !view.classList.contains('visible') || !checkout.requireOpen()) return;
     if (!token.owner) {
       openAuthModal();
       purchaseStatus.textContent='로그인한 뒤 구매 버튼을 다시 눌러 주세요.';
@@ -137,9 +188,9 @@
     }
     try {
       await checkout.run(async () => {
-        if (!await checkout.loadSdk() || comparison !== selected) return false;
+        if (!await checkout.loadSdk() || comparison !== selected || !view.classList.contains('visible')) return false;
         const data=await client.request(endpoint,{operation:'prepare',comparison:selected,checkout:true},token);
-        if (!accountStore.current(token) || comparison !== selected) return false;
+        if (!accountStore.current(token) || comparison !== selected || !view.classList.contains('visible')) return false;
         if (data.state==='ready') {
           output.replaceChildren(reportCard(data.report));
           output.scrollIntoView({block:'start',behavior:'instant'});
@@ -158,6 +209,14 @@
     }
   });
 
+  function libraryItem({report,createdAtMs},open = false) {
+    const row=el('details');
+    const date=new Intl.DateTimeFormat('ko-KR',{dateStyle:'medium',timeZone:'Asia/Seoul'}).format(createdAtMs);
+    row.append(el('summary',date+' · '+report.people[0].day+'과 '+report.people[1].day),reportCard(report));
+    row.open=open;
+    return row;
+  }
+
   async function loadLibrary(before = null) {
     const token=accountStore.snapshot();
     if (!token.owner) { openAuthModal(); return; }
@@ -169,13 +228,7 @@
       const pending=accountStore.getItem(pendingKey);
       const {reports,next}=await client.request(endpoint,{operation:'list',before},token);
       if (!current()) return;
-      const rows=reports.map(({id,report,createdAtMs})=>{
-        const row=el('details');
-        const date=new Intl.DateTimeFormat('ko-KR',{dateStyle:'medium',timeZone:'Asia/Seoul'}).format(createdAtMs);
-        row.append(el('summary',date+' · '+report.people[0].day+'과 '+report.people[1].day),reportCard(report));
-        row.open=id===pending;
-        return row;
-      });
+      const rows=reports.map(record=>libraryItem(record,record.id===pending));
       if (!before) library.replaceChildren();
       library.querySelector('.relationship-more')?.remove();
       library.append(...rows);
@@ -191,11 +244,12 @@
           accountStore.removeItem(pendingKey);
           libraryStatus.textContent='관계 리포트를 내 기록에 저장했어요.';
         } else {
-          const {state}=await client.request(endpoint,{operation:'open',id:pending},token);
+          const record=await client.request(endpoint,{operation:'open',id:pending},token);
           if (!current()) return;
-          libraryStatus.textContent=state==='pending'?'결제를 확인하고 있어요. 잠시 후 다시 확인해 주세요.'
-            :state==='ready'?'다시 확인하면 새 리포트가 표시돼요.':'이전 결제는 취소되었거나 환불됐어요.';
-          if (state!=='pending' && state!=='ready') accountStore.removeItem(pendingKey);
+          if (record.state==='ready') library.prepend(libraryItem(record,true));
+          libraryStatus.textContent=record.state==='pending'?'결제를 확인하고 있어요. 잠시 후 다시 확인해 주세요.'
+            :record.state==='ready'?'관계 리포트를 내 기록에 저장했어요.':'이전 결제는 취소되었거나 환불됐어요.';
+          if (record.state!=='pending') accountStore.removeItem(pendingKey);
         }
       }
     } catch (error) {

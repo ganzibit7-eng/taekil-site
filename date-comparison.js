@@ -21,6 +21,7 @@
     error.textContent = '';
     [...dateFields, ...extras.querySelectorAll('input')].forEach(input => input.removeAttribute('aria-invalid'));
     results.hidden = true;
+    results.replaceChildren();
   }
 
   function setMode(mode) {
@@ -145,6 +146,9 @@
     setMode(button.dataset.dateMode);
     modeGroup.scrollIntoView({ block: 'nearest', behavior: 'instant' });
   }));
+  form.addEventListener('input', () => {
+    if (view.dataset.comparisonMode === 'exact') resetComparison();
+  });
   form.addEventListener('change', () => {
     if (view.dataset.comparisonMode === 'exact') resetComparison();
   });
