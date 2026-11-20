@@ -124,7 +124,7 @@
         dismissedThisPage = selected;
         store.setItem(dismissedKey, String(selected.updatedAt));
         refresh();
-        document.querySelector('.directory-concern-shortcuts a')?.focus({preventScroll:true});
+        document.querySelector('.directory-section-rail button')?.focus({preventScroll:true});
       });
       window.addEventListener('taekilso:authChanged', refresh);
       window.addEventListener('taekilso:aiQuestionAccepted', () => queueMicrotask(refresh));
