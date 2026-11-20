@@ -19,10 +19,9 @@ const MEMBER_LAST_SEEN_URL = 'https://taekilso-api-jhqz3vlila-du.a.run.app/api/m
 const MEMBER_ACCESS_STATUS_URL = 'https://taekilso-api-jhqz3vlila-du.a.run.app/api/member-access-status';
 const MEMBER_SELF_DELETE_URL = 'https://taekilso-api-jhqz3vlila-du.a.run.app/api/member-self-delete';
 // 질문권(소모성 상품): 무료 3개를 다 쓴 뒤 이어서 물어볼 수 있게 해주는 상품입니다.
-// price가 실제 결제되는 금액(할인가)이고, originalPrice는 화면에 취소선으로 보여줄 정가입니다.
 const AI_QUESTION_PACKS = {
-  ai_question_pack_5: { price: 1900, originalPrice: 2900, goodname: 'AI 질문권 5개', memo: 'AI 상담 질문 5개 추가', count: 5 },
-  ai_question_pack_10: { price: 3200, originalPrice: 4900, goodname: 'AI 질문권 10개', memo: 'AI 상담 질문 10개 추가', count: 10 }
+  ai_question_pack_5: { price: 1900, goodname: 'AI 질문권 5개', memo: 'AI 상담 질문 5개 추가', count: 5 },
+  ai_question_pack_10: { price: 2500, goodname: 'AI 질문권 10개', memo: 'AI 상담 질문 10개 추가', count: 10 }
 };
 const PAYAPP_RETURN_URL = window.location.origin + window.location.pathname + '?premium=1';
 const PREMIUM_PRICE = 8900;

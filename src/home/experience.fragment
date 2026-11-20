@@ -1054,5 +1054,5 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 
 
 <!-- UI-only overrides follow the legacy style blocks. -->
-<link rel="stylesheet" href="premium-ui.css?v=20261111-hero-edge">
+<link rel="stylesheet" href="premium-ui.css?v=20261120-question-packs">
 <link rel="stylesheet" href="admin-analytics.css?v=20261115-preview-conversion">

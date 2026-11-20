@@ -1,0 +1,42 @@
+[
+  [
+    "const MEMBER_SELF_DELETE_URL = 'https://taekilso-backend-lemon.vercel.app/api/member-self-delete';\n// 질문권(소모성 상품): 무료 3개를 다 쓴 뒤 이어서 물어볼 수 있게 해주는 상품입니다.\nconst AI_QUESTION_PACKS = {\n  ai_question_pack_5: { price: 1900, goodname: 'AI 질문권 5개', memo: 'AI 상담 질문 5개 추가', count: 5 },\n  ai_question_pack_10: { price: 2500, goodname: 'AI 질문권 10개', memo: 'AI 상담 질문 10개 추가', count: 10 }\n};\nconst PAYAPP_RETURN_URL = window.location.origin + window.location.pathname + '?premium=1';",
+    "const MEMBER_SELF_DELETE_URL = 'https://taekilso-backend-lemon.vercel.app/api/member-self-delete';\n// 질문권(소모성 상품): 무료 3개를 다 쓴 뒤 이어서 물어볼 수 있게 해주는 상품입니다.\n// price가 실제 결제되는 금액(할인가)이고, originalPrice는 화면에 취소선으로 보여줄 정가입니다.\nconst AI_QUESTION_PACKS = {\n  ai_question_pack_5: { price: 1900, originalPrice: 2900, goodname: 'AI 질문권 5개', memo: 'AI 상담 질문 5개 추가', count: 5 },\n  ai_question_pack_10: { price: 3200, originalPrice: 4900, goodname: 'AI 질문권 10개', memo: 'AI 상담 질문 10개 추가', count: 10 }\n};\nconst PAYAPP_RETURN_URL = window.location.origin + window.location.pathname + '?premium=1';"
+  ],
+  [
+    "        amount: PREMIUM_PRICE,\n        product: 'taekilso_premium_30days',\n        planVersion: 2,\n        status: 'pending',\n        createdAt: firebase.firestore.FieldValue.serverTimestamp()",
+    "        amount: PREMIUM_PRICE,\n        product: 'taekilso_premium_30days',\n        status: 'pending',\n        createdAt: firebase.firestore.FieldValue.serverTimestamp()"
+  ],
+  [
+    "      returnurl: PAYAPP_RETURN_URL,\n      var1: orderId,\n      memo: '30일 이용권 · AI 질문 총 30개·하루 최대 10개 · 365일 택일',\n      redirectpay: '1'\n    };",
+    "      returnurl: PAYAPP_RETURN_URL,\n      var1: orderId,\n      memo: '30일 이용권 · AI 상담 하루 15개 · 365일 택일 · 정밀사주·궁합·재물 분석',\n      redirectpay: '1'\n    };"
+  ],
+  [
+    "  if (priceNote) {\n    priceNote.style.display = premium ? 'none' : 'block';\n    priceNote.textContent = '8,900원 / 30일 · 질문 총 30개 · 하루 최대 10개 · 자동결제 없음';\n  }\n}",
+    "  if (priceNote) {\n    priceNote.style.display = premium ? 'none' : 'block';\n    priceNote.textContent = '8,900원 / 30일 · 자동결제 없음 · AI 상담 하루 15개';\n  }\n}"
+  ],
+  [
+    "  if (!isPremium()) {\n    panel.style.display='block';\n    panel.innerHTML = `<div class=\"premium-lock-card\"><b>🔒 여기부터 프리미엄 분석입니다</b><p>30일 동안 AI 질문 총 30개(하루 최대 10개)와 365일 택일 후보, 두 사람 궁합, 상세 리포트를 이용할 수 있어요.</p><button class=\"btn btn-primary\" onclick=\"payPremium()\">8,900원으로 30일 이용하기</button></div>`;\n    return;\n  }",
+    "  if (!isPremium()) {\n    panel.style.display='block';\n    panel.innerHTML = `<div class=\"premium-lock-card\"><b>🔒 여기부터 프리미엄 분석입니다</b><p>30일 동안 AI 상담 하루 15개, 365일 전체 후보 · TOP 20 · 월별 베스트 · 두 사람 궁합 · 상세 리포트를 이용할 수 있어요.</p><button class=\"btn btn-primary\" onclick=\"payPremium()\">8,900원으로 30일 이용하기</button></div>`;\n    return;\n  }"
+  ],
+  [
+    "}\n\n/* 무료 질문을 다 쓰면 질문권과 30일 신년상담을 안내합니다. */\nfunction appendQuestionPackOffers() {\n  const win = document.getElementById('aiChatWindow');",
+    "}\n\n/* 무료 질문을 다 쓰면 보여주는 화면: 질문권 2종(할인가 표시) + 프리미엄 구독. */\nfunction appendQuestionPackOffers() {\n  const win = document.getElementById('aiChatWindow');"
+  ],
+  [
+    "        <span>질문 1개당 약 380원</span>\n      </div>\n      <div class=\"ai-offer-price\"><em>1,900원</em></div>\n    </button>\n\n    <button type=\"button\" class=\"ai-chat-offer-card\" data-ai-buy-pack=\"ai_question_pack_10\">\n      <div class=\"ai-offer-copy\">\n        <small>묶음 특가 · 약 34% 절약</small>\n        <b>AI 질문권 10개</b>\n        <span>질문 1개당 250원 · 5개권 두 번(3,800원) 구매 기준</span>\n      </div>\n      <div class=\"ai-offer-price\"><em>2,500원</em></div>\n    </button>",
+    "        <span>질문 1개당 약 380원</span>\n      </div>\n      <div class=\"ai-offer-price\"><s>2,900원</s><em>1,900원</em></div>\n    </button>\n\n    <button type=\"button\" class=\"ai-chat-offer-card\" data-ai-buy-pack=\"ai_question_pack_10\">\n      <div class=\"ai-offer-copy\">\n        <small>질문권만 넉넉하게 추가할 때</small>\n        <b>AI 질문권 10개</b>\n        <span>질문 1개당 320원</span>\n      </div>\n      <div class=\"ai-offer-price\"><s>4,900원</s><em>3,200원</em></div>\n    </button>"
+  ],
+  [
+    "        <small>매일 자주 상담하고 택일까지 볼 때</small>\n        <b>프리미엄 30일</b>\n        <span>AI 질문 총 30개 · 하루 최대 10개 · 신년 리포트와 정밀 택일</span>\n      </div>\n      <div class=\"ai-offer-price\"><em>8,900원</em></div>",
+    "        <small>매일 자주 상담하고 택일까지 볼 때</small>\n        <b>프리미엄 30일</b>\n        <span>AI 하루 15개 · 프리미엄 전체 서비스</span>\n      </div>\n      <div class=\"ai-offer-price\"><em>8,900원</em></div>"
+  ],
+  [
+    "\n  if (extra && extra.isAdmin) {\n    const used = Number.isInteger(extra.premiumDailyUsed) ? extra.premiumDailyUsed : null;\n    const limit = Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 100;\n    el.textContent = used == null ? `✦ 관리자 AI (하루 ${limit}개까지)` : `✦ 관리자 AI 오늘 ${used}/${limit}개 사용`;\n  } else if (isPremiumNow) {\n    const used = Number.isInteger(extra?.premiumDailyUsed) ? extra.premiumDailyUsed : null;\n    const limit = extra?.premiumDailyLimit || 10;\n    const totalLimit = extra?.premiumTotalLimit;\n    if (Number.isInteger(totalLimit) && Number.isInteger(extra.premiumTotalUsed)) {\n      const remaining = Math.max(0, totalLimit - extra.premiumTotalUsed);\n      el.textContent = `✦ 신년상담 ${totalLimit}개 중 ${remaining}개 남음 · ${used == null ? `하루 최대 ${limit}개` : `오늘 ${used}/${limit}개 사용`}`;\n    } else {\n      el.textContent = used == null ? `✦ 프리미엄 이용 중 (하루 ${limit}개까지)` : `✦ 프리미엄 오늘 ${used}/${limit}개 사용`;\n    }\n  } else if (extra && extra.usingCredit) {\n    el.textContent = `질문권 ${extra.questionCreditsLeft}개 남음`;",
+    "\n  if (extra && extra.isAdmin) {\n    const used = Number.isFinite(Number(extra.premiumDailyUsed)) ? Number(extra.premiumDailyUsed) : null;\n    const limit = Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 100;\n    el.textContent = used == null ? `✦ 관리자 AI (하루 ${limit}개까지)` : `✦ 관리자 AI 오늘 ${used}/${limit}개 사용`;\n  } else if (isPremiumNow) {\n    const used = extra && Number.isFinite(Number(extra.premiumDailyUsed)) ? Number(extra.premiumDailyUsed) : null;\n    const limit = extra && Number.isFinite(Number(extra.premiumDailyLimit)) ? Number(extra.premiumDailyLimit) : 15;\n    el.textContent = used == null ? `✦ 프리미엄 이용 중 (하루 ${limit}개까지)` : `✦ 프리미엄 오늘 ${used}/${limit}개 사용`;\n  } else if (extra && extra.usingCredit) {\n    el.textContent = `질문권 ${extra.questionCreditsLeft}개 남음`;"
+  ],
+  [
+    "}\n\nasync function refreshAiChatPremiumStatus() {\n  const uid = accountStore.owner();\n  const conversationId = window.__aiConversationId;\n  const status = document.getElementById('aiChatStatus');\n  if (!uid || !isPremium() || isAdmin() || !status) return;\n  const initialText = status.textContent;\n  const data = await recoverPremiumFromVerifiedServer(uid);\n  if (data?.active && uid === accountStore.owner() && conversationId === window.__aiConversationId &&\n      status.textContent === initialText) updateAiChatStatus(null, null, true, data);\n}\n\nconst SAJU_VAULT_PREFIX = 'taekilso_saju_vault_';\nfunction getSajuVaultKey(){ return SAJU_VAULT_PREFIX + (getCurrentUserKey() || 'guest'); }",
+    "}\n\nconst SAJU_VAULT_PREFIX = 'taekilso_saju_vault_';\nfunction getSajuVaultKey(){ return SAJU_VAULT_PREFIX + (getCurrentUserKey() || 'guest'); }"
+  ]
+]
