@@ -103,6 +103,18 @@
 }
 #dateReportList summary { cursor:pointer; padding:8px 0; }
 #dateReportList details[open] .date-report-result { margin-top:14px; }
+.date-report-decision {
+  margin:18px 0;
+  padding:14px 16px;
+  border-left:2px solid #806448;
+  background:#1b2420;
+}
+.date-report-decision h4 { margin:0 0 7px; color:#f0ebe1; font-size:1.05rem; }
+.date-report-decision p { margin:6px 0; }
+.date-report-factor-list { margin:8px 0; padding-left:20px; color:#ead7b5; font-size:16px; line-height:1.6; }
+.date-report-example { margin-top:16px; border-top:1px solid #39463e; }
+.date-report-example>summary { padding:13px 0; color:#ead7b5; cursor:pointer; font-weight:600; }
+.date-report-example>p:empty { display:none; }
 @media (max-width: 520px) {
   .tool-exact-cards { grid-template-columns: minmax(0,1fr); }
   .date-report-offer .btn,.date-report-library .btn { width:100%; margin-right:0; }

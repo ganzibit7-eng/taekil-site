@@ -1,0 +1,79 @@
+{
+  "version": "taekil-day-1",
+  "event": "결혼식",
+  "withPartner": true,
+  "candidates": [
+    {
+      "day": "2027-05-15",
+      "element": "목",
+      "people": [
+        {
+          "label": "본인",
+          "relation": "상생",
+          "weight": 2
+        },
+        {
+          "label": "상대방",
+          "relation": "같은 기운",
+          "weight": 1
+        }
+      ],
+      "eventWeight": 1.5,
+      "lunarDay": 10,
+      "folkWeight": 0.8,
+      "ganji": "갑오",
+      "hanja": "甲午",
+      "points": 93
+    },
+    {
+      "day": "2027-05-16",
+      "element": "목",
+      "people": [
+        {
+          "label": "본인",
+          "relation": "상생",
+          "weight": 2
+        },
+        {
+          "label": "상대방",
+          "relation": "같은 기운",
+          "weight": 1
+        }
+      ],
+      "eventWeight": 1.5,
+      "lunarDay": 11,
+      "folkWeight": 0,
+      "ganji": "을미",
+      "hanja": "乙未",
+      "points": 80
+    },
+    {
+      "day": "2027-05-29",
+      "element": "토",
+      "people": [
+        {
+          "label": "본인",
+          "relation": "상생",
+          "weight": 2
+        },
+        {
+          "label": "상대방",
+          "relation": "상극",
+          "weight": -2
+        }
+      ],
+      "eventWeight": 0,
+      "lunarDay": 24,
+      "folkWeight": 0,
+      "ganji": "무신",
+      "hanja": "戊申",
+      "points": 32
+    }
+  ],
+  "checklist": [
+    "예식장 확정 가능 시간과 보증 인원을 확인해요.",
+    "양가와 주요 하객의 이동 시간, 대관료 차이를 비교해요."
+  ],
+  "summary": "2027.05.15 후보가 이 비교에서 가장 높아요. 다음 후보와는 13점 차이예요.",
+  "note": "입력한 생년월일의 일간 오행과 후보일의 일진을 비교했어요. 손없는 날은 별도의 민속 기준으로 더했어요. 출생시간과 시간대별 길시는 계산하지 않으며 점수는 두 후보 이상을 비교하기 위한 참고값이에요."
+}

@@ -8,6 +8,7 @@
   const libraryButton = document.getElementById('dateReportLoadLibrary');
   const checkout = window.TaekilCheckout;
   const client = window.TaekilAccountReport;
+  const decision = window.TaekilReportDecision;
   const dateFormat = new Intl.DateTimeFormat('ko-KR',{dateStyle:'full',timeZone:'UTC'});
   let requestId = 0;
   let libraryOwner = accountStore.owner();
@@ -35,7 +36,7 @@
   function reportCard({report}) {
     const box = node('article','','date-report-result');
     const title = node('h3',report.event + ' 후보일 정밀 비교');
-    box.append(title,node('p',report.summary));
+    box.append(title,decisionCard(report));
     const dates = node('ol','','date-report-ranked');
     let rank = 0;
     let previous;
@@ -50,7 +51,7 @@
       for (const person of candidate.people) {
         scores.append(node('li',`${person.label} · ${person.relation} (${person.weight>0?'+':''}${person.weight})`));
       }
-      scores.append(node('li','행사 기준 '+(candidate.eventWeight ? '+1.5' : '가점 없음')),
+      scores.append(node('li','행사 기준 '+(candidate.eventWeight ? '+'+candidate.eventWeight : '가점 없음')),
         node('li',candidate.folkWeight ? '손없는 날 +'+candidate.folkWeight : '손없는 날 가점 없음'));
       row.append(scores);
       if (candidate.people.some(person=>person.weight<0)) {
@@ -63,6 +64,61 @@
     box.append(dates,node('h4','날짜를 확정하기 전에'),checklist,
       node('p','두 사람을 선택하면 각자의 기운 점수를 평균해요. 여기에 행사·민속 가점과 작은 순위 보정을 더해 100점으로 표시해요. '+report.note,'date-report-method'));
     return box;
+  }
+
+  function decisionCard(report) {
+    const box = node('section','','date-report-decision');
+    const comparison = decision.dateComparison(report.candidates);
+    if (!comparison) {
+      box.append(node('p',report.summary));
+      return box;
+    }
+    if (comparison.tied) {
+      box.append(node('h4','공동 1위 후보'),node('p',
+        comparison.tied.map(dayLabel).join(' · ')+'의 표시 점수가 같아요. 가능한 시간과 비용을 먼저 비교해 보세요.'));
+      return box;
+    }
+    const {first,second,factors,baseDifference,difference} = comparison;
+    box.append(node('h4','1위와 2위가 갈린 이유'),node('p',
+      `${dayLabel(first.day)} ${first.points}점 · ${dayLabel(second.day)} ${second.points}점 · ${difference}점 차이`));
+    if (!factors.length) {
+      box.append(node('p','오행·행사·손없는 날의 반영값은 같아요. 표시 점수 차이는 순위 보정과 반올림에서 생겼으니 실제 일정이 더 맞는 날짜를 먼저 살펴보세요.'));
+      return box;
+    }
+    const list = node('ul','','date-report-factor-list');
+    const weight = value=>value > 0 ? '+'+value : String(value);
+    for (const {label,firstWeight,secondWeight} of factors) {
+      list.append(node('li',label+' · 1위 '+weight(firstWeight)+' / 2위 '+weight(secondWeight)));
+    }
+    box.append(list,node('p','오행·행사·손없는 날 가운데 반영값이 다른 항목만 표시했어요. 항목별 반영값은 100점으로 환산하기 전 수치예요.','date-report-method'));
+    if (baseDifference <= 0) box.append(node('p',baseDifference === 0
+      ? '세 기준을 합한 값은 같아요. 실제 일정에 더 맞는 날짜를 먼저 살펴보세요.'
+      : '세 기준의 합은 표시 순위와 달라요. 순위 보정이 포함된 점수이므로, 실제 일정에 더 맞는 날짜를 먼저 살펴보세요.'));
+    return box;
+  }
+
+  function exampleDisclosure() {
+    const detail = node('details','','date-report-example');
+    const content = node('div');
+    const status = node('p');
+    status.setAttribute('role','status');
+    detail.append(node('summary','가상의 후보 3개로 만든 정밀 택일 예시'),status,content);
+    detail.addEventListener('toggle',async () => {
+      if (!detail.open || detail.dataset.loaded) return;
+      detail.dataset.loaded='loading';
+      status.textContent='예시를 불러오고 있어요.';
+      try {
+        const res=await fetch('/content/date-report-example.json');
+        if (!res.ok) throw new Error('EXAMPLE_UNAVAILABLE');
+        content.replaceChildren(reportCard({report:await res.json()}));
+        status.textContent='가상의 두 사람과 예식 후보일에 운영 계산식을 적용한 예시예요.';
+        detail.dataset.loaded='yes';
+      } catch (_) {
+        status.textContent='예시를 불러오지 못했어요. 접었다가 다시 열어 주세요.';
+        delete detail.dataset.loaded;
+      }
+    });
+    return detail;
   }
 
   function offer(comparison) {
@@ -79,6 +135,7 @@
     paused.setAttribute('data-checkout-paused','');
 
     async function submit(purchase) {
+      if (!card.isConnected || !card.closest('#view-tool.visible')) return false;
       const token = accountStore.snapshot();
       if (!token.owner) {
         openAuthModal();
@@ -86,7 +143,7 @@
         return false;
       }
       const data = await request({operation:'prepare',comparison,checkout:purchase},token);
-      if (!accountStore.current(token) || !card.isConnected) return false;
+      if (!accountStore.current(token) || !card.isConnected || !card.closest('#view-tool.visible')) return false;
       if (data.state === 'ready') {
         card.replaceChildren(reportCard(data),node('p','내 기록에 저장했어요.'));
         return false;
@@ -121,8 +178,15 @@
       } catch(error) { status.textContent = error.message; }
     },'btn btn-primary');
     buy.setAttribute('data-checkout-action','');
-    card.append(paused,included,buy,status);
+    card.append(paused,included,buy,status,exampleDisclosure());
     return card;
+  }
+
+  function libraryItem(record,open = false) {
+    const detail = node('details');
+    detail.append(node('summary',record.report.event+' · '+dayLabel(record.report.candidates[0].day)+' 외 '+(record.report.candidates.length-1)+'개'),reportCard(record));
+    detail.open = open;
+    return detail;
   }
 
   async function loadLibrary(before = null) {
@@ -135,12 +199,7 @@
       const pending = accountStore.getItem(pendingKey);
       const {reports,next} = await request({operation:'list',before},token);
       if (!accountStore.current(token) || current !== requestId) return;
-      const items = reports.map(record => {
-        const detail = node('details');
-        detail.append(node('summary',record.report.event+' · '+dayLabel(record.report.candidates[0].day)+' 외 '+(record.report.candidates.length-1)+'개'),reportCard(record));
-        if (record.id === pending) detail.open = true;
-        return detail;
-      });
+      const items = reports.map(record=>libraryItem(record,record.id===pending));
       if (before) {
         library.querySelector('.date-report-more')?.remove();
         library.append(...items);
@@ -153,13 +212,14 @@
       if (reports.some(record=>record.id===pending)) {
         accountStore.removeItem(pendingKey);
         libraryStatus.textContent = '정밀 택일 리포트를 내 기록에 저장했어요.';
-      } else if (pending) {
-        const {state} = await request({operation:'open',id:pending},token);
+      } else if (pending && !before) {
+        const record = await request({operation:'open',id:pending},token);
         if (!accountStore.current(token) || current !== requestId) return;
-        libraryStatus.textContent = state === 'pending'
+        if (record.state==='ready') library.prepend(libraryItem(record,true));
+        libraryStatus.textContent = record.state === 'pending'
           ? '결제 확인 전이에요. 완료한 뒤 잠시 기다렸다가 다시 확인해 주세요.'
-          : state === 'ready' ? '다시 확인하면 최신 리포트가 표시돼요.' : '이전 결제는 취소되었거나 환불됐어요.';
-        if (state !== 'pending' && state !== 'ready') accountStore.removeItem(pendingKey);
+          : record.state === 'ready' ? '정밀 택일 리포트를 내 기록에 저장했어요.' : '이전 결제는 취소되었거나 환불됐어요.';
+        if (record.state !== 'pending') accountStore.removeItem(pendingKey);
       } else {
         libraryStatus.textContent = reports.length ? '최근 저장 순서로 표시해요.' : '저장한 정밀 택일 리포트가 아직 없어요.';
       }
@@ -198,5 +258,7 @@
     document.getElementById('dateReportLibraryTitle').scrollIntoView({block:'start',behavior:'instant'});
   }
   window.addEventListener('DOMContentLoaded',finishCheckout,{once:true});
+  const planExample=document.querySelector('[data-date-report-example]');
+  if (planExample) planExample.append(exampleDisclosure());
   window.TaekilDateReport = {offer};
 })();

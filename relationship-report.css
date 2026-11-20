@@ -98,6 +98,32 @@
 .relationship-reading details { margin-top:18px; }
 .relationship-library-list>details { margin-top:12px; border-bottom:1px solid #39463e; }
 #relationshipReportOutput,#relationshipReviewTitle { scroll-margin-top:96px; }
+.relationship-hero p.relationship-sale-status { font-size:15px; color:#e0c59a; }
+.relationship-form p.relationship-scope { font-size:15px; }
+.relationship-reading h4[tabindex="-1"] { scroll-margin-top:98px; }
+.relationship-copy {
+  min-height:44px;
+  padding:7px 0;
+  border:0;
+  background:none;
+  color:#dfc69c;
+  font:600 15px/1.5 var(--sans);
+  text-decoration:underline;
+  text-underline-offset:4px;
+  cursor:pointer;
+}
+.relationship-copy-controls { display:flex; flex-wrap:wrap; gap:4px 12px; align-items:center; }
+.relationship-copy-status { color:#e1d4bb; font-size:14px; }
+.relationship-dialogue .relationship-use-when { font-size:15px; }
+.relationship-dialogue .relationship-agreement {
+  margin:14px 0 0;
+  border-top:1px solid #46534b;
+  padding-top:10px;
+  color:#e6ded1;
+}
+.relationship-agreement strong { color:#dfc69c; }
+.relationship-dialogue details.relationship-scene-basis { margin-top:8px; }
+.relationship-scene-basis summary { font-size:15px; }
 @media (max-width:540px) {
   .relationship-hero,.relationship-fields { grid-template-columns:minmax(0,1fr); }
   .relationship-hero { padding-top:28px; gap:16px; }
