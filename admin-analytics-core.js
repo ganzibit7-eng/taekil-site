@@ -1,6 +1,6 @@
 (function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory();else root.TaekilAnalytics=factory();})(typeof window!=='undefined'?window:this,function(){
   'use strict';
-  const products={taekilso_premium_30days:'프리미엄 30일',ai_question_pack_5:'질문권 5개',ai_question_pack_10:'질문권 10개'};
+  const products={taekilso_premium_30days:'프리미엄 30일',taekilso_newyear_2027_report:'2027 신년운세',ai_question_pack_5:'질문권 5개',ai_question_pack_10:'질문권 10개'};
   const number=v=>Number.isFinite(Number(v))&&Number(v)>0?Number(v):0;
   function settledPaid(o){
     if(!o||o.status!=='paid'||number(o.refundedAmount)||o.cancelledAtMs||o.entitlementRevokedAtMs)return false;

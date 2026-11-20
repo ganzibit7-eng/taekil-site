@@ -277,8 +277,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <!-- include consultation.js -->
 </script>
 <!-- include experience.fragment -->
-<script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=20261119-daily"></script>
-<script src="admin-analytics.js?v=surfaces-1120"></script>
+<script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=standalone-1"></script>
+<script src="admin-analytics.js?v=standalone-1"></script>
 
 <link rel="stylesheet" href="consultation-stage.css?v=chat-layers-1121">
 <script src="consultation-personas.js?v=20261118-chat-films"></script>
@@ -307,17 +307,17 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <button type="button" id="seohwaWritingFilmToggle" class="sr-generation-film-toggle">영상 멈추기</button>
   </div>
 </dialog>
-<link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261118-continuous-arrival"></script><script src="premium-motion.js" defer></script>
+<link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=annual-progress-1"></script><script src="premium-motion.js" defer></script>
 <script src="consultation-draft-core.js?v=featured-report-1"></script>
 <script src="consultation-stage.js?v=featured-report-2"></script>
 <script src="consultation-history-filters.js?v=20261120-history-filters"></script>
 <link rel="stylesheet" href="consultation-experience.css?v=ink-1120">
 <script src="consultation-experience-core.js?v=20261117-saved-evidence"></script>
-<script src="consultation-experience.js?v=20261117-saved-evidence"></script>
+<script src="consultation-experience.js?v=profile-library-1"></script>
 
 <script src="navigation-stability.js?v=20261111-2"></script>
-<link rel="stylesheet" href="newyear-consultation.css?v=decision-guide-1">
-<script src="newyear-consultation.js?v=decision-guide-1"></script><script src="newyear-example.js?v=20261119-handoff-refine"></script>
+<link rel="stylesheet" href="newyear-consultation.css?v=annual-progress-1">
+<script src="newyear-consultation.js?v=standalone-progress-1"></script><script src="newyear-example.js?v=20261119-handoff-refine"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=ink-1120">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
 <script src="free-report-handoff.js?v=nov20-fortune"></script>
@@ -327,7 +327,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <link rel="stylesheet" href="consultation-quality.css?v=entry-1120">
 <script src="support-channels.js?v=20261111-refund"></script>
 <script src="consultation-quality.js?v=20261117-saved-evidence"></script>
-<link rel="stylesheet" href="site-menu.css?v=surfaces-1120"><script src="site-menu.js?v=20261119-topic-index"></script>
+<link rel="stylesheet" href="site-menu.css?v=profile-library-1"><script src="site-menu.js?v=20261119-topic-index"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=ink-1120">
 <script src="account-session.js?v=nov20-entry"></script>
 <script src="campaign-attribution-core.js?v=20261119-campaign-visits"></script><script src="campaign-attribution.js?v=20261119-daily"></script>

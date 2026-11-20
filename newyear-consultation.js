@@ -5,39 +5,75 @@
   if(!view)return;
   const status=view.querySelector('[data-year-status]'),content=view.querySelector('[data-year-content]');
   const account=view.querySelector('.newyear-account'),refresh=view.querySelector('[data-year-refresh]');
-  let active=false,busy=false,timer=0,version=0,pendingChat=false,pendingQuestion='',profiles=[],progressClock=0,progressStarted=0,progressElapsed=null,draft=null,draftOwner=null;
+  let active=false,busy=false,timer=0,version=0,pendingChat=false,pendingQuestion='',profiles=[],progressClock=0,progressStarted=0,progressView=null,completionTimer=0,draft=null,draftOwner=null,paymentPolls=0;
+  const price=6900, productName='2027 신년운세 리포트', pendingKey='taekilso_newyear_report_pending_v1';
+  const expectedWriteMs=120000;
+  const writingFilm=view.querySelector('[data-year-progress-video]'),filmToggle=view.querySelector('[data-year-film-toggle]');
+  filmToggle?.addEventListener('click',()=>{
+    const paused=writingFilm.toggleAttribute('data-video-paused');
+    filmToggle.textContent=paused?'영상 재생':'영상 멈추기';
+    window.dispatchEvent(new Event('taekilso:readingMode'));
+  });
   const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
   const button=(text,action,primary=false)=>{const b=el('button',text,'btn'+(primary?' btn-primary':''));b.type='button';b.addEventListener('click',action);return b;};
   const loggedIn=()=>!!((typeof getKakaoUser==='function'&&getKakaoUser())||(typeof firebaseAuthUser!=='undefined'&&firebaseAuthUser&&!firebaseAuthUser.isAnonymous));
   const owner=()=>typeof getCurrentUserKey==='function'?getCurrentUserKey():null;
-  async function request(operation,profile){
+  async function request(operation,profile,extra={}){
     const accountToken=window.accountStore.snapshot();
     const actor=owner(),headers=await getAiRequestHeaders();
     if(actor!==owner()||!window.accountStore.current(accountToken))throw new Error('계정이 변경되었어요. 이용권을 다시 확인해 주세요.');
-    const response=await fetch(AI_CHAT_URL,{method:'POST',headers,signal:AbortSignal.timeout(170000),body:JSON.stringify({action:'newyear-report',operation,profile})});
+    const response=await fetch(AI_CHAT_URL,{method:'POST',headers,signal:AbortSignal.timeout(170000),body:JSON.stringify({action:'newyear-report',operation,profile,...extra})});
     const data=await response.json();
     if(actor!==owner()||!window.accountStore.current(accountToken))throw new Error('계정이 변경되었어요. 이용권을 다시 확인해 주세요.');
     if(!response.ok){const error=new Error(data.message||'신년운세를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');error.code=data.error;throw error;}
     return data;
   }
   function message(text){status.textContent=text;status.setAttribute('role','status');}
-  function stopProgress(){clearInterval(progressClock);progressClock=0;progressStarted=0;progressElapsed=null;content.removeAttribute('aria-busy');view.classList.remove('is-generating');}
-  function updateProgressTime(){
-    if(!active||!progressElapsed?.isConnected)return;
-    const seconds=Math.max(0,Math.floor((Date.now()-progressStarted)/1000));
-    progressElapsed.textContent='작성 경과 '+Math.floor(seconds/60)+'분 '+String(seconds%60).padStart(2,'0')+'초';
+  function stopProgress(){
+    clearInterval(progressClock);clearTimeout(completionTimer);
+    progressClock=0;completionTimer=0;progressStarted=0;progressView=null;
+    content.removeAttribute('aria-busy');view.classList.remove('is-generating');
+  }
+  function setProgress(percent){
+    progressView.bar.value=percent;
+    progressView.number.textContent=percent+'%';
+  }
+  function updateProgress(){
+    if(!active||!progressView?.bar.isConnected)return;
+    const elapsed=Math.max(0,Date.now()-progressStarted);
+    setProgress(Math.min(95,Math.floor(elapsed*95/expectedWriteMs)));
+    if(elapsed>expectedWriteMs)progressView.eta.textContent='평소보다 조금 더 오래 걸리고 있어요.';
   }
   function showProgress(startedAt){
     const entering=!view.classList.contains('is-generating');view.classList.remove('has-report');view.classList.add('is-generating');if(entering)window.scrollTo({top:0,behavior:'instant'});
-    progressStarted=Number(startedAt)||progressStarted||Date.now();content.setAttribute('aria-busy','true');
-    if(!progressElapsed?.isConnected){
-      const box=el('section',null,'newyear-progress');
-      progressElapsed=el('p',null,'newyear-progress-time');
-      box.append(el('h2','연우가 리포트를 작성하고 있어요'),el('p','사주를 바탕으로 한 해의 흐름과 월별 기록을 정리하고 있어요.'),progressElapsed,el('p','보통 1~2분 정도 걸려요. 완성된 리포트는 이 계정에서 다시 열 수 있어요.','newyear-muted'));
+    progressStarted=Math.min(Date.now(),Number(startedAt)||progressStarted||Date.now());
+    content.setAttribute('aria-busy','true');
+    if(!progressView?.bar.isConnected){
+      const box=el('section',null,'newyear-progress'),heading=el('h2','연우가 신년운세를 쓰고 있어요');
+      const meter=el('div',null,'sr-generation-meter'),row=el('div',null,'sr-generation-meter-label');
+      const label=el('span','진행률'),number=el('strong','0%'),bar=el('progress'),eta=el('p','예상 소요 시간 약 1~2분','sr-generation-eta');
+      number.setAttribute('aria-hidden','true');bar.max=100;bar.value=0;bar.setAttribute('aria-label','신년운세 작성 진행률');
+      row.append(label,number);meter.append(row,bar,eta);
+      box.append(el('span','2027 신년운세','newyear-progress-kicker'),heading,
+        el('p','당신의 사주와 열두 달 흐름을 차례로 맞춰보고 있어요.','newyear-progress-description'),meter,
+        el('p','일·돈·관계·생활의 흐름 · 작성 후 내 기록에서 다시 열람','sr-generation-next'));
+      progressView={heading,label,number,bar,eta};
       content.replaceChildren(box);
     }
-    updateProgressTime();
-    if(!progressClock)progressClock=setInterval(updateProgressTime,1000);
+    updateProgress();
+    if(!progressClock)progressClock=setInterval(updateProgress,450);
+  }
+  function finishProgress(data){
+    if(completionTimer)return;
+    clearInterval(progressClock);progressClock=0;
+    progressView.heading.textContent='신년운세가 완성됐어요';
+    progressView.label.textContent='작성 완료';
+    progressView.eta.hidden=true;
+    setProgress(100);
+    const token=accountStore.snapshot();
+    completionTimer=setTimeout(()=>{
+      if(active&&accountStore.current(token))showReport(data);
+    },650);
   }
   function openYear(){goTo('newyear');}
   window.openNewyearConsultation=openYear;
@@ -46,14 +82,43 @@
     box.append(button('2027 신년운세 이용권 알아보기',openYear));
     document.getElementById('aiChatWindow')?.append(box);
   };
-  function purchase(){
-    if (!window.TaekilCheckout?.requireOpen()) return;
+  async function purchase(){
+    const checkout=window.TaekilCheckout, client=window.TaekilAccountReport;
+    if(!checkout?.requireOpen())return;
     if(!loggedIn()){openAuthModal();return;}
-    sessionStorage.setItem('taekilso_newyear_return','1');
-    payPremium();
+    const token=accountStore.snapshot();
+    const current=()=>active&&accountStore.current(token);
+    const host=content.querySelector('.newyear-purchase-action');
+    return checkout.run(async()=>{
+      try {
+        if(!current()||!host)return false;
+        const result=await request('prepare-purchase');
+        if(!current())return false;
+        if(result.state==='owned'){await load();return false;}
+        if(result.state==='paused'){message('신규 결제를 잠시 중단했어요.');return false;}
+        if(result.state==='resume'){client.showResume(status,result,pendingKey);return false;}
+        if(result.state==='pending'){message(client.pendingMessage(result));return false;}
+        if(!await window.TaekilPrivacy.confirmAI(host)||!current())return false;
+        if(!await checkout.loadSdk()||!current())return false;
+        const order=await request('prepare-purchase',null,{checkout:true});
+        if(!current())return false;
+        if(order.state==='owned'){await load();return false;}
+        if(order.state==='paused'){message('신규 결제를 잠시 중단했어요.');return false;}
+        if(order.state==='resume'){client.showResume(status,order,pendingKey);return false;}
+        if(order.state==='pending'){message(client.pendingMessage(order));return false;}
+        const opened=client.pay(order,{price,name:productName,pendingKey,
+          returnPath:'/?annualOrder='+encodeURIComponent(order.orderId)+'#newyear',memo:'2027 신년운세 · 계정에서 다시 읽기'});
+        if(!opened)message('결제창을 열지 못했어요. 이용권 상태를 다시 확인해 주세요.');
+        return opened;
+      }catch(error){
+        if(current())message(error.message);
+        return false;
+      }
+    });
   }
   function purchaseButton(text, primary = false) {
     const action = button(text, purchase, primary);
+    action.classList.add('newyear-purchase-action');
     action.setAttribute('data-checkout-action', '');
     return action;
   }
@@ -61,6 +126,12 @@
     const note = el('p', '신규 결제를 잠시 중단했습니다.', 'checkout-pause-note');
     note.setAttribute('data-checkout-paused', '');
     return note;
+  }
+  function clearOrderReturn(){
+    const url=new URL(location.href);
+    if(!url.searchParams.has('annualOrder'))return;
+    url.searchParams.delete('annualOrder');
+    history.replaceState(history.state,'',url);
   }
   function selectProfile(){
     view.classList.remove('has-report');
@@ -221,7 +292,7 @@
     const calculation=el('details',null,'newyear-calculation');calculation.append(el('summary','계산 기준과 해석 범위'));
     calculation.append(el('p',`사주에서는 입춘부터 한 해의 기준이 바뀌어요. 2027년 입춘은 ${data.calculation.annual.startsAt}이고, 이때부터 정미(丁未), 그전까지는 병오(丙午)의 해로 봐요. 열두 달은 양력 순서로 보여드리며, 각 달에서 절기로 기준이 바뀌는 시점도 반영했어요.`));
     data.calculation.limitations.forEach(t=>calculation.append(el('p',t)));content.append(calculation);
-    content.append(el('p','작성된 리포트는 이용기간이 끝나도 이 계정에서 다시 읽을 수 있어요.','newyear-muted'));
+    content.append(el('p','작성된 리포트는 이 계정에서 다시 읽을 수 있어요.','newyear-muted'));
     const askReport=(question='신년 리포트 내용을 제 상황에 어떻게 적용하면 좋을까요?')=>{
       pendingQuestion=question;
       pendingChat=true;
@@ -233,9 +304,8 @@
       for(const [id,value]of Object.entries(values)){const input=document.getElementById(id);if(input)input.value=String(value);}
       document.getElementById('aiChatLeap').checked=!!p.isLeap;startAiChat({source:'newyear-report'});
     };
-    if(data.access)content.append(button('리포트가 궁금하다면, 연우에게 이어 묻기',()=>askReport(),true));
-    else content.append(purchaseButton('신년운세 30일 이용권 구매'), pausedNotice());
-    window.TaekilExperience?.report(content,data,askReport);
+    if(data.chatAccess??data.access)content.append(button('리포트가 궁금하다면, 연우에게 이어 묻기',()=>askReport(),true));
+    window.TaekilExperience?.report(content,{...data,access:data.chatAccess??data.access},askReport);
     if(wasGenerating)requestAnimationFrame(()=>{
       if(!active||!overview.isConnected)return;
       overview.querySelector('h2').focus({preventScroll:true});
@@ -244,15 +314,34 @@
   }
   function render(data){
     clearTimeout(timer);
-    if(data.status==='ready'&&data.report){message('2027 신년운세 리포트가 준비됐어요.');showReport(data);return;}
+    if(data.paymentState==='pending'&&!data.access){
+      stopProgress();
+      message('신년운세 결제를 확인하고 있어요.');
+      content.replaceChildren(el('p','승인되면 이곳에서 리포트를 작성할 수 있어요.','newyear-muted'),
+        button('결제 상태 다시 확인',load,true),purchaseButton('결제 이어하기'));
+      if(paymentPolls++<12)timer=setTimeout(load,5000);
+      return;
+    }
+    paymentPolls=0;
+    if(data.paymentState==='review'&&!data.access){
+      stopProgress();
+      message('신년운세 결제 내역을 확인할 필요가 있어요.');
+      content.replaceChildren(button('1:1 문의하기',()=>goTo('support'),true));
+      return;
+    }
+    if(data.status==='ready'&&data.report){
+      message('2027 신년운세 리포트가 준비됐어요.');
+      if(progressView?.bar.isConnected)finishProgress(data);else showReport(data);
+      return;
+    }
     if(!data.access){
       stopProgress();view.classList.remove('has-report');content.style.minHeight='';
       if(loggedIn()&&(data.paymentCheckRequired||(typeof isPremium==='function'&&isPremium()))){message('이용권 연결 상태를 확인해 주세요. 추가 결제부터 하실 필요는 없습니다.');content.replaceChildren(el('h2','구매하셨다면, 이용권을 다시 확인해 주세요.'),el('p','결제 직후에는 승인 기록이 계정에 연결되는 데 잠시 걸릴 수 있어요. 구매한 계정으로 로그인되어 있는지 확인해 주세요.','newyear-muted'),button('이용권 연결 다시 확인',load,true),button('문의하기',()=>goTo('support')));return;}
-      message('내 2027 신년운세 리포트');
+      message(data.paymentState==='cancelled'?'이 주문은 취소 또는 환불됐어요.':'내 2027 신년운세 리포트');
       content.replaceChildren(
-        purchaseButton(loggedIn() ? '8,900원 · 신년운세 이용하기' : '로그인하고 신년운세 이용하기', true),
+        purchaseButton(loggedIn() ? '6,900원 · 신년운세 구매' : '로그인하고 신년운세 구매', true),
         pausedNotice(),
-        el('p', '기존 프리미엄 30일 이용 중이라면 추가 결제 없이 포함됩니다. 추가 질문권에는 신년운세가 포함되지 않습니다.', 'newyear-muted')
+        el('p', '한 번 결제하면 이 계정에서 열두 달 전체 풀이를 다시 읽을 수 있어요.', 'newyear-muted')
       );
       if (!loggedIn()) {
         const signIn = button('로그인하고 내 리포트 확인하기', openAuthModal);
@@ -271,7 +360,16 @@
     refresh.hidden=!loggedIn();
     if(!loggedIn()){render({access:false,status:'none'});return;}
     if(!view.classList.contains('is-generating'))message('나의 신년운세를 확인하고 있어요.');
-    try{const data=await request('status');if(token===version&&active)render(data);}
+    try{
+      const orderId=new URL(location.href).searchParams.get('annualOrder');
+      let data=orderId?await request('checkout-status',null,{orderId}):await request('status');
+      if(token!==version||!active)return;
+      if(orderId&&data.paymentState!=='pending'){
+        clearOrderReturn();
+        if(data.paymentState==='missing')data=await request('status');
+      }
+      if(token===version&&active)render(data);
+    }
     catch(e){
       if(token!==version||!active)return;
       if(view.classList.contains('is-generating')){
@@ -289,7 +387,7 @@
     account.scrollIntoView({block:'start',behavior:'instant'});
   });
   document.querySelectorAll('[data-open-newyear]').forEach(b=>b.addEventListener('click',openYear));
-  const observe=new MutationObserver(()=>{const next=view.classList.contains('visible');if(next!==active){active=next;if(active)load();else{++version;clearTimeout(timer);clearInterval(progressClock);progressClock=0;}}});observe.observe(view,{attributes:true,attributeFilter:['class']});
+  const observe=new MutationObserver(()=>{const next=view.classList.contains('visible');if(next!==active){active=next;if(active)load();else{++version;clearTimeout(timer);stopProgress();}}});observe.observe(view,{attributes:true,attributeFilter:['class']});
   const panel=document.getElementById('aiChatPanel'),intro=document.getElementById('homeIntroOverlay');
   new MutationObserver(()=>{
     if(panel.style.display==='flex'&&pendingChat){window.__newyearChatContext=true;pendingChat=false;window.prepareAiQuestion?.(pendingQuestion);pendingQuestion='';}

@@ -19,7 +19,7 @@
  videos.push(...document.querySelectorAll('[data-home-directory-video], [data-year-progress-video], [data-wedding-preview-video], [data-story-preview-video]'));
  const allowed=()=>!reduced.matches&&!connection?.saveData&&!document.hidden;
  const visible=v=>{const s=states.get(v),r=v.getBoundingClientRect();return s.visible&&r.width>0&&r.height>0&&r.bottom>0&&r.top<innerHeight;};
- const canPlay=v=>allowed()&&visible(v)&&!(v.classList.contains('ai-chat-bgvideo')&&v.closest('.reading-focus'));
+ const canPlay=v=>allowed()&&visible(v)&&v.dataset.videoPaused===undefined&&!(v.classList.contains('ai-chat-bgvideo')&&v.closest('.reading-focus'));
  function pause(v){states.get(v).pending=false;v.pause();v.classList.remove('yeonwoo-playing');}
  function sync(v){const s=states.get(v);if(s.failed||!v.dataset.videoSrc||!canPlay(v)){pause(v);return;}
   if(!v.getAttribute('src')){v.src=v.dataset.videoSrc;v.load();}

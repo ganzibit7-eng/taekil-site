@@ -32,7 +32,7 @@
   const b=btn('',()=>{if(!store.current(captured))return;const data=read(),rows=Array.isArray(data.saved)?data.saved:[],exists=rows.some(x=>x.id===id);data.saved=exists?rows.filter(x=>x.id!==id):[{id,conversation,consultantId,question:String(question).slice(0,500),text:String(text).slice(0,12000),...(details.length?{evidence:details}:{}),at:Date.now()},...rows].slice(0,50);if(write(data)){sync();renderLibrary();announce(exists?'저장한 답변에서 해제했어요.':'이 기기의 상담 보관함에 저장했어요.');}else announce('저장 공간을 확인해 주세요.');},'reading-save');
   const sync=()=>{const yes=(read().saved||[]).some(x=>x.id===id);b.textContent=yes?'저장됨 · 해제':'답변 저장';b.setAttribute('aria-pressed',String(yes));};sync();element.append(b);
  }
- const profile=document.querySelector('#view-profile .pf-panels'),library=el('section',null,'reading-library pf-panel');library.id='consultationLibrary';profile?.before(library);
+ const profile=document.querySelector('#view-profile .pf-panels'),library=el('section',null,'reading-library pf-panel');library.id='consultationLibrary';profile?.after(library);
  function renderLibrary(){
   library.replaceChildren(el('h2','나의 상담 보관함'));
   if(!store.owner()){library.append(el('p','로그인하면 내 상담 기록을 확인할 수 있어요.'));return;}

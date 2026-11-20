@@ -819,14 +819,12 @@ function renderProfile() {
   if (isPremium()) {
     tierEl.textContent = '프리미엄 회원';
     tierEl.classList.add('gold');
-    upgradeBtn.textContent = '프리미엄 이용 중 · ' + formatPremiumUntil();
-    upgradeBtn.disabled = false;
   } else {
     tierEl.textContent = '무료 회원';
     tierEl.classList.remove('gold');
-    upgradeBtn.textContent = '프리미엄 30일 이용권 구매';
-    upgradeBtn.disabled = false;
   }
+  upgradeBtn.textContent = '이용권 안내';
+  upgradeBtn.disabled = false;
 
   document.getElementById('adminEntryWrap').style.display = isAdmin() ? 'block' : 'none';
 }

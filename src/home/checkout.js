@@ -127,115 +127,7 @@ async function refreshQuestionCreditUI(uid) {
 }
 
 async function payPremium() {
-  /* CHECKOUT_START */
-  if (!window.TaekilCheckout?.requireOpen()) return;
-  return window.TaekilCheckout.run(() => startPremiumCheckout());
-}
-
-async function startPremiumCheckout() {
-  /* CHECKOUT_END */
-  trackAiFunnel('premium_purchase_start', { pendingQuestion: getPendingPaidAiQuestion() });
-  // Spark 무료 운영: 결제창을 열기 위해 Firebase Auth를 강제하지 않습니다.
-  // 카카오 로그인 정보는 localStorage로 유지되므로 결제 버튼을 눌렀다고 로그아웃되지 않습니다.
-  if (!getKakaoUser() && !(firebaseReady && firebaseAuthReady && firebaseAuthUser)) {
-    showToast('먼저 로그인해주세요.');
-    openAuthModal();
-    return;
-  }
-
-  if (!await window.TaekilCheckout.loadSdk()) return;
-  if (typeof PayApp === 'undefined') {
-    showToast('결제 모듈을 불러오지 못했어요. 잠시 후 다시 시도해주세요.');
-    return;
-  }
-  if (!PAYAPP_USERID || PAYAPP_USERID === "YOUR_PAYAPP_ID") {
-    showToast('페이앱 판매자 아이디를 연결해주세요.');
-    return;
-  }
-  if (isPremium()) {
-    showToast('이미 프리미엄을 이용 중이에요.');
-    return;
-  }
-
-  let paymentUser = null;
-  try {
-    paymentUser = await ensureFirestorePaymentAuth();
-  } catch (authErr) {
-    console.error('프리미엄 결제 인증 준비 실패', authErr);
-    showToast('결제 인증을 준비하지 못했어요. 잠시 후 다시 시도해주세요.');
-    return;
-  }
-  if (!paymentUser || paymentUser.isAnonymous) {
-    showToast('로그인 보안 연결을 확인하지 못했어요. 다시 로그인한 뒤 결제를 시도해주세요.');
-    return;
-  }
-
-  try { await saveCurrentAiConversation(); } catch (e) { console.warn('결제 전 상담 저장 실패', e); }
-
-  const orderId = 'TAK-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
-  const currentKakaoUser = getKakaoUser();
-  const uidForOrder = paymentUser.uid;
-  try {
-    if (currentKakaoUser) {
-      localStorage.setItem(KAKAO_USER_KEY, JSON.stringify(currentKakaoUser));
-      sessionStorage.setItem(KAKAO_USER_KEY, JSON.stringify(currentKakaoUser));
-    }
-
-    if (PAYAPP_FEEDBACK_URL) {
-      // 서버 검증 방식: 실제 결제 승인은 페이앱이 서버로 직접 통보하는 feedbackurl에서
-      // 처리되고, 이 문서는 그 요청이 맞는 주문인지 서버가 대조하는 용도로만 씁니다.
-      if (!db) { showToast('결제 요청 저장소에 연결하지 못했어요. 잠시 후 다시 시도해주세요.'); return; }
-      await db.collection('paymentOrders').doc(orderId).set({
-        uid: uidForOrder,
-        amount: PREMIUM_PRICE,
-        product: 'taekilso_premium_30days',
-        planVersion: 2,
-        status: 'pending',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }
-    // 서버 검증 전이라도, 결제 버튼을 누른 기록 자체는 남겨서 결제 후 돌아왔을 때
-    // "결제 확인 중" 화면을 띄우는 데 사용합니다. (프리미엄 활성화 근거로는 쓰지 않습니다)
-    /* CHECKOUT_START */
-    if (!window.TaekilCheckout?.requireOpen()) return;
-    /* CHECKOUT_END */
-    localStorage.setItem('taekilso_pending_order', JSON.stringify({
-      orderId,
-      amount: PREMIUM_PRICE,
-      paymentUid: uidForOrder,
-      createdAt: Date.now()
-    }));
-
-    const payParams = {
-      userid: PAYAPP_USERID,
-      shopname: '택일소',
-      goodname: '2027 신년운세 · 30일 이용권',
-      price: String(PREMIUM_PRICE),
-      recvphone: '01000000000',
-      smsuse: 'n',
-      checkretry: 'y',
-      returnurl: PAYAPP_RETURN_URL,
-      var1: orderId,
-      memo: '30일 이용권 · AI 질문 총 30개·하루 최대 10개 · 365일 택일',
-      redirectpay: '1'
-    };
-    // 서버 검증 함수가 연결되어 있으면 feedbackurl도 처음부터 같이 보냅니다. setParam을
-    // 두 번 나눠 호출하면 페이앱 쪽에서 두 번째 호출 때 앞서 설정한 값이 초기화되는 등
-    // 예상치 못한 동작이 있을 수 있어서, 하나의 객체로 합쳐서 한 번만 호출합니다.
-    if (PAYAPP_FEEDBACK_URL) payParams.feedbackurl = PAYAPP_FEEDBACK_URL;
-    PayApp.setParam(payParams);
-
-    PayApp.setTarget('_self');
-    PayApp.payrequest();
-    showToast('결제창을 열었어요. 결제 완료 후 화면에 나오는 "확인" 버튼을 꼭 눌러주세요.');
-    /* CHECKOUT_START */
-    return true;
-    /* CHECKOUT_END */
-  } catch (e) {
-    console.error(e);
-    localStorage.removeItem('taekilso_pending_order');
-    showToast('결제창을 열지 못했어요. 잠시 후 다시 시도해주세요.');
-  }
+  goTo('newyear');
 }
 /*
  * 과거 버전과의 호환을 위해 함수명은 남겨두지만, 클라이언트 자체 확인으로 프리미엄을
@@ -425,13 +317,13 @@ function updatePremiumUI() {
     expiry.textContent = premium ? ('이용기간 · ' + formatPremiumUntil()) : '';
   }
   if (upgrade) {
-    upgrade.textContent = premium ? ('프리미엄 이용 중 · ' + formatPremiumUntil()) : '프리미엄 30일 · 8,900원 구매';
+    upgrade.textContent = '이용권 안내';
     upgrade.disabled = false;
   }
   const priceNote = document.getElementById('profilePremiumPriceNote');
   if (priceNote) {
-    priceNote.style.display = premium ? 'none' : 'block';
-    priceNote.textContent = '8,900원 / 30일 · 질문 총 30개 · 하루 최대 10개 · 자동결제 없음';
+    priceNote.style.display = 'block';
+    priceNote.textContent = premium ? '기존 상담·택일 혜택을 이용 중이에요.' : 'AI 상담 질문권과 리포트 상품을 확인하세요.';
   }
 }
 
@@ -439,8 +331,7 @@ function buildPremiumProgramPanel() {
   const panel = document.getElementById('premiumProgramPanel');
   if (!panel) return;
   if (!isPremium()) {
-    panel.style.display='block';
-    panel.innerHTML = `<div class="premium-lock-card"><b>🔒 여기부터 프리미엄 분석입니다</b><p>30일 동안 AI 질문 총 30개(하루 최대 10개)와 365일 택일 후보, 두 사람 궁합, 상세 리포트를 이용할 수 있어요.</p><button class="btn btn-primary" data-checkout-action onclick="payPremium()">8,900원으로 30일 이용하기</button></div>`;
+    panel.style.display='none';
     return;
   }
   const list = window.__chronological || [];

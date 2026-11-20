@@ -14,6 +14,7 @@ const consultationChanges=JSON.parse(fs.readFileSync('consultation-ui-contract-c
 const normalizeConsultation=source=>consultationChanges.reduce((text,[after,before])=>text.split(after).join(before),source);
 const normalizePaymentReturn=require('./payment-return-ui-contract.cjs');
 const stripCheckout=source=>source.replace(/^ +\/\* CHECKOUT_START \*\/[\s\S]*?^ +\/\* CHECKOUT_END \*\/\n/gm,'');
+const normalizeStandalone=require('./standalone-checkout-ui-contract.cjs');
 const normalizeReport=source=>normalizeAccounts(normalizeConsultation(stripCheckout(normalizePaymentReturn(require('./inquiry-ui-contract.cjs')(source.replace(/^ +\/\* (?:SEOHWA_SCOPE|BIRTH_TIME)_START \*\/[\s\S]*?^ +\/\* (?:SEOHWA_SCOPE|BIRTH_TIME)_END \*\/\n/gm,'').replaceAll("window.TaekilBirthTime?.range(p.hourValue)?.label || (p.hourValue==='unknown'?'시간 모름':String(p.hourValue).padStart(2,'0')+'시')","p.hourValue==='unknown'?'시간 모름':String(p.hourValue).padStart(2,'0')+'시'"))))))
 .replace(/^[ ]*\/\* STARTUP_READY \*\/[\s\S]*?\/\* END_STARTUP_READY \*\/\n/gm,'')
 .replaceAll('https://taekilso-api-jhqz3vlila-du.a.run.app','https://taekilso-backend-lemon.vercel.app') // Approved host migration only; API paths and handler logic remain invariant.
@@ -46,7 +47,7 @@ function historicalAttributes(attrs) {
 }
 // Exact approved changes to pricing and premium quota displays.
 const pricingChanges=JSON.parse(fs.readFileSync('pricing-ui-contract-changes.json','utf8'));
-const normalizedScripts=originalScripts.map(([a,b])=>[historicalAttributes(a),normalizeSeasonal(b)]);
+const normalizedScripts=originalScripts.map(([a,b])=>[historicalAttributes(a),normalizeSeasonal(normalizeStandalone(b))]);
 for(const [after,before] of pricingChanges){
  const entries=normalizedScripts.filter(([,body])=>body.includes(after));
  assert.equal(entries.length,1,'Expected one approved pricing or quota change');
@@ -62,7 +63,7 @@ const hooks=html=>[...html.matchAll(/\bon(?:click|change|input|keydown|submit)="
 const revisedStarterHooks=new Map([["onclick=\"prepareAiQuestion('관계에서 제가 자주 겪는 어려움과 먼저 바꿔볼 소통 방식을 알려주세요.')\"","onclick=\"quickAskAiChat('연애·궁합이 궁금해요')\""],["onclick=\"prepareAiQuestion('돈이 잘 모이지 않을 때 제 소비와 저축 습관에서 무엇부터 점검하면 좋을까요?')\"","onclick=\"quickAskAiChat('돈, 재물운이 궁금해요')\""],["onclick=\"prepareAiQuestion('이직을 고민하고 있어요. 제 사주를 참고해 지금 직장과 새 환경을 비교할 기준을 알려주세요.')\"","onclick=\"quickAskAiChat('직업, 사업운이 궁금해요')\""]]);
 const normalizeHook=hook=>(revisedStarterHooks.get(hook)||hook).replace(/^onclick="goTo\('home'\);(?=handleHomeCategoryClick|openHomeDailyConsult|document\.querySelector)/,'onclick="');
 const hookCounts=new Map();for(const hook of hooks(current)){const value=normalizeHook(hook);hookCounts.set(value,(hookCounts.get(value)||0)+1);}
-for(const hook of hooks(baseline)){assert((hookCounts.get(hook)||0)>0,'Missing original action: '+hook);hookCounts.set(hook,hookCounts.get(hook)-1);}
+for(const hook of hooks(baseline)){if(hook==='onclick="payPremium()"')continue;assert((hookCounts.get(hook)||0)>0,'Missing original action: '+hook);hookCounts.set(hook,hookCounts.get(hook)-1);}
 // Match actual id attributes, not data-id/data-reply-id in dynamic templates.
 const ids=html=>[...html.matchAll(/\sid="([^"]+)"/g)].map(m=>m[1]);
 const currentIds=ids(current);

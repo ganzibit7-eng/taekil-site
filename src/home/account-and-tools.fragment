@@ -402,32 +402,33 @@
           <span class="pf-badge" id="profileTier">무료 회원</span>
           <span class="pf-expiry" id="premiumExpiry" style="display:none;"></span>
         </div>
-        <div class="pf-uid" id="profileUidRow" style="display:none;">
-          <span>회원 UID</span>
-          <code id="profileUid"></code>
-          <button type="button" onclick="copyProfileUid()" aria-label="회원 UID 복사">복사</button>
-        </div>
+        <details class="pf-uid-disclosure">
+          <summary>회원 번호 확인</summary>
+          <div class="pf-uid" id="profileUidRow" style="display:none;">
+            <code id="profileUid"></code>
+            <button type="button" onclick="copyProfileUid()" aria-label="회원 UID 복사">복사</button>
+          </div>
+        </details>
       </div>
     </div>
 
     <div class="pf-panels">
-      <section class="pf-panel pf-plan" aria-labelledby="profilePlanHeading">
-        <h2 id="profilePlanHeading">이용권</h2>
-        <p id="profilePremiumPriceNote">8,900원 / 30일 · 질문 총 30개 · 하루 최대 10개 · 자동결제 없음</p>
-        <p class="checkout-pause-note" data-checkout-paused>신규 이용권 구매를 잠시 중단했습니다.</p>
-        <button type="button" class="pf-upgrade" id="profileUpgradeBtn" data-checkout-action onclick="payPremium()">프리미엄 30일 · 8,900원 구매</button>
-        <button type="button" class="profile-plan-guide" onclick="goTo('plans')">이용권 안내</button>
-      </section>
       <section class="pf-panel" aria-labelledby="profileLibraryHeading">
-        <h2 id="profileLibraryHeading">나의 리포트와 기록</h2>
+        <h2 id="profileLibraryHeading">내 리포트와 기록</h2>
         <div class="pf-menu">
-          <button type="button" class="pf-menu-item" data-open-newyear>나의 2027 신년 리포트</button>
-          <button type="button" class="pf-menu-item" onclick="goTo('history')">내 기록 · 사주 보관함</button>
+          <button type="button" class="pf-menu-item" data-open-newyear>2027 신년운세</button>
+          <button type="button" class="pf-menu-item" onclick="goTo('history')">상담·리포트·사주 보관함</button>
           <button type="button" class="pf-menu-item" onclick="goTo('support')">고객센터 · 1:1 문의</button>
           <div id="adminEntryWrap" style="display:none;">
             <button type="button" class="pf-menu-item" onclick="goTo('admin')">관리자 대시보드</button>
           </div>
         </div>
+      </section>
+      <section class="pf-panel pf-plan" aria-labelledby="profilePlanHeading">
+        <h2 id="profilePlanHeading">이용권</h2>
+        <p id="profilePremiumPriceNote">AI 상담 질문권과 리포트 상품을 확인하세요.</p>
+        <p class="checkout-pause-note" data-checkout-paused>신규 구매를 잠시 중단했습니다.</p>
+        <button type="button" class="pf-upgrade" id="profileUpgradeBtn" onclick="goTo('plans')">이용권 안내</button>
       </section>
     </div>
 
@@ -544,7 +545,8 @@
           <div class="admin-stat"><small>총 구매수</small><b id="statPurchases">–</b></div>
           <div class="admin-stat"><small>누적 매출</small><b id="statRevenue" style="font-size:20px;">–</b></div>
           <div class="admin-stat"><small>현재 프리미엄 회원</small><b id="statActivePremium">–</b></div>
-          <div class="admin-stat"><small>프리미엄 구매수</small><b id="statPurchasesPremium">–</b></div>
+          <div class="admin-stat"><small>기존 프리미엄 구매수</small><b id="statPurchasesPremium">–</b></div>
+          <div class="admin-stat"><small>신년운세 구매수</small><b id="statPurchasesNewyear">–</b></div>
           <div class="admin-stat"><small>질문권 구매수</small><b id="statPurchasesQuestionPacks">–</b></div>
           <div class="admin-stat"><small>답변 대기 문의</small><b id="statPendingInquiries" style="color:var(--warn);">–</b></div>
         </div>
@@ -744,7 +746,7 @@
 <h3>2. 서비스의 성격</h3><p>사주·운세·궁합·택일 결과와 AI 답변은 전통 명리 해석, 이용자가 입력한 정보 및 자동 계산·생성 로직을 바탕으로 제공되는 참고용 콘텐츠입니다. 특정한 미래, 사건, 결과를 보증하지 않으며 의료 진단, 법률 자문, 투자·재무 자문 등 전문적 판단을 대신하지 않습니다.</p>
 <h3>3. 회원가입 및 계정</h3><p>가입과 개인 상담은 만 14세 이상부터 이용할 수 있습니다. 회원은 택일소가 지원하는 Google, Kakao 등의 로그인 수단을 통해 계정을 이용할 수 있습니다. 계정 접근수단은 본인이 안전하게 관리해야 하며 타인의 계정을 무단 이용하거나 자신의 계정을 부정한 목적으로 제공해서는 안 됩니다. 외부 로그인 제공자의 장애 또는 정책변경으로 일부 로그인 기능이 일시 제한될 수 있습니다.</p>
 <h3>4. 무료 AI 상담</h3><p>일반 AI 상담은 계정당 최초 3회 무료로 제공됩니다. 서화·도겸·이준·무진은 각 리포트를 구매한 계정에서 해당 상담사의 채팅 상담을 3회 이용할 수 있습니다. 가입 무료 질문과 일반 질문권 및 프리미엄 질문은 일반 AI 상담에 적용됩니다. 무료 제공량은 계정 단위로 관리되며 탈퇴·재가입이나 다른 로그인 수단 등을 이용해 무료 혜택을 반복 취득하려는 행위는 제한될 수 있습니다.</p>
-<h3>5. 프리미엄 이용권</h3><p>신규 신년운세 이용권은 8,900원이며 결제 확인 후 30일간 AI 질문을 총 30회, 하루 최대 10회 이용할 수 있습니다. 남은 이용기간이 있으면 해당 기간 종료 후 새 이용권이 적용됩니다. 기존 이용권의 상담 한도는 구매 당시 조건을 따릅니다. 일일 이용량은 대한민국 표준시(KST) 자정에 초기화됩니다. 프리미엄은 자동결제가 아니며 별도 재결제가 없으면 기간 종료 후 자동 갱신되지 않습니다.</p>
+<h3>5. 신년운세 리포트와 기존 이용권</h3><p>2027 신년운세 리포트는 계정당 한 사람의 출생 정보를 기준으로 작성하며 6,900원에 1회 결제합니다. 발급된 리포트는 구매 계정에서 다시 열람할 수 있습니다. 일반 채팅 질문권과 정밀 택일은 별도 상품입니다. 신규 프리미엄 판매는 종료했으며 기존 구매자의 상담 한도와 택일 이용기간은 구매 당시 조건을 따릅니다. 기존 이용권의 일일 이용량은 대한민국 표준시(KST) 자정에 초기화됩니다.</p>
 <h3>6. AI 질문권</h3><p>추가 질문권은 현재 5개 1,900원, 10개 2,500원입니다. 계정에 귀속되는 소모성 이용권이며 정상적인 AI 답변 제공 시 사용량에서 차감될 수 있습니다. 시스템 장애로 정상 답변이 제공되지 않은 경우에는 시스템 정책과 거래 확인 결과에 따라 차감 복구 등 필요한 처리를 할 수 있습니다.</p>
 <p><strong>정밀 택일 1건권</strong>은 3,900원에 후보일 2~5개의 정밀 비교 리포트 한 건을 제공하는 상품입니다. 결제하기 전에 비교할 날짜를 확인해 주세요. 완료된 리포트는 해당 계정의 내 기록에서 다시 읽을 수 있으며, 유효한 신년운세 이용권을 보유한 분은 정밀 비교를 추가 결제 없이 이용할 수 있습니다. 청약철회·환불은 아래 안내를 따릅니다.</p>
 <p><strong>두 사람 관계 리포트</strong>는 5,900원에 확인한 두 사람의 일주를 비교한 리포트 한 건을 제공하는 별도 상품입니다. 결제 확인 후 해당 계정의 내 기록에서 다시 읽을 수 있습니다. 청약철회·환불은 아래 안내를 따릅니다.</p>
