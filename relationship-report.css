@@ -6,7 +6,7 @@
   align-items:center;
   gap:clamp(24px,5vw,58px);
   padding:54px 0 34px;
-  border-bottom:1px solid #46534b;
+  border-bottom:1px solid #584e51;
 }
 .relationship-hero h1,.relationship-content h2,.relationship-reading h3 {
   font:600 clamp(28px,5vw,46px)/1.42 var(--serif);
@@ -35,7 +35,7 @@
 }
 .relationship-content { padding:24px 0 80px; }
 .relationship-example,.relationship-form,.relationship-review,.relationship-reading {
-  border-bottom:1px solid #39463e;
+  border-bottom:1px solid #4c4447;
   padding:24px 0;
 }
 .relationship-example summary,.relationship-library-list summary {
@@ -50,7 +50,7 @@
   min-width:0;
   display:grid;
   gap:8px;
-  border:1px solid #46534b;
+  border:1px solid #584e51;
   border-radius:8px;
   padding:16px;
 }
@@ -62,7 +62,7 @@
   min-width:0;
   min-height:46px;
   padding:6px 10px;
-  border:1px solid #566459;
+  border:1px solid #6c605c;
   border-radius:6px;
   background:#292625;
   color:#f0ebe1;
@@ -85,7 +85,7 @@
 #sajuInsightModal[data-type="love"] .relationship-insight-link { display:inline-block; }
 .relationship-reading h4,.relationship-reading h5 { color:#f0ebe1; margin:0 0 10px; font-size:1.12rem; }
 .relationship-reading h5 { font-size:1rem; }
-.relationship-reading section { margin:22px 0; padding-top:18px; border-top:1px solid #39463e; }
+.relationship-reading section { margin:22px 0; padding-top:18px; border-top:1px solid #4c4447; }
 .relationship-reading dt { color:#e0c59a; font-weight:600; margin-top:14px; }
 .relationship-reading dd { margin:5px 0 0; }
 .relationship-reading p.relationship-summary { color:#f0ebe1; font-weight:600; }
@@ -96,7 +96,7 @@
 .relationship-dialogue blockquote p { margin:4px 0 0; }
 .relationship-reading .relationship-next-step { color:#e2d5be; }
 .relationship-reading details { margin-top:18px; }
-.relationship-library-list>details { margin-top:12px; border-bottom:1px solid #39463e; }
+.relationship-library-list>details { margin-top:12px; border-bottom:1px solid #4c4447; }
 #relationshipReportOutput,#relationshipReviewTitle { scroll-margin-top:96px; }
 .relationship-hero p.relationship-sale-status { font-size:15px; color:#e0c59a; }
 .relationship-form p.relationship-scope { font-size:15px; }
@@ -117,7 +117,7 @@
 .relationship-dialogue .relationship-use-when { font-size:15px; }
 .relationship-dialogue .relationship-agreement {
   margin:14px 0 0;
-  border-top:1px solid #46534b;
+  border-top:1px solid #584e51;
   padding-top:10px;
   color:#e6ded1;
 }
@@ -128,7 +128,7 @@
 .relationship-reading .relationship-chapter {
   margin-top:0;
   padding:4px 0;
-  border-bottom:1px solid #39463e;
+  border-bottom:1px solid #4c4447;
 }
 .relationship-chapter > summary {
   padding:13px 4px;

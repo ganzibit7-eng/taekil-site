@@ -316,9 +316,9 @@
   flex: none;
   min-width: 0;
   padding: clamp(14px, 4vw, 22px);
-  border: 1px solid #3d473d;
+  border: 1px solid #514848;
   border-radius: 12px;
-  background: #151e1a;
+  background: #272227;
   color: #f0ebe1;
 }
 .ai-paywall-head { padding-bottom: 14px; }
@@ -345,7 +345,7 @@
   min-height: 64px;
   padding: 10px 8px;
   border: 0;
-  border-top: 1px solid #3a473e;
+  border-top: 1px solid #504846;
   border-radius: 0;
   background: transparent;
   color: inherit;
@@ -360,7 +360,7 @@
 .ai-offer-savings {
   margin:0;
   padding:5px 8px 9px;
-  border-top:1px solid #3a473e;
+  border-top:1px solid #504846;
   color:#dfc597;
   font-size: .8125rem;
   line-height: 1.5;
@@ -380,14 +380,14 @@
   padding: 11px 9px;
   border: 1px solid #716147;
   border-radius: 8px;
-  background: #24291f;
+  background: #352b29;
 }
 .ai-chat-conversion-chooser .ai-chat-offer-card:focus-visible { outline: 2px solid #e2c892; outline-offset: 2px; }
-.ai-chat-conversion-chooser .ai-chat-offer-card:active:not(:disabled) { background: #313b2e; }
+.ai-chat-conversion-chooser .ai-chat-offer-card:active:not(:disabled) { background: #453338; }
 .ai-chat-conversion-chooser .ai-chat-offer-card:disabled { opacity: .66; cursor: wait; }
 .ai-paywall-note { margin-top: 11px; }
 @media (hover: hover) {
-  .ai-chat-conversion-chooser .ai-chat-offer-card:hover:not(:disabled) { background: #293429; }
+  .ai-chat-conversion-chooser .ai-chat-offer-card:hover:not(:disabled) { background: #3d3034; }
 }
 </style>
 

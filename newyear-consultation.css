@@ -64,7 +64,7 @@
   color:#eadac0;
   font:500 15px/1.5 var(--sans);
 }
-.newyear-content .newyear-month-index .btn:hover {border-color:#c6aa76;background:#252f28}
+.newyear-content .newyear-month-index .btn:hover {border-color:#c6aa76;background:#302837}
 .newyear-months :is(button,summary):focus-visible {outline:2px solid #dfc69c;outline-offset:3px}
 @media(max-width:600px) {.newyear-month-index {grid-template-columns:repeat(4,minmax(0,1fr))}}
 .newyear-areas > h2 {margin: 28px 0 0; font: 600 25px/1.5 var(--serif); color: #f0ebe1}
