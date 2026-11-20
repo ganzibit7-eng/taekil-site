@@ -108,17 +108,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 <!-- ============ AUTH MODAL ============ -->
 <div id="authOverlay">
-  <div class="modal-box">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="authTitle">
     <div class="auth-brand"><svg class="taekilso-symbol" data-brand-symbol viewBox="0 0 40 40" fill="none" aria-hidden="true" focusable="false"><image href="/assets/brand-emblem-transparent.png?v=20261111-1" width="40" height="40"/></svg><span>택일소</span></div>
-    <div class="modal-title" id="authTitle">택일소 로그인</div>
-    <div class="auth-modes" role="group" aria-label="계정 이용 방식">
-      <button type="button" data-auth-mode="signup" aria-pressed="true">회원가입</button>
-      <button type="button" data-auth-mode="login" aria-pressed="false">기존 회원 로그인</button>
-    </div>
-    <div class="auth-free-benefit">
-      <b>첫 질문 3개는 무료예요</b>
-      <span>Google 또는 카카오 계정으로 시작하세요.<br>카드 등록과 자동결제 없이 이용할 수 있어요.</span>
-    </div>
+    <h2 class="modal-title" id="authTitle">간편 로그인</h2>
+    <p class="auth-entry-copy">처음 오시면 선택한 계정으로 가입돼요.<br>가입 후 첫 질문 3개는 무료예요.</p>
     <label class="signup-age-row"><input type="checkbox" id="authAgeConfirmed"><span>만 14세 이상입니다.</span></label>
     <div id="authSetupNotice" class="setup-notice" style="display:none;">
       아직 계정 저장소가 연결되지 않았어요. Firebase 설정을 먼저 연결해야 실제로 저장됩니다.
@@ -135,6 +128,12 @@ const ADMIN_EMAIL = "green092432@gmail.com";
   </div>
 </div>
 
+
+<dialog class="account-age-check" id="accountAgeCheck" aria-labelledby="accountAgeCheckTitle" aria-describedby="accountAgeCheckHelp">
+  <h2 id="accountAgeCheckTitle">만 14세 이상이신가요?</h2>
+  <p id="accountAgeCheckHelp">선택한 계정으로 계속하려면 한 번만 확인해 주세요.</p>
+  <form method="dialog"><button value="cancel" autofocus>취소</button><button value="confirm">네, 만 14세 이상이에요</button></form>
+</dialog>
 
 <section hidden id="aiTransferScreen" class="ai-transfer-screen" aria-labelledby="aiTransferTitle" aria-describedby="aiTransferSummary">
     <h2 id="aiTransferTitle" tabindex="-1">AI 상담 국외 이전 동의</h2>
@@ -247,7 +246,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="account-session-core.js?v=20261111-1"></script>
 <script src="checkout-availability.js?v=3"></script>
 <script src="metrics-preference.js?v=1"></script>
-<script src="/account-age.js?v=2"></script>
+<script src="/account-age.js?v=3"></script>
 <script src="privacy-controls.js?v=6"></script>
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lunar-javascript/1.7.5/lunar.min.js" integrity="sha384-qgrj9Ih88CpqQEaDKCVdEY+GvClfNBHPQECl6AaMJnZm/lkMtciFybNl4K6WlT7E" crossorigin="anonymous"></script>
@@ -303,7 +302,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <link rel="stylesheet" href="navigation-refinement.css?v=surfaces-1120">
 <script src="navigation-refinement.js?v=20261110-1"></script>
 <script src="profile-picker-controls.js?v=20261118-confirmed-delete"></script>
-<link rel="stylesheet" href="consultation-quality.css?v=ink-1120">
+<link rel="stylesheet" href="consultation-quality.css?v=entry-1120">
 <script src="support-channels.js?v=20261111-refund"></script>
 <script src="consultation-quality.js?v=20261117-saved-evidence"></script>
 <link rel="stylesheet" href="site-menu.css?v=surfaces-1120"><script src="site-menu.js?v=20261119-topic-index"></script>
