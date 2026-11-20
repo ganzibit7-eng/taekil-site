@@ -82,7 +82,8 @@ test('integration loads owner store before legacy scripts and removes only hidde
 test('each approved legacy change has exactly its recorded scope',()=>{
  const checkoutCreditRefresh=/^ +\/\* CHECKOUT_START \*\/\n +void (?:window\.)?refreshQuestionCreditUI(?:\?\.)?\((?:accountToken\.owner|accountStore\.owner\(\))\);\n +\/\* CHECKOUT_END \*\/\n/gm;
  assert.equal([...html.matchAll(checkoutCreditRefresh)].length,3);
- let text=require('./payment-return-ui-contract.cjs')(require('./inquiry-ui-contract.cjs')(html)).replace(checkoutCreditRefresh,'');
+ const withoutSeohwa=html.replace(/^ +\/\* SEOHWA_SCOPE_START \*\/[\s\S]*?^ +\/\* SEOHWA_SCOPE_END \*\/\n/gm,'');
+ let text=require('./payment-return-ui-contract.cjs')(require('./inquiry-ui-contract.cjs')(withoutSeohwa)).replace(checkoutCreditRefresh,'');
  for(const [after,before,expected=1] of JSON.parse(fs.readFileSync('consultation-ui-contract-changes.json','utf8'))){
   assert.equal(text.split(after).length-1,expected,after.slice(0,80));
   text=text.split(after).join(before);

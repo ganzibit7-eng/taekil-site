@@ -32,6 +32,7 @@
         paused:data.paused === true,step:Math.min(5,Math.max(0,Number.isInteger(data.step) ? data.step : 0)),values,
         leap:data.leap === true,question:String(data.question || '').slice(0,200),birthText:birth(data.birthText).text,
         topic:normalizeTopic(data.topic),previousQuestion:String(data.previousQuestion || '').slice(0,200),
+        ...(data.topic==='love' && [0,1,2].includes(data.seohwaChoice)?{seohwaChoice:data.seohwaChoice}:{}),
         selections: Object.fromEntries(['SavedProfile','CompareProfile','CompareProfile2'].map(key => [key, data.owner ? String(data.selections?.[key] || '').slice(0,100) : '']))};
     } catch (_) { return null; }
   }

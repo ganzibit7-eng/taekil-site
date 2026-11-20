@@ -2,13 +2,13 @@
   'use strict';
   const checkout = window.TaekilCheckout;
 
-  async function request(endpoint, payload, token) {
+  async function request(endpoint, payload, token, timeout = 15000) {
     const headers = await getAiRequestHeaders();
     if (!accountStore.current(token) || !headers.Authorization) {
       throw new Error('로그인한 계정을 확인한 뒤 다시 시도해 주세요.');
     }
     const res = await fetch(endpoint,{
-      method:'POST', headers, body:JSON.stringify(payload), signal:AbortSignal.timeout(15000)
+      method:'POST', headers, body:JSON.stringify(payload), signal:AbortSignal.timeout(timeout)
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || '리포트를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.');

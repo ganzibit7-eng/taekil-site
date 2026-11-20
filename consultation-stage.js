@@ -427,7 +427,7 @@
   if (document.documentElement.dataset.homeLayout === 'consultation') {
     document.querySelector('#homeIntroOverlay .home-conversion-bubble').after(resumeCard);
   }
-  let selectedTopic = '';
+  let selectedTopic = '', seohwaChoice = 0;
   let previousQuestion = '';
   const topics = new Map();
   function showTopic(topic) {
@@ -472,11 +472,12 @@
   }
   function updateHandoff() {
     const signedIn = Boolean(member());
-    signupNote.hidden = signedIn;
-    draftNote.hidden = signedIn;
-    submit.textContent = signedIn ? personas.forTopic(selectedTopic).name + ' 상담 시작하기' : '로그인하고 상담 이어가기';
+    const report = selectedTopic==='love';
+    signupNote.hidden = signedIn || report;
+    draftNote.hidden = signedIn || report;
+    submit.textContent = report?'무료 첫 장 읽기':signedIn ? personas.forTopic(selectedTopic).name + ' 상담 시작하기' : '로그인하고 상담 이어가기';
     if (step === 5) {
-      heading.querySelector('p:not(.consultation-entry-progress)').textContent = signedIn
+      heading.querySelector('p:not(.consultation-entry-progress)').textContent = report?'고른 상황과 사주를 바탕으로 서화의 풀이 첫 장을 무료로 읽을 수 있어요.':signedIn
         ? steps[5][1] : '로그인하면 입력한 사주와 질문으로 이어갈 수 있어요.';
     }
   }
@@ -572,6 +573,7 @@
     if (!requestedEntry) return;
     const { topic, storyQuestion } = requestedEntry;
     requestedEntry = null;
+    if(topic==='love')seohwaChoice=Math.max(0,[...document.querySelectorAll('input[name="story-choice-love"]')].findIndex(option=>option.dataset.storyQuestion===storyQuestion));
     const questionText = storyQuestion || topics.get(topic)?.question || '';
     const changedAdvisor = personas.forTopic(topic).id !== personas.forTopic(selectedTopic).id;
     if (changedAdvisor) {
@@ -613,6 +615,7 @@
     if (!awaitingAuth || member() || authOverlay.style.display !== 'none') return;
     awaitingAuth = false;
     localStorage.removeItem('taekilso_pending_chat_start');
+    window.TaekilSeohwaReport?.shouldResume();
     persist();
   }).observe(authOverlay, {attributes:true,attributeFilter:['style']});
   function member() {
@@ -624,7 +627,7 @@
     core.fields.forEach(id => { values[id] = field(id).value; });
     try {
       const selections = Object.fromEntries(['SavedProfile','CompareProfile','CompareProfile2'].map(id => [id, owner() ? field(id).value : '']));
-      sessionStorage.setItem(key, JSON.stringify({version:1,at:Date.now(),owner:owner(),awaitingAuth,paused,step,values,selections,leap:field('Leap').checked,question:question.value,previousQuestion,birthText:birthInput.value,topic:selectedTopic}));
+      sessionStorage.setItem(key, JSON.stringify({version:1,at:Date.now(),owner:owner(),awaitingAuth,paused,step,values,selections,leap:field('Leap').checked,question:question.value,previousQuestion,birthText:birthInput.value,topic:selectedTopic,...(selectedTopic==='love'?{seohwaChoice}:{})}));
       return true;
     } catch (_) { return false; }
   }
@@ -680,6 +683,7 @@
     core.fields.forEach(id => { field(id).value = draft.values[id]; });
     field('Leap').checked = draft.leap; question.value = draft.question; previousQuestion = draft.previousQuestion;
     showTopic(draft.topic);
+    seohwaChoice=draft.seohwaChoice??0;
     birthFromFields(); if (draft.birthText) birthInput.value = draft.birthText;
     awaitingAuth = draft.awaitingAuth;
     render(draft.step);
@@ -692,17 +696,15 @@
     persist();
   });
   setup.addEventListener('change', () => persist());
-  submit.addEventListener('click', async event => {
-    // Capture the existing inline action so no guest can save/start before sign-in.
-    event.preventDefault(); event.stopImmediatePropagation();
-    if (!validateDate()) { render(1, true); validateDate(); return; }
-    if (!member()) {
+  function authForHandoff() {
       awaitingAuth = true;
-      if (!persist()) { error.textContent = '입력을 보관하지 못했어요. 브라우저의 저장 공간 설정을 확인해 주세요.'; return; }
+      if (!persist()) { error.textContent = '입력을 보관하지 못했어요. 브라우저의 저장 공간 설정을 확인해 주세요.'; return false; }
       localStorage.setItem('taekilso_pending_chat_start', '1');
       openAuthModal();
-      return;
-    }
+      return true;
+  }
+  async function startConversation() {
+    if (!member()) { authForHandoff(); return; }
     const actor = member();
     submit.disabled = pause.disabled = true;
     try {
@@ -718,6 +720,19 @@
     } catch (_) {
       error.textContent = '상담 연결을 확인하지 못했어요. 입력 내용은 유지됩니다. 잠시 후 다시 시도해 주세요.';
     } finally { submit.disabled = pause.disabled = false; }
+  }
+  submit.addEventListener('click', async event => {
+    // Capture the existing inline action so no guest can save/start before sign-in.
+    event.preventDefault(); event.stopImmediatePropagation();
+    if (!validateDate()) { render(1, true); validateDate(); return; }
+    if(selectedTopic==='love'&&window.TaekilSeohwaReport){
+      const profile={y:+field('Year').value,m:+field('Month').value,d:+field('Day').value,calType:field('CalType').value,
+        isLeap:field('CalType').value==='lunar'&&field('Leap').checked,hourValue:field('Hour').value,gender:field('Gender').value};
+      try{window.TaekilSeohwaReport.openPreview({profile,choice:seohwaChoice,chat:startConversation,auth:authForHandoff});}
+      catch(e){error.textContent=e.message||'리포트를 열지 못했어요. 잠시 뒤 다시 시도해 주세요.';}
+      return;
+    }
+    await startConversation();
   }, true);
   window.resumeGuidedConsultation = () => {
     const draft = read();
@@ -726,6 +741,7 @@
     awaitingAuth = false; render(5); persist();
     closeAuthModal();
     localStorage.removeItem('taekilso_pending_chat_start');
+    if(selectedTopic==='love'&&window.TaekilSeohwaReport?.shouldResume())submit.click();
     return true;
   };
   window.addEventListener('taekilso:authChanged', () => {
