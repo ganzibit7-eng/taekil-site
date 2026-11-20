@@ -9,6 +9,9 @@
   const progress=by('seohwaReportProgress');
   const library=by('seohwaReportList'), libraryStatus=by('seohwaLibraryStatus');
   let active, loadingLibrary=0, accountOwner=accountStore.owner(), waitingLogin=false;
+  let progressTimer=0, statusTimer=0;
+  const typicalWriteSeconds=60;
+  const estimatedWriteMs=(typicalWriteSeconds+10)*1000;
   const money=new Intl.NumberFormat('ko-KR').format(core.PRICE)+'원';
   function el(tag,text,cls) {
     const node=document.createElement(tag);
@@ -22,7 +25,16 @@
     node.addEventListener('click',fn);
     return node;
   }
-  function close() { if(dialog.open)dialog.close(); active=null; body.replaceChildren(); }
+  function clearGenerationTimers() {
+    clearInterval(progressTimer);
+    clearTimeout(statusTimer);
+  }
+  function close() {
+    clearGenerationTimers();
+    if(dialog.open)dialog.close();
+    active=null;
+    body.replaceChildren();
+  }
   by('closeSeohwaReport').addEventListener('click',close);
   dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
   dialog.addEventListener('scroll',()=>{
@@ -65,6 +77,19 @@
     return head;
   }
 
+  function lockIcon() {
+    const namespace='http://www.w3.org/2000/svg';
+    const icon=document.createElementNS(namespace,'svg');
+    icon.setAttribute('class','sr-lock');
+    icon.setAttribute('role','img');
+    icon.setAttribute('aria-label','잠긴 장');
+    icon.setAttribute('viewBox','0 0 20 20');
+    const shape=document.createElementNS(namespace,'path');
+    shape.setAttribute('d','M6.5 8V6a3.5 3.5 0 1 1 7 0v2M5 8h10a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Zm5 4v2');
+    icon.append(shape);
+    return icon;
+  }
+
   function toc(first,locked) {
     const list=el('nav',null,'sr-toc');
     list.setAttribute('aria-label','리포트 목차');
@@ -73,7 +98,10 @@
     for(const [index,title] of [first.title,...core.chapters].entries()){
       const row=el('li');
       if(locked&&index>0){
-        row.append(el('span','잠금','sr-lock'),el('strong',title),el('small',core.guide[index-1]));
+        const chapter=el('div');
+        chapter.append(el('strong',title),el('small',core.guide[index-1]));
+        row.className='sr-locked-row';
+        row.append(lockIcon(),chapter);
       }else{
         row.append(button(title,'sr-jump',()=>{
           const heading=by('seohwa-report-chapter-'+index)?.querySelector('h3');
@@ -108,8 +136,16 @@
     paused.dataset.checkoutPaused='';
     const paymentNote=el('p','1회 결제 · 자동 갱신 없음','sr-payment-note');
     paymentNote.dataset.checkoutAction='';
-    gate.append(el('h3','이어지는 다섯 장과 서화 상담 3회'),
-      el('p','본편까지 읽고 문단에서 바로 서화에게 물어볼 수 있어요. 구입한 리포트는 내 기록에서 다시 열 수 있어요.'),
+    const benefits=el('ul',null,'sr-benefits');
+    for(const [title,description] of [
+      ['리포트 6장 분량','무료 첫 장을 포함한 전체 리포트를 내 기록에서 다시 읽을 수 있어요.'],
+      ['서화와 채팅 상담 3회','마음에 남은 대목에서 바로 이어서 물어볼 수 있어요.']
+    ]){
+      const benefit=el('li');
+      benefit.append(el('strong',title),el('span',description));
+      benefits.append(benefit);
+    }
+    gate.append(el('h3','전체 리포트와 서화 상담'),benefits,
       pay,paused,paymentNote,
       button('일반 서화 상담으로 이어가기','sr-secondary',()=>{close();data.chat();}),status);
     const samples=el('section',null,'sr-samples');
@@ -205,26 +241,105 @@
 
   async function renderPurchased(result,host,owner,autoGenerate=false) {
     if(!accountStore.current(owner))return;
+    clearGenerationTimers();
     if(result.state==='ready'){drawPurchased(result,host,owner);return;}
     const state={id:result.id,host,owner};active=state;
-    const message=el('p',result.state==='generating'?'본편을 만들고 있어요. 잠시 뒤 같은 리포트에서 확인할 수 있어요.':'결제를 확인했어요. 서화가 사주와 고른 고민을 이어서 풀이해요.','sr-status');
+    const stillCurrent=()=>active===state&&accountStore.current(owner);
+    const message=el('p',result.state==='generating'?'서화가 리포트 본편을 쓰고 있어요.':'결제를 확인했어요. 서화가 사주와 고른 고민을 이어서 풀이해요.','sr-status');
     message.setAttribute('role','status');
     const panel=el('section',null,'sr-gate sr-generation');
+    const meter=el('div',null,'sr-generation-meter');
+    meter.hidden=true;
+    const meterLine=el('div',null,'sr-generation-meter-label');
+    const meterLabel=el('span','예상 진행률');
+    const eta=el('p','예상 소요 시간 약 '+typicalWriteSeconds+'초','sr-generation-eta');
+    const number=el('strong','0%');
+    number.setAttribute('aria-hidden','true');
+    const bar=el('progress');
+    bar.max=100;bar.value=0;
+    bar.setAttribute('aria-label','리포트의 예상 작성 진행률');
+    meterLine.append(meterLabel,number);
+    meter.append(meterLine,bar,eta);
+    const after=el('ul',null,'sr-benefits sr-generation-next');
+    for(const [title,description] of [
+      ['리포트 6장 읽기','완성되면 이 화면에서 읽을 수 있고 내 기록에도 저장돼요.'],
+      ['서화에게 이어 묻기','읽다가 궁금한 대목에서 채팅을 열어 3회까지 질문할 수 있어요.']
+    ]){
+      const item=el('li');
+      item.append(el('strong',title),el('span',description));
+      after.append(item);
+    }
     const action=button(result.state==='generating'?'완성 여부 확인하기':'전체 리포트 만들기','sr-primary',generate);
-    panel.append(el('p','서화의 연애 리포트','sr-kicker'),el('h2','전체 리포트 준비'),message,action);
+    panel.append(el('p','서화의 연애 리포트','sr-kicker'),el('h2','전체 리포트 준비'),message,meter,after,action);
     show([panel]);
     if(autoGenerate&&result.state==='paid')void generate();
+    if(result.state==='generating')watchCompletion(result.startedAtMs);
+
+    function setProgress(percent) {
+      if(!stillCurrent())return;
+      meter.hidden=false;
+      bar.value=percent;
+      number.textContent=percent+'%';
+    }
+    function startProgress(startedAt=Date.now()) {
+      clearInterval(progressTimer);
+      const initial=Math.min(Date.now(),Number.isFinite(startedAt)?startedAt:Date.now());
+      const update=()=>{
+        if(!stillCurrent()){clearInterval(progressTimer);return;}
+        const elapsed=Date.now()-initial;
+        setProgress(Math.max(0,Math.min(95,Math.floor(elapsed*95/estimatedWriteMs))));
+        if(elapsed>estimatedWriteMs)eta.textContent='평소보다 조금 더 오래 걸리고 있어요.';
+      };
+      update();
+      progressTimer=setInterval(update,450);
+      return initial;
+    }
+    function showReady(ready) {
+      clearGenerationTimers();
+      meterLabel.textContent='리포트 작성 완료';
+      eta.hidden=true;
+      bar.setAttribute('aria-label','리포트 작성 완료');
+      setProgress(100);
+      setStatus(message,'전체 리포트가 완성됐어요.');
+      setTimeout(()=>{if(stillCurrent())drawPurchased(ready,host,owner);},650);
+    }
+    function watchCompletion(startedAt) {
+      const initial=startProgress(startedAt);
+      const poll=async()=>{
+        if(!stillCurrent())return;
+        try{
+          const latest=await client.request(endpoint,{operation:'open',id:state.id},owner);
+          if(!stillCurrent())return;
+          if(latest.state==='ready'){showReady(latest);return;}
+          if(latest.state!=='generating'||Date.now()-initial>155000){
+            clearGenerationTimers();
+            meter.hidden=true;
+            setStatus(message,latest.state==='paid'?'본편 작성이 아직 끝나지 않았어요. 생성 상태를 다시 확인해 주세요.':'내 기록에서 리포트 상태를 다시 확인해 주세요.');
+            return;
+          }
+        }catch{}
+        if(!stillCurrent())return;
+        if(Date.now()-initial<=155000)statusTimer=setTimeout(poll,5500);
+        else{
+          clearGenerationTimers();
+          meter.hidden=true;
+          setStatus(message,'작성 상태를 바로 확인하지 못했어요. 잠시 뒤 다시 확인해 주세요.');
+        }
+      };
+      statusTimer=setTimeout(poll,5500);
+    }
+
     async function generate(){
-      if(action.disabled||active!==state||!accountStore.current(owner))return;
+      if(action.disabled||!stillCurrent())return;
+      clearTimeout(statusTimer);
       action.disabled=true;
       let hiddenForConsent=false;
       let loading=false;
-      const stillCurrent=()=>active===state&&accountStore.current(owner);
       try{
         const latest=await client.request(endpoint,{operation:'open',id:state.id},owner);
         if(!stillCurrent())return;
-        if(latest.state==='ready'){drawPurchased(latest,host,owner);return;}
-        if(latest.state==='generating'){setStatus(message,'본편을 만들고 있어요. 잠시 뒤 다시 확인해 주세요.');return;}
+        if(latest.state==='ready'){showReady(latest);return;}
+        if(latest.state==='generating'){setStatus(message,'서화가 리포트 본편을 쓰고 있어요.');watchCompletion(latest.startedAtMs);return;}
         if(latest.state!=='paid')throw Error('현재 열람할 수 없는 리포트예요. 내 기록에서 결제 상태를 확인해 주세요.');
         dialog.close();
         hiddenForConsent=true;
@@ -236,10 +351,16 @@
         loading=true;
         setStatus(message,'서화가 본편을 작성하고 있어요. 완성되면 내 기록에 저장돼요.');
         action.textContent='리포트 생성 중';
+        startProgress();
         const generated=await client.request(endpoint,{operation:'generate',id:state.id},owner,150000);
-        if(stillCurrent())await renderPurchased(generated,host,owner);
+        if(stillCurrent()){
+          if(generated.state==='ready')showReady(generated);
+          else if(generated.state==='generating')watchCompletion(generated.startedAtMs);
+        }
       }catch(error){
         if(stillCurrent()){
+          clearGenerationTimers();
+          meter.hidden=true;
           if(hiddenForConsent&&host.closest('.view')?.classList.contains('visible'))dialog.showModal();
           setStatus(message,loading&&['TimeoutError','AbortError'].includes(error.name)?'작성 상태를 바로 확인하지 못했어요. 내 기록에서 다시 열어 주세요.':error.message);
         }

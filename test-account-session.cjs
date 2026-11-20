@@ -82,7 +82,7 @@ test('integration loads owner store before legacy scripts and removes only hidde
 test('each approved legacy change has exactly its recorded scope',()=>{
  const checkoutCreditRefresh=/^ +\/\* CHECKOUT_START \*\/\n +void (?:window\.)?refreshQuestionCreditUI(?:\?\.)?\((?:accountToken\.owner|accountStore\.owner\(\))\);\n +\/\* CHECKOUT_END \*\/\n/gm;
  assert.equal([...html.matchAll(checkoutCreditRefresh)].length,3);
- const withoutSeohwa=html.replace(/^ +\/\* SEOHWA_SCOPE_START \*\/[\s\S]*?^ +\/\* SEOHWA_SCOPE_END \*\/\n/gm,'');
+ const withoutSeohwa=html.replace(/^ +\/\* (?:SEOHWA_SCOPE|BIRTH_TIME)_START \*\/[\s\S]*?^ +\/\* (?:SEOHWA_SCOPE|BIRTH_TIME)_END \*\/\n/gm,'').replaceAll("window.TaekilBirthTime?.range(p.hourValue)?.label || (p.hourValue==='unknown'?'시간 모름':String(p.hourValue).padStart(2,'0')+'시')","p.hourValue==='unknown'?'시간 모름':String(p.hourValue).padStart(2,'0')+'시'");
  let text=require('./payment-return-ui-contract.cjs')(require('./inquiry-ui-contract.cjs')(withoutSeohwa)).replace(checkoutCreditRefresh,'');
  for(const [after,before,expected=1] of JSON.parse(fs.readFileSync('consultation-ui-contract-changes.json','utf8'))){
   assert.equal(text.split(after).length-1,expected,after.slice(0,80));

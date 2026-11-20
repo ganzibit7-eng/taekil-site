@@ -615,7 +615,7 @@
       const clip = scene && makeChoiceScene(scene, feature.media);
       if (clip) scenes.push(clip.figure);
       const apply = () => {
-        question.textContent = text;
+        question.textContent = key==='love'?label:text;
         start.dataset.storyQuestion = text;
         context.textContent = label;
         if (currentScene === clip) return;
@@ -635,7 +635,7 @@
       choices.append(option);
     });
     question.setAttribute('aria-live', 'polite');
-    entry.append(choices, ...scenes, make('p', '이 질문으로 상담을 시작해요', 'consultation-story-question-label'), question);
+    entry.append(choices, ...scenes, make('p', key==='love'?'리포트에서 먼저 살펴볼 고민':'이 질문으로 상담을 시작해요', 'consultation-story-question-label'), question);
     return legend;
   }
 
@@ -761,7 +761,7 @@
     const question = make('blockquote');
     const dock = make('div', '', 'consultation-story-dock');
     const dockInner = make('div', '', 'consultation-story-dock-inner');
-    const dockContext = make('p', '첫 질문 · ', 'consultation-story-dock-context');
+    const dockContext = make('p', key==='love'?'고른 고민 · ':'첫 질문 · ', 'consultation-story-dock-context');
     const context = make('span');
     dockContext.id = 'story-dock-context-' + key;
     dockContext.append(context);

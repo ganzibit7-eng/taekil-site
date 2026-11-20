@@ -250,6 +250,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="privacy-controls.js?v=6"></script>
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lunar-javascript/1.7.5/lunar.min.js" integrity="sha384-qgrj9Ih88CpqQEaDKCVdEY+GvClfNBHPQECl6AaMJnZm/lkMtciFybNl4K6WlT7E" crossorigin="anonymous"></script>
+<script src="birth-time-range.js?v=1"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk" crossorigin="anonymous"></script>
 <script src="/inquiry-queue.js?v=1"></script>
@@ -284,10 +285,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <link rel="stylesheet" href="consultation-stories.css?v=surfaces-1120">
 <script src="consultation-additional-stories.js?v=20261118-questions"></script>
 <!-- story-reading-templates -->
-<script src="consultation-stories.js?v=seohwa-report-1"></script>
+<script src="consultation-stories.js?v=seohwa-report-2"></script>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261118-continuous-arrival"></script><script src="premium-motion.js" defer></script>
 <script src="consultation-draft-core.js?v=seohwa-report-1"></script>
-<script src="consultation-stage.js?v=seohwa-report-1"></script>
+<script src="consultation-stage.js?v=seohwa-report-2"></script>
 <script src="consultation-history-filters.js?v=20261120-history-filters"></script>
 <link rel="stylesheet" href="consultation-experience.css?v=ink-1120">
 <script src="consultation-experience-core.js?v=20261117-saved-evidence"></script>
@@ -295,7 +296,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 <script src="navigation-stability.js?v=20261111-2"></script>
 <link rel="stylesheet" href="newyear-consultation.css?v=surfaces-1120">
-<script src="newyear-consultation.js?v=nov20-fortune"></script><script src="newyear-example.js?v=20261119-handoff-refine"></script>
+<script src="newyear-consultation.js?v=nov20-birth-ranges"></script><script src="newyear-example.js?v=20261119-handoff-refine"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=ink-1120">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
 <script src="free-report-handoff.js?v=nov20-fortune"></script>
@@ -327,8 +328,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
   </div>
   <div id="seohwaReportBody"></div>
 </dialog>
-<link rel="stylesheet" href="seohwa-report.css?v=1">
-<script src="seohwa-reading-core.js?v=1"></script>
-<script src="seohwa-report.js?v=1"></script>
+<link rel="stylesheet" href="seohwa-report.css?v=4">
+<script src="seohwa-reading-core.js?v=2"></script>
+<script src="seohwa-report.js?v=4"></script>
 </body>
 </html>
