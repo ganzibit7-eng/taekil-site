@@ -940,12 +940,12 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 .event-track .event-card:nth-child(2){
   --card-accent:#78e2dc; --card-accent2:#2fa7b4;
   border-color:rgba(120,226,220,.18)!important;
-  background:linear-gradient(180deg,#09181a,#071012)!important;
+  background:linear-gradient(180deg,#171722,#101019)!important;
 }
 .event-track .event-card:nth-child(2) .tm-art{background:
   radial-gradient(circle at 70% 28%,rgba(120,226,220,.20),transparent 25%),
-  linear-gradient(145deg,#123b40 0%,#0d242b 48%,#071014 100%)!important}
-.event-track .event-card:nth-child(2) .tm-content{background:linear-gradient(180deg,#10282b,#091315)!important}
+  linear-gradient(145deg,#363049 0%,#242031 48%,#12101b 100%)!important}
+.event-track .event-card:nth-child(2) .tm-content{background:linear-gradient(180deg,#272335,#171420)!important}
 .event-track .event-card:nth-child(2) .tm-icon{color:#b8fff9;border-color:rgba(120,226,220,.35);background:rgba(47,167,180,.11);box-shadow:0 0 28px rgba(47,167,180,.13)}
 .event-track .event-card:nth-child(2) h3{color:#e8fffd}
 .event-track .event-card:nth-child(2) .scene-stars{opacity:.72;filter:hue-rotate(35deg);animation:movingStars 10s linear infinite!important}
@@ -958,7 +958,7 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 @keyframes movingSun{50%{transform:translate(-50%,-50%) translate3d(-12px,8px,0) scale(1.15);opacity:.75}}
 .event-track .event-card:nth-child(2) .scene-gate{left:37%;bottom:0;width:135px;height:105px;border-color:rgba(120,226,220,.62);border-width:2px;animation:movingHouse 5s ease-in-out infinite!important}
 @keyframes movingHouse{50%{transform:translateX(-50%) translateY(-5px) scale(1.025);filter:brightness(1.2)}}
-.event-track .event-card:nth-child(2) .scene-gate:after{width:45px;top:23px;background:linear-gradient(90deg,#0b2325,#1d7b79 45%,#0a2022);border-color:rgba(120,226,220,.26)}
+.event-track .event-card:nth-child(2) .scene-gate:after{width:45px;top:23px;background:linear-gradient(90deg,#292338,#705a8c 45%,#211d2e);border-color:rgba(120,226,220,.26)}
 .event-track .event-card:nth-child(2) .scene-path{left:70%;width:340px;height:150px;bottom:-55px;border-color:rgba(120,226,220,.26);animation:movingRoad 4.2s ease-in-out infinite!important}
 @keyframes movingRoad{50%{transform:translateX(-50%) scaleX(1.12);opacity:.78}}
 .event-track .event-card:nth-child(2) .ultra-scene::before{content:"";position:absolute;left:-20%;bottom:32px;width:140%;height:1px;background:linear-gradient(90deg,transparent,rgba(120,226,220,.7),transparent);box-shadow:0 0 18px rgba(120,226,220,.25);transform:rotate(-7deg);animation:roadBeam 3.8s linear infinite}
@@ -970,26 +970,26 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 .event-track .event-card:nth-child(3){
   --card-accent:#e8bd69; --card-accent2:#58c88a;
   border-color:rgba(232,189,105,.20)!important;
-  background:linear-gradient(180deg,#10180f,#0a0d08)!important;
+  background:linear-gradient(180deg,#201923,#120f16)!important;
 }
 .event-track .event-card:nth-child(3) .tm-art{background:
   radial-gradient(circle at 48% 48%,rgba(232,189,105,.22),transparent 26%),
-  radial-gradient(circle at 18% 72%,rgba(88,200,138,.20),transparent 27%),
-  linear-gradient(145deg,#26381d 0%,#152016 45%,#080c08 100%)!important}
-.event-track .event-card:nth-child(3) .tm-content{background:linear-gradient(180deg,#182315,#0c110b)!important}
-.event-track .event-card:nth-child(3) .tm-icon{color:#fff1c2;border-color:rgba(232,189,105,.35);background:rgba(88,200,138,.09);box-shadow:0 0 28px rgba(88,200,138,.12)}
+  radial-gradient(circle at 18% 72%,rgba(197,133,172,.20),transparent 27%),
+  linear-gradient(145deg,#3c2a38 0%,#261d28 45%,#100d13 100%)!important}
+.event-track .event-card:nth-child(3) .tm-content{background:linear-gradient(180deg,#2d212c,#18121b)!important}
+.event-track .event-card:nth-child(3) .tm-icon{color:#fff1c2;border-color:rgba(232,189,105,.35);background:rgba(197,133,172,.09);box-shadow:0 0 28px rgba(197,133,172,.12)}
 .event-track .event-card:nth-child(3) h3{color:#f7ffe9}
 .event-track .event-card:nth-child(3) .scene-stars{opacity:.5;animation:openingStars 9s ease-in-out infinite alternate!important}
 @keyframes openingStars{to{transform:translate3d(4px,-11px,0);opacity:.9}}
 .event-track .event-card:nth-child(3) .scene-moon{display:none}
-.event-track .event-card:nth-child(3) .scene-sun{width:190px;height:190px;left:50%;top:48%;background:radial-gradient(circle,#fff8cf 0 5%,rgba(232,189,105,.78) 13%,rgba(88,200,138,.16) 43%,transparent 72%)!important;animation:openingSun 4.8s ease-in-out infinite!important}
+.event-track .event-card:nth-child(3) .scene-sun{width:190px;height:190px;left:50%;top:48%;background:radial-gradient(circle,#fff8cf 0 5%,rgba(232,189,105,.78) 13%,rgba(197,133,172,.16) 43%,transparent 72%)!important;animation:openingSun 4.8s ease-in-out infinite!important}
 @keyframes openingSun{50%{transform:translate(-50%,-50%) scale(1.16);opacity:.95}}
 .event-track .event-card:nth-child(3) .scene-gate{display:none}
-.event-track .event-card:nth-child(3) .scene-path{width:320px;height:175px;bottom:-68px;border-color:rgba(232,189,105,.31);box-shadow:0 0 50px rgba(88,200,138,.08),inset 0 0 40px rgba(232,189,105,.08);animation:openingPath 5s ease-in-out infinite!important}
+.event-track .event-card:nth-child(3) .scene-path{width:320px;height:175px;bottom:-68px;border-color:rgba(232,189,105,.31);box-shadow:0 0 50px rgba(197,133,172,.08),inset 0 0 40px rgba(232,189,105,.08);animation:openingPath 5s ease-in-out infinite!important}
 @keyframes openingPath{50%{transform:translateX(-50%) scaleX(1.1) scaleY(.94);opacity:.86}}
 .event-track .event-card:nth-child(3) .ultra-scene::before{content:"✦";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:90px;line-height:1;color:rgba(255,226,144,.08);text-shadow:0 0 35px rgba(232,189,105,.35);animation:openingSpark 3.5s ease-in-out infinite;z-index:5}
 @keyframes openingSpark{0%,100%{transform:translate(-50%,-50%) scale(.75) rotate(0deg);opacity:.2}50%{transform:translate(-50%,-50%) scale(1.05) rotate(45deg);opacity:.8}}
-.event-track .event-card:nth-child(3) .ultra-scene::after{content:"";position:absolute;left:0;right:0;bottom:0;height:44%;background:linear-gradient(0deg,rgba(4,9,5,.7),transparent);z-index:5}
+.event-track .event-card:nth-child(3) .ultra-scene::after{content:"";position:absolute;left:0;right:0;bottom:0;height:44%;background:linear-gradient(0deg,rgba(14,9,14,.7),transparent);z-index:5}
 .event-track .event-card:nth-child(3) .scene-flare{background:linear-gradient(90deg,transparent,rgba(255,226,144,.95),transparent);animation:openingFlare 6s ease-in-out infinite!important}
 @keyframes openingFlare{0%,100%{transform:rotate(-9deg) translateX(-50%);opacity:0}45%{opacity:.9}70%{transform:rotate(-9deg) translateX(80%);opacity:0}}
 
@@ -1055,5 +1055,5 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 
 
 <!-- UI-only overrides follow the legacy style blocks. -->
-<link rel="stylesheet" href="premium-ui.css?v=ink-1120">
-<link rel="stylesheet" href="admin-analytics.css?v=ink-1120">
+<link rel="stylesheet" href="premium-ui.css?v=surfaces-1120">
+<link rel="stylesheet" href="admin-analytics.css?v=surfaces-1120">

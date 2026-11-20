@@ -30,7 +30,7 @@
   function chart(series){
     const key=metric,max=Math.max(...series.map(r=>r[key]),1),w=880,h=170,p=14,step=(w-p*2)/Math.max(series.length-1,1);
     const points=series.map((r,i)=>[p+i*step,h-p-r[key]/max*(h-p*2)]);const line=points.map(x=>x.join(',')).join(' ');
-    return `<div class="aa-chart"><svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${metric==='visits'?'방문':'주문 저장 금액'} 일별 추이. 아래 표에서 정확한 값을 확인할 수 있습니다."><line x1="${p}" y1="${h-p}" x2="${w-p}" y2="${h-p}" stroke="#344139"/><polyline points="${line}" fill="none" stroke="#C6AA76" stroke-width="2.5" vector-effect="non-scaling-stroke"/>${points.length===1?`<circle cx="${points[0][0]}" cy="${points[0][1]}" r="4" fill="#C6AA76"/>`:''}</svg><div class="aa-chart-axis"><span>${series[0].date}</span><span>최대 ${fmt(Math.max(...series.map(r=>r[key])))}${metric==='revenue'?'원':'회'}</span><span>${series.at(-1).date}</span></div></div>`;
+    return `<div class="aa-chart"><svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${metric==='visits'?'방문':'주문 저장 금액'} 일별 추이. 아래 표에서 정확한 값을 확인할 수 있습니다."><line x1="${p}" y1="${h-p}" x2="${w-p}" y2="${h-p}" stroke="#514b48"/><polyline points="${line}" fill="none" stroke="#C6AA76" stroke-width="2.5" vector-effect="non-scaling-stroke"/>${points.length===1?`<circle cx="${points[0][0]}" cy="${points[0][1]}" r="4" fill="#C6AA76"/>`:''}</svg><div class="aa-chart-axis"><span>${series[0].date}</span><span>최대 ${fmt(Math.max(...series.map(r=>r[key])))}${metric==='revenue'?'원':'회'}</span><span>${series.at(-1).date}</span></div></div>`;
   }
   function render(){
     if(!data||!allowed())return;
