@@ -8,6 +8,8 @@
   } catch (_) { /* Storage restrictions only prevent restoring confirmation. */ }
 
   function confirmAge() {
+    const user = window.firebase?.auth()?.currentUser;
+    if (user && !user.isAnonymous) return window.TaekilAccountAge.confirmed();
     if (confirmed) return true;
     return rememberAge(window.confirm('이용하시는 본인이 만 14세 이상인가요?'));
   }
@@ -20,18 +22,10 @@
     return confirmed;
   }
 
-  const ageCheckbox = document.getElementById('authAgeConfirmed');
-  if (ageCheckbox) ageCheckbox.checked = confirmed;
-  function confirmSignupAge() {
-    if (ageCheckbox?.checked) return rememberAge(true);
-    ageCheckbox?.focus();
-    return false;
-  }
-
   const protectedViews = '.ai-chat-stage, #view-tool, #view-newyear, #view-support, #view-wedding, #view-moving, #view-opening, #view-contract, #view-compat, #view-today';
   function protectInput(event) {
     const field = event.target.closest?.('input, textarea, select');
-    if (!field || !field.closest(protectedViews) || field.disabled || field.readOnly || confirmed) return;
+    if (!field || !field.closest(protectedViews) || field.disabled || field.readOnly) return;
     if (!confirmAge()) {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -73,6 +67,8 @@
   }
   async function confirmAI(host) {
     if (!host || !consentScreen || !currentOwner()) return false;
+    const user = window.firebase?.auth()?.currentUser;
+    if (!user || !await window.TaekilAccountAge.ensure(user)) return false;
     if (pendingConsent) return false;
     const owner = currentOwner();
     pendingConsent = true;
@@ -85,7 +81,6 @@
     if (owner!==currentOwner() || !host.closest('.view')?.classList.contains('visible')) return false;
     applyConsent(data);
     if (data.state==='granted') return true;
-    if (!confirmAge()) return false;
     const view = host.closest('.view'), previousFocus = document.activeElement;
     const agree = consentScreen.querySelector('[data-ai-consent="agree"]');
     const saveStatus = document.getElementById('aiConsentSaveStatus');
@@ -150,7 +145,7 @@
     forgetAIConsent();
     cancelConsent?.();
     confirmed = false;
-    if (ageCheckbox) ageCheckbox.checked = false;
+    window.TaekilAccountAge.observe(null);
     try { sessionStorage.removeItem(ageKey); } catch (_) {}
   }
 
@@ -222,5 +217,5 @@
       observer.observe(legal,{attributes:true,attributeFilter:['class']});
     }
   }
-  window.TaekilPrivacy = { confirmAge, confirmSignupAge, confirmAI, hasAIConsent, forgetAIConsent, resetAge };
+  window.TaekilPrivacy = { confirmAge, confirmAI, hasAIConsent, forgetAIConsent, resetAge };
 })();

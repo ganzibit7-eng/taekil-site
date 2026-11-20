@@ -898,5 +898,30 @@
     "before": "if(score>=78) advice=",
     "after": "if(score>=TODAY_FORTUNE_HIGH_SCORE) advice=",
     "count": 1
+  },
+  {
+    "before": "async function checkMemberAccess(user, options = {}) {",
+    "after": "async function checkMemberAccess(user, options = {}) {\n  const allowed = await checkAccountRestrictions(user, options);\n  if (!allowed || !user || user.isAnonymous) return allowed;\n  return window.TaekilAccountAge.ensure(user);\n}\n\nasync function checkAccountRestrictions(user, options = {}) {",
+    "count": 1
+  },
+  {
+    "before": "firebaseAuthUser = user || null;\n          firebaseAuthReady",
+    "after": "window.TaekilAccountAge.observe(user?.uid || null);\n          firebaseAuthUser = user || null;\n          firebaseAuthReady",
+    "count": 1
+  },
+  {
+    "before": "if (!user || user.isAnonymous) return false;\n\n  try {\n    const now",
+    "after": "if (!user || user.isAnonymous || !window.TaekilAccountAge.confirmed()) return false;\n\n  try {\n    const now",
+    "count": 1
+  },
+  {
+    "before": "async function loginWithGoogle() {\n  if (!window.TaekilPrivacy?.confirmSignupAge()) {\n    showAuthError('만 14세 이상인지 확인해 주세요.');\n    return;\n  }\n  if (!firebaseReady",
+    "after": "async function loginWithGoogle() {\n  if (!firebaseReady",
+    "count": 1
+  },
+  {
+    "before": "async function loginWithKakao() {\n  if (!window.TaekilPrivacy?.confirmSignupAge()) {\n    showAuthError('만 14세 이상인지 확인해 주세요.');\n    return;\n  }\n  if (!kakaoReady",
+    "after": "async function loginWithKakao() {\n  if (!kakaoReady",
+    "count": 1
   }
 ]

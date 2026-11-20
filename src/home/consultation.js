@@ -537,7 +537,7 @@ function appendAiChatServiceCta(userMessage) {
   // (답변은 위에서 이미 "시작 지점"에 맞춰 스크롤해 둔 상태를 유지합니다.)
 }
 
-/* 무료 질문을 다 쓰면 질문권과 30일 신년상담을 안내합니다. */
+/* 무료 질문을 다 쓰면 질문권과 30일 신년운세를 안내합니다. */
 function appendQuestionPackOffers() {
   const win = document.getElementById('aiChatWindow');
   if (!win) return;
@@ -733,7 +733,7 @@ function updateAiChatStatus(freeUsed, freeLimit, isPremiumNow, extra) {
     const totalLimit = extra?.premiumTotalLimit;
     if (Number.isInteger(totalLimit) && Number.isInteger(extra.premiumTotalUsed)) {
       const remaining = Math.max(0, totalLimit - extra.premiumTotalUsed);
-      el.textContent = `✦ 신년상담 ${totalLimit}개 중 ${remaining}개 남음 · ${used == null ? `하루 최대 ${limit}개` : `오늘 ${used}/${limit}개 사용`}`;
+      el.textContent = `✦ 이용권 질문 ${totalLimit}회 중 ${remaining}회 남음 · ${used == null ? `하루 최대 ${limit}개` : `오늘 ${used}/${limit}개 사용`}`;
     } else {
       el.textContent = used == null ? `✦ 프리미엄 이용 중 (하루 ${limit}개까지)` : `✦ 프리미엄 오늘 ${used}/${limit}개 사용`;
     }

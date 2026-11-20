@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="/home-layout.js?v=20261120-share-pages"></script>
-<link rel="stylesheet" href="/home-layout.css?v=20261119-topic-index">
+<link rel="stylesheet" href="/home-layout.css?v=nov20-fortune">
 <title>택일소 | AI 사주 상담 · 오늘의 운세 · 결혼·이사·개업 택일</title>
 <meta name="description" content="AI 사주 상담가 연우에게 오늘의 운세, 연애운, 재물운, 궁합을 묻고 결혼·이사·개업·계약 날짜까지 비교해보세요. 첫 질문 3개 무료.">
 <meta name="keywords" content="사주, 사주풀이, 무료사주, 사주궁합, 오늘의운세, 신년운세, 택일, 결혼택일, 이사택일, 개업택일, 손없는날, 만세력">
@@ -115,7 +115,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <b>첫 질문 3개는 무료예요</b>
       <span>Google 또는 카카오 계정으로 시작하세요.<br>카드 등록과 자동결제 없이 이용할 수 있어요.</span>
     </div>
-    <label class="auth-age-note auth-age-check"><input type="checkbox" id="authAgeConfirmed"> 본인은 만 14세 이상이에요.</label>
+    <p class="auth-age-note">택일소 회원 서비스는 만 14세부터 이용할 수 있어요.</p>
     <div id="authSetupNotice" class="setup-notice" style="display:none;">
       아직 계정 저장소가 연결되지 않았어요. Firebase 설정을 먼저 연결해야 실제로 저장됩니다.
     </div>
@@ -130,6 +130,16 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <div class="auth-close" onclick="closeAuthModal()">닫기</div>
   </div>
 </div>
+
+<dialog id="accountAgeDialog" aria-labelledby="accountAgeTitle" aria-describedby="accountAgeCopy">
+  <form>
+    <h2 id="accountAgeTitle">가입 연령 확인</h2>
+    <p id="accountAgeCopy">회원 서비스를 이용하려면 계정당 한 번만 확인해 주세요.</p>
+    <label><input type="checkbox" id="authAgeConfirmed"> 본인은 만 14세 이상이에요.</label>
+    <p role="status"></p>
+    <div><button type="button" class="btn">취소</button><button type="submit" class="btn btn-primary" disabled>확인하고 계속하기</button></div>
+  </form>
+</dialog>
 
 <section hidden id="aiTransferScreen" class="ai-transfer-screen" aria-labelledby="aiTransferTitle" aria-describedby="aiTransferSummary">
     <h2 id="aiTransferTitle" tabindex="-1">AI 상담 국외 이전 동의</h2>
@@ -242,7 +252,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="account-session-core.js?v=20261111-1"></script>
 <script src="checkout-availability.js?v=3"></script>
 <script src="metrics-preference.js?v=1"></script>
-<script src="privacy-controls.js?v=5"></script>
+<script src="/account-age.js?v=1"></script>
+<script src="privacy-controls.js?v=6"></script>
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lunar-javascript/1.7.5/lunar.min.js" integrity="sha384-qgrj9Ih88CpqQEaDKCVdEY+GvClfNBHPQECl6AaMJnZm/lkMtciFybNl4K6WlT7E" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous"></script>
@@ -290,25 +301,25 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 <script src="navigation-stability.js?v=20261111-2"></script>
 <link rel="stylesheet" href="newyear-consultation.css?v=20261119-handoff-refine">
-<script src="newyear-consultation.js?v=20261120-direct"></script><script src="newyear-example.js?v=20261119-handoff-refine"></script>
+<script src="newyear-consultation.js?v=nov20-fortune"></script><script src="newyear-example.js?v=20261119-handoff-refine"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=20261110-1">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
-<script src="free-report-handoff.js?v=20261119-before-chat"></script>
+<script src="free-report-handoff.js?v=nov20-fortune"></script>
 <link rel="stylesheet" href="navigation-refinement.css?v=20261110-3">
 <script src="navigation-refinement.js?v=20261110-1"></script>
 <script src="profile-picker-controls.js?v=20261118-confirmed-delete"></script>
-<link rel="stylesheet" href="consultation-quality.css?v=20261111-2">
+<link rel="stylesheet" href="consultation-quality.css?v=20261120-inquiry">
 <script src="support-channels.js?v=20261111-refund"></script>
 <script src="consultation-quality.js?v=20261117-saved-evidence"></script>
 <link rel="stylesheet" href="site-menu.css?v=20261116-home-logo"><script src="site-menu.js?v=20261119-topic-index"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=20261111-2">
-<script src="account-session.js?v=nov20-inquiries"></script>
+<script src="account-session.js?v=nov20-age"></script>
 <script src="campaign-attribution-core.js?v=20261119-campaign-visits"></script><script src="campaign-attribution.js?v=20261119-daily"></script>
 <script src="preview-funnel.js?v=20261119-daily"></script>
 <link rel="stylesheet" href="date-comparison.css?v=20261120-decision">
 <script src="account-report-client.js?v=nov20-resume"></script>
 <script src="report-decision-core.js?v=20261120-1"></script>
-<script src="date-report.js?v=nov20-resume"></script>
+<script src="date-report.js?v=nov20-fortune"></script>
 <script src="date-comparison.js?v=20261120-direct"></script>
 <link rel="stylesheet" href="date-entry.css?v=20261120-direct">
 <script src="date-entry.js?v=nov20-resume"></script>

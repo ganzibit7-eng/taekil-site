@@ -19,11 +19,11 @@ test('consent is a separate pre-entry screen with cancellation, repeat entry, an
     return {ok:true,json:async()=>saved};
   };
   vm.runInNewContext(readFileSync('privacy-controls.js','utf8'), {window,document,sessionStorage,URLSearchParams,fetch,AbortSignal,AI_CHAT_URL:'test:',getAiRequestHeaders:async()=>({Authorization:'Bearer fixture'}),location:{search:'',hash:''},MutationObserver:class{observe(){}disconnect(){}}});
+  window.firebase={auth:()=>({currentUser:{uid:'member'}})};
+  window.TaekilAccountAge={ensure:async()=>true,confirmed:()=>true,observe(){}};
   const privacy=window.TaekilPrivacy;
   assert.equal(rows.has('taekilso_kakao_access_token'),false);
-  assert.equal(privacy.confirmSignupAge(),false);
-  checkbox.checked=true;
-  assert.equal(privacy.confirmSignupAge(),true);
+  assert.equal(privacy.confirmAge(),true);
   assert.equal(privacy.hasAIConsent(),false);
   const cancel=privacy.confirmAI(host);await new Promise(setImmediate);
   assert.equal(screen.hidden,false);
