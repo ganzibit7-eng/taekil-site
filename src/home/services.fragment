@@ -191,7 +191,60 @@
 <section class="payment-before" aria-labelledby="payment-before-title"><h2 id="payment-before-title">결제 전에 확인해 주세요</h2><dl><div><dt>결제와 이용 시작</dt><dd>로그인한 계정으로 구매합니다. 페이앱 결제창에서 상품과 금액을 확인하고, 결제 확인 후 이용권이 반영됩니다.</dd></div><div><dt>질문권과 30일 이용권</dt><dd>질문권은 구매한 질문 수를 추가하는 상품입니다. 새 신년상담 이용권에는 30일 동안 AI 질문 총 30개(하루 최대 10개)와 정밀 택일이 포함됩니다. 기존 이용권은 구매 당시의 상담 한도가 적용됩니다.</dd></div><div><dt>결제 확인·환불 문의</dt><dd>결제 후 이용권이 보이지 않거나 환불이 필요하면 내 프로필의 문의 기능을 이용해 주세요. 환불은 서비스 제공·사용 여부와 이용약관에 따라 처리합니다. <button class="payment-text-link" onclick="goTo('legal')">이용약관 확인 →</button></dd></div></dl></section>
 <section class="payment-faq" aria-label="이용권 자주 묻는 질문"><details><summary>질문권을 사면 프리미엄 기능도 쓸 수 있나요?</summary><p>질문권은 일반 AI 상담 질문만 추가하며 신년운세는 제공하지 않습니다. 365일 후보 비교, TOP 20 추천, 정밀 택일 리포트는 프리미엄 30일 이용권에 포함됩니다.</p></details><details><summary>30일이 지나면 다시 결제되나요?</summary><p>아니요. 자동결제나 자동갱신이 없는 1회 결제 상품입니다. 기간이 끝나면 필요할 때 다시 구매할 수 있어요.</p></details><details><summary>처음부터 유료 이용권이 필요한가요?</summary><p>먼저 계정당 총 3개 무료 질문으로 연우의 답변을 확인하세요. 무료 택일에서도 최대 30일 후보와 추천 날짜 TOP 5, 일진·오행·손없는 날, 기본 캘린더와 공유를 이용할 수 있습니다.</p></details></section>
 <article class="date-report-plan"><span class="payment-eyebrow">중요한 날짜를 정할 때</span><h3>정밀 택일 1건권 <strong>3,900원</strong></h3><p>결혼·이사·개업·계약 후보 2~5일의 순위, 날짜별 점수 근거와 체크리스트를 보관함에 남겨요. 신년상담 이용 중이라면 추가 결제 없이 이용할 수 있어요.</p><a class="btn" href="#tool" data-open-date-comparison onclick="goTo('tool','결혼식');return false;">후보일 무료로 비교하기</a></article>
+<article class="date-report-plan"><span class="payment-eyebrow">두 사람이 함께 읽는 풀이</span><h3>두 사람 관계 리포트 <strong>5,900원</strong></h3><p>서로 잘 맞는 점과 자주 엇갈릴 수 있는 상황을 살펴보고, 오늘부터 써볼 대화 문장을 받아요.</p><a class="btn" href="#relationship-report">관계 리포트 살펴보기</a></article>
 <p class="payment-reference">사주와 택일은 전통 명리학을 바탕으로 한 참고 정보입니다. 중요한 선택에는 현실적인 일정과 조건을 함께 고려하세요.</p></div></section></section>
+<section id="view-relationship-report" class="view relationship-view">
+  <header class="relationship-hero">
+    <div>
+      <p class="payment-eyebrow">두 사람 관계 리포트</p>
+      <h1>잘 맞는 순간을 알고,<br>어긋난 대화를 다시 잇는 법</h1>
+      <p>두 사람의 사주를 나란히 놓고, 연락과 약속처럼 일상에서 반복되는 상황을 살펴봐요. 바로 써볼 말과 이번 주에 함께 해볼 약속까지 담았습니다.</p>
+      <p class="relationship-price"><strong>5,900원</strong> · 리포트 1건 · 자동갱신 없음</p>
+    </div>
+    <img src="/char-wedding.jpg" width="640" height="1440" alt="" class="relationship-hero-photo">
+  </header>
+  <div class="relationship-content">
+    <details id="relationshipExample" class="relationship-example">
+      <summary>가상 사주로 만든 리포트 예시</summary>
+      <p class="relationship-example-note" id="relationshipExampleStatus" role="status"></p>
+      <div id="relationshipExampleBody"></div>
+    </details>
+    <form id="relationshipReportForm" class="relationship-form">
+      <h2>두 분의 생년월일</h2>
+      <p>두 사람의 일주를 비교해요. 상대방의 정보를 입력하기 전에 사용할 권한을 확인해 주세요. 만 14세 미만 아동 정보는 입력하지 마세요.</p>
+      <div class="relationship-fields">
+        <fieldset>
+          <legend>본인</legend>
+          <label for="relationshipMineDate">생년월일</label>
+          <input id="relationshipMineDate" type="date" required min="1900-01-01">
+          <label for="relationshipMineCalendar">달력 기준</label>
+          <select id="relationshipMineCalendar"><option value="solar">양력</option><option value="lunar">음력</option></select>
+          <label class="relationship-leap" hidden><input type="checkbox" id="relationshipMineLeap"> 음력 윤달</label>
+        </fieldset>
+        <fieldset>
+          <legend>상대방</legend>
+          <label for="relationshipPartnerDate">생년월일</label>
+          <input id="relationshipPartnerDate" type="date" required min="1900-01-01">
+          <label for="relationshipPartnerCalendar">달력 기준</label>
+          <select id="relationshipPartnerCalendar"><option value="solar">양력</option><option value="lunar">음력</option></select>
+          <label class="relationship-leap" hidden><input type="checkbox" id="relationshipPartnerLeap"> 음력 윤달</label>
+        </fieldset>
+      </div>
+      <button type="submit" class="btn">두 사람의 계산값 확인하기</button>
+      <p id="relationshipFormError" role="alert"></p>
+    </form>
+    <section id="relationshipReview" class="relationship-review" hidden aria-labelledby="relationshipReviewTitle">
+      <h2 id="relationshipReviewTitle" tabindex="-1">두 사람의 일주</h2>
+      <p id="relationshipPillars"></p>
+      <p>결제를 완료하면 이 두 사람의 리포트가 내 기록에 저장돼요.</p>
+      <p data-checkout-paused>신규 결제를 잠시 중단했어요. 위에서 실제 구성 예시를 읽을 수 있어요.</p>
+      <button type="button" class="btn btn-primary" id="buyRelationshipReport" data-checkout-action>5,900원 · 관계 리포트 구매</button>
+      <p id="relationshipPurchaseStatus" role="status"></p>
+    </section>
+    <div id="relationshipReportOutput"></div>
+    <a class="relationship-link" href="#history">저장한 리포트는 내 기록에서 보기</a>
+  </div>
+</section>
 <section id="view-topic-love" class="view consultation-story-view"></section>
 <section id="view-topic-wealth" class="view consultation-story-view"></section>
 <section id="view-topic-career" class="view consultation-story-view"></section>

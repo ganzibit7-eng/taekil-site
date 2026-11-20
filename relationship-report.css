@@ -1,0 +1,107 @@
+.relationship-view { background:#101715; color:#f0ebe1; }
+.relationship-hero,.relationship-content { width:min(calc(100% - 40px), 850px); margin-inline:auto; }
+.relationship-hero {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(200px,35%);
+  align-items:center;
+  gap:clamp(24px,5vw,58px);
+  padding:54px 0 34px;
+  border-bottom:1px solid #46534b;
+}
+.relationship-hero h1,.relationship-content h2,.relationship-reading h3 {
+  font:600 clamp(28px,5vw,46px)/1.42 var(--serif);
+  margin:12px 0;
+  word-break:keep-all;
+}
+.relationship-content h2,.relationship-reading h3 { font-size:clamp(23px,4vw,30px); }
+.relationship-hero p,.relationship-content p,.relationship-reading dd {
+  color:#b6bdb5;
+  font-size:16px;
+  line-height:1.7;
+  word-break:keep-all;
+  overflow-wrap:anywhere;
+}
+.relationship-hero p.payment-eyebrow,.relationship-price strong,.relationship-pillars { color:#e0c59a; }
+.relationship-price strong { font-size:1.25rem; }
+.relationship-hero-photo {
+  display:block;
+  width:100%;
+  aspect-ratio:4/5;
+  height:auto;
+  max-height:350px;
+  object-fit:cover;
+  object-position:center 34%;
+  border-radius:8px;
+}
+.relationship-content { padding:24px 0 80px; }
+.relationship-example,.relationship-form,.relationship-review,.relationship-reading {
+  border-bottom:1px solid #39463e;
+  padding:24px 0;
+}
+.relationship-example summary,.relationship-library-list summary {
+  padding:10px 0;
+  color:#eedec4;
+  font-weight:600;
+  font-size:16px;
+  cursor:pointer;
+}
+.relationship-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; margin:24px 0; }
+.relationship-fields fieldset {
+  min-width:0;
+  display:grid;
+  gap:8px;
+  border:1px solid #46534b;
+  border-radius:8px;
+  padding:16px;
+}
+.relationship-fields legend { padding:0 5px; color:#e0c59a; font-weight:600; }
+.relationship-fields input[type=date],.relationship-fields select {
+  box-sizing:border-box;
+  color-scheme:dark;
+  width:100%;
+  min-width:0;
+  min-height:46px;
+  padding:6px 10px;
+  border:1px solid #566459;
+  border-radius:6px;
+  background:#1b2420;
+  color:#f0ebe1;
+  font:400 16px/1.4 var(--sans);
+}
+.relationship-fields .relationship-leap:not([hidden]) { display:flex; align-items:center; gap:8px; min-height:44px; }
+.relationship-leap input { width:18px; height:18px; accent-color:#c6aa76; }
+#relationshipFormError:empty,#relationshipPurchaseStatus:empty,.relationship-example-note:empty { display:none; }
+#relationshipFormError { color:#f1c9ac; }
+.relationship-content .btn { min-height:46px; }
+.relationship-link,.relationship-insight-link {
+  display:inline-block;
+  color:#dfc69c;
+  padding:11px 0;
+  font-weight:600;
+  text-decoration:underline;
+  text-underline-offset:4px;
+}
+.relationship-insight-link { display:none; }
+#sajuInsightModal[data-type="love"] .relationship-insight-link { display:inline-block; }
+.relationship-reading h4,.relationship-reading h5 { color:#f0ebe1; margin:0 0 10px; font-size:1.12rem; }
+.relationship-reading h5 { font-size:1rem; }
+.relationship-reading section { margin:22px 0; padding-top:18px; border-top:1px solid #39463e; }
+.relationship-reading dt { color:#e0c59a; font-weight:600; margin-top:14px; }
+.relationship-reading dd { margin:5px 0 0; }
+.relationship-reading p.relationship-summary { color:#f0ebe1; font-weight:600; }
+.relationship-reading p.relationship-pillars,.relationship-reading p.relationship-method { color:#b6bdb5; font-size:15px; }
+.relationship-dialogue { margin:14px 0; border-left:2px solid #806448; padding:12px 16px; background:#1b2420; }
+.relationship-dialogue blockquote { margin:12px 0 0; }
+.relationship-dialogue blockquote b { color:#dfc69c; }
+.relationship-dialogue blockquote p { margin:4px 0 0; }
+.relationship-reading .relationship-next-step { color:#e2d5be; }
+.relationship-reading details { margin-top:18px; }
+.relationship-library-list>details { margin-top:12px; border-bottom:1px solid #39463e; }
+#relationshipReportOutput,#relationshipReviewTitle { scroll-margin-top:96px; }
+@media (max-width:540px) {
+  .relationship-hero,.relationship-fields { grid-template-columns:minmax(0,1fr); }
+  .relationship-hero { padding-top:28px; gap:16px; }
+  .relationship-hero-photo { aspect-ratio:16/10; max-height:220px; }
+  .relationship-fields { gap:12px; }
+  .relationship-content .btn { width:100%; }
+}
