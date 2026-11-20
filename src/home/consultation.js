@@ -754,6 +754,8 @@ function updateAiChatStatus(freeUsed, freeLimit, isPremiumNow, extra) {
   if (!el) return;
   /* SEOHWA_SCOPE_START */
   if (window.TaekilSeohwaReport?.session()) return;
+  const reportAdvisor=window.TaekilFeaturedReports?.forId(window.__aiConsultantId);
+  if (reportAdvisor) { el.textContent=reportAdvisor.name+' 리포트 구매 후 상담 가능'; return; }
   /* SEOHWA_SCOPE_END */
 
   if (extra && extra.isAdmin) {
@@ -941,6 +943,13 @@ function renderSajuVault(){
 function openAiProfileCreator(){ goTo('home'); showAiChatSetupStep(); setTimeout(()=>{ const s=document.getElementById('aiChatSavedProfile'); if(s)s.value=''; const n=document.getElementById('aiChatProfileName'); if(n)n.value=''; },50); }
 
 async function startAiChat(reportOptions) {
+  /* SEOHWA_SCOPE_START */
+  const reportAdvisor=window.TaekilFeaturedReports?.forId(reportOptions?.consultantId);
+  if(reportAdvisor && reportOptions?.paidReport!==true){
+    goTo('topic-'+reportAdvisor.topic);
+    return;
+  }
+  /* SEOHWA_SCOPE_END */
   if (!window.TaekilPrivacy?.confirmAge()) return;
   /* REPORT_MANUAL_OPTION_START */
   const reportManual = reportOptions && ['free-report','newyear-report'].includes(reportOptions.source);
@@ -1624,6 +1633,10 @@ async function sendAiChatMessage() {
   /* SEOHWA_SCOPE_END */
   const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
   if (!loggedIn) { showToast('로그인 후 이용할 수 있어요.'); openAuthModal(); return; }
+  /* SEOHWA_SCOPE_START */
+  const reportAdvisor=window.TaekilFeaturedReports?.forId(window.__aiConsultantId);
+  if(reportAdvisor&&!reportSession){window.TaekilSeohwaReport.showChatAccess(reportAdvisor);return;}
+  /* SEOHWA_SCOPE_END */
 
   const input = document.getElementById('aiChatInput');
   const message = input.value.trim();
@@ -1720,6 +1733,16 @@ async function sendAiChatMessage() {
 
     if (!hasAnswer) {
       restoreQuestion();
+      /* SEOHWA_SCOPE_START */
+      if (reportAdvisor&&['FEATURED_REPORT_PURCHASE_REQUIRED','FEATURED_REPORT_REQUIRED','SEOHWA_REPORT_REQUIRED','FEATURED_REPORT_SCOPE'].includes(data.error)) {
+        window.TaekilSeohwaReport.showChatAccess(reportAdvisor,data.message);
+        return;
+      }
+      if (reportAdvisor&&['FEATURED_REPORT_QUESTIONS_USED','SEOHWA_QUESTIONS_USED'].includes(data.error)) {
+        appendAiChatMessage('system-note','이 리포트에 포함된 상담 3회를 모두 사용했어요. 내 기록에서 리포트를 다시 읽을 수 있어요.');
+        return;
+      }
+      /* SEOHWA_SCOPE_END */
       if (data.error === 'AI_TRANSFER_CONSENT_REQUIRED') {
         window.TaekilPrivacy?.forgetAIConsent();
         showToast('국외 이전 동의가 필요해요. 내 프로필의 개인정보 설정에서 확인해 주세요.');

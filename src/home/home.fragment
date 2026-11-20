@@ -65,7 +65,7 @@
         </a>
       </div>
       <div class="directory-topic-links">
-        <p>무료 첫 장을 읽고, 전체 리포트와 담당 상담사 채팅 3회를 함께 이용할 수 있어요.</p>
+        <p>첫 장은 무료로 읽을 수 있어요. 전체 리포트를 구매하면 담당 상담사에게 3회 질문할 수 있어요.</p>
       </div>
     </section>
 
@@ -84,13 +84,13 @@
         <span class="directory-preview-label">직업·이직 상담 예시</span>
         <h3>이직을 고민해요. 일을 혼자 정할 수 있는 작은 조직과 절차가 분명한 큰 조직을 제 사주를 바탕으로 비교해 주세요.</h3>
         <!-- reading-sample career -->
-        <button class="directory-preview-action" type="button" data-home-consultation data-consultation-example="career">무진에게 직업·이직 상담하기</button>
+        <button class="directory-preview-action" type="button" data-consultation-example="career">무진의 직업·이직 리포트 보기</button>
       </div>
       <div class="directory-preview-reading" id="directoryPreviewReunion" data-preview-panel="reunion" hidden>
         <span class="directory-preview-label">재회 상담 예시</span>
         <h3>헤어진 사람에게 다시 연락할지 고민이에요. 제 사주에서 관계를 돌아보는 관점과 연락을 결정할 기준을 알려주세요.</h3>
         <!-- reading-sample reunion -->
-        <button class="directory-preview-action" type="button" data-home-consultation data-consultation-example="reunion">이준에게 재회 상담하기</button>
+        <button class="directory-preview-action" type="button" data-consultation-example="reunion">이준의 재회운 리포트 보기</button>
       </div>
       <div class="directory-preview-reading" id="directoryPreviewSaving" data-preview-panel="saving" hidden>
         <span class="directory-preview-label">소비 습관 상담 예시</span>

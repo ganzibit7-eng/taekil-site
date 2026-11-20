@@ -560,7 +560,10 @@
   }
   for (const button of document.querySelectorAll('#homeDirectory [data-consultation-example]')) {
     const key = core.normalizeTopic(button.dataset.consultationExample);
-    if (topics.has(key)) button.addEventListener('click', () => startTopic(button, key));
+    if (topics.has(key)) button.addEventListener('click', () => {
+      if(reportCatalog.forTopic(key))goTo('topic-'+key);
+      else startTopic(button, key);
+    });
   }
   document.addEventListener('click', event => {
     const button = event.target.closest('[data-open-example-question]');
@@ -745,7 +748,7 @@
       const profile={y:+field('Year').value,m:+field('Month').value,d:+field('Day').value,calType:field('CalType').value,
         isLeap:field('CalType').value==='lunar'&&field('Leap').checked,hourValue:field('Hour').value,gender:field('Gender').value};
       try{window.TaekilSeohwaReport.openPreview({profile,topic:selectedTopic,choice:reportChoice,
-        chat:()=>{reportMode=false;render(5);return startConversation();},auth:authForHandoff});}
+        auth:authForHandoff});}
       catch(e){error.textContent=e.message||'리포트를 열지 못했어요. 잠시 뒤 다시 시도해 주세요.';}
       return;
     }

@@ -178,6 +178,7 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 .sr-primary:disabled {opacity:.58;cursor:wait}
 .sr-secondary {border-radius:7px;color:#e8cdbd;padding-inline:1px;font-size:14px;text-decoration:underline;text-underline-offset:4px}
 .sr-balance {color:#f4d3a4;margin:0}
+.sr-chat-access {display:flex;justify-content:center;flex-wrap:wrap;gap:4px 16px;margin-top:4px}
 .sr-wealth-calendar {margin-top:24px;border-top:1px solid #cfb8ae}
 .sr-wealth-pillars {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:10px 0 16px}
 .sr-wealth-pillars div {padding:8px 3px;border:1px solid #d8c1b2;border-radius:7px;background:#f3e7d7;text-align:center}
@@ -193,6 +194,14 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 .sr-wealth-months dd {margin:0}
 .sr-wealth-months dd p {margin:3px 0}
 .sr-wealth-months small {color:#785a4c}
+.sr-wealth-judgment {margin:24px 0 30px;padding:clamp(15px,4vw,24px);background:#f4e7db;border:1px solid #dec6b6;border-radius:10px}
+.sr-paper .sr-wealth-judgment h4 {margin:0 0 10px}
+.sr-paper .sr-wealth-route {margin:0 0 10px;color:#734331;font-weight:700;font-size:1.1em}
+.sr-wealth-timing {margin-top:16px;padding:14px;background:#fffbf6;border:1px solid #e2cdc0;border-radius:8px}
+.sr-wealth-timing h5 {margin:0;color:#734331;font-size:14px}
+.sr-paper .sr-wealth-window {margin:4px 0 10px;font-weight:750;color:#3e302c;font-size:1.1em}
+.sr-wealth-timing .sr-evidence {margin:8px 0 0}
+.sr-paper .sr-wealth-caption {margin:16px 0 0;font-size:13px;color:#695049}
 #seohwaReportList {display:grid;gap:5px;margin-top:10px}
 .sr-library-button {text-align:left;border:1px solid #79616e;border-radius:7px;color:#efd4ad}
 @media(max-width:650px) {

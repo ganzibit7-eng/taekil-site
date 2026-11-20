@@ -105,7 +105,9 @@ test('the public career preview identifies the same specialist as its action', (
   const preview = html.match(/<section class="directory-section directory-preview"[\s\S]+?<\/section>/)?.[0];
   assert.ok(preview);
   assert.match(preview, /<figcaption>무진의 답변<\/figcaption>/);
-  assert.match(preview, /무진에게 직업·이직 상담하기/);
+  assert.match(preview, /무진의 직업·이직 리포트 보기/);
+  assert.match(preview, /이준의 재회운 리포트 보기/);
+  assert.match(preview, /다온에게 소비 습관 상담하기/);
   assert.match(preview, /data-consultation-example="career"/);
   assert.equal([...html.matchAll(/data-consultation-topic="career"/g)].length, 1);
   assert.match(preview, /href="\/\?landing=yeonwoo#uiDemoTitle"/);
