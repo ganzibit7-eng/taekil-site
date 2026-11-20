@@ -38,6 +38,20 @@ function showSupportStatus(msg, kind) {
 }
 
 async function submitInquiry(prefill) {
+  const button = document.getElementById('supportSubmit');
+  if (button.disabled) return;
+  button.disabled = true;
+  const token = accountStore.snapshot();
+  try {
+    await registerSupportInquiry(prefill);
+  } catch {
+    if (accountStore.current(token)) showSupportStatus('문의를 접수하지 못했어요. 연결을 확인하고 다시 시도해 주세요.', 'error');
+  } finally {
+    if (accountStore.current(token)) button.disabled = false;
+  }
+}
+
+async function registerSupportInquiry(prefill) {
   const accountToken = accountStore.snapshot();
   showSupportStatus('확인 중이에요…', 'info');
 
@@ -70,6 +84,7 @@ async function submitInquiry(prefill) {
   }
 
   const authUser = await ensureFirestorePaymentAuth();
+  if (!accountStore.current(accountToken)) return;
   if (!authUser || authUser.isAnonymous) {
     showSupportStatus('로그인 보안 연결을 확인하지 못했어요. 로그아웃 후 다시 로그인한 뒤 문의해주세요.', 'error');
     return;
@@ -95,11 +110,9 @@ async function submitInquiry(prefill) {
     source: inquiryType + '-' + (kakaoUser ? 'kakao' : 'firebase')
   };
 
-  let timedOut = false;
   const timeoutId = setTimeout(() => {
-    timedOut = true;
     if (!accountStore.current(accountToken)) return;
-    showSupportStatus('저장이 너무 오래 걸리고 있어요. 인터넷 연결 상태를 확인한 뒤 다시 시도해주세요.', 'error');
+    showSupportStatus('아직 접수 중이에요. 인터넷에 연결되면 접수 결과를 알려드려요.', 'info');
   }, 10000);
 
   try {
@@ -121,9 +134,7 @@ async function submitInquiry(prefill) {
     clearTimeout(timeoutId);
     if (!accountStore.current(accountToken)) return;
     console.error('문의 저장 실패', err);
-    const code = err && err.code ? '[' + err.code + '] ' : '';
-    const msg = err && err.message ? err.message : String(err);
-    showSupportStatus('문의 등록에 실패했어요. ' + code + msg, 'error');
+    showSupportStatus('문의를 등록하지 못했어요. 입력 내용은 남아 있으니 다시 시도해 주세요.', 'error');
   }
 }
 
@@ -147,45 +158,30 @@ function renderSupportList() {
   const mine = getMyInquiryList();
   if (!mine.length) { listEl.innerHTML = ''; emptyEl.style.display = 'block'; return; }
   emptyEl.style.display = 'none';
-  listEl.innerHTML = mine.map(item => `
-    <div class="usecase-item inq-item" data-inq-id="${escapeHtml(item.id)}">
-      <div>${escapeHtml(item.title)}</div>
-      <div style="display:flex; gap:10px; align-items:center;">
-        <span class="inq-status waiting" data-status-id="${escapeHtml(item.id)}">확인 중</span>
-        ${isRefundRequestTitle(item.title) ? '' : `<span class="text-action" data-cancel-id="${escapeHtml(item.id)}" style="font-size:11px; color:var(--warn);">취소</span>`}
-      </div>
-    </div>
-  `).join('');
-  listEl.querySelectorAll('.inq-item').forEach(el => {
-    el.addEventListener('click', () => showInquiryDetail(el.dataset.inqId));
-  });
-  listEl.querySelectorAll('[data-cancel-id]').forEach(el => {
-    el.addEventListener('click', (e) => {
-      e.stopPropagation();
-      cancelInquiry(e.target.dataset.cancelId);
-    });
-  });
-  if (db) {
-    mine.filter(item => !item.localOnly).forEach(item => {
-      db.collection('inquiries').doc(item.id).get().then((snap) => {
-        if (!snap.exists) return;
-        const q = snap.data();
-        const ownerUid = getInquiryOwnerUid();
-        if (!ownerUid || q.ownerUid !== ownerUid) return;
-        const badge = listEl.querySelector(`[data-status-id="${item.id}"]`);
-        if (['dispute-kakao','dispute-firebase'].includes(q.source) || q.legalHold === true) {
-          const cancel = listEl.querySelector('[data-cancel-id="' + item.id + '"]');
-          if (cancel) cancel.hidden = true;
-        }
-        if (badge && q.status === '답변완료') {
-          badge.textContent = '답변완료';
-          badge.className = 'inq-status answered';
-          // 답변이 이미 등록된 문의는 취소할 수 없도록 취소 버튼을 숨깁니다.
-          const cancelBtn = listEl.querySelector(`[data-cancel-id="${item.id}"]`);
-          if (cancelBtn) cancelBtn.style.display = 'none';
-        }
-      }).catch(() => {});
-    });
+  listEl.replaceChildren();
+  for (const item of mine) {
+    const row = document.createElement('div');
+    row.className = 'usecase-item inq-item';
+    const open = document.createElement('button');
+    open.type = 'button';
+    open.className = 'inquiry-open';
+    const title = document.createElement('span');
+    title.textContent = item.title || '(제목 없음)';
+    const badge = document.createElement('span');
+    badge.className = 'inq-status ' + (item.answered ? 'answered' : 'waiting');
+    badge.textContent = item.localOnly ? '임시 저장' : item.answered ? '답변 완료' : item.answered === false ? '답변 대기' : '확인 중';
+    open.append(title, badge);
+    open.onclick = () => showInquiryDetail(item.id);
+    row.append(open);
+    if (!item.answered && (item.canCancel || item.localOnly) && !isRefundRequestTitle(item.title)) {
+      const cancel = document.createElement('button');
+      cancel.type = 'button';
+      cancel.className = 'inquiry-cancel';
+      cancel.textContent = '취소';
+      cancel.onclick = () => cancelInquiry(item.id);
+      row.append(cancel);
+    }
+    listEl.append(row);
   }
 }
 
@@ -235,6 +231,7 @@ function cancelInquiry(id) {
 function showInquiryDetail(id) {
   const accountToken = accountStore.snapshot();
   const panel = document.getElementById('supportDetail');
+  panel.dataset.inquiryId = id;
   const local = getMyInquiryList().find(x => x.id === id);
   if (local && local.localOnly) {
     panel.style.display = 'block';
@@ -245,7 +242,7 @@ function showInquiryDetail(id) {
   panel.style.display = 'block';
   panel.innerHTML = '<div class="loading-line" style="margin-top:0;">불러오는 중…</div>';
   db.collection('inquiries').doc(id).get().then((snap) => {
-    if (!accountStore.current(accountToken)) return;
+    if (!accountStore.current(accountToken) || panel.dataset.inquiryId !== id) return;
     if (!snap.exists) { panel.innerHTML = '<div class="empty-note">문의를 찾을 수 없어요.</div>'; return; }
     const q = snap.data();
     const ownerUid = getInquiryOwnerUid();
@@ -254,12 +251,12 @@ function showInquiryDetail(id) {
       return;
     }
     panel.innerHTML = `
-      <div class="pr-tag">${q.status === '답변완료' ? '✦ 답변완료' : '확인 중이에요'}</div>
+      <div class="pr-tag">${q.status === '답변완료' ? '답변 완료' : '답변 대기'}</div>
       <div style="font-family:var(--serif); font-size:18px; margin-bottom:8px;">${escapeHtml(q.title)}</div>
       <div style="font-size:13.5px; color:#cfcbc1; white-space:pre-wrap; margin-bottom:14px;">${escapeHtml(q.message || '')}</div>
       ${q.reply ? `<div style="border-top:1px solid var(--line-soft); padding-top:14px;"><div style="font-size:11px; color:var(--gold-hi); margin-bottom:6px;">택일소 답변</div><div style="font-size:13.5px; color:#e8e5dc; white-space:pre-wrap;">${escapeHtml(q.reply)}</div></div>` : `<div style="font-size:12.5px; color:var(--muted);">아직 답변 전이에요. 조금만 기다려주세요.</div>`}
     `;
-  }).catch(err => { if (!accountStore.current(accountToken)) return; panel.innerHTML = '<div class="empty-note">불러오지 못했어요.</div>'; console.error(err); });
+  }).catch(err => { if (!accountStore.current(accountToken) || panel.dataset.inquiryId !== id) return; panel.innerHTML = '<div class="empty-note">불러오지 못했어요.</div>'; console.error(err); });
 }
 
 /* ---------- 회원탈퇴 (본인 계정만) ---------- */

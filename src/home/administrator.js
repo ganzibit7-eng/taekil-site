@@ -1081,60 +1081,11 @@ async function unbanMember(banId, label) {
 
 
 function renderAdminInquiries() {
-  const accountToken = accountStore.snapshot();
-  if (!isAdmin()) return;
+  const token = accountStore.snapshot();
   const wrap = document.getElementById('adminInquiryList');
-  const pendingEl = document.getElementById('statPendingInquiries');
-  if (!wrap || !db) return;
-  wrap.innerHTML = '<div class="loading-line" style="margin-top:0;">불러오는 중…</div>';
-  db.collection('inquiries').limit(200).get().then((qs) => {
-    if (!accountStore.current(accountToken) || !isAdmin()) return;
-    if (qs.empty) {
-      wrap.innerHTML = '<div class="empty-note">아직 등록된 문의가 없어요.</div>';
-      if (pendingEl) pendingEl.textContent = '0';
-      return;
-    }
-    wrap.innerHTML = '';
-    const docs = [];
-    qs.forEach((doc) => docs.push(doc));
-    if (pendingEl) pendingEl.textContent = docs.filter(doc => doc.data().status !== '답변완료').length;
-    docs.sort((a, b) => {
-      const getMs = (d) => {
-        const v = d.data().createdAt;
-        if (v && typeof v.toMillis === 'function') return v.toMillis();
-        if (typeof v === 'number') return v;
-        return d.data().createdAtMs || 0;
-      };
-      return getMs(b) - getMs(a);
-    });
-    docs.forEach((doc) => {
-      const q = doc.data();
-      const card = document.createElement('div');
-      card.className = 'admin-inq-card';
-      const dateStr = q.createdAt && q.createdAt.toDate ? q.createdAt.toDate().toLocaleDateString('ko-KR') : '';
-      card.innerHTML = `
-        <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
-          <strong style="font-family:var(--serif); font-weight:400; color:var(--gold-hi);">${q.isPaymentConfirmRequest ? '💳 ' : ''}${escapeHtml(q.title || '(제목 없음)')}</strong>
-          <span class="inq-status ${q.status === '답변완료' ? 'answered' : 'waiting'}">${escapeHtml(q.status || '대기')}</span>
-        </div>
-        <div style="font-size:11px; color:var(--muted-2); margin-top:4px;">${escapeHtml(q.name || q.uid || '')} · ${escapeHtml(dateStr)}</div>
-        <div style="font-size:13.5px; color:#cfcbc1; margin-top:10px; white-space:pre-wrap;">${escapeHtml(q.message || '')}</div>
-        <textarea placeholder="답변을 입력하세요">${escapeHtml(q.reply || '')}</textarea>
-        <button class="btn btn-primary" style="margin-top:8px; height:42px; font-size:13px;">답변 저장</button>
-      `;
-      const textarea = card.querySelector('textarea');
-      const button = card.querySelector('button');
-      textarea.dataset.id = doc.id;
-      button.dataset.replyId = doc.id;
-      button.addEventListener('click', () => {
-        if (!accountStore.current(accountToken) || !isAdmin()) return;
-        const reply = textarea.value.trim();
-        if (!reply) { showToast('답변 내용을 입력해주세요.'); return; }
-        db.collection('inquiries').doc(doc.id).update({ reply, status: '답변완료' })
-          .then(() => { if (accountStore.current(accountToken) && isAdmin()) { showToast('답변을 저장했어요.'); renderAdminInquiries(); } })
-          .catch(err => { if (accountStore.current(accountToken) && isAdmin()) showToast('저장 실패: ' + err.message); });
-      });
-      wrap.appendChild(card);
-    });
-  }).catch(err => { wrap.innerHTML = '<div class="empty-note">문의 목록을 불러오지 못했어요.</div>'; console.error(err); });
+  if (!wrap || !db || !isAdmin()) return;
+  mountInquiryQueue({
+    wrap, db, pendingCount: document.getElementById('statPendingInquiries'),
+    current: () => accountStore.current(token) && isAdmin(), toast: showToast
+  });
 }

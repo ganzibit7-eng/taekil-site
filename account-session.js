@@ -7,6 +7,7 @@
   const clearIds=['aiChatWindow','aiChatStatus','aiConversationHistoryList','historyList','supportList','supportDetail','fortuneResult','sajuInsightResult','dateCards','bestResultHero','calendarWrap','dayDetail','resultsHeading','resultsSub','resultCount','profileName','profileMeta','profileUid','adminUserList','adminBanList','adminInquiryList'];
   function clearPrivateView(){
     store.invalidate();inquiryRequest++;
+    const submit=document.getElementById('supportSubmit');if(submit)submit.disabled=false;
     window.__cleanupLegacyAdminViews?.();
     if(typeof adminPermState!=='undefined')adminPermState={uid:'',label:'',mode:'grant',type:'premium',count:1};
     if(typeof closeAdminPermissionModal==='function')closeAdminPermissionModal();
@@ -65,13 +66,14 @@
   window.renderSupportList=function(){
     renderLocal();const token=store.snapshot(),request=++inquiryRequest;
     if(!token.owner||!db)return;
-    db.collection('inquiries').where('ownerUid','==',token.owner).limit(100).get().then(snap=>{
+    db.collection('inquiries').where('ownerUid','==',token.owner).get({source:'server'}).then(snap=>{
       if(!store.current(token)||request!==inquiryRequest)return;
       const list=snap.docs.map(doc=>({...doc.data(),id:doc.id})).filter(q=>q.ownerUid===token.owner)
-        .sort((a,b)=>Number(b.createdAtMs||0)-Number(a.createdAtMs||0))
-        .map(q=>({id:q.id,title:q.title,ownerUid:token.owner,createdAt:Number(q.createdAtMs||0)}));
+        .sort((a,b)=>Number(b.createdAtMs||0)-Number(a.createdAtMs||0)).slice(0,100)
+        .map(q=>({id:q.id,title:q.title,ownerUid:token.owner,createdAt:Number(q.createdAtMs||0),answered:q.status==='답변완료',
+          canCancel:q.legalHold!==true&&!['dispute-kakao','dispute-firebase'].includes(q.source)}));
       store.setItem('taekilso_my_inquiries',JSON.stringify(list));renderLocal();
-      if(snap.size===100)showSupportStatus('문의는 최대 100건까지 표시돼요. 이전 문의는 이메일로 확인해 주세요.','info');
+      if(snap.size>100)showSupportStatus('문의는 최대 100건까지 표시돼요. 이전 문의는 이메일로 확인해 주세요.','info');
     }).catch(()=>{if(store.current(token)&&request===inquiryRequest)showSupportStatus('문의 내역을 불러오지 못했어요. 잠시 후 다시 열어 주세요.','error');});
   };
   const overlay=document.getElementById('authOverlay');
