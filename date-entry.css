@@ -1,4 +1,4 @@
-.date-quick-entry { color:#b6bdb5; font-size:14px; margin:4px 0 6px; }
+.date-quick-entry { color:#c2bab2; font-size:14px; margin:4px 0 6px; }
 .date-quick-entry summary { color:#e1c79e; cursor:pointer; padding:8px 0; }
 .date-quick-entry > div { display:flex; gap:8px; }
 .date-quick-entry input:not([type=checkbox]),.date-quick-entry button {
@@ -7,7 +7,7 @@
   padding:8px 11px;
   border:1px solid #566459;
   border-radius:6px;
-  background:#1b2420;
+  background:#292625;
   color:#f0ebe1;
   font:inherit;
   font-size:16px;

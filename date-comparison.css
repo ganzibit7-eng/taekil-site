@@ -11,7 +11,7 @@
   border: 1px solid #47554b;
   border-radius: 6px;
   background: transparent;
-  color: #b6bdb5;
+  color: #c2bab2;
   font: 500 15px/1.45 var(--sans);
   cursor: pointer;
 }
@@ -30,9 +30,9 @@
 .tool-exact-output[hidden],
 .tool-exact-results[hidden] { display: none !important; }
 #view-tool[data-comparison-mode="exact"] > #toolFormAnchor { padding-top: 20px !important; }
-.tool-exact-dates { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #344139; }
+.tool-exact-dates { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #514b48; }
 .tool-exact-dates h2,.tool-exact-results h2 { margin: 0 0 8px; color: #f0ebe1; font: 600 clamp(24px,4vw,32px)/1.4 var(--serif); }
-.tool-exact-dates p,.tool-exact-results p { color: #b6bdb5; font-size: 16px; line-height: 1.65; word-break: keep-all; }
+.tool-exact-dates p,.tool-exact-results p { color: #c2bab2; font-size: 16px; line-height: 1.65; word-break: keep-all; }
 .tool-exact-dates .field { min-width: 0; }
 .tool-exact-dates input[type="date"] { color-scheme: dark; width: 100%; box-sizing: border-box; }
 .tool-exact-dates input[aria-invalid="true"] { border-color: #e4b496; }
@@ -41,11 +41,11 @@
 .tool-exact-results { margin-top: 28px; padding-top: 24px; border-top: 1px solid #47554b; }
 .tool-exact-results h2 { scroll-margin-top: 92px; }
 .tool-exact-cards { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin: 16px 0; }
-.tool-exact-card { background: #101715; padding: 16px; border: 1px solid #344139; border-radius: 7px; }
+.tool-exact-card { background: #1c1a1c; padding: 16px; border: 1px solid #514b48; border-radius: 7px; }
 .tool-exact-card h3 { margin: 0 0 7px; color: #f0ebe1; font: 550 16px/1.55 var(--sans); word-break: keep-all; }
 .tool-exact-score { color: #dfc69c; font: 600 26px/1.4 var(--serif); font-variant-numeric: tabular-nums; }
 .tool-exact-card p { margin: 8px 0; }
-.tool-exact-card ul { padding-left: 18px; margin: 8px 0 0; color: #b6bdb5; font-size: 15px; line-height: 1.6; word-break: keep-all; }
+.tool-exact-card ul { padding-left: 18px; margin: 8px 0 0; color: #c2bab2; font-size: 15px; line-height: 1.6; word-break: keep-all; }
 .tool-exact-note { margin: 0; }
 #exactDateExtras:empty { display:none; }
 .date-report-extra { position:relative; padding-bottom:8px; }
@@ -76,7 +76,7 @@
 .date-report-plan h3 strong,.date-report-score { color:#dfc69c; }
 .date-report-plan p,.date-report-library p,.date-report-result p,
 .date-report-selection,.date-report-checklist {
-  color:#b6bdb5;
+  color:#c2bab2;
   font-size:16px;
   line-height:1.65;
   word-break:keep-all;
@@ -89,7 +89,7 @@
   white-space:normal;
 }
 .date-report-ranked { list-style:none; padding:0; margin:20px 0; }
-.date-report-ranked>li,#dateReportList>details { padding:16px 0; border-bottom:1px solid #344139; }
+.date-report-ranked>li,#dateReportList>details { padding:16px 0; border-bottom:1px solid #514b48; }
 .date-report-ranked>li>strong { margin-right:12px; }
 .date-report-ranked>li>p,.date-report-method { margin:8px 0; }
 .date-report-breakdown {
@@ -107,7 +107,7 @@
   margin:18px 0;
   padding:14px 16px;
   border-left:2px solid #806448;
-  background:#1b2420;
+  background:#292625;
 }
 .date-report-decision h4 { margin:0 0 7px; color:#f0ebe1; font-size:1.05rem; }
 .date-report-decision p { margin:6px 0; }

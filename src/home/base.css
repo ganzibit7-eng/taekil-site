@@ -1534,11 +1534,11 @@ footer{padding-bottom:90px}
   .admin-member-tools{flex-direction:column;}
   .admin-member-sort{width:100%;}
 }
-#startupRecovery:not([hidden]) { position:fixed; inset:0; z-index:2147483647; display:grid; place-items:center; padding:24px; background:#101715; color:#f0ebe1; }
+#startupRecovery:not([hidden]) { position:fixed; inset:0; z-index:2147483647; display:grid; place-items:center; padding:24px; background:#1c1a1c; color:#f0ebe1; }
 #startupRecovery div { max-width:30rem; }
 #startupRecovery strong { color:#c6aa76; }
 #startupRecovery h1 { margin:16px 0; font-size:clamp(24px,5vw,36px); }
 #startupRecovery p { margin:0 0 24px; line-height:1.65; }
 #startupRecovery button, #startupRecovery a { display:inline-block; padding:12px 18px; border-radius:8px; font:inherit; }
-#startupRecovery button { border:0; background:#c6aa76; color:#101715; cursor:pointer; }
+#startupRecovery button { border:0; background:#c6aa76; color:#1c1a1c; cursor:pointer; }
 #startupRecovery a { color:inherit; }

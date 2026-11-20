@@ -5,10 +5,10 @@
 #authNavBtn:focus-visible{outline:2px solid #C6AA76;outline-offset:4px}
 /* No opaque tray around the floating consultation control. */
 #homeIntroOverlay:after{content:none!important;display:none!important}
-#homeIntroOverlay #homeStartChatBtn.home-start-chat-btn{display:flex;align-items:center;justify-content:center;gap:20px;min-height:56px;padding:15px 22px!important;border:1px solid rgba(198,170,118,.64)!important;border-radius:8px!important;background:rgba(16,23,21,.48)!important;color:#F0EBE1!important;font:500 17px/1.5 var(--sans)!important;letter-spacing:-.02em;text-align:center;box-shadow:none!important;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);transition:background .18s ease,border-color .18s ease}
+#homeIntroOverlay #homeStartChatBtn.home-start-chat-btn{display:flex;align-items:center;justify-content:center;gap:20px;min-height:56px;padding:15px 22px!important;border:1px solid rgba(198,170,118,.64)!important;border-radius:8px!important;background:rgba(28,26,28,.48)!important;color:#F0EBE1!important;font:500 17px/1.5 var(--sans)!important;letter-spacing:-.02em;text-align:center;box-shadow:none!important;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);transition:background .18s ease,border-color .18s ease}
 #homeIntroOverlay #homeStartChatBtn.home-start-chat-btn:after{content:none!important;display:none!important}
-#homeIntroOverlay #homeStartChatBtn.home-start-chat-btn:hover{background:rgba(16,23,21,.65)!important;border-color:#C6AA76!important}
+#homeIntroOverlay #homeStartChatBtn.home-start-chat-btn:hover{background:rgba(28,26,28,.65)!important;border-color:#C6AA76!important}
 #homeIntroOverlay #homeStartChatBtn.home-start-chat-btn:focus-visible{outline:2px solid #F0EBE1;outline-offset:4px}
-@supports not (backdrop-filter:blur(12px)){#homeIntroOverlay #homeStartChatBtn.home-start-chat-btn{background:rgba(16,23,21,.78)!important}}
+@supports not (backdrop-filter:blur(12px)){#homeIntroOverlay #homeStartChatBtn.home-start-chat-btn{background:rgba(28,26,28,.78)!important}}
 @media(max-width:600px){#authNavBtn,#authNavBtn.logged-in{max-width:152px;font-size:15px!important;padding:12px 14px!important}#homeIntroOverlay #homeStartChatBtn.home-start-chat-btn{min-height:56px;padding:15px 20px!important}}
 @media(prefers-reduced-motion:reduce){#authNavBtn,#homeIntroOverlay #homeStartChatBtn.home-start-chat-btn{transition:none}}

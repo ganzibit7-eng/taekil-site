@@ -1,16 +1,16 @@
 /* Public business identity only. Keep the service and its existing footer actions. */
-.business-info{margin:20px 0 0;text-align:left;color:#b6bdb5;font:400 14px/1.85 var(--sans,Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif);letter-spacing:-.01em}
+.business-info{margin:20px 0 0;text-align:left;color:#c2bab2;font:400 14px/1.85 var(--sans,Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif);letter-spacing:-.01em}
 .business-info dl{margin:0;padding:0}
 /* Legal identity must stay visible even when generic section reveal effects are pending. */
 .business-info{opacity:1!important;transform:none!important;visibility:visible!important;animation:none!important;transition:none!important}
 .business-info dl>div{display:grid;grid-template-columns:108px minmax(0,1fr);gap:6px 12px;margin:5px 0}
 .business-info dt{color:#a4aea4;font-weight:400}
-.business-info dd{min-width:0;margin:0;color:#b6bdb5;word-break:keep-all;overflow-wrap:anywhere}
+.business-info dd{min-width:0;margin:0;color:#c2bab2;word-break:keep-all;overflow-wrap:anywhere}
 .business-service{margin-left:8px;color:#a4aea4;font-size:12px;white-space:nowrap}
 .business-info a{display:inline;min-height:0;margin:0;padding:0;background:none;border:0;border-radius:0;box-shadow:none;color:#d9d9cd;text-decoration:none;font:inherit;overflow-wrap:anywhere}
 .business-info a:hover{text-decoration:underline;text-underline-offset:4px}
 .business-info a:focus-visible{outline:2px solid #c6aa76;outline-offset:4px}
-.business-footer{box-sizing:border-box;width:min(820px,calc(100% - 40px));margin:24px auto 0;padding:28px 0 44px;border-top:1px solid #344139;text-align:left;background:none}
+.business-footer{box-sizing:border-box;width:min(820px,calc(100% - 40px));margin:24px auto 0;padding:28px 0 44px;border-top:1px solid #514b48;text-align:left;background:none}
 .business-footer .business-info{margin-top:0}
 .business-footer .business-copyright{max-width:none;margin:20px 0 0;color:#a4aea4;font:400 13px/1.7 var(--sans,Pretendard,sans-serif)}
 footer .footer-copy{min-width:0}
