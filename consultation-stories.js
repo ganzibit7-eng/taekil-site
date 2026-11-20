@@ -765,7 +765,7 @@
     const context = make('span');
     dockContext.id = 'story-dock-context-' + key;
     dockContext.append(context);
-    const start = make('button', '내 사주로 상담 시작하기', 'btn btn-primary');
+    const start = make('button', key==='love'?'내 연애 리포트 첫 장 보기':'내 사주로 상담 시작하기', 'btn btn-primary');
     start.type = 'button';
     start.dataset.storyStart = key;
     start.setAttribute('data-home-consultation', '');

@@ -96,6 +96,9 @@ function buildCurrentAiConversationRecord(){
   return {
     id: window.__aiConversationId,
     consultantId: window.TaekilConsultationPersonas?.get(window.__aiConsultantId).id || 'yeonwoo',
+    /* SEOHWA_SCOPE_START */
+    ...window.TaekilSeohwaReport?.recordScope(),
+    /* SEOHWA_SCOPE_END */
     title: titleBase.length > 34 ? titleBase.slice(0,34) + '…' : titleBase,
     subjects,
     messages,
@@ -206,6 +209,9 @@ function resumeAiConversation(id){
   if (window.__aiConversationId !== rec.id) window.resetAiComposer?.();
   window.__aiConversationId = rec.id;
   window.__aiConsultantId = window.TaekilConsultationPersonas?.get(rec.consultantId).id || 'yeonwoo';
+  /* SEOHWA_SCOPE_START */
+  window.TaekilSeohwaReport?.restoreScope(rec,accountToken);
+  /* SEOHWA_SCOPE_END */
   setActiveAiSession(rec.id);
   window.__aiChatSubjects = Array.isArray(rec.subjects) ? rec.subjects.slice(0,3) : [];
   window.__aiChatProfile = window.__aiChatSubjects[0]?.profile || null;
@@ -232,6 +238,9 @@ function resumeAiConversation(id){
     if (quick) quick.style.display = 'none';
     updateAiChatStatus(null, null, isPremium());
     window.refreshAiChatPremiumStatus?.();
+    /* SEOHWA_SCOPE_START */
+    window.TaekilSeohwaReport?.showRestoredBalance();
+    /* SEOHWA_SCOPE_END */
     /* CHECKOUT_START */
     void refreshQuestionCreditUI(accountToken.owner);
     /* CHECKOUT_END */
@@ -254,6 +263,9 @@ function restoreActiveAiConversation(options){
   if (window.__aiConversationId !== rec.id) window.resetAiComposer?.();
   window.__aiConversationId = rec.id;
   window.__aiConsultantId = window.TaekilConsultationPersonas?.get(rec.consultantId).id || 'yeonwoo';
+  /* SEOHWA_SCOPE_START */
+  window.TaekilSeohwaReport?.restoreScope(rec,accountToken);
+  /* SEOHWA_SCOPE_END */
   window.__aiChatSubjects = Array.isArray(rec.subjects) ? rec.subjects.slice(0,3) : [];
   window.__aiChatProfile = window.__aiChatSubjects[0]?.profile || null;
   window.__aiChatSaju = window.__aiChatSubjects[0]?.summary || '';
@@ -286,6 +298,10 @@ function restoreActiveAiConversation(options){
     /* CHECKOUT_START */
     void refreshQuestionCreditUI(accountToken.owner);
     /* CHECKOUT_END */
+    /* SEOHWA_SCOPE_START */
+    window.TaekilSeohwaReport?.showRestoredBalance();
+    if (window.TaekilSeohwaReport?.session()) return;
+    /* SEOHWA_SCOPE_END */
     // 결제 직후라면 저장된 잠금 질문도 이어서 전송합니다.
     if (opts.resumePendingQuestion && getPendingPaidAiQuestion()) {
       setTimeout(() => { if (accountStore.current(accountToken)) resumePendingPaidAiQuestion(); }, 300);
@@ -722,6 +738,9 @@ function appendAiChatMessage(role, text, opts) {
 function updateAiChatStatus(freeUsed, freeLimit, isPremiumNow, extra) {
   const el = document.getElementById('aiChatStatus');
   if (!el) return;
+  /* SEOHWA_SCOPE_START */
+  if (window.TaekilSeohwaReport?.session()) return;
+  /* SEOHWA_SCOPE_END */
 
   if (extra && extra.isAdmin) {
     const used = Number.isInteger(extra.premiumDailyUsed) ? extra.premiumDailyUsed : null;
@@ -1586,6 +1605,9 @@ async function sendAiChatMessage() {
   const accountToken = accountStore.snapshot();
   const conversationId = window.__aiConversationId;
   const sameConversation = () => accountStore.current(accountToken) && window.__aiConversationId === conversationId;
+  /* SEOHWA_SCOPE_START */
+  const reportSession = window.TaekilSeohwaReport?.session();
+  /* SEOHWA_SCOPE_END */
   const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
   if (!loggedIn) { showToast('로그인 후 이용할 수 있어요.'); openAuthModal(); return; }
 
@@ -1651,6 +1673,9 @@ async function sendAiChatMessage() {
       body: JSON.stringify({
         uid,
         consultantId: consultant?.id || 'yeonwoo',
+        /* SEOHWA_SCOPE_START */
+        ...(reportSession ? {seohwaReportId:reportSession.id,seohwaChapter:reportSession.chapter} : {}),
+        /* SEOHWA_SCOPE_END */
         sajuSummary: window.__aiChatSaju,
         sajuProfile: window.__aiChatProfile,
         /* NEWYEAR_SCOPE_START */
@@ -1738,9 +1763,19 @@ async function sendAiChatMessage() {
 
     // 사용자가 채팅에 2개 이상의 실제 후보 날짜를 적었다면, AI 문장 답변 아래에
     // 같은 택일 계산식을 사용한 비교 카드를 바로 붙입니다. 일반적인 날짜 질문은 기존 택일 CTA를 유지합니다.
+    /* SEOHWA_SCOPE_START */
+    if (!reportSession) {
+    /* SEOHWA_SCOPE_END */
     const renderedInlineDateCompare = appendAiInlineSpecificDateComparison(message);
     if (!renderedInlineDateCompare) appendAiChatServiceCta(message);
 
+    /* SEOHWA_SCOPE_START */
+    }
+    if (Number.isInteger(data.seohwaQuestionsLeft)) {
+      window.TaekilSeohwaReport?.setBalance(data.seohwaQuestionsLeft);
+      if(data.seohwaQuestionsLeft===0)appendAiChatMessage('system-note','리포트 상담 3회를 모두 사용했어요. 리포트는 내 기록에서 계속 읽을 수 있어요.');
+    } else
+    /* SEOHWA_SCOPE_END */
     // 사용권 판정은 반드시 '질문권 사용 여부'를 무료 사용량보다 먼저 봅니다.
     // 질문권 사용자의 응답에도 freeUsed=3이 함께 오기 때문에,
     // freeUsed만 먼저 검사하면 질문권이 남아 있어도 무료 소진자로 잘못 판단해
