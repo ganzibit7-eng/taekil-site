@@ -755,13 +755,24 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 .directory-concern-shortcuts a + a { border-inline-start: 1px solid var(--directory-line); }
 .directory-concern-shortcuts a:hover { background: #c6aa7611; }
 .directory-recent[hidden] { display: none; }
-.directory-recent { margin-top: 14px; }
-.directory-recent button {
-  width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 16px;
-  min-height: 62px; padding: 12px 15px; text-align: left; border: 1px solid var(--directory-line);
-  border-radius: 8px; background: #292625; color: #f0ebe1; cursor: pointer;
+.directory-recent {
+  display: grid; grid-template-columns: minmax(0,1fr) 44px; align-items: center;
+  margin-top: 14px; padding-inline-end: 5px;
+  border: 1px solid var(--directory-line); border-radius: 8px; background: #292625;
 }
-.directory-recent button > span:first-child { min-width: 0; }
+.directory-recent [data-home-consultation] {
+  width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  min-width: 0; min-height: 62px; padding: 12px 10px 12px 15px; text-align: left;
+  border: 0; border-radius: 7px; background: transparent; color: #f0ebe1; cursor: pointer;
+}
+.directory-recent [data-home-consultation] > span:first-child { min-width: 0; }
+.directory-recent-dismiss {
+  display: grid; place-items: center; width: 44px; height: 44px; padding: 0;
+  border: 0; border-radius: 6px; background: transparent; color: #ddcba8;
+  font: 400 23px/1 var(--sans); cursor: pointer;
+}
+.directory-recent-dismiss:hover { background: #c6aa7619; color: #ffdfa5; }
+.directory-recent button:focus-visible { outline: 2px solid #dfc69c; outline-offset: -2px; }
 .directory-recent strong,.directory-recent small { display: block; }
 .directory-recent small {
   margin-top: 3px; color: var(--directory-muted); font-size: 14px;

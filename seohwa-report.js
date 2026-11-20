@@ -8,7 +8,10 @@
   const dialog=by('seohwaReportDialog'), body=by('seohwaReportBody');
   const progress=by('seohwaReportProgress');
   const library=by('seohwaReportList'), libraryStatus=by('seohwaLibraryStatus');
+  const returnView=by('view-seohwa-report'), returnHost=by('seohwaReturnHost');
+  const returnStatus=by('seohwaReturnStatus'), returnRetry=by('seohwaReturnRetry'), returnAuth=by('seohwaReturnAuth');
   let active, loadingLibrary=0, accountOwner=accountStore.owner(), waitingLogin=false;
+  let returnAttempt=null;
   let progressTimer=0, statusTimer=0;
   const typicalWriteSeconds=60;
   const estimatedWriteMs=(typicalWriteSeconds+10)*1000;
@@ -220,10 +223,13 @@
         if(order.state==='resume'){client.showResume(status,order,pendingKey);return false;}
         if(order.state==='pending'){
           accountStore.setItem(pendingKey,order.id);
-          setStatus(status,client.pendingMessage(order));return false;
+          close();
+          goTo('seohwa-report');
+          return false;
         }
         if(order.state==='paused'){setStatus(status,'신규 결제를 잠시 중단했어요.');return false;}
-        const opened=client.pay(order,{price:core.PRICE,name:core.NAME,pendingKey,returnFlag:'seohwaReport',memo:'서화 연애 리포트 및 후속 상담 3회'});
+        const returnPath='/?seohwaReport=1&seohwaOrder='+encodeURIComponent(order.orderId)+'#seohwa-report';
+        const opened=client.pay(order,{price:core.PRICE,name:core.NAME,payAppName:'서화 연애 리포트 상담 3회',pendingKey,returnPath,memo:'서화 연애 리포트 및 후속 상담 3회'});
         if(!opened)setStatus(status,'결제창을 열지 못했어요. 결제 상태를 다시 확인해 주세요.');
         return opened;
       }catch(error){
@@ -394,26 +400,20 @@
     prepareAiQuestion('리포트의 “'+chapter.highlight+'” 부분을 제 상황에 맞춰 좀 더 풀어주세요.');
   }
 
-  async function reopen(id,owner,status,waitForPayment=false) {
+  async function reopen(id,owner,status) {
     const visible=()=>accountStore.current(owner)&&by('view-history').classList.contains('visible');
     try{
-      let result=await client.request(endpoint,{operation:'open',id,allowResume:true},owner);
-      for(let i=0;waitForPayment&&visible()&&['pending','resume'].includes(result.state)&&result.waiting!=='deposit'&&i<6;i++){
-        setStatus(status,'결제 결과를 기다리고 있어요.');
-        await new Promise(resolve=>setTimeout(resolve,2300));
-        if(!visible())return;
-        result=await client.request(endpoint,{operation:'open',id,allowResume:true},owner);
-      }
+      const result=await client.request(endpoint,{operation:'open',id,allowResume:true},owner);
       if(!visible())return;
       if(result.state==='resume'){client.showResume(status,result,pendingKey);return;}
       if(result.state==='pending'){setStatus(status,client.pendingMessage(result));return;}
       if(!['paid','ready','generating'].includes(result.state)) throw Error('현재 열 수 있는 리포트가 아니에요. 결제 상태를 확인해 주세요.');
-      accountStore.removeItem(pendingKey);
+      if(accountStore.getItem(pendingKey)===id)accountStore.removeItem(pendingKey);
       setStatus(status,'결제한 서화 리포트를 열었어요.');
-      await renderPurchased(result,by('seohwaLibrary'),owner,waitForPayment);
+      await renderPurchased(result,by('seohwaLibrary'),owner);
     }catch(error){if(accountStore.current(owner))setStatus(status,error.message);}
   }
-  async function list(openPending=false) {
+  async function list() {
     const owner=accountStore.snapshot();
     if(!owner.owner){openAuthModal();return;}
     const version=++loadingLibrary, trigger=by('loadSeohwaReports');
@@ -431,30 +431,111 @@
       if(pending&&!reports.some(item=>item.id===pending))rows.unshift(button('최근 결제 상태 확인하기','sr-library-button',()=>reopen(pending,owner,libraryStatus)));
       library.replaceChildren(...rows);
       setStatus(libraryStatus,reports.length?'최근 리포트부터 표시해요.':'저장한 서화 리포트가 아직 없어요.');
-      if(openPending===true&&pending) await reopen(pending,owner,libraryStatus,true);
     }catch(error){if(current())setStatus(libraryStatus,error.message);}
     finally{if(current())trigger.disabled=false;}
   }
-  function finishCheckout(){
+  async function checkCheckoutReturn() {
+    if(!returnView.classList.contains('visible'))return;
+    if(active?.host===returnHost&&accountStore.current(active.owner))return;
+    const owner=accountStore.snapshot();
+    if(returnAttempt&&accountStore.current(returnAttempt.owner))return;
+    returnAuth.hidden=true;
+    returnRetry.hidden=true;
+    if(!owner.owner){
+      if(firebaseReady&&!firebaseAuthReady)return;
+      setStatus(returnStatus,'결제하신 계정으로 로그인하면 리포트 준비를 이어갈 수 있어요.');
+      returnAuth.hidden=false;
+      return;
+    }
     const url=new URL(location.href);
-    if(!accountStore.owner()||!url.searchParams.has('seohwaReport'))return;
-    url.searchParams.delete('seohwaReport');
-    history.replaceState(null,'',url);
-    goTo('history');
-    void list(true);
-    by('seohwaLibrary').scrollIntoView({block:'start'});
+    const orderId=url.searchParams.get('seohwaOrder');
+    const pending=accountStore.getItem(pendingKey);
+    const request=orderId?{operation:'checkout-status',orderId}:{operation:'open',id:pending,allowResume:true};
+    if(!orderId&&!pending){
+      setStatus(returnStatus,'이 결제 주소에서 주문을 찾지 못했어요. 이미 구매한 리포트는 내 기록에서 열 수 있어요.');
+      return;
+    }
+    const attempt={owner};
+    returnAttempt=attempt;
+    const current=()=>returnAttempt===attempt&&accountStore.current(owner)&&returnView.classList.contains('visible');
+    const started=Date.now();
+    setStatus(returnStatus,'페이앱의 결제 결과를 확인하고 있어요. 확인되면 이 화면에서 리포트가 시작돼요.');
+    try{
+      while(current()){
+        const result=await client.request(endpoint,request,owner);
+        if(!current())return;
+        if(['paid','generating','ready'].includes(result.state)){
+          if(orderId&&accountStore.getItem(pendingKey)===result.id)accountStore.removeItem(pendingKey);
+          setStatus(returnStatus,result.state==='ready'?'완성된 리포트를 다시 열 수 있어요.':'결제가 확인됐어요. 리포트 준비를 이어갈 수 있어요.');
+          returnRetry.textContent='리포트 다시 열기';
+          await renderPurchased(result,returnHost,owner,true);
+          return;
+        }
+        if(['cancelled','refunded','partially_refunded','superseded'].includes(result.state)){
+          setStatus(returnStatus,'이 주문으로 열람할 수 있는 리포트가 없어요. 페이앱의 결제 내역을 확인해 주세요.');
+          return;
+        }
+        if(result.state!=='pending'&&result.state!=='resume')throw new Error('결제 상태를 확인하지 못했어요.');
+        if(result.waiting==='deposit'){
+          setStatus(returnStatus,'가상계좌 입금 확인을 기다리고 있어요. 입금이 확인되면 이 화면에서 리포트가 열려요.');
+          break;
+        }
+        if(Date.now()-started>=30000){
+          setStatus(returnStatus,'아직 페이앱 결제 완료 결과를 받지 못했어요. 결제 알림을 받으셨다면 다시 결제하기 전에 상태를 확인해 주세요.');
+          break;
+        }
+        await new Promise(resolve=>setTimeout(resolve,2500));
+      }
+    }catch(error){
+      if(current())setStatus(returnStatus,error.message||'결제 상태를 확인하지 못했어요.');
+    }finally{
+      if(current())returnRetry.hidden=false;
+      if(returnAttempt===attempt)returnAttempt=null;
+    }
+  }
+  // Older PayApp receipts pointed to the archive. Normalize before the router starts.
+  const returnUrl=new URL(location.href);
+  if(returnUrl.searchParams.get('seohwaReport')==='1'&&(!returnUrl.hash||returnUrl.hash==='#history')){
+    returnUrl.hash='seohwa-report';
+    history.replaceState(history.state,'',returnUrl);
   }
   by('loadSeohwaReports').addEventListener('click',()=>list());
-  window.addEventListener('DOMContentLoaded',finishCheckout,{once:true});
+  returnRetry.addEventListener('click',()=>{
+    returnRetry.textContent='결제 상태 다시 확인';
+    void checkCheckoutReturn();
+  });
+  returnAuth.addEventListener('click',()=>openAuthModal());
+  returnHost.querySelector('a[href="#topic-love"]').addEventListener('click',event=>{
+    event.preventDefault();
+    goTo('topic-love');
+  });
+  window.addEventListener('DOMContentLoaded',()=>{
+    void checkCheckoutReturn();
+    if(firebaseReady&&!firebaseAuthReady)void firebaseAuthSettled.then(checkCheckoutReturn);
+  },{once:true});
+  new MutationObserver(()=>{
+    if(returnView.classList.contains('visible'))void checkCheckoutReturn();
+    else {
+      returnAttempt=null;
+      if(active?.host===returnHost)close();
+      const url=new URL(location.href);
+      if(url.hash!=='#seohwa-report'&&url.searchParams.get('seohwaReport')==='1'){
+        url.searchParams.delete('seohwaReport');
+        url.searchParams.delete('seohwaOrder');
+        history.replaceState(history.state,'',url);
+      }
+    }
+  }).observe(returnView,{attributes:true,attributeFilter:['class']});
   window.addEventListener('taekilso:authChanged',()=>{
     const next=accountStore.owner();
-    if(next===accountOwner)return;
+    if(next===accountOwner){void checkCheckoutReturn();return;}
     accountOwner=next;
+    returnAttempt=null;
     if(active&&!accountStore.current(active.owner))close();
     window.__seohwaReportSession=null;
     loadingLibrary++; library.replaceChildren(); by('loadSeohwaReports').disabled=false;
     libraryStatus.textContent='구매한 서화 리포트를 여기서 다시 읽을 수 있어요.';
-    finishCheckout();
+    void checkCheckoutReturn();
   });
 
   function session() {

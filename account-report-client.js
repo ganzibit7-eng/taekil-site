@@ -15,14 +15,14 @@
     return data;
   }
 
-  function pay(data, { price, name, pendingKey, returnFlag, memo }) {
+  function pay(data, { price, name, payAppName = name, pendingKey, returnFlag, returnPath, memo }) {
     if (data.state !== 'checkout' || data.price !== price || data.name !== name ||
         !checkout.requireOpen() || !window.PayApp) return false;
     accountStore.setItem(pendingKey,data.id);
     window.PayApp.setParam({
-      userid:PAYAPP_USERID,shopname:'택일소',goodname:name,price:String(price),
+      userid:PAYAPP_USERID,shopname:'택일소',goodname:payAppName,price:String(price),
       recvphone:'01000000000',smsuse:'n',checkretry:'y',redirectpay:'1',
-      returnurl:location.origin+'/?'+returnFlag+'=1#history',
+      returnurl:location.origin+(returnPath || '/?'+returnFlag+'=1#history'),
       feedbackurl:PAYAPP_FEEDBACK_URL,var1:data.orderId,memo
     });
     window.PayApp.setTarget('_self');

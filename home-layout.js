@@ -89,33 +89,47 @@
     }
     const recent = document.getElementById('directoryRecent');
     if (recent && recent.querySelector && window.accountStore) {
-      const button = recent.querySelector('button');
+      const store = window.accountStore;
+      const dismissedKey = 'taekilso_home_recent_hidden_through_v1';
+      const button = recent.querySelector('[data-home-consultation]');
+      const dismiss = recent.querySelector('.directory-recent-dismiss');
       const question = recent.querySelector('[data-recent-question]');
       const advisor = recent.querySelector('[data-recent-advisor]');
       let selected = null;
+      let dismissedThisPage = null;
       let loadedOwner = null;
       const refresh = () => {
-        const owner = window.accountStore.owner();
+        const owner = store.owner();
         const records = owner ? getAiConversationStore() : [];
         const latest = records.filter(rec => rec?.id && Array.isArray(rec.messages) && rec.messages.some(message => message?.role === 'assistant'))
           .sort((a,b) => Number(b.updatedAtMs || 0) - Number(a.updatedAtMs || 0))[0];
-        const prompt = latest?.messages.findLast(message => message?.role === 'user')?.content || latest?.title;
-        recent.hidden = !latest;
-        selected = latest ? {id:latest.id, account:window.accountStore.snapshot()} : null;
+        const updatedAt = Number(latest?.updatedAtMs) || 0;
+        const hiddenThrough = Math.max(Number(store.getItem(dismissedKey) ?? -1) || 0,
+          store.current(dismissedThisPage?.account) ? dismissedThisPage.updatedAt : -1);
+        recent.hidden = !latest || updatedAt <= hiddenThrough;
+        selected = recent.hidden ? null : {id:latest.id, account:store.snapshot(), updatedAt};
+        const prompt = selected && (latest.messages.findLast(message => message?.role === 'user')?.content || latest.title);
         question.textContent = String(prompt || '').slice(0,120);
-        advisor.textContent = latest ? (window.TaekilConsultationPersonas?.get(latest.consultantId).name || '연우') + ' 상담' : '';
+        advisor.textContent = selected ? (window.TaekilConsultationPersonas?.get(latest.consultantId).name || '연우') + ' 상담' : '';
         if (owner !== loadedOwner) {
           loadedOwner = owner;
           if (owner) syncAiConversationHistoryFromCloud().then(refresh);
         }
       };
       button.addEventListener('click', () => {
-        if (selected && window.accountStore.current(selected.account)) resumeAiConversation(selected.id);
+        if (selected && store.current(selected.account)) resumeAiConversation(selected.id);
+      });
+      dismiss?.addEventListener('click', () => {
+        if (!selected || !store.current(selected.account)) return;
+        dismissedThisPage = selected;
+        store.setItem(dismissedKey, String(selected.updatedAt));
+        refresh();
+        document.querySelector('.directory-concern-shortcuts a')?.focus({preventScroll:true});
       });
       window.addEventListener('taekilso:authChanged', refresh);
       window.addEventListener('taekilso:aiQuestionAccepted', () => queueMicrotask(refresh));
       window.addEventListener('storage', event => {
-        if (event.key === null || event.key === window.accountStore.key(AI_CONVERSATION_KEY)) refresh();
+        if (event.key === null || event.key === store.key(AI_CONVERSATION_KEY) || event.key === store.key(dismissedKey)) refresh();
       });
       new MutationObserver(refresh).observe(document.getElementById('view-home'), {attributes:true, attributeFilter:['class']});
       refresh();

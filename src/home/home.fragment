@@ -20,6 +20,9 @@
         <span><strong>지난 상담 이어가기</strong><small data-recent-question></small></span>
         <span data-recent-advisor></span>
       </button>
+      <button type="button" class="directory-recent-dismiss" aria-label="지난 상담 이어가기 숨기기">
+        <span aria-hidden="true">×</span>
+      </button>
     </div>
 
     <nav class="directory-concern-shortcuts" aria-label="지금 고민으로 상담 찾기">

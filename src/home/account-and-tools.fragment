@@ -238,6 +238,21 @@
 </section>
 
 <!-- ============ HISTORY ============ -->
+<section id="view-seohwa-report" class="view">
+  <div class="sr-return-wrap">
+    <section id="seohwaReturnHost" class="sr-gate sr-return-panel" aria-labelledby="seohwaReturnTitle">
+      <p class="sr-kicker">서화의 연애 리포트</p>
+      <h1 id="seohwaReturnTitle">리포트를 준비하고 있어요</h1>
+      <p id="seohwaReturnStatus" class="sr-status" role="status">결제 상태와 로그인 정보를 확인하고 있어요.</p>
+      <div class="sr-return-actions">
+        <button id="seohwaReturnRetry" class="sr-primary" type="button" hidden>결제 상태 다시 확인</button>
+        <button id="seohwaReturnAuth" class="sr-primary" type="button" hidden>로그인하고 내 주문 확인</button>
+        <a class="sr-secondary" href="#topic-love">서화 이야기로 돌아가기</a>
+      </div>
+    </section>
+  </div>
+</section>
+
 <section id="view-history" class="view">
   <header class="hero hero-sm">
     <div class="hero-inner">
