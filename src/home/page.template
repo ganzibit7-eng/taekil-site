@@ -328,8 +328,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
   </div>
   <div id="seohwaReportBody"></div>
 </dialog>
-<link rel="stylesheet" href="seohwa-report.css?v=3">
+<link rel="stylesheet" href="seohwa-report.css?v=4">
 <script src="seohwa-reading-core.js?v=2"></script>
-<script src="seohwa-report.js?v=3"></script>
+<script src="seohwa-report.js?v=4"></script>
 </body>
 </html>

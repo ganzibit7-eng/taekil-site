@@ -10,7 +10,8 @@
   const library=by('seohwaReportList'), libraryStatus=by('seohwaLibraryStatus');
   let active, loadingLibrary=0, accountOwner=accountStore.owner(), waitingLogin=false;
   let progressTimer=0, statusTimer=0;
-  const estimatedWriteMs=70000;
+  const typicalWriteSeconds=60;
+  const estimatedWriteMs=(typicalWriteSeconds+10)*1000;
   const money=new Intl.NumberFormat('ko-KR').format(core.PRICE)+'원';
   function el(tag,text,cls) {
     const node=document.createElement(tag);
@@ -251,13 +252,14 @@
     meter.hidden=true;
     const meterLine=el('div',null,'sr-generation-meter-label');
     const meterLabel=el('span','예상 진행률');
+    const eta=el('p','예상 소요 시간 약 '+typicalWriteSeconds+'초','sr-generation-eta');
     const number=el('strong','0%');
     number.setAttribute('aria-hidden','true');
     const bar=el('progress');
     bar.max=100;bar.value=0;
     bar.setAttribute('aria-label','리포트의 예상 작성 진행률');
     meterLine.append(meterLabel,number);
-    meter.append(meterLine,bar);
+    meter.append(meterLine,bar,eta);
     const after=el('ul',null,'sr-benefits sr-generation-next');
     for(const [title,description] of [
       ['리포트 6장 읽기','완성되면 이 화면에서 읽을 수 있고 내 기록에도 저장돼요.'],
@@ -286,6 +288,7 @@
         if(!stillCurrent()){clearInterval(progressTimer);return;}
         const elapsed=Date.now()-initial;
         setProgress(Math.max(0,Math.min(95,Math.floor(elapsed*95/estimatedWriteMs))));
+        if(elapsed>estimatedWriteMs)eta.textContent='평소보다 조금 더 오래 걸리고 있어요.';
       };
       update();
       progressTimer=setInterval(update,450);
@@ -294,6 +297,7 @@
     function showReady(ready) {
       clearGenerationTimers();
       meterLabel.textContent='리포트 작성 완료';
+      eta.hidden=true;
       bar.setAttribute('aria-label','리포트 작성 완료');
       setProgress(100);
       setStatus(message,'전체 리포트가 완성됐어요.');
