@@ -7,6 +7,7 @@
   const libraryStatus = document.getElementById('dateReportLibraryStatus');
   const libraryButton = document.getElementById('dateReportLoadLibrary');
   const checkout = window.TaekilCheckout;
+  const client = window.TaekilAccountReport;
   const dateFormat = new Intl.DateTimeFormat('ko-KR',{dateStyle:'full',timeZone:'UTC'});
   let requestId = 0;
   let libraryOwner = accountStore.owner();
@@ -29,16 +30,7 @@
     return button;
   }
 
-  async function request(payload, token) {
-    const headers = await getAiRequestHeaders();
-    if (!accountStore.current(token) || !headers.Authorization) {
-      throw new Error('로그인한 계정을 확인한 뒤 다시 시도해 주세요.');
-    }
-    const res = await fetch(endpoint,{method:'POST',headers,body:JSON.stringify(payload),signal:AbortSignal.timeout(15000)});
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || '리포트를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.');
-    return data;
-  }
+  const request = (payload, token) => client.request(endpoint, payload, token);
 
   function reportCard({report}) {
     const box = node('article','','date-report-result');
@@ -112,18 +104,8 @@
         accountStore.setItem(pendingKey,data.id);
         return false;
       }
-      if (data.state !== 'checkout' || data.price !== 3900 || !checkout.requireOpen() || !window.PayApp) return false;
-      accountStore.setItem(pendingKey,data.id);
-      window.PayApp.setParam({
-        userid:PAYAPP_USERID,shopname:'택일소',goodname:data.name,price:String(data.price),
-        recvphone:'01000000000',smsuse:'n',checkretry:'y',redirectpay:'1',
-        returnurl:location.origin+'/?dateReport=1#history',
-        feedbackurl:PAYAPP_FEEDBACK_URL,var1:data.orderId,
-        memo:'선택한 후보일 2~5개 정밀 비교 리포트 1건'
-      });
-      window.PayApp.setTarget('_self');
-      window.PayApp.payrequest();
-      return true;
+      return client.pay(data,{price:3900,name:'정밀 택일 1건권',pendingKey,
+        returnFlag:'dateReport',memo:'선택한 후보일 2~5개 정밀 비교 리포트 1건'});
     }
 
     const included = action('기존 이용권으로 열기',async () => {
