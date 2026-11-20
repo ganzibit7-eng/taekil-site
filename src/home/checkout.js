@@ -42,16 +42,6 @@ async function startQuestionPackCheckout(packId) {
   // 결제창으로 이동하기 전에 현재 상담을 로컬/클라우드 기록에 확실히 저장합니다.
   try { await saveCurrentAiConversation(); } catch (e) { console.warn('결제 전 상담 저장 실패', e); }
 
-  let creditsBeforePurchase = null;
-  try {
-    if (db) {
-      const userSnap = await db.collection('users').doc(paymentUser.uid).get({ source:'server' });
-      if (userSnap.exists) creditsBeforePurchase = Number((userSnap.data() || {}).aiQuestionCredits || 0);
-    }
-  } catch (e) {
-    console.warn('결제 전 질문권 잔액 확인 실패', e);
-  }
-
   const orderId = 'TAK-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
   const uidForOrder = paymentUser.uid;
   try {
@@ -73,7 +63,6 @@ async function startQuestionPackCheckout(packId) {
       amount: pack.price,
       product: packId,
       expectedCredits: pack.count,
-      creditsBeforePurchase,
       paymentUid: paymentUser.uid,
       activeConversationId: window.__aiConversationId || null,
       createdAt: Date.now()
@@ -107,16 +96,6 @@ async function startQuestionPackCheckout(packId) {
   }
 }
 
-/* 질문권처럼 소모성이라 users 문서의 특정 필드로 "구매됨"을 판단할 수 없는 상품은,
-   주문(paymentOrders) 문서 자체의 상태가 'paid'로 바뀌었는지로 확인합니다. */
-async function checkOrderPaidOnServer(orderId) {
-  if (!db || !orderId) return false;
-  try {
-    const snap = await db.collection('paymentOrders').doc(orderId).get({ source: 'server' });
-    return !!(snap.exists && snap.data().status === 'paid');
-  } catch (e) { console.error('주문 확인 중 오류', e); return false; }
-}
-
 async function getQuestionCreditsFromServer(uid){
   if (!db || !uid || uid !== accountStore.owner()) return null;
   try {
@@ -130,75 +109,21 @@ async function getQuestionCreditsFromServer(uid){
   }
 }
 
-async function waitForVerifiedQuestionPack(pending, uid){
-  if (!pending || !pending.orderId) return { confirmed:false, credits:null };
-
-  // 반드시 결제 당시의 Firebase UID를 우선 사용합니다.
-  // 카카오 로컬 세션/다른 로그인 흔적 때문에 getCurrentUserKey()가 다른 UID를 가리켜
-  // 실제로는 5개가 충전됐는데 0개로 읽는 문제를 방지합니다.
-  const verifiedUid = String(pending.paymentUid || uid || '').trim();
-  if (!verifiedUid) return { confirmed:false, credits:null };
-
-  const before = Number.isFinite(Number(pending.creditsBeforePurchase))
-    ? Math.max(0, Number(pending.creditsBeforePurchase))
-    : null;
-  const added = Math.max(0, Number(pending.expectedCredits || 0));
-  const expectedMinimum = before == null ? null : before + added;
-
-  // PayApp 주문이 paid가 된 직후에도 화면/세션에서 잘못된 UID나 지연된 값을 읽지 않도록
-  // 실제 질문권 잔액까지 함께 확인합니다.
-  const deadline = Date.now() + 90000;
-  let attempt = 0;
-  let lastCredits = null;
-  let paidSeen = false;
-
-  while (Date.now() < deadline) {
-    if (verifiedUid !== accountStore.owner()) return { confirmed:false, credits:null };
-    const paid = await checkOrderPaidOnServer(pending.orderId);
-    if (verifiedUid !== accountStore.owner()) return { confirmed:false, credits:null };
-    if (paid) paidSeen = true;
-
-    if (paidSeen) {
-      lastCredits = await getQuestionCreditsFromServer(verifiedUid);
-
-      const balanceLooksApplied =
-        lastCredits != null &&
-        (
-          expectedMinimum == null
-            ? lastCredits > 0 || added === 0
-            : lastCredits >= expectedMinimum
-        );
-
-      if (balanceLooksApplied) {
-        return { confirmed:true, credits:lastCredits, uid:verifiedUid };
-      }
-    }
-
-    attempt += 1;
-    const waitMs = attempt <= 8 ? 700 : 1500;
-    await new Promise(r => setTimeout(r, waitMs));
-  }
-
-  return {
-    confirmed: paidSeen,
-    credits: lastCredits,
-    uid: verifiedUid,
-    balancePending: paidSeen
-  };
-}
-
-async function refreshQuestionCreditUI(uid){
-  const credits = await getQuestionCreditsFromServer(uid);
-  if (credits == null || uid !== accountStore.owner()) return null;
-
+async function refreshQuestionCreditUI(uid) {
+  const token = accountStore.snapshot();
+  if (!uid || token.owner !== uid || isPremium() || isAdmin()) return;
   const panel = document.getElementById('aiChatPanel');
-  if (panel && panel.style.display !== 'none' && credits > 0) {
-    updateAiChatStatus(null, null, false, {
-      usingCredit: true,
-      questionCreditsLeft: credits
-    });
+  const status = document.getElementById('aiChatStatus');
+  if (!status || panel?.style.display !== 'flex') return;
+  const previousStatus = status.textContent;
+  const conversationId = window.__aiConversationId;
+  const credits = await getQuestionCreditsFromServer(uid);
+  if (credits == null || !accountStore.current(token) || panel.style.display !== 'flex' ||
+      conversationId !== window.__aiConversationId || status.textContent !== previousStatus ||
+      document.getElementById('aiChatSendBtn')?.disabled) return;
+  if (credits > 0 || previousStatus.startsWith('질문권 ')) {
+    updateAiChatStatus(null, null, false, { usingCredit: true, questionCreditsLeft: credits });
   }
-  return credits;
 }
 
 async function payPremium() {
@@ -277,6 +202,7 @@ async function startPremiumCheckout() {
     localStorage.setItem('taekilso_pending_order', JSON.stringify({
       orderId,
       amount: PREMIUM_PRICE,
+      paymentUid: uidForOrder,
       createdAt: Date.now()
     }));
 
@@ -321,147 +247,97 @@ function tryActivatePendingPremium() {
   return false;
 }
 
-(async function checkPremiumReturn() {
-  restoreKakaoUserState();
-  updateAuthNav();
-  const params = new URLSearchParams(window.location.search);
-  const hasPaymentReturnFlag = params.get('premium') === '1';
-  const pendingAtLoad = (() => { try { return JSON.parse(localStorage.getItem('taekilso_pending_order') || 'null'); } catch(e) { return null; } })();
+function readPendingPayment() {
+  try { return JSON.parse(localStorage.getItem('taekilso_pending_order') || 'null'); }
+  catch (_) { return null; }
+}
 
-  if (hasPaymentReturnFlag || (pendingAtLoad && pendingAtLoad.orderId)) {
-    if (hasPaymentReturnFlag) {
-      const url = new URL(window.location.href);
-      url.searchParams.delete('premium');
-      window.history.replaceState({}, document.title, url.toString());
-    }
+async function readPaymentConfirmation(pending, owner, questionPack) {
+  const snapshot = await db.collection('paymentOrders').doc(pending.orderId).get({ source: 'server' });
+  const order = snapshot.exists && snapshot.data();
+  if (!order || order.uid !== owner) return { state: 'pending' };
+  const expectedProduct = questionPack ? pending.product : 'taekilso_premium_30days';
+  if (order.product !== expectedProduct) return { state: 'pending' };
+  if (['refunded', 'partially_refunded', 'cancelled'].includes(order.status)) return { state: 'cancelled' };
+  if (order.status !== 'paid') return { state: 'pending' };
+  if (order.entitlementGranted === false) return { state: 'review' };
 
-    const pending = pendingAtLoad;
-    const PENDING_MAX_AGE_MS = 30 * 60 * 1000;
-    const isValidPending = pending && pending.orderId && (Date.now() - pending.createdAt) <= PENDING_MAX_AGE_MS;
-    if (!isValidPending) return; // 결제 버튼을 누른 기록 자체가 없으면 아무것도 하지 않습니다.
+  if (!questionPack) return { state: await checkPremiumOnServer(owner) ? 'paid' : 'pending' };
+  const credits = await getQuestionCreditsFromServer(owner);
+  return credits == null ? { state: 'pending' } : { state: 'paid', credits };
+}
 
-    // 카카오 로그인은 즉시 확인 가능하지만, Google 로그인은 결제 후 페이지가
-    // 완전히 새로고침될 때 로그인 상태를 다시 불러오는 데 짧은 시간이 걸립니다.
-    if (!getKakaoUser()) {
-      await waitForAuthSettled(6000);
-    }
+let paymentConfirmationRunning = false;
+async function confirmReturnedPayment() {
+  const pending = readPendingPayment();
+  if (paymentConfirmationRunning || !db || !pending?.orderId ||
+      !Number.isFinite(pending.createdAt) || Date.now() - pending.createdAt > 30 * 60 * 1000) return;
+  const token = accountStore.snapshot();
+  if (!token.owner || (pending.paymentUid && token.owner !== pending.paymentUid)) return;
+  const questionPack = AI_QUESTION_PACKS[pending.product];
+  if (pending.product && !questionPack) return;
 
-    if (PAYAPP_FEEDBACK_URL) {
-      // 서버 검증 방식: 페이앱이 서버로 직접 결제 결과를 통보하고, 서버가 확인한 뒤에만
-      // 계정에 프리미엄이 기록됩니다. 그 처리가 몇 초 정도 걸릴 수 있어서, 여기서는
-      // 완료될 때까지 몇 번 다시 확인(폴링)합니다.
-      showPaymentPendingStatus('결제 확인 중이에요…');
-      const uid = String(pending.paymentUid || getCurrentUserKey() || '').trim();
-      if (uid !== accountStore.owner()) { hidePaymentPendingStatus(); return; }
-      const isQuestionPack = pending.product && AI_QUESTION_PACKS[pending.product];
-      let confirmed = false;
-      let confirmedCredits = null;
-
-      if (isQuestionPack) {
-        const result = await waitForVerifiedQuestionPack(pending, uid);
-        confirmed = result.confirmed;
-        confirmedCredits = result.credits;
-      } else {
-        // 프리미엄도 PayApp feedback가 조금 늦을 수 있어 최대 약 90초까지 확인합니다.
-        const deadline = Date.now() + 90000;
-        while (Date.now() < deadline && !confirmed) {
-          confirmed = await checkPremiumOnServer(uid);
-          if (uid !== accountStore.owner()) { hidePaymentPendingStatus(); return; }
-          if (!confirmed) await new Promise(r => setTimeout(r, 1500));
-        }
+  const current = () => accountStore.current(token) && readPendingPayment()?.orderId === pending.orderId;
+  const retryUntil = Date.now() + 90000;
+  paymentConfirmationRunning = true;
+  showToast('결제와 이용권 지급을 확인하고 있어요…');
+  try {
+    while (current() && Date.now() < retryUntil) {
+      const result = await readPaymentConfirmation(pending, token.owner, questionPack).catch(() => ({ state:'pending' }));
+      if (!current()) return;
+      if (result.state === 'review') {
+        showToast('결제는 확인됐지만 이용권 지급은 확인이 필요해요. 택일소에 문의해 주세요.');
+        return;
       }
-
-      hidePaymentPendingStatus();
-      if (uid !== accountStore.owner()) return;
-
-      if (confirmed) {
+      if (result.state !== 'pending') {
         localStorage.removeItem('taekilso_pending_order');
         sessionStorage.removeItem('taekilso_pending_order');
+        if (result.state === 'cancelled') {
+          showToast('취소 또는 환불된 결제예요. 이 주문의 이용권은 지급되지 않아요.');
+          return;
+        }
 
-        // 결제 리턴으로 새로고침돼도 로비/사주입력으로 돌아가지 않고 이전 상담부터 복원합니다.
-        const restored = restoreActiveAiConversation({
-          silent: true,
-          resumePendingQuestion: false
-        });
-
-        if (isQuestionPack) {
-          if (confirmedCredits == null || confirmedCredits <= 0) {
-            const refreshedCredits = await refreshQuestionCreditUI(uid);
-            if (refreshedCredits != null && refreshedCredits > 0) {
-              confirmedCredits = refreshedCredits;
-            }
-          } else {
-            const panel = document.getElementById('aiChatPanel');
-            if (panel && panel.style.display !== 'none') {
-              updateAiChatStatus(null, null, false, {
-                usingCredit: true,
-                questionCreditsLeft: confirmedCredits
-              });
-            }
-          }
-
-          trackSeoConversion('purchases');
-          trackAiFunnel('question_pack_purchase_confirmed', {
-            product: pending.product,
-            credits: confirmedCredits
-          });
-
-          const purchasedCount = Number(
-            pending.expectedCredits ||
-            (AI_QUESTION_PACKS[pending.product] && AI_QUESTION_PACKS[pending.product].count) ||
-            0
-          );
-
-          // 결제 직후 잔액 조회가 0/null로 잘못 보이더라도 고객에게
-          // "0개 남음"이라고 안내하지 않습니다. 결제 완료 사실을 우선 정확히 안내하고,
-          // 실제 잔액이 확인된 경우에만 잔여 개수를 표시합니다.
-          const creditText = (confirmedCredits != null && confirmedCredits > 0)
-            ? `질문권이 충전됐어요. 현재 ${confirmedCredits}개 남아 있어요.`
-            : `질문권 ${purchasedCount}개 결제가 완료됐어요. 상담을 시작하면 바로 사용할 수 있어요.`;
-
-          showToast(creditText + (getPendingPaidAiQuestion() ? ' 이전 질문을 이어갈게요.' : ''));
-
-          window.dispatchEvent(new CustomEvent('taekilso:questionPackPurchased', {
-            detail: { credits: confirmedCredits }
-          }));
-
-          setTimeout(() => {
-            if (uid !== accountStore.owner()) return;
-            if (!restored) restoreActiveAiConversation({ silent:true });
-
-            if (getPendingPaidAiQuestion()) {
-              resumePendingPaidAiQuestion();
-            } else {
-              setTimeout(() => restoreAlgorithmicFollowupsAfterPurchase(), 180);
-            }
-          }, 700);
+        const restored = restoreActiveAiConversation({ silent:true, resumePendingQuestion:false });
+        const resumeQuestion = Boolean(getPendingPaidAiQuestion()) && (!questionPack || result.credits > 0);
+        trackSeoConversion('purchases');
+        if (questionPack) {
+          trackAiFunnel('question_pack_purchase_confirmed', { product:pending.product, credits:result.credits });
+          showToast(`질문권 ${questionPack.count}개 결제가 확인됐어요. 현재 ${result.credits}개 남아 있어요.` +
+            (resumeQuestion ? ' 이전 질문을 이어갈게요.' : ''));
+          window.dispatchEvent(new CustomEvent('taekilso:questionPackPurchased', { detail:{ credits:result.credits } }));
         } else {
           trackAiFunnel('premium_purchase_confirmed', {});
-          trackSeoConversion('purchases');
-          showToast('프리미엄이 활성화됐어요!' + (getPendingPaidAiQuestion() ? ' 이전 질문을 이어갈게요.' : ''));
-          setTimeout(() => {
-            if (uid !== accountStore.owner()) return;
-            if (!restored) restoreActiveAiConversation({ silent:true });
-
-            if (getPendingPaidAiQuestion()) {
-              resumePendingPaidAiQuestion();
-            } else {
-              setTimeout(() => restoreAlgorithmicFollowupsAfterPurchase(), 180);
-            }
-          }, 700);
+          showToast('프리미엄이 활성화됐어요!' + (resumeQuestion ? ' 이전 질문을 이어갈게요.' : ''));
         }
-      } else {
-        // 주문 기록은 남겨둡니다. 사용자가 새로고침하면 다시 서버 확인을 이어갑니다.
-        showToast('결제는 완료됐지만 서버 반영을 기다리고 있어요. 새로고침해도 결제/상담 상태는 유지되며 자동으로 다시 확인합니다.');
+        setTimeout(() => {
+          if (!accountStore.current(token)) return;
+          if (!restored) restoreActiveAiConversation({ silent:true });
+          if (resumeQuestion) resumePendingPaidAiQuestion();
+          else if (!getPendingPaidAiQuestion()) restoreAlgorithmicFollowupsAfterPurchase();
+        }, 700);
+        return;
       }
+      await new Promise(resolve => setTimeout(resolve, 1500));
     }
+    if (current()) showToast('아직 결제 확인 중이에요. 다시 결제하기 전에 새로고침해서 확인해 주세요.');
+  } finally {
+    paymentConfirmationRunning = false;
+    // Authentication can change while a server read with the previous session is pending.
+    if (!accountStore.current(token) && accountStore.owner()) void confirmReturnedPayment();
   }
-})();
-
-function showPaymentPendingStatus(msg) {
-  showToast(msg);
 }
-function hidePaymentPendingStatus() {}
+
+document.addEventListener('DOMContentLoaded', () => {
+  restoreKakaoUserState();
+  updateAuthNav();
+  const url = new URL(window.location.href);
+  if (url.searchParams.get('premium') === '1') {
+    url.searchParams.delete('premium');
+    window.history.replaceState(window.history.state, '', url);
+  }
+  window.addEventListener('taekilso:authChanged', confirmReturnedPayment);
+  void waitForAuthSettled(6000).then(confirmReturnedPayment);
+});
 
 async function checkPremiumOnServer(uid) {
   if (!db || !uid || uid !== accountStore.owner()) return false;
@@ -525,7 +401,7 @@ async function refreshPremiumFromServer() {
     updateAuthNav();
     updatePremiumUI();
 
-    if (verifiedPremium) {
+    if (verifiedPremium && !readPendingPayment()?.product) {
       localStorage.removeItem('taekilso_pending_order');
       sessionStorage.removeItem('taekilso_pending_order');
     }

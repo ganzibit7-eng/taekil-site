@@ -232,6 +232,9 @@ function resumeAiConversation(id){
     if (quick) quick.style.display = 'none';
     updateAiChatStatus(null, null, isPremium());
     window.refreshAiChatPremiumStatus?.();
+    /* CHECKOUT_START */
+    void refreshQuestionCreditUI(accountToken.owner);
+    /* CHECKOUT_END */
   }, 80);
 }
 
@@ -280,6 +283,9 @@ function restoreActiveAiConversation(options){
     const quick = document.getElementById('aiChatQuickActions');
     if (quick) quick.style.display = 'none';
 
+    /* CHECKOUT_START */
+    void refreshQuestionCreditUI(accountToken.owner);
+    /* CHECKOUT_END */
     // 결제 직후라면 저장된 잠금 질문도 이어서 전송합니다.
     if (opts.resumePendingQuestion && getPendingPaidAiQuestion()) {
       setTimeout(() => { if (accountStore.current(accountToken)) resumePendingPaidAiQuestion(); }, 300);
@@ -545,8 +551,8 @@ function appendQuestionPackOffers() {
   wrap.innerHTML = `
     <div class="ai-paywall-head">
       <div class="ai-paywall-kicker">상담 계속하기</div>
-      <b>방금 하던 상담을 그대로 이어가세요.</b>
-      <span data-checkout-action>${pending ? '결제가 확인되면 방금 선택한 질문부터 자동으로 이어집니다.' : '필요한 만큼 질문권을 추가하거나 프리미엄으로 넉넉하게 이용할 수 있어요.'}</span>
+      <b>상담을 이어가세요.</b>
+      <span data-checkout-action>${pending ? '결제가 확인되면 방금 선택한 질문을 이어가요.' : '이어서 질문할 이용권을 골라 주세요.'}</span>
     </div>
 
     <button type="button" class="ai-chat-offer-card ai-offer-quick" data-checkout-action data-ai-buy-pack="ai_question_pack_5">
@@ -621,7 +627,12 @@ function appendQuestionPackOffers() {
   }
 
   win.appendChild(wrap);
-  scrollAiChatToBottom(win);
+  /* CHECKOUT_START */
+  const revealOffer = () => {
+    if (wrap.isConnected) win.scrollTop += wrap.getBoundingClientRect().top - win.getBoundingClientRect().top - 6;
+  };
+  requestAnimationFrame(() => requestAnimationFrame(revealOffer));
+  /* CHECKOUT_END */
 }
 window.addEventListener('taekilso:questionPackPurchased', () => {
   document.querySelectorAll('.ai-chat-offer-grid').forEach(el => el.remove());
@@ -964,6 +975,9 @@ async function startAiChat(reportOptions) {
   appendAiChatMessage('system-note', subjects.length > 1 ? `${subjects.length}명의 사주를 함께 불러왔어요. 관계·궁합·공동 일정처럼 여러 사람을 함께 비교해 질문할 수 있어요.` : `${name}님의 사주를 저장했어요. 이번 상담에서 계속 기억하고 볼게요.`);
   updateAiChatStatus(null, 3, isPremium());
   window.refreshAiChatPremiumStatus?.();
+  /* CHECKOUT_START */
+  void window.refreshQuestionCreditUI?.(accountStore.owner());
+  /* CHECKOUT_END */
 
   // 결제 후 돌아온 경우 상담 화면이 준비되는 즉시, 사용자가 눌렀던 잠금 질문을 자동으로 이어갑니다.
   if (!reportManual && getPendingPaidAiQuestion()) setTimeout(() => resumePendingPaidAiQuestion(), 650);
@@ -1377,7 +1391,6 @@ function openAiFollowupPurchase(question){
   appendAiChatMessage('system-note','무료 질문 3개를 모두 사용했어요. 이 질문이 궁금하다면 질문권 또는 프리미엄으로 상담을 이어갈 수 있어요.');
   if (typeof appendQuestionPackOffers === 'function') appendQuestionPackOffers();
   if (typeof appendAiChatUpsell === 'function') appendAiChatUpsell(question);
-  scrollAiChatToBottom(document.getElementById('aiChatWindow'));
 }
 
 function scrollHomePastAiIntro(){
