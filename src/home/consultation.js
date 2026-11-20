@@ -1688,7 +1688,7 @@ async function sendAiChatMessage() {
         uid,
         consultantId: consultant?.id || 'yeonwoo',
         /* SEOHWA_SCOPE_START */
-        ...(reportSession ? {seohwaReportId:reportSession.id,seohwaChapter:reportSession.chapter} : {}),
+        ...(reportSession ? window.TaekilSeohwaReport.recordScope() : {}),
         /* SEOHWA_SCOPE_END */
         sajuSummary: window.__aiChatSaju,
         sajuProfile: window.__aiChatProfile,
@@ -1785,9 +1785,10 @@ async function sendAiChatMessage() {
 
     /* SEOHWA_SCOPE_START */
     }
-    if (Number.isInteger(data.seohwaQuestionsLeft)) {
-      window.TaekilSeohwaReport?.setBalance(data.seohwaQuestionsLeft);
-      if(data.seohwaQuestionsLeft===0)appendAiChatMessage('system-note','리포트 상담 3회를 모두 사용했어요. 리포트는 내 기록에서 계속 읽을 수 있어요.');
+    const reportQuestionsLeft=data.featuredReportQuestionsLeft??data.seohwaQuestionsLeft;
+    if (Number.isInteger(reportQuestionsLeft)) {
+      window.TaekilSeohwaReport?.setBalance(reportQuestionsLeft);
+      if(reportQuestionsLeft===0)appendAiChatMessage('system-note','리포트 상담 3회를 모두 사용했어요. 리포트는 내 기록에서 계속 읽을 수 있어요.');
     } else
     /* SEOHWA_SCOPE_END */
     // 사용권 판정은 반드시 '질문권 사용 여부'를 무료 사용량보다 먼저 봅니다.

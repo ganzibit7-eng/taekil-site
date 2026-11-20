@@ -1,5 +1,6 @@
 (() => {
   const personas = window.TaekilConsultationPersonas;
+  const featureReport=key=>window.TaekilFeaturedReports?.forTopic(key);
   if (!personas) return;
 
   const stories = {
@@ -615,7 +616,7 @@
       const clip = scene && makeChoiceScene(scene, feature.media);
       if (clip) scenes.push(clip.figure);
       const apply = () => {
-        question.textContent = key==='love'?label:text;
+        question.textContent = featureReport(key)?label:text;
         start.dataset.storyQuestion = text;
         context.textContent = label;
         if (currentScene === clip) return;
@@ -635,7 +636,7 @@
       choices.append(option);
     });
     question.setAttribute('aria-live', 'polite');
-    entry.append(choices, ...scenes, make('p', key==='love'?'리포트에서 먼저 살펴볼 고민':'이 질문으로 상담을 시작해요', 'consultation-story-question-label'), question);
+    entry.append(choices, ...scenes, make('p', featureReport(key)?'리포트에서 먼저 살펴볼 고민':'이 질문으로 상담을 시작해요', 'consultation-story-question-label'), question);
     return legend;
   }
 
@@ -761,11 +762,12 @@
     const question = make('blockquote');
     const dock = make('div', '', 'consultation-story-dock');
     const dockInner = make('div', '', 'consultation-story-dock-inner');
-    const dockContext = make('p', key==='love'?'고른 고민 · ':'첫 질문 · ', 'consultation-story-dock-context');
+    const dockContext = make('p', featureReport(key)?'고른 고민 · ':'첫 질문 · ', 'consultation-story-dock-context');
     const context = make('span');
     dockContext.id = 'story-dock-context-' + key;
     dockContext.append(context);
-    const start = make('button', key==='love'?'내 연애 리포트 첫 장 보기':'내 사주로 상담 시작하기', 'btn btn-primary');
+    const report=featureReport(key);
+    const start = make('button', report?'내 '+report.label+' 리포트 첫 장 보기':'내 사주로 상담 시작하기', 'btn btn-primary');
     start.type = 'button';
     start.dataset.storyStart = key;
     start.setAttribute('data-home-consultation', '');

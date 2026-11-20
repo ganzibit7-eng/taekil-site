@@ -165,7 +165,7 @@ test('character cards open introductory views before the existing consultation o
     assert.doesNotMatch(card, /data-home-consultation/);
     assert.ok(html.includes('id="view-topic-' + route + '" class="view consultation-story-view"'));
   }
-  const weddingCard = html.match(/<a href="#wedding" class="directory-character character-wedding"[^>]*>/)?.[0];
+  const weddingCard = html.match(/<a href="#wedding" class="directory-card"[^>]*>/)?.[0];
   assert.ok(weddingCard);
   assert.match(weddingCard, /data-story-topic="wedding"/);
   assert.match(weddingCard, /data-consultation-topic="wedding"/);
@@ -183,7 +183,8 @@ test('consultation cards come before utility cards, and the dates hub retains al
     return [...section(id).matchAll(/<(?:a|button)\b[^>]*class="directory-card(?: [^"]*)?"[^>]*>/g)]
       .map(([card])=>card.match(/data-story-topic="([^"]+)"/)?.[1]||card.match(/href="([^"]+)"/)?.[1]||'calculator');
   }
-  assert.deepEqual(cards('directoryRelationshipsTitle'),['first-date','reunion','marriage','calculator']);
+  assert.deepEqual(cards('directoryRelationshipsTitle'),['first-date','wedding','marriage','calculator']);
+  assert.deepEqual([...section('directoryTopicsTitle').matchAll(/data-story-topic="([a-z-]+)"/g)].map(m=>m[1]),['love','wealth','reunion','career']);
   assert.deepEqual(cards('directoryDatesTitle'),['move-planning','opening-plan','contract-prep','#date-tools']);
   assert.deepEqual(cards('directoryStudyTitle'),['study-routine','exam-planning','major-choice','new-learning']);
   assert.deepEqual(cards('directoryLifeTitle'),['first-home','family-boundaries','work-rest','friendships']);

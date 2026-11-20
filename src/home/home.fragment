@@ -55,17 +55,17 @@
           <img src="assets/portrait-wealth.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
           <span class="directory-character-copy"><span>도겸</span><strong>재물운</strong><small>돈을 벌고 모으는 방식</small></span>
         </a>
+        <a href="#topic-reunion" class="directory-character" data-story-topic="reunion" data-consultation-topic="reunion" data-consultation-question="헤어진 사람에게 다시 연락할지 고민이에요. 제 사주에서 관계를 돌아보는 관점과 연락을 결정할 기준을 알려주세요.">
+          <img src="assets/topic-reunion-illustrated.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
+          <span class="directory-character-copy"><span>이준</span><strong>재회운</strong><small>다시 말을 걸기 전 살펴볼 점</small></span>
+        </a>
         <a href="#topic-career" class="directory-character character-career" data-story-topic="career" data-consultation-topic="career" data-consultation-question="이직을 고민 중이에요. 제 사주에서 어떤 업무 환경이 잘 맞는지 알려주세요.">
           <img src="assets/portrait-career.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
           <span class="directory-character-copy"><span>무진</span><strong>직업 · 이직</strong><small>내가 잘 맞는 일과 환경</small></span>
         </a>
-        <a href="#wedding" class="directory-character character-wedding" data-story-topic="wedding" data-consultation-topic="wedding" data-consultation-question="결혼을 준비하고 있어요. 제 사주를 바탕으로 결혼 전에 함께 나눌 이야기를 짚어주고, 예식 날짜를 정하기 전에 확인할 현실 조건도 알려주세요.">
-          <img src="assets/portrait-wedding.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-character-copy"><span>소담</span><strong>결혼·택일</strong><small>결혼 생활과 날짜 준비</small></span>
-        </a>
       </div>
       <div class="directory-topic-links">
-        <p>고민에 맞는 카드를 고르면 상담 소개를 먼저 볼 수 있어요.</p>
+        <p>무료 첫 장을 읽고, 전체 리포트와 담당 상담사 채팅 3회를 함께 이용할 수 있어요.</p>
       </div>
     </section>
 
@@ -116,9 +116,9 @@
           <img src="assets/topic-first-meeting-illustrated.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
           <span class="directory-card-copy"><strong>새로운 만남</strong><small>첫 만남에서 살펴볼 기준</small><span>하린 상담</span></span>
         </a>
-        <a href="#topic-reunion" class="directory-card" data-story-topic="reunion" data-consultation-topic="reunion" data-consultation-question="헤어진 사람에게 다시 연락할지 고민이에요. 제 사주에서 가까운 관계에서 반복되기 쉬운 방식이 있다면 짚어주고, 연락하기 전에 무엇을 확인하면 좋을지 알려주세요.">
-          <img src="assets/topic-reunion-illustrated.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>재회 고민</strong><small>다시 연락하기 전에 돌아볼 점</small><span>이준 상담</span></span>
+        <a href="#wedding" class="directory-card" data-story-topic="wedding" data-consultation-topic="wedding" data-consultation-question="결혼을 준비하고 있어요. 제 사주를 바탕으로 결혼 전에 함께 나눌 이야기를 짚어주고, 예식 날짜를 정하기 전에 확인할 현실 조건도 알려주세요.">
+          <img src="assets/portrait-wedding.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
+          <span class="directory-card-copy"><strong>결혼·택일</strong><small>예식 후보 날짜 비교와 상담</small><span>소담 상담</span></span>
         </a>
         <a href="#topic-marriage" class="directory-card" data-story-topic="marriage" data-consultation-topic="marriage" data-consultation-question="결혼을 앞두고 있어요. 제 사주에서 가까운 사람과 생활을 맞춰가는 방식은 어떻게 읽히나요? 결혼 전에 함께 이야기해 둘 주제와 질문을 알려주세요.">
           <img src="assets/topic-marriage-preparation-illustrated.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">

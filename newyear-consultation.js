@@ -142,6 +142,33 @@
     target.append(note);
   }
   function section(title,text){const s=el('section',null,'newyear-report-section');s.append(el('h2',title));appendReading(s,text);return s;}
+  function decisionGuide(guide,year){
+    const focus=section('분야별로 먼저 살펴볼 시기',year+'년 달력에서 각 분야와 맞닿는 전통적 풀이가 겹치는 구간을 골랐어요. 실제 사건이 일어날 날짜나 확률을 뜻하지 않아요.');
+    for(const item of guide.areas){
+      const detail=el('details',null,'newyear-calculation-note');
+      const first=item.windows[0];
+      detail.append(el('summary',item.title+(first?' · '+first.month+'월 먼저 보기':'')));
+      const windows=el('ol',null,'newyear-focus-list');
+      for(const part of item.windows){
+        const row=el('li');
+        row.append(el('strong',part.month+'월 · '+part.theme),el('p','계산 근거 '+part.basis+' · '+part.from+'부터 '+part.untilExclusive+' 전까지'));
+        windows.append(row);
+      }
+      if(windows.children.length)detail.append(windows);
+      if(item.yearWindows?.length)detail.append(el('p','함께 볼 연도 · '+item.yearWindows.map(part=>part.year+'년 '+part.theme).join(' / '),'newyear-action'));
+      detail.append(el('p',item.action,'newyear-action'));
+      focus.append(detail);
+    }
+    const decade=section('앞으로 10년','입춘 이후 연간과 태어난 날을 비교해 해마다 점검할 주제를 정리했어요.');
+    const years=el('ol',null,'newyear-focus-list');
+    for(const item of guide.years){
+      const row=el('li');
+      row.append(el('strong',item.year+'년 · '+item.theme),el('p',item.action),el('small',item.ganZhi+' · '+item.basis));
+      years.append(row);
+    }
+    decade.append(years);
+    return {focus,decade};
+  }
   function showReport(data){
     const wasGenerating=view.classList.contains('is-generating');stopProgress();view.classList.add('has-report');content.style.minHeight='';
     content.replaceChildren();const r=data.report;
@@ -156,7 +183,10 @@
     const months=el('section',null,'newyear-months');months.append(el('h2','열두 달, 나의 흐름'));
     const contents=el('nav',null,'newyear-report-contents');
     contents.setAttribute('aria-label','신년 리포트 목차');
-    for (const [label, target] of [['한 해의 흐름', overview], ['분야별 풀이', areas], ['월별 풀이', months]]) {
+    const guide=data.decisionGuide?decisionGuide(data.decisionGuide,data.year):null;
+    const links=[['한 해의 흐름',overview],['분야별 풀이',areas],['월별 풀이',months]];
+    if(guide)links.push(['주요 시기',guide.focus],['10년 흐름',guide.decade]);
+    for (const [label, target] of links) {
       const heading=target.querySelector('h2');
       heading.tabIndex=-1;
       const jump=el('button',label);
@@ -186,6 +216,7 @@
       }));
     }
     content.append(months);
+    if(guide)content.append(guide.focus,guide.decade);
     content.append(section('기회를 살리는 방법',r.opportunities),section('조금 더 신중할 때',r.cautions),section('연우가 전하는 말',r.closing));
     const calculation=el('details',null,'newyear-calculation');calculation.append(el('summary','계산 기준과 해석 범위'));
     calculation.append(el('p',`사주에서는 입춘부터 한 해의 기준이 바뀌어요. 2027년 입춘은 ${data.calculation.annual.startsAt}이고, 이때부터 정미(丁未), 그전까지는 병오(丙午)의 해로 봐요. 열두 달은 양력 순서로 보여드리며, 각 달에서 절기로 기준이 바뀌는 시점도 반영했어요.`));

@@ -241,13 +241,13 @@
 <section id="view-seohwa-report" class="view">
   <div class="sr-return-wrap">
     <section id="seohwaReturnHost" class="sr-gate sr-return-panel" aria-labelledby="seohwaReturnTitle">
-      <p class="sr-kicker">서화의 연애 리포트</p>
+      <p class="sr-kicker" id="seohwaReturnName">사주 리포트</p>
       <h1 id="seohwaReturnTitle">리포트를 준비하고 있어요</h1>
       <p id="seohwaReturnStatus" class="sr-status" role="status">결제 상태와 로그인 정보를 확인하고 있어요.</p>
       <div class="sr-return-actions">
         <button id="seohwaReturnRetry" class="sr-primary" type="button" hidden>결제 상태 다시 확인</button>
         <button id="seohwaReturnAuth" class="sr-primary" type="button" hidden>로그인하고 내 주문 확인</button>
-        <a class="sr-secondary" href="#topic-love">서화 이야기로 돌아가기</a>
+        <a class="sr-secondary" id="seohwaReturnLink" href="#topic-love">서화 이야기로 돌아가기</a>
       </div>
     </section>
   </div>
@@ -378,9 +378,9 @@
         <div id="relationshipLibraryList" class="relationship-library-list"></div>
       </section>
       <section class="date-report-library" id="seohwaLibrary" aria-labelledby="seohwaLibraryTitle">
-        <h2 id="seohwaLibraryTitle">서화의 연애 리포트</h2>
-        <p id="seohwaLibraryStatus" role="status">구매한 서화 리포트를 여기서 다시 읽을 수 있어요.</p>
-        <button type="button" id="loadSeohwaReports" class="btn">저장한 서화 리포트 보기</button>
+        <h2 id="seohwaLibraryTitle">나의 사주 리포트</h2>
+        <p id="seohwaLibraryStatus" role="status">구매한 리포트를 여기서 다시 읽을 수 있어요.</p>
+        <button type="button" id="loadSeohwaReports" class="btn">구매한 리포트 보기</button>
         <div id="seohwaReportList"></div>
       </section>
     </div>

@@ -285,7 +285,9 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <link rel="stylesheet" href="consultation-stories.css?v=surfaces-1120">
 <script src="consultation-additional-stories.js?v=20261118-questions"></script>
 <!-- story-reading-templates -->
-<script src="consultation-stories.js?v=seohwa-report-2"></script>
+<script src="seohwa-reading-core.js?v=3"></script>
+<script src="featured-report-core.js?v=1"></script>
+<script src="consultation-stories.js?v=featured-report-1"></script>
 <dialog id="seohwaReportDialog" class="seohwa-report-dialog" aria-label="서화의 연애 리포트">
   <div class="sr-toolbar">
     <span>서화의 연애 리포트</span>
@@ -294,22 +296,28 @@ const ADMIN_EMAIL = "green092432@gmail.com";
   </div>
   <div id="seohwaReportBody"></div>
   <div id="seohwaWritingVisual" class="sr-generation-visual" hidden>
-    <img src="/assets/consultant-seohwa-chapter-film.webp" alt="" width="960" height="540" loading="lazy" decoding="async">
-    <video data-story-preview-video data-video-src="/assets/consultant-seohwa-chapter-film.mp4" aria-hidden="true" muted loop playsinline preload="none" hidden></video>
+    <img data-advisor="seohwa" src="/assets/consultant-seohwa-chapter-film.webp" alt="" width="960" height="540" loading="lazy" decoding="async" hidden>
+    <video data-advisor="seohwa" data-story-preview-video data-video-src="/assets/consultant-seohwa-chapter-film.mp4" aria-hidden="true" muted loop playsinline preload="none" hidden></video>
+    <img data-advisor="dogyeom" src="/assets/consultant-dogyeom-chapter-film.webp" alt="" width="960" height="540" loading="lazy" decoding="async" hidden>
+    <video data-advisor="dogyeom" data-story-preview-video data-video-src="/assets/consultant-dogyeom-chapter-film.mp4" aria-hidden="true" muted loop playsinline preload="none" hidden></video>
+    <img data-advisor="ijun" src="/assets/consultant-ijun-chapter-film.webp" alt="" width="960" height="540" loading="lazy" decoding="async" hidden>
+    <video data-advisor="ijun" data-story-preview-video data-video-src="/assets/consultant-ijun-chapter-film.mp4" aria-hidden="true" muted loop playsinline preload="none" hidden></video>
+    <img data-advisor="mujin" src="/assets/consultant-mujin-chapter-film.webp" alt="" width="960" height="540" loading="lazy" decoding="async" hidden>
+    <video data-advisor="mujin" data-story-preview-video data-video-src="/assets/consultant-mujin-chapter-film.mp4" aria-hidden="true" muted loop playsinline preload="none" hidden></video>
     <button type="button" id="seohwaWritingFilmToggle" class="sr-generation-film-toggle">영상 멈추기</button>
   </div>
 </dialog>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=20261118-continuous-arrival"></script><script src="premium-motion.js" defer></script>
-<script src="consultation-draft-core.js?v=seohwa-report-1"></script>
-<script src="consultation-stage.js?v=seohwa-checkout-3"></script>
+<script src="consultation-draft-core.js?v=featured-report-1"></script>
+<script src="consultation-stage.js?v=featured-report-1"></script>
 <script src="consultation-history-filters.js?v=20261120-history-filters"></script>
 <link rel="stylesheet" href="consultation-experience.css?v=ink-1120">
 <script src="consultation-experience-core.js?v=20261117-saved-evidence"></script>
 <script src="consultation-experience.js?v=20261117-saved-evidence"></script>
 
 <script src="navigation-stability.js?v=20261111-2"></script>
-<link rel="stylesheet" href="newyear-consultation.css?v=surfaces-1120">
-<script src="newyear-consultation.js?v=nov20-birth-ranges"></script><script src="newyear-example.js?v=20261119-handoff-refine"></script>
+<link rel="stylesheet" href="newyear-consultation.css?v=decision-guide-1">
+<script src="newyear-consultation.js?v=decision-guide-1"></script><script src="newyear-example.js?v=20261119-handoff-refine"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=ink-1120">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
 <script src="free-report-handoff.js?v=nov20-fortune"></script>
@@ -333,8 +341,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="date-entry.js?v=nov20-resume"></script>
 <link rel="stylesheet" href="relationship-report.css?v=surfaces-1120">
 <script src="relationship-report.js?v=nov20-resume"></script>
-<link rel="stylesheet" href="seohwa-report.css?v=7">
-<script src="seohwa-reading-core.js?v=2"></script>
-<script src="seohwa-report.js?v=8"></script>
+<link rel="stylesheet" href="seohwa-report.css?v=8">
+<script src="seohwa-report.js?v=9"></script>
 </body>
 </html>
