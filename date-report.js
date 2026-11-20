@@ -131,7 +131,7 @@
     card.append(confirmation);
     const status = node('p');
     status.setAttribute('role','status');
-    const paused = node('p','신규 결제를 잠시 중단했어요. 기존 신년상담 이용자는 아래에서 정밀 비교를 열 수 있어요.');
+    const paused = node('p','신규 결제를 잠시 중단했어요. 기존 신년운세 이용자는 아래에서 정밀 비교를 열 수 있어요.');
     paused.setAttribute('data-checkout-paused','');
 
     async function submit(purchase) {

@@ -23,6 +23,12 @@ function clearLocalKakaoSessionForBan() {
 }
 
 async function checkMemberAccess(user, options = {}) {
+  const allowed = await checkAccountRestrictions(user, options);
+  if (!allowed || !user || user.isAnonymous) return allowed;
+  return window.TaekilAccountAge.ensure(user);
+}
+
+async function checkAccountRestrictions(user, options = {}) {
   const strict = !!options.strict;
   if (!user || user.isAnonymous || !MEMBER_ACCESS_STATUS_URL) return true;
   if (String(user.email || '').trim().toLowerCase() === String(ADMIN_EMAIL || '').trim().toLowerCase()) return true;
@@ -144,6 +150,7 @@ try {
       })
       .then(() => {
         firebase.auth().onAuthStateChanged(async (user) => {
+          window.TaekilAccountAge.observe(user?.uid || null);
           firebaseAuthUser = user || null;
           firebaseAuthReady = true;
           resolveFirebaseAuthSettled();
@@ -408,7 +415,7 @@ async function ensureMemberDocumentFromAuth(user) {
 
 const MEMBER_LAST_SEEN_TOUCH_PREFIX = 'taekilso_member_last_seen_touch_v3_';
 async function touchMemberLastSeen(user, options = {}){
-  if (!user || user.isAnonymous) return false;
+  if (!user || user.isAnonymous || !window.TaekilAccountAge.confirmed()) return false;
 
   try {
     const now = Date.now();

@@ -94,10 +94,10 @@ test('the directory links straight to the annual report while the Yeonwoo landin
   assert.match(hero, /id="directoryHeroTitle"/);
   assert.doesNotMatch(hero, /연우의 AI 사주 상담|연애와 일, 돈과 관계|연우와 상담 시작하기|처음 가입하면 질문 3개 무료/);
   const season = directory.match(/<section class="directory-section" aria-labelledby="directoryNewyearTitle">([\s\S]+?)<\/section>/)?.[1];
-  assert.match(season, /2027년 신년상담/);
+  assert.match(season, /2027년 신년운세/);
   assert.match(season, /class="directory-feature directory-feature-year" href="#newyear"/);
   assert.match(season, /href="#newyear" data-newyear-preview/);
-  assert.match(html.slice(adStart), /<button class="btn newyear-home-entry" data-open-newyear>2027 신년상담 알아보기<\/button>/);
+  assert.match(html.slice(adStart), /<button class="btn newyear-home-entry" data-open-newyear>2027 신년운세 알아보기<\/button>/);
 });
 
 test('the public career preview identifies the same specialist as its action', () => {

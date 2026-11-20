@@ -66,6 +66,14 @@ service cloud.firestore {
 
       allow delete: if isAdmin();
 
+      match /accountChecks/age14 {
+        allow get: if isOwner(uid) && request.auth.token.firebase.sign_in_provider != 'anonymous';
+        allow create: if isOwner(uid) && request.auth.token.firebase.sign_in_provider != 'anonymous'
+          && request.resource.data.keys().hasOnly(['confirmed', 'confirmedAt'])
+          && request.resource.data.confirmed == true
+          && request.resource.data.confirmedAt == request.time;
+      }
+
       match /sajuProfiles/{profileId} {
         allow read, create, update, delete: if isOwner(uid);
       }

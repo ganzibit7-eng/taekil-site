@@ -17,7 +17,7 @@
     const response=await fetch(AI_CHAT_URL,{method:'POST',headers,signal:AbortSignal.timeout(170000),body:JSON.stringify({action:'newyear-report',operation,profile})});
     const data=await response.json();
     if(actor!==owner()||!window.accountStore.current(accountToken))throw new Error('계정이 변경되었어요. 이용권을 다시 확인해 주세요.');
-    if(!response.ok){const error=new Error(data.message||'신년상담을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');error.code=data.error;throw error;}
+    if(!response.ok){const error=new Error(data.message||'신년운세를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');error.code=data.error;throw error;}
     return data;
   }
   function message(text){status.textContent=text;status.setAttribute('role','status');}
@@ -43,7 +43,7 @@
   window.openNewyearConsultation=openYear;
   window.appendNewyearPassOffer=()=>{
     const box=el('div',null,'newyear-chat-offer');
-    box.append(button('2027 신년상담 이용권 알아보기',openYear));
+    box.append(button('2027 신년운세 이용권 알아보기',openYear));
     document.getElementById('aiChatWindow')?.append(box);
   };
   function purchase(){
@@ -203,7 +203,7 @@
       document.getElementById('aiChatLeap').checked=!!p.isLeap;startAiChat({source:'newyear-report'});
     };
     if(data.access)content.append(button('리포트가 궁금하다면, 연우에게 이어 묻기',()=>askReport(),true));
-    else content.append(purchaseButton('30일 상담 이용권 구매'), pausedNotice());
+    else content.append(purchaseButton('신년운세 30일 이용권 구매'), pausedNotice());
     window.TaekilExperience?.report(content,data,askReport);
     if(wasGenerating)requestAnimationFrame(()=>{
       if(!active||!overview.isConnected)return;
@@ -213,13 +213,13 @@
   }
   function render(data){
     clearTimeout(timer);
-    if(data.status==='ready'&&data.report){message('나만의 2027년 기록이 준비됐습니다.');showReport(data);return;}
+    if(data.status==='ready'&&data.report){message('2027 신년운세 리포트가 준비됐어요.');showReport(data);return;}
     if(!data.access){
       stopProgress();view.classList.remove('has-report');content.style.minHeight='';
       if(loggedIn()&&(data.paymentCheckRequired||(typeof isPremium==='function'&&isPremium()))){message('이용권 연결 상태를 확인해 주세요. 추가 결제부터 하실 필요는 없습니다.');content.replaceChildren(el('h2','구매하셨다면, 이용권을 다시 확인해 주세요.'),el('p','결제 직후에는 승인 기록이 계정에 연결되는 데 잠시 걸릴 수 있어요. 구매한 계정으로 로그인되어 있는지 확인해 주세요.','newyear-muted'),button('이용권 연결 다시 확인',load,true),button('문의하기',()=>goTo('support')));return;}
-      message('내 2027년 신년 리포트');
+      message('내 2027 신년운세 리포트');
       content.replaceChildren(
-        purchaseButton(loggedIn() ? '8,900원 · 신년상담 시작하기' : '로그인하고 신년상담 시작하기', true),
+        purchaseButton(loggedIn() ? '8,900원 · 신년운세 이용하기' : '로그인하고 신년운세 이용하기', true),
         pausedNotice(),
         el('p', '기존 프리미엄 30일 이용 중이라면 추가 결제 없이 포함됩니다. 추가 질문권에는 신년운세가 포함되지 않습니다.', 'newyear-muted')
       );
@@ -239,7 +239,7 @@
     const token=++version;if(typeof waitForAuthSettled==='function')await waitForAuthSettled(4000).catch(()=>{});if(token!==version||!active)return;
     refresh.hidden=!loggedIn();
     if(!loggedIn()){render({access:false,status:'none'});return;}
-    if(!view.classList.contains('is-generating'))message('나의 신년상담을 확인하고 있어요.');
+    if(!view.classList.contains('is-generating'))message('나의 신년운세를 확인하고 있어요.');
     try{const data=await request('status');if(token===version&&active)render(data);}
     catch(e){
       if(token!==version||!active)return;

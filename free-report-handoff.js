@@ -129,13 +129,13 @@
     C.questions(detail).forEach(q=>{const b=el('button',q.text);b.type='button';b.dataset.preset=q.key;b.setAttribute('aria-pressed','false');b.addEventListener('click',()=>choose(q.text,q.key));questions.append(b);});box.append(questions);
     primary=el('button','연우에게 무료로 질문하기','btn btn-primary report-main-cta');primary.type='button';primary.addEventListener('click',()=>choose(current.selectedQuestion||'',current.selectedPreset||'direct'));
     note=el('p',null,'report-consultation-note');note.setAttribute('aria-live','polite');box.append(primary,note);
-    const year=el('div',null,'report-newyear-note'),yearLink=el('button','2027 신년상담 구성 보기 →');yearLink.type='button';
+    const year=el('div',null,'report-newyear-note'),yearLink=el('button','2027 신년운세 이용 안내 →');yearLink.type='button';
     yearLink.addEventListener('click',()=>{
       if(busy||choosing)return;
       payload={id:current.id,createdAt:Date.now(),owner:uid(),profile:current.profile,question:'',preset:'newyear',stage:'cancelled',destination:'newyear'};persist();
       closeSajuInsight();window.openNewyearConsultation();
     });
-    year.append(el('h4','다가오는 한 해를 준비하고 싶다면'),el('p','2027 신년상담은 기본 성향 요약과 별도로, 계산된 세운과 절기별 월운을 함께 살펴봅니다. 열두 달의 흐름과 실천 안내를 받아 보고 30일 동안 이어 물어보세요.'),yearLink);box.append(year);
+    year.append(el('h4','다가오는 한 해를 준비하고 싶다면'),el('p','2027 신년운세는 기본 성향 요약과 별도로, 계산된 세운과 절기별 월운을 함께 살펴봅니다. 열두 달의 흐름과 실천 안내를 받아 보고 30일 동안 이어 물어보세요.'),yearLink);box.append(year);
     result.append(box);visibility?.disconnect();visibility?.observe(box);update();
   }
   window.addEventListener('taekilso:freeReportReady',e=>mount(e.detail||{}));

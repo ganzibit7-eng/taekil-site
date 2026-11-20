@@ -85,7 +85,7 @@
     window.openAuthModal=function(){previous=document.activeElement;const result=originalOpen.apply(this,arguments);requestAnimationFrame(()=>{if(overlay.style.display!=='none')(overlay.querySelector('button,input,[tabindex="0"]')||overlay).focus({preventScroll:true});});return result;};
     window.closeAuthModal=function(){const result=originalClose.apply(this,arguments);if(previous?.isConnected)previous.focus({preventScroll:true});return result;};
     document.addEventListener('keydown',e=>{
-      if(e.defaultPrevented||overlay.style.display==='none'||!overlay.getClientRects().length||document.body.classList.contains('report-auth-open'))return;
+      if(e.defaultPrevented||document.getElementById('accountAgeDialog')?.open||overlay.style.display==='none'||!overlay.getClientRects().length||document.body.classList.contains('report-auth-open'))return;
       if(e.key==='Escape'){e.preventDefault();closeAuthModal();return;}
       if(e.key!=='Tab')return;
       const items=[...overlay.querySelectorAll('button,input,a[href],[tabindex="0"]')].filter(el=>!el.disabled&&el.getClientRects().length);

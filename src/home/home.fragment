@@ -30,7 +30,7 @@
 
     <nav class="directory-sections" aria-label="홈에서 주제 찾기">
       <div class="directory-section-rail">
-        <button type="button" data-directory-jump="directoryNewyearTitle">신년상담</button>
+        <button type="button" data-directory-jump="directoryNewyearTitle">신년운세</button>
         <button type="button" data-directory-jump="directoryRelationshipsTitle">연애·궁합</button>
         <button type="button" data-directory-jump="directoryCareerTitle">일·재물</button>
         <button type="button" data-directory-jump="directoryStudyTitle">학업·성장</button>
@@ -98,7 +98,7 @@
     </section>
 
     <section class="directory-section" aria-labelledby="directoryNewyearTitle">
-      <h2 id="directoryNewyearTitle" tabindex="-1">2027년 신년상담</h2>
+      <h2 id="directoryNewyearTitle" tabindex="-1">2027년 신년운세</h2>
       <a class="directory-feature directory-feature-year" href="#newyear">
         <span class="directory-feature-copy"><strong>2027년 한 해의 흐름</strong><span>내 사주로 살펴보는 월별 운세</span><small>2027 신년 리포트 보기</small></span>
         <img src="assets/yeonwoo-moonlight.jpg" width="1122" height="1402" alt="" loading="lazy" decoding="async">
@@ -264,7 +264,7 @@
             <span>.</span>
           </div>
           <p id="homeGuestHint" class="ai-chat-guest-hint"><b>첫 질문 3개 무료</b><span> · 카드등록 없음 · 자동결제 없음</span></p>
-          <button class="btn newyear-home-entry" data-open-newyear>2027 신년상담 알아보기</button>
+          <button class="btn newyear-home-entry" data-open-newyear>2027 신년운세 알아보기</button>
           <button id="homeStartChatBtn" class="btn btn-primary home-start-chat-btn" style="width:100%;" onclick="handleHomeChatStart(this)">연우와 상담 시작하기</button>
           <div class="home-conversion-trust"><span>카드등록 없음</span><i>·</i><span>자동결제 없음</span><i>·</i><span>저장한 사주로 계속 상담</span></div>
         </div>

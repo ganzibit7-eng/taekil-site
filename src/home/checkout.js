@@ -209,7 +209,7 @@ async function startPremiumCheckout() {
     const payParams = {
       userid: PAYAPP_USERID,
       shopname: '택일소',
-      goodname: '2027 신년상담 · 30일 이용권',
+      goodname: '2027 신년운세 · 30일 이용권',
       price: String(PREMIUM_PRICE),
       recvphone: '01000000000',
       smsuse: 'n',
