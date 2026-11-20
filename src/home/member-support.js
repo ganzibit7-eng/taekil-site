@@ -408,6 +408,8 @@ function getGoogleProvider(){
 }
 
 async function loginWithGoogle() {
+  const ageIntent = window.TaekilAccountAge.entry();
+  if (!ageIntent) return;
   if (!firebaseReady || !window.firebase || !firebase.auth) {
     document.getElementById('authSetupNotice').style.display = 'block';
     showAuthError('Firebase Authentication이 연결되지 않았어요. firebaseConfig와 Authentication 설정을 확인해주세요.');
@@ -417,8 +419,7 @@ async function loginWithGoogle() {
   const btn = document.querySelector('#authOverlay button[onclick="loginWithGoogle()"]');
   if (btn) {
     btn.disabled = true;
-    btn.dataset.originalText = btn.textContent;
-    btn.textContent = 'Google 연결 중…';
+    btn.querySelector('[data-provider-label]').textContent = 'Google 연결 중…';
   }
 
   try {
@@ -431,7 +432,7 @@ async function loginWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt:'select_account' });
 
-    const result = await firebase.auth().signInWithPopup(provider);
+    const result = await window.TaekilAccountAge.connect(() => firebase.auth().signInWithPopup(provider), ageIntent);
 
     if (!result || !result.user) {
       throw new Error('Google 로그인 결과를 확인하지 못했어요.');
@@ -471,7 +472,8 @@ async function loginWithGoogle() {
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.textContent = btn.dataset.originalText || 'Google로 시작하기';
+      btn.querySelector('[data-provider-label]').textContent = 'Google로 시작하기';
+      window.TaekilAccountAge.sync();
     }
   }
 }
@@ -480,7 +482,7 @@ async function loginWithGoogle() {
    redirect (authorize) that sends the browser to Kakao and back with a
    ?code= param, which we then exchange for a token below. */
 
-async function ensureKakaoFirebaseSession(accessToken) {
+async function ensureKakaoFirebaseSession(accessToken, ageIntent = 'login') {
   if (!firebaseReady || !window.firebase || !firebase.auth || !KAKAO_TOKEN_FUNCTION_URL) return null;
 
   const token = accessToken;
@@ -511,7 +513,7 @@ async function ensureKakaoFirebaseSession(accessToken) {
       return null;
     }
 
-    const credential = await firebase.auth().signInWithCustomToken(bridgeData.customToken);
+    const credential = await window.TaekilAccountAge.connect(() => firebase.auth().signInWithCustomToken(bridgeData.customToken), ageIntent);
     firebaseAuthUser = credential.user || firebase.auth().currentUser || null;
     firebaseAuthReady = true;
     return firebaseAuthUser;
@@ -598,6 +600,8 @@ function consumeKakaoLoginState(state) {
 }
 
 async function loginWithKakao() {
+  const ageIntent = window.TaekilAccountAge.entry();
+  if (!ageIntent) return;
   if (!kakaoReady) {
     showToast('카카오 로그인 설정이 아직 안 됐어요.');
     return;
@@ -607,6 +611,7 @@ async function loginWithKakao() {
   }
   try {
     const state = createKakaoLoginState();
+    window.TaekilAccountAge.rememberRedirect(state, ageIntent);
     Kakao.Auth.authorize({ redirectUri: KAKAO_REDIRECT_URI, scope: 'profile_nickname', state });
   } catch (_) { showToast('로그인 보안 정보를 저장하지 못했어요. 브라우저 저장 설정을 확인하고 다시 시도해주세요.'); }
 }
@@ -654,7 +659,7 @@ async function exchangeKakaoCode(code, state) {
       throw new Error((tokenData.error || '오류') + ': ' + (tokenData.error_description || '토큰 발급 실패'));
     }
 
-    const kakaoBridgePromise = ensureKakaoFirebaseSession(tokenData.access_token);
+    const kakaoBridgePromise = ensureKakaoFirebaseSession(tokenData.access_token, window.TaekilAccountAge.takeRedirect(state));
     const meRes = await fetch('https://kapi.kakao.com/v2/user/me', {
       headers: { Authorization: 'Bearer ' + tokenData.access_token }
     });

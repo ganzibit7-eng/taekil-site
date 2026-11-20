@@ -923,5 +923,60 @@
     "before": "async function loginWithKakao() {\n  if (!window.TaekilPrivacy?.confirmSignupAge()) {\n    showAuthError('만 14세 이상인지 확인해 주세요.');\n    return;\n  }\n  if (!kakaoReady",
     "after": "async function loginWithKakao() {\n  if (!kakaoReady",
     "count": 1
+  },
+  {
+    "before": "function openAuthModal() {\n  document.getElementById",
+    "after": "function openAuthModal() {\n  window.TaekilAccountAge.open();\n  document.getElementById",
+    "count": 1
+  },
+  {
+    "before": "async function loginWithGoogle() {\n  if (!firebaseReady",
+    "after": "async function loginWithGoogle() {\n  const ageIntent = window.TaekilAccountAge.entry();\n  if (!ageIntent) return;\n  if (!firebaseReady",
+    "count": 1
+  },
+  {
+    "before": "async function loginWithKakao() {\n  if (!kakaoReady",
+    "after": "async function loginWithKakao() {\n  const ageIntent = window.TaekilAccountAge.entry();\n  if (!ageIntent) return;\n  if (!kakaoReady",
+    "count": 1
+  },
+  {
+    "before": "const result = await firebase.auth().signInWithPopup(provider);",
+    "after": "const result = await window.TaekilAccountAge.connect(() => firebase.auth().signInWithPopup(provider), ageIntent);",
+    "count": 1
+  },
+  {
+    "before": "btn.textContent = btn.dataset.originalText || 'Google로 시작하기';",
+    "after": "btn.textContent = btn.dataset.originalText || 'Google로 시작하기';\n      window.TaekilAccountAge.sync();",
+    "count": 1
+  },
+  {
+    "before": "    Kakao.Auth.authorize({ redirectUri: KAKAO_REDIRECT_URI, scope: 'profile_nickname', state });",
+    "after": "    window.TaekilAccountAge.rememberRedirect(state, ageIntent);\n    Kakao.Auth.authorize({ redirectUri: KAKAO_REDIRECT_URI, scope: 'profile_nickname', state });",
+    "count": 1
+  },
+  {
+    "before": "async function ensureKakaoFirebaseSession(accessToken) {",
+    "after": "async function ensureKakaoFirebaseSession(accessToken, ageIntent = 'login') {",
+    "count": 1
+  },
+  {
+    "before": "const credential = await firebase.auth().signInWithCustomToken(bridgeData.customToken);",
+    "after": "const credential = await window.TaekilAccountAge.connect(() => firebase.auth().signInWithCustomToken(bridgeData.customToken), ageIntent);",
+    "count": 1
+  },
+  {
+    "before": "const kakaoBridgePromise = ensureKakaoFirebaseSession(tokenData.access_token);",
+    "after": "const kakaoBridgePromise = ensureKakaoFirebaseSession(tokenData.access_token, window.TaekilAccountAge.takeRedirect(state));",
+    "count": 1
+  },
+  {
+    "before": "    btn.dataset.originalText = btn.textContent;\n    btn.textContent = 'Google 연결 중…';",
+    "after": "    btn.querySelector('[data-provider-label]').textContent = 'Google 연결 중…';",
+    "count": 1
+  },
+  {
+    "before": "btn.textContent = btn.dataset.originalText || 'Google로 시작하기';",
+    "after": "btn.querySelector('[data-provider-label]').textContent = 'Google로 시작하기';",
+    "count": 1
   }
 ]

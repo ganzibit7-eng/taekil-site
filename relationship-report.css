@@ -1,4 +1,4 @@
-.relationship-view { background:#101715; color:#f0ebe1; }
+.relationship-view { background:#1c1a1c; color:#f0ebe1; }
 .relationship-hero,.relationship-content { width:min(calc(100% - 40px), 850px); margin-inline:auto; }
 .relationship-hero {
   display:grid;
@@ -15,7 +15,7 @@
 }
 .relationship-content h2,.relationship-reading h3 { font-size:clamp(23px,4vw,30px); }
 .relationship-hero p,.relationship-content p,.relationship-reading dd {
-  color:#b6bdb5;
+  color:#c2bab2;
   font-size:16px;
   line-height:1.7;
   word-break:keep-all;
@@ -64,7 +64,7 @@
   padding:6px 10px;
   border:1px solid #566459;
   border-radius:6px;
-  background:#1b2420;
+  background:#292625;
   color:#f0ebe1;
   font:400 16px/1.4 var(--sans);
 }
@@ -89,8 +89,8 @@
 .relationship-reading dt { color:#e0c59a; font-weight:600; margin-top:14px; }
 .relationship-reading dd { margin:5px 0 0; }
 .relationship-reading p.relationship-summary { color:#f0ebe1; font-weight:600; }
-.relationship-reading p.relationship-pillars,.relationship-reading p.relationship-method { color:#b6bdb5; font-size:15px; }
-.relationship-dialogue { margin:14px 0; border-left:2px solid #806448; padding:12px 16px; background:#1b2420; }
+.relationship-reading p.relationship-pillars,.relationship-reading p.relationship-method { color:#c2bab2; font-size:15px; }
+.relationship-dialogue { margin:14px 0; border-left:2px solid #806448; padding:12px 16px; background:#292625; }
 .relationship-dialogue blockquote { margin:12px 0 0; }
 .relationship-dialogue blockquote b { color:#dfc69c; }
 .relationship-dialogue blockquote p { margin:4px 0 0; }

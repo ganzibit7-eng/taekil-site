@@ -14,7 +14,7 @@
   align-items: center;
   word-break: keep-all;
 }
-.consultation-story-film { margin: 0; width: 100%; aspect-ratio: 4 / 5; border-radius: 9px; background: #1b2420; }
+.consultation-story-film { margin: 0; width: 100%; aspect-ratio: 4 / 5; border-radius: 9px; background: #292625; }
 .consultation-story-film :is(img,video) { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 32%; }
 .consultation-story-label { margin: 0 0 12px; color: var(--story-tone); font: 500 15px/1.55 var(--sans); }
 .consultation-story-intro h1 {
@@ -25,16 +25,16 @@
 }
 .consultation-story-intro p:not(.consultation-story-label) { margin: 0; color: #c6cdc3; font: 400 17px/1.75 var(--sans); }
 .consultation-story-body { max-width: 720px; padding-top: clamp(20px,4vw,44px); word-break: keep-all; overflow-wrap: anywhere; }
-.consultation-story-body > section { padding-block: clamp(22px,4vw,34px); border-bottom: 1px solid #38453d; }
+.consultation-story-body > section { padding-block: clamp(22px,4vw,34px); border-bottom: 1px solid #514b49; }
 .consultation-story-body h2 { margin: 0 0 14px; font: 600 clamp(22px,3vw,30px)/1.45 var(--serif); color: #f0ebe1; }
 .consultation-story-body blockquote { margin: 0; color: #dedfd6; font: 400 16px/1.75 var(--sans); }
-.consultation-story-example figure { margin: 0; padding: 18px 20px; border-radius: 7px; background: #1b2420; }
+.consultation-story-example figure { margin: 0; padding: 18px 20px; border-radius: 7px; background: #292625; }
 .consultation-story-example figcaption { margin-bottom: 8px; color: var(--story-tone); font: 500 15px/1.6 var(--sans); }
 .consultation-story-example blockquote p { margin: 0 0 10px; }
 .consultation-story-example blockquote p:last-child { margin-bottom: 0; }
 .consultation-story-entry blockquote { border-left: 2px solid var(--story-tone); padding-left: 14px; }
 .consultation-story-view[data-story-feature] {
-  --story-rule: color-mix(in srgb, var(--story-tone) 24%, #101715);
+  --story-rule: color-mix(in srgb, var(--story-tone) 24%, #1c1a1c);
 }
 [data-story-feature] .consultation-story-hero { grid-template-columns: repeat(2,minmax(0,1fr)); }
 [data-story-feature] .consultation-story-intro h1:focus { outline: none; }
@@ -157,7 +157,7 @@
 .consultation-public-share button:hover {color:#f0ebe1}
 .consultation-public-share input {
   width:min(100%,290px);min-height:42px;padding:7px 9px;border:1px solid #c6aa7666;
-  border-radius:6px;background:#1b2420;color:#f0ebe1;font:400 16px/1.5 var(--sans);
+  border-radius:6px;background:#292625;color:#f0ebe1;font:400 16px/1.5 var(--sans);
 }
 .consultation-public-share :is(button,input):focus-visible {outline:2px solid #dfc69c;outline-offset:3px}
 #homeIntroOverlay .consultation-public-share {justify-content:center;margin:0 0 12px}
@@ -178,7 +178,7 @@ body.consultation-open .yeonwoo-story-answer-link { display: none; }
   margin: clamp(16px,3vw,24px) 0;
   aspect-ratio: 16 / 9;
   border-radius: 6px;
-  background: #1b2420;
+  background: #292625;
 }
 .consultation-story-chapter-film :is(img,video) { display: block; width: 100%; height: 100%; object-fit: cover; }
 .consultation-story-prose { margin: 0; color: #c6cdc3; font: 400 17px/1.85 var(--sans); }
@@ -187,7 +187,7 @@ body.consultation-open .yeonwoo-story-answer-link { display: none; }
   margin: 24px 0 0;
   padding: 16px clamp(14px,4vw,26px);
   border-inline-start: 2px solid var(--story-tone);
-  background: #1b2420;
+  background: #292625;
 }
 .consultation-story-aside blockquote { color: #f0ebe1; font: 600 clamp(17px,2.4vw,22px)/1.65 var(--serif); }
 .consultation-story-aside figcaption { margin-top: 8px; color: var(--story-tone); font: 500 14px/1.5 var(--sans); }
@@ -216,7 +216,7 @@ html:has(:is(.view[data-story-feature],#view-wedding).visible) #tmTop { bottom: 
   inset: auto 0 0;
   padding: 10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
   border-top: 1px solid var(--story-rule);
-  background: #101715;
+  background: #1c1a1c;
 }
 .consultation-story-dock-inner {
   display: grid;
@@ -243,7 +243,7 @@ html:has(:is(.view[data-story-feature],#view-wedding).visible) #tmTop { bottom: 
   border: 1px solid var(--story-tone);
   border-radius: 8px;
   box-shadow: none;
-  color: #101715;
+  color: #1c1a1c;
   background: var(--story-tone);
   font: 700 16px/1.3 var(--sans);
 }

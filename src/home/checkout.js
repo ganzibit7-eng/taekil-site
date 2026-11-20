@@ -459,6 +459,7 @@ function buildPremiumProgramPanel() {
 }
 
 function openAuthModal() {
+  window.TaekilAccountAge.open();
   document.getElementById('authOverlay').style.display = 'flex';
   document.getElementById('authSetupNotice').style.display = firebaseReady ? 'none' : 'block';
   document.getElementById('authError').style.display = 'none';

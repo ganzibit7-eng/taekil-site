@@ -1055,5 +1055,5 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 
 
 <!-- UI-only overrides follow the legacy style blocks. -->
-<link rel="stylesheet" href="premium-ui.css?v=20261120-chat-checkout">
-<link rel="stylesheet" href="admin-analytics.css?v=20261115-preview-conversion">
+<link rel="stylesheet" href="premium-ui.css?v=ink-1120">
+<link rel="stylesheet" href="admin-analytics.css?v=ink-1120">

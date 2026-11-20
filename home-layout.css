@@ -49,8 +49,8 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   width: min(1184px, calc(100% - 40px));
   margin: 20px auto 0;
   color: #F0EBE1;
-  --directory-line: #38453d;
-  --directory-muted: #c1c9bf;
+  --directory-line: #514b49;
+  --directory-muted: #c7beb7;
 }
 .directory-hero {
   position: relative;
@@ -60,7 +60,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   min-height: 380px;
   overflow: hidden;
   border-radius: 10px;
-  background: var(--bg, #101715);
+  background: var(--bg, #1c1a1c);
 }
 .directory-hero-media {
   position: absolute;
@@ -80,7 +80,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, var(--bg, #101715), #101715c9 18%, #10171500 58%);
+  background: linear-gradient(90deg, var(--bg, #1c1a1c), #1c1a1cc9 18%, #1c1a1c00 58%);
 }
 .directory-hero-copy {
   width: min(53%, 480px);
@@ -234,7 +234,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   border: 1px solid var(--directory-line);
   border-radius: 6px;
   background: transparent;
-  color: #c1c9bf;
+  color: #c7beb7;
   font: 500 15px/1.4 var(--sans);
 }
 .directory-preview-choices button[aria-pressed="true"] {
@@ -246,7 +246,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 .directory-preview-reading {
   padding: clamp(18px, 3vw, 28px);
   border-radius: 8px;
-  background: #1b2420;
+  background: #292625;
 }
 .directory-preview-label, .directory-preview-reading figcaption {
   color: #dfc69c;
@@ -290,8 +290,8 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   .directory-preview-choices button:hover { background: #c6aa7622; border-color: #c6aa76; }
 }
 .directory-date-example {
-  --directory-line: #38453d;
-  --directory-muted: #c1c9bf;
+  --directory-line: #514b49;
+  --directory-muted: #c7beb7;
   display: grid;
   grid-template-columns: minmax(0, .72fr) minmax(0, 1fr);
   align-items: center;
@@ -299,7 +299,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   padding: clamp(18px, 3vw, 40px);
   border: 1px solid var(--directory-line);
   border-radius: 10px;
-  background: #1b2420;
+  background: #292625;
   word-break: keep-all;
   overflow-wrap: anywhere;
 }
@@ -325,7 +325,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 .wedding-comparison-section > .container { max-width: 980px; }
 .wedding-comparison-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .wedding-comparison-actions .wedding-comparison-start {
-  color: #101715;
+  color: #1c1a1c;
   background: #c6aa76;
   border-color: #c6aa76;
 }
@@ -364,12 +364,12 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   overflow: hidden;
   border: 1px solid #ffffff18;
   border-radius: 8px;
-  background: #20251e;
+  background: #302622;
   color: #f0ebe1;
   text-decoration: none;
   text-align: left;
 }
-.home-directory .directory-feature-year { background: #1a2728; }
+.home-directory .directory-feature-year { background: #252432; }
 .directory-feature img {
   position: absolute;
   inset: 0 0 0 auto;
@@ -384,10 +384,10 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(90deg, #20251e 32%, #20251ed6 51%, #20251e22 100%);
+  background: linear-gradient(90deg, #302622 32%, #302622d6 51%, #30262222 100%);
 }
 .directory-feature-year::after {
-  background: linear-gradient(90deg, #1a2728 32%, #1a2728d6 51%, #1a272822 100%);
+  background: linear-gradient(90deg, #252432 32%, #252432d6 51%, #25243222 100%);
 }
 .directory-feature-copy {
   display: grid;
@@ -417,7 +417,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   overflow: hidden;
   border: 1px solid #f0ebe12a;
   border-radius: 8px;
-  background: #1b2420;
+  background: #292625;
   color: #f0ebe1;
   text-align: left;
   text-decoration: none;
@@ -691,7 +691,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   .directory-hero-media { inset: 0; }
   .directory-hero-media :is(img, video) { object-position: 56% 28%; }
   .directory-hero-media::after {
-    background: linear-gradient(180deg, transparent 20%, #10171513 32%, #101715e8 68%, var(--bg, #101715) 95%);
+    background: linear-gradient(180deg, transparent 20%, #1c1a1c13 32%, #1c1a1ce8 68%, var(--bg, #1c1a1c) 95%);
   }
   .directory-hero-copy { width: 100%; padding: 20px; box-sizing: border-box; }
   .directory-hero h1 { font-size: clamp(28px, 7.4vw, 38px); }
@@ -735,13 +735,13 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 .directory-hero[data-home-opening] { min-height:clamp(420px,42vw,600px);align-items:flex-end;background:#111814; }
 [data-home-opening] .directory-hero-media { inset:0; }
 [data-home-opening] .directory-hero-media :is(img,video) { object-position:50% 16%; }
-[data-home-opening] .directory-hero-media::after { background:linear-gradient(180deg,#10171500 44%,#0a100c26 63%,#0a100cb8 100%); }
+[data-home-opening] .directory-hero-media::after { background:linear-gradient(180deg,#1c1a1c00 44%,#0a100c26 63%,#0a100cb8 100%); }
 [data-home-opening] .directory-hero-copy { width:100%;box-sizing:border-box;padding:clamp(24px,4vw,46px); }
 [data-home-opening] h1 { max-width:460px;text-shadow:0 2px 15px #0009; }
 @media(max-width:660px) {
  .directory-hero[data-home-opening] { min-height:clamp(420px,118vw,540px); }
  [data-home-opening] .directory-hero-copy { padding:22px; }
- [data-home-opening] .directory-hero-media::after { background:linear-gradient(180deg,#10171500 48%,#0a100c40 72%,#0a100cd9 100%); }
+ [data-home-opening] .directory-hero-media::after { background:linear-gradient(180deg,#1c1a1c00 48%,#0a100c40 72%,#0a100cd9 100%); }
 }
 
 .directory-concern-shortcuts {
@@ -759,7 +759,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 .directory-recent button {
   width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 16px;
   min-height: 62px; padding: 12px 15px; text-align: left; border: 1px solid var(--directory-line);
-  border-radius: 8px; background: #1b2420; color: #f0ebe1; cursor: pointer;
+  border-radius: 8px; background: #292625; color: #f0ebe1; cursor: pointer;
 }
 .directory-recent button > span:first-child { min-width: 0; }
 .directory-recent strong,.directory-recent small { display: block; }
@@ -769,7 +769,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 }
 .directory-recent [data-recent-advisor] { color: #c6aa76; white-space: nowrap; font-size: 14px; }
 .directory-year-preview { display: inline-flex; min-height: 44px; align-items: center; }
-.public-reading-source { display: block; color: #b6bdb5; margin: 10px 0 0; font: 400 14px/1.6 var(--sans); }
+.public-reading-source { display: block; color: #c2bab2; margin: 10px 0 0; font: 400 14px/1.6 var(--sans); }
 .public-reading-evidence { margin-top: 10px; color: #cfbe9a; font: 400 14px/1.7 var(--sans); }
 .public-reading-evidence summary { cursor: pointer; padding-block: 8px; }
 .public-reading-evidence ul { margin: 4px 0 0; padding-inline-start: 22px; }
@@ -785,7 +785,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 
 
 .topic-index {
-  --topic-line: #38453d;
+  --topic-line: #514b49;
   --topic-accent: #dbc091;
   color: #f0ebe1;
   padding: clamp(32px,7vw,88px) 0 clamp(52px,8vw,104px);
@@ -861,3 +861,8 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   .topic-index-shortcuts button { text-align: start; }
   .topic-index-groups { grid-template-columns: minmax(0,1fr); }
 }
+
+/* Card surfaces echo the portraits while retaining a neutral reading background. */
+.home-directory [aria-labelledby="directoryRelationshipsTitle"] .directory-card{background:#30262b}
+.home-directory [aria-labelledby="directoryCareerTitle"] .directory-card{background:#302a24}
+.home-directory [aria-labelledby="directoryStudyTitle"] .directory-card{background:#252832}
