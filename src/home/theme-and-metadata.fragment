@@ -357,12 +357,16 @@
 .ai-offer-copy b { grid-row: 1; font-size: 1rem; font-weight: 700; line-height: 1.4; }
 .ai-offer-copy span { color: #bdc6bd; font-size: .875rem; line-height: 1.5; }
 .ai-offer-copy :is(b, span, small) { word-break: keep-all; overflow-wrap: anywhere; }
-.ai-chat-conversion-chooser [data-ai-buy-pack="ai_question_pack_10"] small {
-  display: block;
-  color: #dfc597;
+.ai-offer-savings {
+  margin:0;
+  padding:5px 8px 9px;
+  border-top:1px solid #3a473e;
+  color:#dfc597;
   font-size: .8125rem;
   line-height: 1.5;
+  word-break:keep-all;
 }
+.ai-offer-price { text-align:right; }
 .ai-offer-price em {
   color: #e8d2a5;
   font-size: clamp(1rem, 4.4vw, 1.25rem);

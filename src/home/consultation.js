@@ -559,19 +559,19 @@ function appendQuestionPackOffers() {
       <div class="ai-offer-copy">
         <small>가볍게 더 물어볼 때</small>
         <b>AI 질문권 5개</b>
-        <span>질문 1개당 약 380원</span>
+        <span>질문 1개당 380원</span>
       </div>
       <div class="ai-offer-price"><em>1,900원</em></div>
     </button>
 
     <button type="button" class="ai-chat-offer-card" data-checkout-action data-ai-buy-pack="ai_question_pack_10">
       <div class="ai-offer-copy">
-        <small>묶음 특가 · 약 34% 절약</small>
         <b>AI 질문권 10개</b>
-        <span>질문 1개당 250원 · 5개권 두 번(3,800원) 구매 기준</span>
+        <span>질문 1개당 250원</span>
       </div>
       <div class="ai-offer-price"><em>2,500원</em></div>
     </button>
+    <p class="ai-offer-savings" data-checkout-action>10개권은 5개권 두 번 구매보다 약 34% 저렴해요.</p>
 
     <button type="button" class="ai-chat-offer-card ai-chat-offer-premium ai-offer-premium ai-offer-best" data-checkout-action data-ai-buy-premium="1">
       <span class="ai-offer-badge">가성비 추천 · PREMIUM</span>

@@ -19,7 +19,7 @@
 
   function resetComparison() {
     error.textContent = '';
-    [...dateFields, ...extras.querySelectorAll('input')].forEach(input => input.removeAttribute('aria-invalid'));
+    [...dateFields, ...extras.querySelectorAll('input[type="date"]')].forEach(input => input.removeAttribute('aria-invalid'));
     results.hidden = true;
     results.replaceChildren();
   }
@@ -96,7 +96,7 @@
 
   field('compareExactDates').addEventListener('click', () => {
     resetComparison();
-    const active = [...dateFields, ...[...extras.querySelectorAll('input')].filter(input => input.value)];
+    const active = [...dateFields, ...[...extras.querySelectorAll('input[type="date"]')].filter(input => input.value)];
     const selected = active.map(input => parseDate(input.value));
     const invalid = selected.indexOf(null);
     if (invalid !== -1) {
@@ -137,6 +137,7 @@
     });
     wrap.append(label,input,remove);
     extras.append(wrap);
+    window.TaekilDateEntry?.mountNative(input,'추가 후보일');
     addDate.hidden = extras.childElementCount === 3;
     input.focus();
     resetComparison();

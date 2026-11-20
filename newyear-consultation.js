@@ -90,6 +90,7 @@
     const gender=el('select');gender.id='newyearGender';for(const [value,title]of [['unknown','선택 안 함'],['female','여성'],['male','남성']]){const o=el('option',title);o.value=value;gender.append(o);}
     const extra=el('div',null,'newyear-extra-fields');extra.append(field('출생시간 (선택)',hour),field('성별 (선택)',gender));
     form.append(field('이름·호칭',name),field('달력 기준',calendar),dateGroup,leapLabel,extra,el('p','시간을 몰라도 리포트를 만들 수 있어요. 확인되지 않은 시주나 대운 시작 시점은 임의로 채우지 않습니다.','newyear-muted'));
+    window.TaekilDateEntry?.mountParts(dateGroup,year,month,day,'신년 리포트 생년월일');
     if(draft&&draftOwner===owner()){select.value='new';name.value=draft.name||'';calendar.value=draft.calType||'solar';year.value=String(draft.y);month.value=String(draft.m);day.value=String(draft.d);leap.checked=!!draft.isLeap;hour.value=draft.hourValue||'unknown';gender.value=draft.gender||'unknown';}
     const confirmation=el('label',null,'newyear-confirm'),check=el('input'),confirmText=document.createTextNode('선택한 생년월일을 확인했습니다. 이 사주로 나만의 신년 리포트를 작성합니다.');check.type='checkbox';confirmation.append(check,confirmText);
     const error=el('p',null,'newyear-input-error');error.setAttribute('role','alert');

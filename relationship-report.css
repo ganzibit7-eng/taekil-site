@@ -55,7 +55,7 @@
   padding:16px;
 }
 .relationship-fields legend { padding:0 5px; color:#e0c59a; font-weight:600; }
-.relationship-fields input[type=date],.relationship-fields select {
+.relationship-fields .relationship-date-input,.relationship-fields select {
   box-sizing:border-box;
   color-scheme:dark;
   width:100%;
@@ -124,6 +124,23 @@
 .relationship-agreement strong { color:#dfc69c; }
 .relationship-dialogue details.relationship-scene-basis { margin-top:8px; }
 .relationship-scene-basis summary { font-size:15px; }
+.relationship-chapters > p { margin:0 0 16px; }
+.relationship-reading .relationship-chapter {
+  margin-top:0;
+  padding:4px 0;
+  border-bottom:1px solid #39463e;
+}
+.relationship-chapter > summary {
+  padding:13px 4px;
+  color:#f0ebe1;
+  font:600 1.05rem/1.55 var(--serif);
+  cursor:pointer;
+  word-break:keep-all;
+}
+.relationship-chapter[open] > summary { color:#e0c59a; }
+.relationship-chapter > p, .relationship-chapter > .relationship-dialogue { margin:8px 4px 14px; }
+.relationship-chapter .relationship-scene-basis { margin:0 4px 9px; }
+.relationship-chapter .relationship-next-step strong { color:#e0c59a; margin-right:5px; }
 @media (max-width:540px) {
   .relationship-hero,.relationship-fields { grid-template-columns:minmax(0,1fr); }
   .relationship-hero { padding-top:28px; gap:16px; }

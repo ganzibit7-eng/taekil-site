@@ -6,6 +6,9 @@ const { execFileSync } = require('node:child_process');
 const previousCheckout = execFileSync('git',['show','0ef4a449af13471a06e165247e02a36749785411:src/home/checkout.js'],{encoding:'utf8'}).replace(/\r\n/g,'\n');
 module.exports = function normalizePaymentReturn(source) {
   source = source.replace('<b>상담을 이어가세요.</b>', '<b>방금 하던 상담을 그대로 이어가세요.</b>')
+    .replace('<span>질문 1개당 380원</span>', '<span>질문 1개당 약 380원</span>')
+    .replace('        <b>AI 질문권 10개</b>\n        <span>질문 1개당 250원</span>', '        <small>묶음 특가 · 약 34% 절약</small>\n        <b>AI 질문권 10개</b>\n        <span>질문 1개당 250원 · 5개권 두 번(3,800원) 구매 기준</span>')
+    .replace('    <p class="ai-offer-savings" data-checkout-action>10개권은 5개권 두 번 구매보다 약 34% 저렴해요.</p>\n','')
     .replace('결제가 확인되면 방금 선택한 질문을 이어가요.', '결제가 확인되면 방금 선택한 질문부터 자동으로 이어집니다.')
     .replace('이어서 질문할 이용권을 골라 주세요.', '필요한 만큼 질문권을 추가하거나 프리미엄으로 넉넉하게 이용할 수 있어요.')
     .replace("  /* CHECKOUT_END */\n}\nwindow.addEventListener('taekilso:questionPackPurchased'", "  /* CHECKOUT_END */\n  scrollAiChatToBottom(win);\n}\nwindow.addEventListener('taekilso:questionPackPurchased'")
