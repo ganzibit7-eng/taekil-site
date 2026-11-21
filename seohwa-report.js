@@ -781,8 +781,9 @@
     article.append(list);
     return article;
   }
-  function relationshipMonths(periods,reading){
+  function relationshipMonths(periods,reading,pillars){
     const career=reading.id==='mujin';
+    const readingsByMonth=window.TaekilTopicMonthly?.create(periods.calendar,pillars,reading.id);
     const section=el('section',null,'sr-wealth-ranking sr-topic-calendar');
     const graph=el('div',null,'sr-wealth-chart');
     graph.setAttribute('role','group');
@@ -807,24 +808,45 @@
     }
     lens.append(picker);
     const perspective=el('p',null,'sr-topic-perspective');
-    let activeMonth;
+    let activeCard;
     function showPerspective(){
-      const lensText=readings[Number(picker.value)][1];
-      perspective.textContent=activeMonth.month+'월 · '+lensText;
+      const selected=Number(picker.value);
+      perspective.hidden=selected===0;
+      const focus=activeCard?.focus;
+      perspective.textContent=focus?'이번 달에 두드러지는 주제는 ‘'+focus+'’예요. '+readings[selected][1]:readings[selected][1];
     }
     picker.addEventListener('change',showPerspective);
     const scale=Math.max(1,...periods.calendar.flatMap(row=>[row.affinity,row.adjustment]));
     const choose=(row,selected)=>{
-      activeMonth=row;
+      activeCard=readingsByMonth?.[row.month-1];
       showPerspective();
       for(const bar of graph.children)bar.setAttribute('aria-pressed',String(bar===selected));
       const exact=el('details',null,'sr-evidence');
       exact.append(el('summary','월운·세운·대운의 계산 근거'));
+      if(activeCard){
+        const used=el('ul',null,'sr-topic-used');
+        for(const source of activeCard.evidence)used.append(el('li',source));
+        exact.append(el('p','이달 풀이에 사용한 근거'),used);
+      }
       exact.append(el('p',row.annual+' 세운 · '+(row.annualLinks.join(' / ')||'대표 월운과 직접 맞물리는 합·충 등이 없어요.')));
       for(const cycle of row.cycles)exact.append(el('p',cycle.pair+' 대운 · '+(cycle.links.join(' / ')||'대표 월운과 직접 맞물리는 합·충 등이 없어요.')));
       if(!row.cycles.length)exact.append(el('p','대운 전환 시점을 확인할 수 없어 원국과 세운·월운으로 읽었어요.'));
       for(const span of row.spans)exact.append(el('p',span.from+'부터 '+span.until+' 직전까지 · '+span.annual+' 세운 · '+span.pair+' 월운'),relationshipEvidence(span));
-      detail.replaceChildren(el('h4',row.month+'월 · '+row.pair+' 월운'),relationshipReading(row,reading),exact);
+      const cardReading=activeCard?el('div',null,'sr-topic-reading'):relationshipEvidence(row);
+      if(activeCard){
+        cardReading.append(el('h5',activeCard.title,'sr-topic-reading-lead'),el('p',activeCard.lead));
+        const list=el('dl');
+        const label={seohwa:'새 인연과 관계 발전',ijun:'지난 인연과 다음 인연',mujin:'취업·이직·승진의 흐름'}[reading.id];
+        for(const [title,copy] of [['다른 달과의 차이',activeCard.contrast],[label,activeCard.reading]]){
+          const group=el('div');
+          group.append(el('dt',title),el('dd',copy));
+          list.append(group);
+        }
+        cardReading.append(list);
+      }
+      detail.replaceChildren(el('h4',row.month+'월 · '+row.pair+' 월운'),cardReading);
+      if(reading.id==='seohwa')detail.append(lens,perspective);
+      detail.append(exact);
     };
     for(const row of periods.calendar){
       const bar=button('','sr-wealth-bar',()=>choose(row,bar));
@@ -845,7 +867,7 @@
     heading.id='relationshipMonthsHeading';heading.tabIndex=-1;
     const ranking=periods.legacyRanking?'주목할 달은 발급 당시 순서를 보여줘요.':'시기를 고를 때는 '+(career?'월주':'일지')+'에 직접 작용하는 달을 먼저 보고, 같은 순위의 달도 함께 보여줘요.';
     section.append(heading,el('p','양력 달에서 가장 길게 이어지는 절기 월운을 대표로 보여줘요. 막대는 단서의 수예요. '+ranking),legend,graph,detail);
-    if(reading.id==='seohwa')section.append(lens,perspective);
+    if(reading.id==='ijun')section.append(el('p','상대가 연락을 원하지 않는다고 밝혔다면 그 의사를 존중해 주세요.','sr-topic-perspective'));
     return section;
   }
   function relationshipTimeline(periods,reading){
@@ -922,16 +944,17 @@
     const paidWealth=reading.id==='dogyeom'&&report.calendar?.ranking;
     const front=[];
     const topic=topicPresentation[reading.id];
-    let periods;
+    let periods,pillars;
     if(topic){
       if(reading.id==='seohwa'||report.topicVersion>=2){
         const context=purchasedContext(reading,report);
+        pillars=context.pillars;
         try{
           periods=window.TaekilRelationshipPeriods?.calc(window.Solar,window.LunarUtil,context.pillars,profileBirthDay(report.profile),report.profile,reading.id,{legacyRanking:!(report.topicVersion>=3)});
         }catch(error){console.warn('SEOHWA_PERIODS_UNAVAILABLE',error.name);}
       }
       front.push(reportOverview(report,reading,periods));
-      if(periods)front.push(relationshipMonths(periods,reading));
+      if(periods)front.push(relationshipMonths(periods,reading,pillars));
     }
     if(paidWealth){
       const {year,judgment,ranking,rows,outlook,daewoon}=report.calendar;
