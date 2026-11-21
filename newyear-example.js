@@ -81,6 +81,7 @@
       ask.setAttribute('data-home-consultation','');
       ask.dataset.openExampleQuestion = '함께 여행이나 모임을 준비할 때 돈과 시간을 나누는 게 고민이에요. 제 사주를 바탕으로 어떤 기준으로 상의하면 좋을까요?';
       body.replaceChildren(overview,contents,featured,ask);
+      window.TaekilCampaign?.activity('preview_newyear');
       loaded = true;
     } catch (_) {
       body.replaceChildren(make('p','예시를 불러오지 못했어요. 닫았다가 다시 열어 주세요.'));

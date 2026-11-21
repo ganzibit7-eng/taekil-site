@@ -2,11 +2,15 @@
   <div class="home-directory" id="homeDirectory">
     <section class="directory-hero" data-home-opening aria-labelledby="directoryHeroTitle">
       <div class="directory-hero-media" aria-hidden="true">
-        <img src="assets/taekilso-hanok-smile.webp" width="1280" height="720" alt="" decoding="async">
+        <img src="assets/taekilso-hanok-smile.webp" width="1280" height="720" alt="" decoding="async" fetchpriority="high">
         <video class="yeonwoo-story-video" data-home-directory-video loop muted playsinline preload="none" data-video-src="assets/taekilso-hanok-arrival.mp4" poster="assets/taekilso-hanok-smile.webp"></video>
       </div>
       <div class="directory-hero-copy">
         <h1 id="directoryHeroTitle">내 사주로 풀어보는<br>지금의 고민</h1>
+        <div class="directory-hero-actions">
+          <button type="button" data-open-basic-report>무료로 내 사주 보기</button>
+          <button type="button" data-browse-advisors>상담사 찾아보기 <span aria-hidden="true">↓</span></button>
+        </div>
       </div>
     </section>
 
@@ -34,31 +38,31 @@
         <a href="#topic-love" class="directory-character character-love" data-story-topic="love" data-consultation-topic="love" data-consultation-question="제 사주로 볼 때 연애와 관계에서 어떤 패턴이 반복되나요? 제가 먼저 바꿔볼 점을 알려주세요.">
           <img src="assets/portrait-love.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
           <span class="directory-card-mode" data-mode="report">리포트</span>
-          <span class="directory-character-copy"><span>서화</span><strong>연애 · 관계</strong><small>내 관계에서 반복되는 일</small></span>
+          <span class="directory-character-copy"><span>서화</span><strong>연애 · 관계</strong><small>내 연애 성향과 인연이 깊어지는 달</small><small class="directory-price">전체 5,900원</small></span>
         </a>
         <a href="#topic-wealth" class="directory-character character-wealth" data-story-topic="wealth" data-consultation-topic="wealth" data-consultation-question="제 사주에서 돈을 벌 때의 강점과 돈을 관리할 때 주의할 점을 알려주세요.">
           <img src="assets/portrait-wealth.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
           <span class="directory-card-mode" data-mode="report">리포트</span>
-          <span class="directory-character-copy"><span>도겸</span><strong>재물운</strong><small>돈을 벌고 모으는 방식</small></span>
+          <span class="directory-character-copy"><span>도겸</span><strong>재물운</strong><small>돈이 들어오는 달과 지출을 살필 달</small><small class="directory-price">전체 8,900원</small></span>
         </a>
         <a href="#topic-reunion" class="directory-character" data-story-topic="reunion" data-consultation-topic="reunion" data-consultation-question="헤어진 사람에게 다시 연락할지 고민이에요. 제 사주에서 관계를 돌아보는 관점과 연락을 결정할 기준을 알려주세요.">
           <img src="assets/topic-reunion-illustrated.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
           <span class="directory-card-mode" data-mode="report">리포트</span>
-          <span class="directory-character-copy"><span>이준</span><strong>재회운</strong><small>다시 말을 걸기 전 살펴볼 점</small></span>
+          <span class="directory-character-copy"><span>이준</span><strong>재회운</strong><small>다시 연락할 때와 기다릴 때</small><small class="directory-price">전체 5,900원</small></span>
         </a>
         <a href="#topic-career" class="directory-character character-career" data-story-topic="career" data-consultation-topic="career" data-consultation-question="이직을 고민 중이에요. 제 사주에서 어떤 업무 환경이 잘 맞는지 알려주세요.">
           <img src="assets/portrait-career.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
           <span class="directory-card-mode" data-mode="report">리포트</span>
-          <span class="directory-character-copy"><span>무진</span><strong>직업 · 이직</strong><small>내가 잘 맞는 일과 환경</small></span>
+          <span class="directory-character-copy"><span>무진</span><strong>직업 · 이직</strong><small>나에게 맞는 일과 이직을 살필 달</small><small class="directory-price">전체 5,900원</small></span>
         </a>
       </div>
-      <p class="directory-report-note">첫 장 무료 · 구매 시 담당 상담 3회</p>
+      <p class="directory-report-note">첫 장 무료 · 전체 리포트 1회 결제 · 담당 상담사와 채팅 3회 포함</p>
       <div class="directory-features">
         <section class="directory-section" aria-labelledby="directoryNewyearTitle">
           <h3 id="directoryNewyearTitle" tabindex="-1">2027년 신년운세</h3>
           <a class="directory-feature directory-feature-year" href="#newyear">
             <span class="directory-card-mode" data-mode="report">리포트</span>
-            <span class="directory-feature-copy"><strong>내 사주로 읽는 한 해</strong><small>신년 리포트 보기</small></span>
+            <span class="directory-feature-copy"><strong>내 사주로 읽는 한 해</strong><small>한 해 총평과 열두 달 풀이 · 6,900원</small></span>
             <img src="assets/yeonwoo-moonlight.jpg" width="1122" height="1402" alt="" loading="lazy" decoding="async">
           </a>
           <a class="directory-text-link directory-year-preview" href="#newyear" data-newyear-preview>신년 리포트 한 달 미리보기</a>
@@ -257,7 +261,7 @@
   <div class="block home-first-block" style="padding-bottom:8px;">
     <div class="container" style="max-width:480px;">
       <div class="ai-chat-stage">
-        <img class="ai-chat-bgvideo yeonwoo-stage-poster" src="ai-consultant-poster.jpg" alt="" aria-hidden="true">
+        <img loading="lazy" class="ai-chat-bgvideo yeonwoo-stage-poster" src="ai-consultant-poster.jpg" alt="" aria-hidden="true">
 <video class="ai-chat-bgvideo" muted loop playsinline preload="none" data-video-src="assets/yeonwoo-listening.mp4" poster="ai-consultant-poster.jpg"></video>
 <img class="ai-chat-bgvideo yeonwoo-stage-poster ai-chat-entry-media" src="assets/yeonwoo-welcome.jpg" alt="" aria-hidden="true" loading="lazy">
 <video class="ai-chat-bgvideo ai-chat-entry-media" muted loop playsinline preload="none" data-video-src="assets/yeonwoo-welcome.mp4" poster="assets/yeonwoo-welcome.jpg"></video>

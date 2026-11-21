@@ -1,21 +1,21 @@
 {
   "love": {
-    "title": "서화의 연애·관계 상담 | 택일소",
-    "description": "가까운 관계에서 반복되는 대화와 오해를 서화와 살펴보세요.",
+    "title": "서화의 연애·관계 리포트 | 택일소",
+    "description": "내 연애 성향과 인연이 깊어지는 달을 서화와 살펴보세요. 개인별 첫 장 무료 · 전체 리포트와 서화 상담 3회.",
     "image": "assets/portrait-love.jpg",
     "width": 600,
     "height": 750
   },
   "wealth": {
-    "title": "도겸의 재물운 상담 | 택일소",
-    "description": "돈을 벌고 모으는 방식, 함께 쓰는 돈의 기준을 도겸과 살펴보세요.",
+    "title": "도겸의 재물운 리포트 | 택일소",
+    "description": "2027년 월별 재물운과 기회·지출 주의 시기, 향후 10년의 흐름을 읽어 보세요. 개인별 첫 장 무료 · 전체 리포트와 담당 상담 3회.",
     "image": "assets/portrait-wealth.jpg",
     "width": 600,
     "height": 750
   },
   "career": {
-    "title": "무진의 직업·이직 상담 | 택일소",
-    "description": "지금 직장과 새로운 기회 사이에서 나에게 맞는 일의 조건을 무진과 비교해 보세요.",
+    "title": "무진의 직업·이직 리포트 | 택일소",
+    "description": "무진과 내게 맞는 업무 환경과 이직을 준비할 달을 살펴보세요. 개인별 첫 장 무료 · 전체 리포트와 무진 상담 3회.",
     "image": "assets/portrait-career.jpg",
     "width": 600,
     "height": 750
@@ -35,8 +35,8 @@
     "height": 750
   },
   "reunion": {
-    "title": "이준의 재회 고민 상담 | 택일소",
-    "description": "다시 연락할지, 조금 더 기다릴지 고민될 때 이준과 먼저 확인할 점을 살펴보세요.",
+    "title": "이준의 재회운 리포트 | 택일소",
+    "description": "다시 연락할 때와 기다릴 때을 살펴보세요. 개인별 첫 장 무료 · 전체 리포트와 담당 상담 3회.",
     "image": "assets/topic-reunion-illustrated.jpg",
     "width": 600,
     "height": 750

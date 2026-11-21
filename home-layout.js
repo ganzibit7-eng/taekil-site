@@ -7,6 +7,12 @@
     params.has('seo_landing') || location.hash === '#ai-chat' || naverAd;
   document.documentElement.dataset.homeLayout = consultationLanding ? 'consultation' : 'directory';
 
+  // Keep the first directory paint in its final position while the router loads.
+  if (!consultationLanding && location.pathname === '/' && !location.hash && !params.size) {
+    document.documentElement.dataset.initialDirectory = '';
+    document.addEventListener('DOMContentLoaded', () => { delete document.documentElement.dataset.initialDirectory; });
+  }
+
   function buildTopicIndex(groups) {
     const home = document.getElementById('homeDirectory');
     const index = document.getElementById('view-topics');

@@ -131,7 +131,7 @@
     card.append(confirmation);
     const status = node('p');
     status.setAttribute('role','status');
-    const paused = node('p','신규 결제를 잠시 중단했어요. 기존 신년운세 이용자는 아래에서 정밀 비교를 열 수 있어요.');
+    const paused = node('p','신규 결제를 잠시 중단했어요. 정밀 택일이 포함된 기존 이용권 보유자는 아래에서 정밀 비교를 열 수 있어요.');
     paused.setAttribute('data-checkout-paused','');
 
     async function submit(purchase) {
@@ -145,6 +145,7 @@
       const data = await request({operation:'prepare',comparison,checkout:purchase,allowResume:true},token);
       if (!accountStore.current(token) || !card.isConnected || !card.closest('#view-tool.visible')) return false;
       if (data.state === 'ready') {
+        window.TaekilCampaign?.activity('read_date');
         card.replaceChildren(reportCard(data),node('p','내 기록에 저장했어요.'));
         return false;
       }
@@ -166,7 +167,7 @@
         return false;
       }
       return client.pay(data,{price:3900,name:'정밀 택일 1건권',pendingKey,
-        returnFlag:'dateReport',memo:'선택한 후보일 2~5개 정밀 비교 리포트 1건'});
+        metricTopic:'date',returnFlag:'dateReport',memo:'선택한 후보일 2~5개 정밀 비교 리포트 1건'});
     }
 
     const included = action('기존 이용권으로 열기',async () => {
@@ -176,19 +177,22 @@
       finally { included.disabled = false; }
     });
     const buy = action('3,900원 · 정밀 비교 구매',async () => {
+      window.TaekilCampaign?.activity('buy_date');
       if (!accountStore.owner()) { openAuthModal(); return; }
       try {
         await checkout.run(async () => await checkout.loadSdk() && await submit(true));
       } catch(error) { status.textContent = error.message; }
     },'btn btn-primary');
     buy.setAttribute('data-checkout-action','');
-    card.append(paused,included,buy,status,exampleDisclosure());
+    window.TaekilCampaign?.activity('preview_date');
+    card.append(paused,checkout.statusNote(),included,buy,status,exampleDisclosure());
     return card;
   }
 
   function libraryItem(record,open = false) {
     const detail = node('details');
     detail.append(node('summary',record.report.event+' · '+dayLabel(record.report.candidates[0].day)+' 외 '+(record.report.candidates.length-1)+'개'),reportCard(record));
+    detail.addEventListener('toggle',()=>{if(detail.open)window.TaekilCampaign?.activity('read_date');});
     detail.open = open;
     return detail;
   }

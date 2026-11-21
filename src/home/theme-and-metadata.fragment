@@ -684,7 +684,7 @@ body.admin-exclusive-mode .admin-fold.open .admin-fold-body{
 
   <style>
     :root:not([data-checkout-open]) [data-checkout-action],
-    :root[data-checkout-open] [data-checkout-paused] { display: none !important; }
+    :root:not([data-checkout-paused]) [data-checkout-paused] { display: none !important; }
     .checkout-pause-note { color: var(--muted); font-size: 1rem; line-height: 1.6; }
     .checkout-pause-note strong { color: var(--gold-hi); }
   </style>

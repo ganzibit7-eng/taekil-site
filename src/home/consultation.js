@@ -605,6 +605,7 @@ function appendQuestionPackOffers() {
 
     <!-- CHECKOUT_START -->
     <p class="checkout-pause-note" data-checkout-paused>질문권 신규 구매를 잠시 중단했습니다.</p>
+    <div class="checkout-connection"><span role="status">구매 가능 여부를 확인하고 있어요.</span><span role="status">구매 가능 여부를 확인하지 못했어요.</span><button type="button" onclick="TaekilCheckout.retry()">다시 확인</button></div>
     <!-- CHECKOUT_END -->
     <div class="ai-paywall-note" data-checkout-action>자동결제 없이 1회 결제</div>
   `;

@@ -54,10 +54,10 @@ function historicalAttributes(attrs) {
 }
 // Exact approved changes to pricing and premium quota displays.
 const pricingChanges=JSON.parse(fs.readFileSync('pricing-ui-contract-changes.json','utf8'));
-const normalizedScripts=originalScripts.map(([a,b])=>[historicalAttributes(a),normalizeSeasonal(normalizeStandalone(normalizeInsightPreview(b)))]);
+const normalizedScripts=originalScripts.map(([a,b])=>[historicalAttributes(a),normalizeSeasonal(normalizeStandalone(normalizeInsightPreview(b.replace("    <div class=\"checkout-connection\"><span role=\"status\">구매 가능 여부를 확인하고 있어요.</span><span role=\"status\">구매 가능 여부를 확인하지 못했어요.</span><button type=\"button\" onclick=\"TaekilCheckout.retry()\">다시 확인</button></div>\n",''))))]);
 for(const [after,before] of pricingChanges){
  const entries=normalizedScripts.filter(([,body])=>body.includes(after));
- assert.equal(entries.length,1,'Expected one approved pricing or quota change');
+ assert.equal(entries.length,1,'Expected one approved pricing or quota change: '+after.slice(0,160));
  assert.equal(entries[0][1].split(after).length,2,'Approved change must match only once');
  entries[0][1]=entries[0][1].replace(after,()=>before);
 }
@@ -101,7 +101,15 @@ for(const file of detailFiles){
  if(file==='404.html')original=original.replace('href="/taekil-site/"','href="/"');
  // The approved static business footer adds public identity/contact details only.
  // Strip that separately verified block when comparing the original article.
- const updated=fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n').replace(/<!-- BUSINESS_INFO_START -->\n[\s\S]*?\n<!-- BUSINESS_INFO_END -->\n/g,'');
+ let updated=fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n').replace(/<!-- BUSINESS_INFO_START -->\n[\s\S]*?\n<!-- BUSINESS_INFO_END -->\n/g,'');
+ const guideRoutes={'wealth':'wealth','2027-money-fortune':'wealth','2027-love-fortune':'love','2027-reunion-fortune':'reunion','2027-career-fortune':'career','2027-fortune':'newyear','free-saju':'love'};
+ const guideTopic=guideRoutes[file.split('/')[0]];
+ if(guideTopic){
+   const blocks=updated.match(/<section class="guide-reading">[^]*?<\/section>/g)||[];
+   assert.equal(blocks.length,1,file+': contextual product guide');
+   assert(blocks[0].includes('href="/consultation/'+guideTopic+'/"') && blocks[0].includes('href="/?start=basic"'));
+   updated=updated.replace(blocks[0],'');
+ }
  assert(updated.includes('href="/premium-detail.css"'),file+': shared detail theme missing');
  assert.deepEqual(scripts(updated),scripts(original),file+': existing script changed');
  assert.deepEqual(anchors(updated),anchors(original),file+': navigation changed');

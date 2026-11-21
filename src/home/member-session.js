@@ -195,14 +195,14 @@ try {
 
 function formatAuthError(err) {
   const code = err && err.code ? err.code : '';
-  const raw = err && err.message ? err.message : '알 수 없는 오류가 발생했어요.';
-  if (code === 'auth/unauthorized-domain') return '현재 사이트 주소가 Firebase Authentication의 승인된 도메인에 등록되지 않았어요. Firebase Console → Authentication → Settings → 승인된 도메인에서 현재 도메인을 추가해주세요.';
+  const authRetryMessage = '로그인을 마치지 못했어요. 다시 시도한 뒤에도 같은 문제가 생기면 고객센터로 문의해 주세요.';
+  if (code === 'auth/unauthorized-domain') return '택일소 홈페이지(taekilso.com)를 열고 다시 로그인해 주세요.';
   if (code === 'auth/popup-blocked') return '브라우저가 Google 로그인 팝업을 막았어요. 팝업을 허용한 뒤 다시 시도해주세요.';
   if (code === 'auth/popup-closed-by-user') return 'Google 로그인 창이 닫혔어요. 다시 시도해주세요.';
   if (code === 'auth/cancelled-popup-request') return 'Google 로그인 요청이 취소됐어요. 다시 시도해주세요.';
   if (code === 'auth/operation-not-supported-in-this-environment') return '현재 브라우저 환경에서는 Google 팝업 로그인을 사용할 수 없어요. Chrome 또는 Safari 일반 탭에서 다시 시도해주세요.';
   if (code === 'auth/network-request-failed') return '네트워크 연결이 불안정해요. Wi-Fi/모바일 데이터를 확인한 뒤 다시 시도해주세요.';
-  return raw;
+  return authRetryMessage;
 }
 function showAuthError(message) {
   const el = document.getElementById('authError');

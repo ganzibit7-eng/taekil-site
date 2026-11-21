@@ -117,8 +117,20 @@
     input.setSelectionRange(text.length, text.length);
   };
   document.querySelectorAll('[data-open-basic-report]').forEach(button => {
-    button.addEventListener('click', () => openSajuInsight('profile'));
+    button.addEventListener('click', () => {
+      window.TaekilCampaign?.activity('homeBasicStart');
+      openSajuInsight('profile');
+    });
   });
+
+  document.querySelector('[data-browse-advisors]')?.addEventListener('click', () => {
+    const heading = document.getElementById('directoryChatTitle');
+    heading.focus({preventScroll: true});
+    heading.scrollIntoView({block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+  });
+  if (location.pathname === '/' && new URLSearchParams(location.search).get('start') === 'basic' && !location.hash) {
+    window.addEventListener('load', () => document.querySelector('[data-open-basic-report]')?.click(), {once: true});
+  }
 
   function updateProfileLine() {
     if (!profileLine) return;

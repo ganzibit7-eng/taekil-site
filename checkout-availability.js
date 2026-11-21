@@ -4,20 +4,49 @@
   const root = document.documentElement;
   const pausedMessage = '신규 결제를 잠시 중단했습니다.';
 
+  let database, unsubscribe, checkTimer;
+  const checkText = '구매 가능 여부를 확인하고 있어요.';
+  const retryText = '구매 가능 여부를 확인하지 못했어요.';
+
+  function state(value) {
+    if(value !== 'checking')window.clearTimeout?.(checkTimer);
+    for (const name of ['open','paused','unknown']) {
+      root.toggleAttribute('data-checkout-' + name, value === name);
+    }
+  }
+
   function watch(db) {
-    db.collection('siteSettings').doc('checkout').onSnapshot(
-      { includeMetadataChanges: true },
-      (snapshot) => {
-        root.toggleAttribute('data-checkout-open',
-          !snapshot.metadata.fromCache && snapshot.data()?.enabled === true);
+    database = db;
+    unsubscribe?.();
+    state('checking');
+    window.clearTimeout?.(checkTimer);
+    checkTimer=window.setTimeout?.(()=>state('unknown'),10000);
+    unsubscribe = db.collection('siteSettings').doc('checkout').onSnapshot(
+      {includeMetadataChanges:true},
+      snapshot => {
+        const enabled = snapshot.data()?.enabled;
+        state(snapshot.metadata.fromCache ? (globalThis.navigator?.onLine === false ? 'unknown' : 'checking')
+          : enabled === true ? 'open' : enabled === false ? 'paused' : 'unknown');
       },
-      () => root.removeAttribute('data-checkout-open')
+      () => state('unknown')
     );
   }
 
+  function statusNote() {
+    const note=document.createElement('div');
+    note.className='checkout-connection';
+    note.innerHTML='<span role="status">'+checkText+'</span><span role="status">'+retryText+'</span><button type="button">다시 확인</button>';
+    note.querySelector('button').addEventListener('click',retry);
+    return note;
+  }
+  function retry() {
+    if(database)watch(database);
+    else location.reload();
+  }
   function requireOpen() {
     if (root.hasAttribute('data-checkout-open')) return true;
-    showToast(pausedMessage);
+    showToast(root.hasAttribute('data-checkout-paused') ? pausedMessage :
+      root.hasAttribute('data-checkout-unknown') ? retryText : checkText);
     return false;
   }
 
@@ -66,5 +95,5 @@
     if (!await sdkPromise) { sdkPromise = null; showToast('결제 연결을 준비하지 못했어요. 다시 시도해주세요.'); return false; }
     return requireOpen();
   }
-  window.TaekilCheckout = { watch, requireOpen, run, loadSdk };
+  window.TaekilCheckout = { watch, requireOpen, run, loadSdk, statusNote, retry };
 })();

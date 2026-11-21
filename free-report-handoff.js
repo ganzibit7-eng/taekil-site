@@ -121,6 +121,7 @@
     const profile=C.profile(detail.profile);if(!profile)return;
     current={...detail,profile,id:restoringFlowId||crypto.randomUUID()};
     event('free_report_viewed',current.id);
+    if(!restoringFlowId)window.TaekilCampaign?.activity('basicResult');
     box=el('section',null,'report-consultation');box.setAttribute('aria-labelledby','reportConsultTitle');
     const intro=el('div',null,'report-consultation-intro'),portrait=el('img');portrait.src='ai-consultant-poster.jpg';portrait.alt='상담사 연우';portrait.width=64;portrait.height=64;
     const title=el('h3','이 성향이 내 일상에서는 어떻게 나타날까요?');title.id='reportConsultTitle';
@@ -135,7 +136,17 @@
       payload={id:current.id,createdAt:Date.now(),owner:uid(),profile:current.profile,question:'',preset:'newyear',stage:'cancelled',destination:'newyear'};persist();
       closeSajuInsight();window.openNewyearConsultation();
     });
-    year.append(el('h4','다가오는 한 해를 준비하고 싶다면'),el('p','2027 신년운세는 기본 성향 요약과 별도로, 계산된 세운과 절기별 월운을 함께 살펴봅니다. 열두 달의 흐름과 실천 안내를 받아 보고 30일 동안 이어 물어보세요.'),yearLink);box.append(year);
+    year.append(el('h4','다가오는 한 해를 준비하고 싶다면'),el('p','2027 신년운세는 기본 성향 요약과 별도로, 계산된 세운과 절기별 월운을 함께 살펴봅니다. 한 달 예시를 먼저 읽고, 원하면 6,900원에 열두 달 전체를 열 수 있어요.'),yearLink);box.append(year);
+    const reports=el('a','연애·재물·재회·직업 리포트 둘러보기 →');
+    reports.href='/#home';
+    reports.addEventListener('click',e=>{
+      if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+      if(document.documentElement.dataset.homeLayout!=='directory')return;
+      e.preventDefault();closeSajuInsight();goTo('home');
+      const title=document.getElementById('directoryTopicsTitle');
+      title.focus({preventScroll:true});title.scrollIntoView({block:'start'});
+    });
+    year.append(reports);
     result.append(box);visibility?.disconnect();visibility?.observe(box);update();
   }
   window.addEventListener('taekilso:freeReportReady',e=>mount(e.detail||{}));

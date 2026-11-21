@@ -79,6 +79,7 @@
   async function purchase(){
     const checkout=window.TaekilCheckout, client=window.TaekilAccountReport;
     if(!checkout?.requireOpen())return;
+    window.TaekilCampaign?.activity('buy_newyear');
     if(!loggedIn()){openAuthModal();return;}
     const token=accountStore.snapshot();
     const current=()=>active&&accountStore.current(token);
@@ -100,7 +101,7 @@
         if(order.state==='paused'){message('신규 결제를 잠시 중단했어요.');return false;}
         if(order.state==='resume'){client.showResume(status,order,pendingKey);return false;}
         if(order.state==='pending'){message(client.pendingMessage(order));return false;}
-        const opened=client.pay(order,{price,name:productName,pendingKey,
+        const opened=client.pay(order,{price,name:productName,pendingKey,metricTopic:'newyear',
           returnPath:'/?annualOrder='+encodeURIComponent(order.orderId)+'#newyear',memo:'2027 신년운세 · 계정에서 다시 읽기'});
         if(!opened)message('결제창을 열지 못했어요. 이용권 상태를 다시 확인해 주세요.');
         return opened;
@@ -119,7 +120,9 @@
   function pausedNotice() {
     const note = el('p', '신규 결제를 잠시 중단했습니다.', 'checkout-pause-note');
     note.setAttribute('data-checkout-paused', '');
-    return note;
+    const wrap=document.createDocumentFragment();
+    wrap.append(note,window.TaekilCheckout.statusNote());
+    return wrap;
   }
   function clearOrderReturn(){
     const url=new URL(location.href);
@@ -255,6 +258,7 @@
     return {focus,decade};
   }
   function showReport(data){
+    window.TaekilCampaign?.activity('read_newyear');
     const wasGenerating=view.classList.contains('is-generating');stopProgress();view.classList.add('has-report');content.style.minHeight='';
     content.replaceChildren();const r=data.report;
     const cover=el('header',null,'annual-report-cover');

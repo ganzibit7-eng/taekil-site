@@ -67,3 +67,8 @@ html{background:#1c1a1c;color-scheme:dark;scroll-padding-top:32px}
 html{scroll-behavior:auto!important;overflow-anchor:none}
 
 .premium-article .taekilso-symbol{width:44px;height:44px}
+
+.guide-reading {max-width:760px;margin:28px auto;padding:clamp(18px,4vw,30px);border:1px solid #625344;border-radius:12px;background:#272226;color:#f0e4cf;box-sizing:border-box}
+.guide-reading h2 {margin-top:0;font-size:clamp(20px,4vw,26px)}
+.guide-reading nav {display:flex;align-items:center;flex-wrap:wrap;gap:4px 20px}
+.guide-reading a {display:inline-flex;align-items:center;min-height:44px;color:#e7ca96;text-decoration:underline;text-underline-offset:4px}
