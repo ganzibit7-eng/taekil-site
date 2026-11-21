@@ -89,7 +89,7 @@
         <h2 id="directoryChatTitle" tabindex="-1">채팅 상담</h2>
         <p>고민에 맞는 상담사를 골라 질문하고 답변을 이어서 받아요.</p>
       </div>
-      <button type="button" class="directory-chat-start" data-home-consultation>연우와 채팅 상담하기</button>
+      <button type="button" class="directory-chat-start" data-home-consultation data-directory-chat-start onclick="handleHomeChatStart(this)">연우와 채팅 상담하기</button>
     </section>
 
     <section class="directory-section" aria-labelledby="directoryRelationshipsTitle">

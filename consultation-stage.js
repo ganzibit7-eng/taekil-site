@@ -539,7 +539,7 @@
   let requestedEntry = null;
   const core = window.TaekilConsultationDraft;
   document.addEventListener('click', event => {
-    if (event.target.closest('#homeStartChatBtn,.brand-story-start')) requestedEntry = { topic: '' };
+    if (event.target.closest('#homeStartChatBtn,.brand-story-start,[data-directory-chat-start]')) requestedEntry = { topic: '' };
   }, true);
   function startTopic(button, key, storyQuestion, report=false) {
     requestedEntry = { topic: key, storyQuestion, report };
