@@ -195,6 +195,20 @@ test('consultation cards come before utility cards, and the dates hub retains al
   for(const route of ['tool','wedding','moving','opening','contract'])assert.ok(hub.includes('href="#'+route+'"'),route);
 });
 
+test('report and chat sections identify the format directly on each home card', () => {
+  const html = readFileSync(path.join(__dirname,'index.html'),'utf8');
+  const start=html.indexOf('class="directory-section directory-report-mode"');
+  const chat=html.indexOf('class="directory-section directory-chat-mode"',start);
+  const examples=html.indexOf('class="directory-section directory-preview"',chat);
+  assert.ok(start>=0&&chat>start&&examples>chat);
+  const reports=html.slice(start,chat), chats=html.slice(chat,examples);
+  assert.equal([...reports.matchAll(/data-mode="report">(?:무료 )?리포트</g)].length,6);
+  assert.equal([...chats.matchAll(/data-mode="chat">채팅 상담</g)].length,18);
+  assert.equal([...chats.matchAll(/data-mode="tool">계산 도구</g)].length,2);
+  assert.doesNotMatch(reports,/data-mode="chat"/);
+  assert.doesNotMatch(chats,/data-mode="report"/);
+});
+
 test('every additional story connects its distinct advisor and choice questions to the existing flow', () => {
   const stories=require('./consultation-additional-stories.js');
   const personas=require('./consultation-personas.js');
