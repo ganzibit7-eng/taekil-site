@@ -72,13 +72,6 @@
       }
       return;
     }
-    for (const button of document.querySelectorAll('#homeDirectory [data-directory-jump]')) {
-      button.addEventListener('click', () => {
-        const heading = document.getElementById(button.dataset.directoryJump);
-        heading.focus({ preventScroll: true });
-        heading.scrollIntoView({ block: 'start', behavior: 'instant' });
-      });
-    }
     const exampleChoices = [...document.querySelectorAll('#homeDirectory [data-preview-choice]')];
     const examplePanels = [...document.querySelectorAll('#homeDirectory [data-preview-panel]')];
     for (const choice of exampleChoices) {
@@ -124,7 +117,7 @@
         dismissedThisPage = selected;
         store.setItem(dismissedKey, String(selected.updatedAt));
         refresh();
-        document.querySelector('.directory-section-rail button')?.focus({preventScroll:true});
+        document.getElementById('directoryTopicsTitle')?.focus({preventScroll:true});
       });
       window.addEventListener('taekilso:authChanged', refresh);
       window.addEventListener('taekilso:aiQuestionAccepted', () => queueMicrotask(refresh));

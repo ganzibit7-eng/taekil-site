@@ -94,47 +94,6 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   word-break: keep-all;
 }
 .directory-section { margin-top: clamp(32px, 5vw, 58px); }
-.directory-sections {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 12px;
-  border-bottom: 1px solid var(--directory-line);
-}
-.directory-section-rail {
-  display: flex;
-  flex: 1;
-  flex-wrap: wrap;
-  min-width: 0;
-  gap: 4px clamp(10px, 2vw, 25px);
-}
-.home-directory .directory-all-topics {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  min-height: 46px;
-  padding-inline: 12px 6px;
-  border-inline-start: 1px solid var(--directory-line);
-  color: #e3cda2;
-  font: 650 15px/1.4 var(--sans);
-  white-space: nowrap;
-  text-decoration: none;
-}
-.home-directory .directory-all-topics:hover { color: #f3e5ca; background: #c6aa7610; }
-.home-directory .directory-all-topics:focus-visible { outline: 2px solid #dfc69c; outline-offset: -2px; }
-.home-directory .directory-sections button {
-  min-height: 46px;
-  padding: 0 8px;
-  border: 0;
-  background: transparent;
-  color: var(--directory-muted);
-  font: 550 15px/1.4 var(--sans);
-}
-.home-directory .directory-sections .directory-mode-jump {
-  border-bottom:2px solid #c6aa76;
-  color:#f0d7b3;
-  font-weight:650;
-}
 .directory-section .directory-mode-heading h2 {margin-bottom:6px}
 .directory-mode-heading p {
   margin:0 0 17px;
@@ -189,7 +148,6 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 @media(max-width:520px) {
   .directory-chat-intro {align-items:stretch;flex-direction:column}
 }
-.directory-sections + .directory-section { margin-top: 26px; }
 .directory-section :is(h2, h3[tabindex]) {
   margin: 0 0 16px;
   color: #f0ebe1;
@@ -262,8 +220,15 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   font: 400 14px/1.6 var(--sans);
   word-break: keep-all;
 }
-.directory-preview {
-  border-block: 1px solid var(--directory-line);
+#homeDirectory { padding-bottom: clamp(22px, 4vw, 38px); }
+.directory-support-panel {
+  margin-top: clamp(32px, 5vw, 58px);
+  border: 1px solid var(--directory-line);
+  border-radius: 12px;
+  background: #211e20;
+}
+.directory-support-panel .directory-preview {
+  margin: 0;
   word-break: keep-all;
   overflow-wrap: break-word;
 }
@@ -273,7 +238,8 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   justify-content: space-between;
   gap: 12px;
   min-height: 58px;
-  padding: 8px 10px 8px 0;
+  padding: 10px clamp(14px, 3vw, 24px);
+  border-radius: 11px 11px 0 0;
   list-style: none;
   cursor: pointer;
 }
@@ -288,13 +254,13 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   transform: rotate(45deg);
 }
 .directory-preview-fold[open] > summary::after { transform: rotate(225deg); }
-.directory-preview-fold > summary:focus-visible { outline: 2px solid #dfc69c; outline-offset: 3px; }
-.directory-preview-fold > summary h2 { margin: 0; font-size: clamp(22px, 2.4vw, 28px); }
+.directory-preview-fold > summary:focus-visible { outline: 2px solid #dfc69c; outline-offset: -3px; }
+.directory-preview-fold > summary h2 { margin: 0; font-size: clamp(19px, 2.1vw, 24px); }
 .directory-preview-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.8fr);
   gap: 24px clamp(24px, 6vw, 80px);
-  padding-block: 10px clamp(20px, 4vw, 32px);
+  padding: 8px clamp(14px, 3vw, 24px) clamp(18px, 3vw, 28px);
 }
 .directory-preview-intro p {
   max-width: 26ch;
@@ -588,19 +554,26 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 .directory-utility {
   display: flex;
   flex-wrap: wrap;
-  column-gap: clamp(16px, 4vw, 32px);
+  column-gap: clamp(12px, 4vw, 28px);
   align-items: center;
-  margin-top: 28px;
-  padding-block: 6px;
+  padding-inline: clamp(14px, 3vw, 24px);
   border-top: 1px solid var(--directory-line);
-  border-bottom: 1px solid var(--directory-line);
 }
 .home-directory .directory-utility a {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
   color: var(--directory-muted);
-  font: 500 15px/1.5 var(--sans);
+  font: 500 14px/1.5 var(--sans);
+}
+.home-directory .directory-utility a:hover,
+.home-directory .directory-utility a:focus-visible {
+  color: #f0ebe1;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+@media (hover: hover) {
+  .directory-preview-fold > summary:hover { background: #ffffff08; }
 }
 
 #view-faq .faq-page {
@@ -689,7 +662,6 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 @media (hover: hover) {
   .home-directory .directory-feature:hover { border-color: #c6aa76; }
   .home-directory .directory-tools > *:hover { background: #ffffff07; }
-  .home-directory :is(.directory-sections button, .directory-utility a):hover { color: #f0ebe1; }
 }
 .home-directory :is(.directory-character, .directory-card):active {
   border-color: #e0c695;
@@ -772,9 +744,6 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   }
   .directory-hero-copy { width: 100%; padding: 20px; box-sizing: border-box; }
   .directory-hero h1 { font-size: clamp(28px, 7.4vw, 38px); }
-  .directory-section-rail { gap: 2px; }
-  .home-directory .directory-sections button { padding-inline: 5px; font-size: 14px; }
-  .directory-sections + .directory-section { margin-top: 20px; }
   .directory-character-copy strong { font-size: 23px; }
   .directory-preview-body { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .directory-preview-intro p { max-width: none; }
@@ -853,10 +822,6 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 .consultation-example-question { color: #e5dccb; font-weight: 600; }
 @media(max-width:660px) {
   .directory-hero[data-home-opening] { min-height: clamp(286px, 84vw, 356px); }
-  .directory-sections { gap: 6px; }
-  .directory-section-rail { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: thin; scrollbar-color: #5a5845 transparent; }
-  .home-directory .directory-all-topics { padding-inline: 10px 5px; }
-  .home-directory .directory-sections button { flex: 0 0 auto; padding-inline: 8px; }
 }
 
 

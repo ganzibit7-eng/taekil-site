@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="/home-layout.js?v=directory-compact-1"></script>
-<link rel="stylesheet" href="/home-layout.css?v=report-chat-labels-2">
+<script src="/home-layout.js?v=drawer-navigation-1"></script>
+<link rel="stylesheet" href="/home-layout.css?v=drawer-navigation-1">
 <title>택일소 | AI 사주 상담 · 오늘의 운세 · 결혼·이사·개업 택일</title>
 <meta name="description" content="AI 사주 상담가 연우에게 오늘의 운세, 연애운, 재물운, 궁합을 묻고 결혼·이사·개업·계약 날짜까지 비교해보세요. 첫 질문 3개 무료.">
 <meta name="keywords" content="사주, 사주풀이, 무료사주, 사주궁합, 오늘의운세, 신년운세, 택일, 결혼택일, 이사택일, 개업택일, 손없는날, 만세력">
@@ -328,7 +328,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <link rel="stylesheet" href="consultation-quality.css?v=entry-1120">
 <script src="support-channels.js?v=20261111-refund"></script>
 <script src="consultation-quality.js?v=20261117-saved-evidence"></script>
-<link rel="stylesheet" href="site-menu.css?v=profile-library-1"><script src="site-menu.js?v=20261119-topic-index"></script>
+<link rel="stylesheet" href="site-menu.css?v=drawer-navigation-1"><script src="site-menu.js?v=drawer-navigation-1"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=ink-1120">
 <script src="account-session.js?v=nov20-entry"></script>
 <script src="campaign-attribution-core.js?v=20261119-campaign-visits"></script><script src="campaign-attribution.js?v=20261119-daily"></script>

@@ -36,27 +36,17 @@ test('the explicit ad URL, legacy Naver ad links and guide links open the origin
   }
 });
 
-test('directory shortcuts focus and scroll to their headings without changing the home URL', () => {
-  const location = new URL('https://taekilso.com/?utm_source=search');
-  const headingId = 'directoryRelationshipsTitle';
-  const calls = [];
-  const heading = {
-    focus(options) { calls.push(['focus', options.preventScroll]); },
-    scrollIntoView(options) { calls.push(['scroll', options.block, options.behavior]); }
-  };
-  const button = {
-    dataset: { directoryJump: headingId },
-    addEventListener(type, handle) { assert.equal(type, 'click'); handle(); }
-  };
-  const document = {
-    documentElement: { dataset: {} },
-    addEventListener(type, handle) { assert.equal(type, 'DOMContentLoaded'); handle(); },
-    querySelectorAll(selector) { return selector.includes('[data-directory-jump]') ? [button] : []; },
-    getElementById(id) { return id === headingId ? heading : null; }
-  };
-  runInNewContext(entry, { URLSearchParams, location, document });
-  assert.deepEqual(calls, [['focus', true], ['scroll', 'start', 'instant']]);
-  assert.equal(location.href, 'https://taekilso.com/?utm_source=search');
+test('the drawer contains the former home shortcuts and the horizontal bar is absent', () => {
+  const html=readFileSync(path.join(__dirname,'index.html'),'utf8');
+  const drawer=readFileSync(path.join(__dirname,'site-menu.js'),'utf8');
+  assert.doesNotMatch(html,/class="directory-sections"|data-directory-jump=/);
+  const destinations=[...drawer.matchAll(/href="\/#(directory\w+Title)" data-menu-home-section/g)].map(([,id])=>id);
+  assert.deepEqual(destinations,['directoryTopicsTitle','directoryChatTitle','directoryRelationshipsTitle',
+    'directoryCareerTitle','directoryStudyTitle','directoryLifeTitle','directoryDatesTitle']);
+  for(const id of destinations)assert.ok(html.includes('id="'+id+'" tabindex="-1"'));
+  assert.match(drawer,/data-menu-basic-report>무료 사주 리포트/);
+  assert.match(drawer,/data-menu-route="newyear">2027년 신년운세/);
+  assert.match(drawer,/data-menu-route="topics">전체 주제/);
 });
 
 test('the FAQ has a dedicated home link and the ad landing still opens the shared answers inline', () => {
@@ -90,7 +80,7 @@ test('the directory links straight to the annual report while the Yeonwoo landin
   const directoryStart = html.indexOf('id="homeDirectory"');
   const adStart = html.indexOf('<div class="block home-first-block"', directoryStart);
   const directory = html.slice(directoryStart, adStart);
-  const hero = directory.slice(0, directory.indexOf('<nav'));
+  const hero = directory.slice(0, directory.indexOf('</section>'));
   assert.match(hero, /id="directoryHeroTitle"/);
   assert.doesNotMatch(hero, /연우의 AI 사주 상담|연애와 일, 돈과 관계|연우와 상담 시작하기|처음 가입하면 질문 3개 무료/);
   const season = directory.match(/<section class="directory-section" aria-labelledby="directoryNewyearTitle">([\s\S]+?)<\/section>/)?.[1];
