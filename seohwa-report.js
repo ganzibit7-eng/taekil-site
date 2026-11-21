@@ -300,7 +300,8 @@
     pauseWritingFilm();
     data.previewPending=false;
     drawPreview(data);
-    body.querySelector('.sr-cover h2').focus({preventScroll:true});
+    if(data.focusCheckout)focusCheckoutAfterLogin();
+    else body.querySelector('.sr-cover h2').focus({preventScroll:true});
   }
   function preparePreview(data){
     clearGenerationTimers();
@@ -308,7 +309,8 @@
     displayTitle(data.reading);
     const panel=el('section',null,'sr-generation sr-preview-generation');
     const copy=el('div',null,'sr-generation-copy');
-    const title=el('h2','무료 미리보기를 준비하고 있어요');
+    const title=el('h2','무료 첫 장을 준비하고 있어요');
+    title.tabIndex=-1;
     const bar=el('progress');
     bar.max=previewWaitMs;
     bar.value=0;
@@ -318,6 +320,7 @@
       el('p','약 10초 · 내 사주표와 첫 풀이','sr-generation-next'));
     panel.append(prepareWritingVisual(data.reading),copy);
     show([panel]);
+    title.focus({preventScroll:true});
     writingFilm.hidden=false;
     const start=performance.now();
     progressTimer=setInterval(()=>{
@@ -823,7 +826,7 @@
   }
   function focusCheckoutAfterLogin() {
     if(!dialog.open||!active?.owner.owner||!accountStore.current(active.owner))return;
-    if(active.previewPending)finishPreview(active);
+    if(active.previewPending){active.focusCheckout=true;return;}
     const status=body.querySelector('.sr-gate .sr-status');
     const pay=body.querySelector('.sr-gate button[data-checkout-action]');
     if(!status||!pay?.getClientRects().length)return;

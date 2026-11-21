@@ -135,7 +135,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   color:#f0d7b3;
   font-weight:650;
 }
-.directory-mode-heading h2 {margin-bottom:6px}
+.directory-section .directory-mode-heading h2 {margin-bottom:6px}
 .directory-mode-heading p {
   margin:0 0 17px;
   color:var(--directory-muted);
@@ -164,19 +164,40 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   word-break:keep-all;
 }
 .home-directory .directory-chat-start:hover {background:#55455e}
+.directory-report-mode + .directory-chat-mode {
+  margin-top:clamp(36px,6vw,72px);
+  padding-top:clamp(22px,4vw,38px);
+  border-top:1px solid var(--directory-line);
+}
 .directory-chat-intro + .directory-section {margin-top:clamp(22px,3vw,34px)}
+.directory-card-mode {
+  position:absolute;
+  inset:10px auto auto 10px;
+  z-index:1;
+  width:max-content;
+  max-width:calc(100% - 20px);
+  padding:4px 9px;
+  border:1px solid #d9c19c;
+  border-radius:6px;
+  background:#f0d8b0;
+  color:#30201a;
+  font:700 12px/1.55 var(--sans);
+  white-space:nowrap;
+}
+.directory-card-mode[data-mode="chat"] {background:#473550;color:#f5e9fa;border-color:#bfa3cd}
+.directory-card-mode[data-mode="tool"] {background:#353743;color:#f1edf7;border-color:#aeb0bc}
 @media(max-width:520px) {
   .directory-chat-intro {align-items:stretch;flex-direction:column}
 }
 .directory-sections + .directory-section { margin-top: 26px; }
-.directory-section h2 {
+.directory-section :is(h2, h3[tabindex]) {
   margin: 0 0 16px;
   color: #f0ebe1;
   font: 600 clamp(23px, 3vw, 31px)/1.45 var(--serif);
   letter-spacing: -.045em;
   word-break: keep-all;
 }
-.directory-section h2[tabindex] { scroll-margin-top: 94px; }
+.directory-section :is(h2,h3)[tabindex] { scroll-margin-top: 94px; }
 .directory-characters,
 .directory-cards {
   display: grid;
@@ -464,6 +485,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   font: 550 14px/1.5 var(--sans);
 }
 .home-directory .directory-card {
+  position: relative;
   display: grid;
   grid-template-rows: auto 1fr;
   min-width: 0;
