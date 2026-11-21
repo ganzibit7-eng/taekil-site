@@ -497,6 +497,12 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 .sr-wealth-timeline .sr-wealth-timing {position:relative;background:none;margin:0 0 16px;padding:0 0 14px 8px;border:0;border-bottom:1px solid var(--wealth-rule);border-radius:0}
 .sr-wealth-timeline .sr-wealth-timing::before {content:"";position:absolute;inset-inline-start:-19px;top:9px;width:9px;height:9px;border-radius:50%;background:var(--wealth-gold)}
 .sr-wealth-timeline .sr-period-rank {margin:0;color:var(--wealth-gold);font-size:13px;font-weight:700}
+.sr-topic-reading {display:grid;gap:8px}
+.sr-topic-reading :is(p,dl,dd) {margin:0}
+.sr-topic-reading-lead {color:var(--wealth-gold);font-weight:700}
+.sr-topic-reading dl {display:grid;gap:10px;margin-block:8px}
+.sr-topic-reading dl>div {padding-block-start:10px;border-block-start:1px solid rgb(193 165 121 / .23)}
+.sr-topic-reading dt {color:var(--wealth-gold);font-size:.9em;font-weight:700;margin-block-end:4px}
 .sr-wealth-timeline .sr-wealth-timing h5 {margin:3px 0;color:var(--wealth-ink);font-size:clamp(17px,2.6vw,22px)}
 .seohwa-report-dialog[data-advisor] .sr-wealth-outlook {background:none;border:0;border-top:1px solid var(--wealth-rule);padding:0;margin-top:25px}
 .sr-year-picker {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:14px 0}
