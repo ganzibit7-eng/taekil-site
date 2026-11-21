@@ -110,9 +110,9 @@
 .sr-gate .report-offer-price {margin-bottom:14px}
 
 #view-newyear.has-report {
-  --annual-paper: #f4ede3;
-  --annual-ink: #382b2c;
-  --annual-wine: #784758;
+  --report-accent: #694056;
+  --report-accent-wash: #f0e4eb;
+  --report-accent-line: #c5a8b7;
   --annual-gold: #dfc6a1;
   --annual-line: #63504d;
   background: #211b20;
@@ -159,49 +159,51 @@
 }
 #view-newyear.has-report .newyear-report-contents .annual-report-resume {border-color:#a58866;background:#423036}
 #view-newyear.has-report .newyear-content :is(button,summary,h1,h2):focus-visible {outline:2px solid #bd8250;outline-offset:3px}
-#view-newyear.has-report .newyear-report-section {padding-block:30px}
-#view-newyear.has-report .newyear-report-section :is(h2,h3),#view-newyear.has-report :is(.newyear-areas,.newyear-months)>h2 {
-  color:#f8ebdc;font:600 clamp(23px,4vw,30px)/1.4 var(--serif);
+#view-newyear.has-report .newyear-content > .report-sheet {margin-bottom:20px}
+#view-newyear.has-report .report-sheet.newyear-report-section,
+#view-newyear.has-report .report-sheet.newyear-months {padding:clamp(23px,4.5vw,42px);border-color:var(--report-rule)}
+#view-newyear.has-report .newyear-content :is(.newyear-report-section,.newyear-months) :is(h2,h3) {
+  color:var(--report-title);font:600 clamp(23px,4vw,30px)/1.4 var(--serif);
 }
-#view-newyear.has-report .newyear-content :is(.annual-report-overview,.annual-report-area,.annual-report-closing) {
-  padding:clamp(20px,5vw,38px);
-  border:1px solid #dfcab8;
-  border-radius:14px;
-  background:var(--annual-paper);
-  color:var(--annual-ink);
+#view-newyear.has-report .report-sheet p:not(.report-folio) {color:var(--report-ink)}
+#view-newyear.has-report .annual-report-overview > h2 + p {
+  padding:13px 15px;border-inline-start:3px solid var(--report-panel-border);
+  background:var(--report-panel);color:var(--report-title);font-weight:650;
 }
-#view-newyear.has-report :is(.annual-report-overview,.annual-report-area,.annual-report-closing) :is(h2,h3) {color:var(--annual-wine)}
-#view-newyear.has-report :is(.annual-report-overview,.annual-report-area,.annual-report-closing) p {color:var(--annual-ink)}
-.annual-report-overview > h2 + p {font-weight:650}
 .newyear-report-section > p:last-child {margin-bottom:0}
+.newyear-areas {margin-bottom:24px}
 .annual-report-area-grid {
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
   gap:14px;
   margin-top:18px;
 }
-#view-newyear.has-report .annual-report-area {padding:clamp(18px,3vw,26px)}
-#view-newyear.has-report .annual-report-area h3 {font-size:22px;margin:0 0 16px}
-#view-newyear.has-report .annual-report-area .newyear-action {color:#673d4b!important;border-color:#ac788a}
-.annual-report-area .newyear-calculation-note>summary {color:#754455}
-#view-newyear.has-report :is(.annual-report-overview,.annual-report-closing) .reading-report-ask {
-  color:#643647;border-color:#ae8793;
+#view-newyear.has-report .report-sheet.annual-report-area {padding:clamp(21px,3.3vw,29px)}
+#view-newyear.has-report .newyear-content .annual-report-area h3 {font-size:22px;margin:0 0 16px}
+#view-newyear.has-report .report-sheet .newyear-action {color:var(--report-title)!important;border-color:var(--report-panel-border)}
+#view-newyear.has-report .report-sheet :is(.newyear-calculation-note>summary,.reading-report-ask) {
+  color:var(--report-title);border-color:var(--report-panel-border);
+}
+#view-newyear.has-report .report-sheet .newyear-calculation-note[open] {
+  padding-inline-start:12px;border-inline-start:1px solid var(--report-fine-rule);
 }
 .annual-report-month-body {padding:0 16px 12px}
-#view-newyear.has-report .newyear-month-index .btn {background:#30242e;color:#f3ddba}
-#view-newyear.has-report .newyear-month-index .btn[aria-expanded=true] {background:#dbc19a;color:#362733;border-color:#dbc19a}
+#view-newyear.has-report .newyear-month-index .btn {
+  background:#f9efe3;color:var(--report-title);border-color:var(--report-fine-rule);
+}
+#view-newyear.has-report .newyear-month-index .btn:hover {background:var(--report-panel)}
+#view-newyear.has-report .newyear-month-index .btn[aria-expanded=true] {background:var(--report-title);color:#fff7ee;border-color:var(--report-title)}
 #view-newyear.has-report .newyear-months > details {
-  border:1px solid var(--annual-line);margin-block:8px;border-radius:10px;background:#2b222a;
+  border:1px solid var(--report-fine-rule);margin-block:8px;border-radius:8px;background:#f9efe3;
 }
 #view-newyear.has-report .newyear-months > details > summary {padding:14px 40px 14px 16px}
-#view-newyear.has-report .newyear-months > details > summary::after {right:16px}
-#view-newyear.has-report .newyear-months summary span {color:var(--annual-gold)}
+#view-newyear.has-report .newyear-months > details > summary::after {right:16px;color:var(--report-title)}
+#view-newyear.has-report .newyear-months summary span {color:var(--report-title);font-weight:650}
 #view-newyear.has-report .newyear-focus-list {padding-left:0;list-style:none;grid-template-columns:repeat(2,minmax(0,1fr))}
 #view-newyear.has-report .newyear-focus-list li {
-  padding:16px;border:1px solid var(--annual-line);border-radius:9px;background:#2b222a;
+  padding:16px;border:1px solid var(--report-fine-rule);border-radius:8px;background:#f9efe3;
 }
-#view-newyear.has-report .newyear-focus-list li strong {color:var(--annual-gold)}
-#view-newyear.has-report .annual-report-closing {margin-top:24px}
+#view-newyear.has-report .newyear-focus-list li :is(strong,small) {color:var(--report-title)}
 @media(max-width:600px) {
   #view-newyear.has-report {padding:18px 14px 90px}
   .annual-report-cover {min-height:245px}

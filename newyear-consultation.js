@@ -206,7 +206,7 @@
     appendReading(note,text);
     target.append(note);
   }
-  function section(title,text){const s=el('section',null,'newyear-report-section');s.append(el('h2',title));appendReading(s,text);return s;}
+  function section(title,text){const s=el('section',null,'newyear-report-section report-sheet');s.append(el('h2',title));appendReading(s,text);return s;}
   function readingGuide(data){
     const {chart,chapter,comparison,explainer,readGanZhi}=window.TaekilReportGuide;
     const guide=el('div',null,'report-pillar-guide annual-report-guide');
@@ -278,14 +278,14 @@
     const areaGrid=el('div',null,'annual-report-area-grid');
     areas.append(el('h2','분야별 풀이'),areaGrid);
     r.areas.forEach((a,index)=>{
-      const card=el('section',null,'newyear-report-section annual-report-area');
+      const card=el('section',null,'newyear-report-section annual-report-area report-sheet');
       card.append(el('h3',a.title));
       appendReading(card,a.reading);
       card.append(el('p',a.action,'newyear-action'));
       appendCalculationNote(card,r.calculationNotes?.areas?.[index]);
       areaGrid.append(card);
     });
-    const months=el('section',null,'newyear-months');months.append(el('h2','열두 달, 나의 흐름'));
+    const months=el('section',null,'newyear-months report-sheet');months.append(el('h2','열두 달, 나의 흐름'));
     const contents=el('nav',null,'newyear-report-contents');
     contents.setAttribute('aria-label','신년 리포트 목차');
     const introJump=el('button','사주표 읽는 법');
@@ -296,7 +296,6 @@
     const opportunities=section('기회를 살리는 방법',r.opportunities);
     const cautions=section('조금 더 신중할 때',r.cautions);
     const closing=section('연우가 전하는 말',r.closing);
-    closing.classList.add('annual-report-closing');
     const sections=[overview,foundation,areas,months,...(guide?[guide.focus,guide.decade]:[]),opportunities,cautions,closing];
     const links=[['내 풀이 바로 보기',overview],['분야별 풀이',areas],['월별 풀이',months]];
     if(guide)links.push(['주요 시기',guide.focus],['10년 흐름',guide.decade]);

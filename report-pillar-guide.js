@@ -20,10 +20,10 @@
     return el('p',text,'report-guide-explainer');
   }
   function chapter(number,title,intro,heading='h2'){
-    const page=el('section',null,'report-guide-chapter');
+    const page=el('section',null,'report-guide-chapter report-sheet');
     const label=el(heading,title);
     label.tabIndex=-1;
-    page.append(el('p','읽기 안내 · '+number+'장','report-guide-chapter-number'),label,el('p',intro));
+    page.append(el('p','읽기 안내 · '+number+'장','report-folio'),label,el('p',intro));
     return page;
   }
   function chart({pillars={},hourKnown,title='내 만세력부터 읽어봐요',heading}){

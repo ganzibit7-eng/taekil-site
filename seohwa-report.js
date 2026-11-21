@@ -113,11 +113,11 @@
   },{passive:true});
 
   function paper(chapter,index,followup,reading) {
-    const page=el('article',null,'sr-paper');
+    const page=el('article',null,'sr-paper report-sheet');
     page.id='seohwa-report-chapter-'+index;
     const h=el('h3',chapter.title);
     h.tabIndex=-1;
-    page.append(el('p',index===0?'첫 장':'제 '+(index+1)+'장','sr-page-label'),h,el('p',chapter.highlight,'sr-highlight'));
+    page.append(el('p','제'+(index+1)+'장','sr-page-label report-folio'),h,el('p',chapter.highlight,'sr-highlight'));
     if(chapter.sections)for(const section of chapter.sections){
       page.append(el('h4',section.title));
       for(const text of section.text.split('\n'))page.append(el(section.quote?'blockquote':'p',text));
