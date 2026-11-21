@@ -688,5 +688,5 @@ body.admin-exclusive-mode .admin-fold.open .admin-fold-body{
     .checkout-pause-note { color: var(--muted); font-size: 1rem; line-height: 1.6; }
     .checkout-pause-note strong { color: var(--gold-hi); }
   </style>
-<link rel="stylesheet" href="/business-info.css?v=footer-layout-1">
+<link rel="stylesheet" href="/business-info.css?v=footer-flow-2">
 </head>
