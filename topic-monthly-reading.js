@@ -256,10 +256,8 @@
     const layer=link.slot.startsWith('대운')?'대운':'올해의 운';
     const kind=link.kinds.find(k=>changes.has(k))||link.kinds[0];
     const sameDirection=primary?.kinds.includes(kind);
-    const reason=pattern==='recurringSetting'?'올해의 운에도 원국과 같은 글자가 있어, 주변에서 느끼는 기대 차이를 이번 달의 일로만 읽기 어려워요.':
-      sameDirection?`${layer}도 월운에 같은 방향으로 작용해서, 이 주제가 한 달의 일로만 끝나지 않을 수 있어요.`:
-      changes.has(kind)?`${layer}에서 기존 조건을 다시 살필 단서가 함께 들어와요.`:
-      `${layer}에서 월운과 조건이 맞닿는 단서도 들어와요.`;
+    const reason=pattern==='recurringSetting'?'세운에도 원국과 같은 글자가 있어, 주변의 기대를 올해의 흐름과 함께 봐요.':
+      sameDirection?`${layer}에서도 같은 작용이 나타나요.`:'';
     return {reason,facts:link.facts};
   }
 
@@ -368,16 +366,16 @@
     if(other===undefined)return '';
     const previous=cards[other];
     const month=rows[other].month+'월';
-    const peerFocus=`${month}에는 ${previous.focus} 살펴요.`;
+    const peerFocus=`${month}엔 ${previous.focus} 봐요.`;
     if(topic!=='mujin'&&card.slot==='일지'&&previous.slot!=='일지'){
-      return peerFocus+` 이번 달은 가까운 관계를 읽는 일지에 월운이 직접 닿아서, ${card.focus}가 더 중요해요.`;
+      return peerFocus+` 이달은 일지에 월운이 닿아 ${card.focus} 살펴요.`;
     }
     if(topic==='mujin'&&card.slot==='월지'&&previous.slot!=='월지'){
-      return peerFocus+` 이번 달은 일하는 여건을 보는 월지에 월운이 닿아, ${card.focus}에 무게가 실려요.`;
+      return peerFocus+` 이달은 월지에 월운이 닿아 ${card.focus} 살펴요.`;
     }
-    if(card.type==='opening')return peerFocus+` 이달은 ${card.focus}에 더 무게가 실려요.`;
-    if(card.type==='mixed')return peerFocus+` 이달에는 ${card.focus}가 기회를 이어 가는 기준이에요.`;
-    return peerFocus+` 이달에는 ${card.focus} 먼저 읽어요.`;
+    if(card.type==='opening')return peerFocus+` 이달엔 ${card.focus}가 두드러져요.`;
+    if(card.type==='mixed')return peerFocus+` 이달엔 ${card.focus}까지 봐요.`;
+    return peerFocus+` 이달엔 ${card.focus} 살펴요.`;
   }
 
   function periodLabels(row){
