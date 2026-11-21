@@ -371,3 +371,5 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 @media (min-width: 550px) {
   .sr-wealth-month-select { display: none; }
 }
+
+.sr-wealth-buy-jump{position:sticky;top:.5rem;z-index:2;display:block;margin:0 0 .75rem auto;padding:.6rem 1rem;border:1px solid #b89a62;border-radius:2rem;background:#332a26;color:#fff0d0;font:inherit}.sr-summary{padding:1rem 1.25rem;border-inline-start:3px solid #b89a62;background:#eee4d1;color:#392e24}.sr-summary p{margin:.45rem 0}

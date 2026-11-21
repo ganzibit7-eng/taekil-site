@@ -286,7 +286,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="consultation-additional-stories.js?v=20261118-questions"></script>
 <!-- story-reading-templates -->
 <script src="seohwa-reading-core.js?v=4"></script>
-<script src="featured-report-core.js?v=2"></script>
+<script src="featured-report-core.js?v=wealth4"></script>
 <script src="consultation-stories.js?v=featured-report-1"></script>
 <dialog id="seohwaReportDialog" class="seohwa-report-dialog" aria-label="서화의 연애 리포트">
   <div class="sr-toolbar">
@@ -342,7 +342,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="date-entry.js?v=nov20-resume"></script>
 <link rel="stylesheet" href="relationship-report.css?v=surfaces-1120">
 <script src="relationship-report.js?v=nov20-resume"></script>
-<link rel="stylesheet" href="seohwa-report.css?v=wealth-calendar-1">
-<script src="seohwa-report.js?v=wealth-calendar-1"></script>
+<link rel="stylesheet" href="seohwa-report.css?v=wealth4">
+<script src="seohwa-report.js?v=wealth4"></script>
 </body>
 </html>
