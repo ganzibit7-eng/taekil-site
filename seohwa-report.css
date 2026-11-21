@@ -235,3 +235,139 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
   .sr-generation-next {margin-top:17px}
   .sr-primary {width:100%}
 }
+
+.sr-wealth-ranking,
+.sr-wealth-outlook {
+  margin-top: 24px;
+  padding: clamp(14px, 3vw, 24px);
+  border: 1px solid #d9c4b6;
+  border-radius: 10px;
+  background: #fffbf6;
+}
+.sr-wealth-ranking h5,
+.sr-wealth-leader h6,
+.sr-wealth-month-detail h6,
+.sr-wealth-year h6 {
+  margin: 0;
+  color: #50372f;
+  font-weight: 700;
+  font-size: 16px;
+}
+.sr-wealth-chart {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 2px;
+  margin-block: 12px;
+}
+.sr-wealth-chart .sr-wealth-bar {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 4px 0;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: #594340;
+  font: 600 clamp(10px, 2.6vw, 13px)/1.2 var(--sans);
+  cursor: pointer;
+}
+.sr-wealth-track {
+  display: flex;
+  height: clamp(74px, 16vw, 116px);
+  align-items: end;
+  justify-content: center;
+  border-bottom: 1px solid #cab8af;
+}
+.sr-wealth-fill {
+  display: block;
+  width: 78%;
+  border-radius: 4px 4px 0 0;
+  background: #9b8e9e;
+}
+.sr-wealth-bar[data-signal="opportunity"] .sr-wealth-fill { background: #507b76; }
+.sr-wealth-bar[data-signal="expense"] .sr-wealth-fill { background: #ad675f; }
+.sr-wealth-bar[data-signal="both"] .sr-wealth-fill { background: #947242; }
+.sr-wealth-bar[aria-pressed="true"] { border-color: #a18578; background: #f4e9df; }
+.sr-wealth-chart .sr-wealth-bar:focus-visible,
+.sr-wealth-leader button:focus-visible,
+.sr-wealth-role select:focus-visible { outline: 2px solid #805139; outline-offset: 2px; }
+.sr-wealth-leaders {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.sr-wealth-leader {
+  min-width: 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: #ecefe9;
+}
+@media (max-width: 360px) { .sr-wealth-leaders { grid-template-columns: minmax(0, 1fr); } }
+.sr-wealth-leader[data-signal="expense"] { background: #f4e5e0; }
+.sr-wealth-leader ol { padding-left: 1.25em; margin: 6px 0 0; color: #4a3832; }
+.sr-wealth-leader button {
+  min-height: 36px;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: 650 14px/1.4 var(--sans);
+  cursor: pointer;
+  text-align: left;
+}
+.sr-wealth-leader li:first-child button { font-size: 17px; }
+.sr-wealth-leader button:hover { text-decoration: underline; text-underline-offset: 3px; }
+.sr-wealth-month-detail { padding: 12px 0; border-top: 1px solid #ddc9bd; }
+.sr-paper .sr-wealth-month-detail p { margin: 8px 0; }
+.sr-paper .sr-wealth-detail-score { color: #714734; font-weight: 650; }
+.sr-wealth-role {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  color: #50372f;
+  font-size: 14px;
+  font-weight: 650;
+}
+.sr-wealth-role select {
+  max-width: 100%;
+  min-height: 40px;
+  padding: 5px 8px;
+  border: 1px solid #cdb4a5;
+  border-radius: 6px;
+  background: #f8ece1;
+  color: #50372f;
+  font: inherit;
+  color-scheme: light;
+}
+.sr-paper .sr-wealth-role-action { margin-top: 8px; }
+.sr-wealth-horizons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr));
+  gap: 8px;
+}
+.sr-wealth-horizons div { padding: 10px; border-radius: 6px; background: #f1e4d9; }
+.sr-wealth-horizons dt { font-weight: 700; color: #714734; }
+.sr-wealth-horizons dd { margin: 2px 0 0; color: #50372f; }
+.sr-wealth-year { padding: 10px 0; border-top: 1px solid #ddc9bd; }
+
+.sr-wealth-share {
+  min-height: 40px;
+  padding: 4px 0;
+  margin-top: 8px;
+  border: 0;
+  background: transparent;
+  color: #7b4936;
+  font: 650 14px/1.5 var(--sans);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.sr-wealth-share-status { display: inline-block; margin-left: 8px; color: #594340; font-size: 13px; }
+
+.sr-wealth-month-select { margin: 12px 0; }
+@media (min-width: 550px) {
+  .sr-wealth-month-select { display: none; }
+}

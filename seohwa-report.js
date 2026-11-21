@@ -253,6 +253,7 @@
     paymentNote.append(el('strong',won.format(reading.PRICE)+'원'),el('span','1회 결제 · 자동 갱신 없음'));
     const benefits=el('ul',null,'sr-benefits');
     for(const [title,description] of [
+      ...(reading.id==='dogyeom'?[['월별 재물운과 10년 흐름','기회와 지출 점검 상위 달, 상황별로 먼저 할 일까지 읽을 수 있어요.']]:[]),
       ['개인 사주 풀이 6장','무료 첫 장과 함께 사주표 읽기 안내 2장까지 내 기록에서 다시 읽을 수 있어요.'],
       [withName(reading)+' 채팅 상담 3회','리포트 구매 후, 마음에 남은 대목에서 바로 이어서 물어볼 수 있어요.']
     ]){
@@ -414,6 +415,131 @@
     return article;
   }
 
+  function wealthRanking(calendar){
+    const section=el('section',null,'sr-wealth-ranking');
+    const byMonth=new Map(calendar.rows.map(row=>[row.month,row]));
+    const {opportunity,expense}=calendar.ranking;
+    const opportunities=new Set(opportunity),expenses=new Set(expense);
+    const highlight=opportunity[0]||1;
+    const title=el('h5',calendar.year+'년 월별 재물운 흐름');
+    const method=el('details',null,'sr-evidence');
+    method.append(el('summary','월별 점수를 읽는 법'),
+      el('p','기회 점수는 사주에 나타난 수입·보상과 돈을 남기는 흐름을 더하고, 지출 점검 신호를 덜어 계산해요. 지출 점검 점수는 따로 매겨요. 두 점수 모두 이 사람의 열두 달을 비교하는 명리 해석 지표예요. 실제로 돈이 들어올 확률이나 투자 수익률과는 달라요.'),
+      el('p','같은 점수는 같은 순위로 표시하고, 상위 세 달을 뽑을 때 점수가 같으면 앞선 달부터 보여드려요.'));
+    const chart=el('div',null,'sr-wealth-chart');
+    chart.setAttribute('role','group');
+    chart.setAttribute('aria-label','월별 재물 기회 점수');
+    const buttons=calendar.rows.map(row=>{
+      const bar=el('button',null,'sr-wealth-bar');
+      bar.type='button';
+      bar.dataset.month=row.month;
+      bar.dataset.signal=opportunities.has(row.month)&&expenses.has(row.month)?'both':
+        opportunities.has(row.month)?'opportunity':expenses.has(row.month)?'expense':'normal';
+      bar.setAttribute('aria-label',row.month+'월, 기회 '+row.score+'점'+(expenses.has(row.month)?', 지출 점검':''));
+      bar.setAttribute('aria-controls','wealthMonthDetail');
+      const track=el('span',null,'sr-wealth-track'), fill=el('span',null,'sr-wealth-fill');
+      fill.style.height=row.score+'%';
+      track.setAttribute('aria-hidden','true');
+      bar.append(track,el('span',String(row.month)));
+      track.append(fill);
+      chart.append(bar);
+      bar.addEventListener('click',()=>selectMonth(row.month));
+      return bar;
+    });
+    const leaders=el('div',null,'sr-wealth-leaders');
+    for(const [label,months,scores] of [['재물 기회',opportunity,'score'],['지출 점검',expense,'expenseScore']]){
+      if(!months.length)continue;
+      const card=el('section',null,'sr-wealth-leader');
+      card.dataset.signal=scores==='score'?'opportunity':'expense';
+      const list=el('ol');
+      for(const month of months){
+        const row=byMonth.get(month), entry=el('li');
+        const button=el('button',row.month+'월 · '+row[scores]+'점');
+        button.type='button';
+        button.addEventListener('click',()=>selectMonth(month));
+        entry.append(button);
+        list.append(entry);
+      }
+      card.append(el('h6',label+' TOP '+months.length),list);
+      leaders.append(card);
+    }
+    const monthLabel=el('label','월 선택','sr-wealth-role sr-wealth-month-select');
+    const monthSelect=el('select');
+    for(const row of calendar.rows){
+      const option=el('option',row.month+'월');
+      option.value=row.month;
+      monthSelect.append(option);
+    }
+    monthLabel.append(monthSelect);
+    monthSelect.addEventListener('change',()=>selectMonth(Number(monthSelect.value)));
+    const detail=el('div',null,'sr-wealth-month-detail');
+    detail.id='wealthMonthDetail';
+    detail.setAttribute('aria-live','polite');
+    const roleLabel=el('label','상황에 맞춰 보기','sr-wealth-role');
+    const role=el('select');
+    for(const [value,label] of [['employee','직장·월급'],['business','사업·부업'],['investor','투자자금 관리']]){
+      const option=el('option',label);
+      option.value=value;
+      role.append(option);
+    }
+    roleLabel.append(role);
+    const action=el('p',null,'sr-wealth-role-action');
+    let selected;
+    function selectMonth(month){
+      selected=byMonth.get(month);
+      monthSelect.value=String(month);
+      buttons.forEach(bar=>bar.setAttribute('aria-pressed',String(Number(bar.dataset.month)===month)));
+      const basis=el('details',null,'sr-evidence');
+      basis.append(el('summary','이 달을 읽은 사주 근거'),
+        el('p',selected.ganZhi+' 월운 · '+selected.basis),
+        el('p',selected.from+'부터 '+selected.untilExclusive+' 직전까지 (한국시간)'));
+      detail.replaceChildren(el('h6',month+'월 재물운 · 기회 '+selected.rank+'위'),
+        el('p','기회 '+selected.score+'점 · 지출 점검 '+selected.expenseScore+'점','sr-wealth-detail-score'),
+        el('p',selected.description),el('p',selected.caution),basis);
+      action.textContent=selected.roles[role.value];
+    }
+    role.addEventListener('change',()=>{action.textContent=selected.roles[role.value];});
+    selectMonth(highlight);
+    const summary=byMonth.get(highlight);
+    const shareStatus=el('span',null,'sr-wealth-share-status');
+    shareStatus.setAttribute('role','status');
+    const share=button('한 줄 요약 복사','sr-wealth-share',async()=>{
+      const text='도겸이 읽은 '+calendar.year+'년 재물운 · '+summary.month+'월, '+summary.label;
+      try{
+        await navigator.clipboard.writeText(text);
+        shareStatus.textContent='요약을 복사했어요.';
+      }catch{
+        shareStatus.textContent='복사하지 못했어요. '+text;
+      }
+    });
+    section.append(title,el('p','막대를 누르면 그 달의 흐름과 먼저 해볼 일이 나와요.','sr-wealth-caption'),
+      chart,leaders,monthLabel,detail,roleLabel,action,method);
+    if(navigator.clipboard?.writeText)section.append(share,shareStatus);
+    return section;
+  }
+
+  function wealthOutlook(outlook){
+    const section=el('section',null,'sr-wealth-outlook');
+    const details=el('details',null,'sr-evidence');
+    details.append(el('summary','연도별 재물운 살펴보기'));
+    for(const year of outlook.years){
+      const item=el('section',null,'sr-wealth-year');
+      item.append(el('h6',year.year+'년 · '+year.label),el('p',year.talk),el('p',year.caution),
+        el('small',year.ganZhi+' 세운 · '+year.basis));
+      details.append(item);
+    }
+    const horizons=el('dl',null,'sr-wealth-horizons');
+    for(const row of outlook.horizons){
+      const pair=el('div');
+      pair.append(el('dt',row.size+'년 안에'),el('dd','기회 '+row.opportunity+'년 · 지출 점검 '+row.expense+'년'));
+      horizons.append(pair);
+    }
+    section.append(el('h4','앞으로 10년, 돈이 움직이는 시기'),
+      el('p','해마다 바뀌는 세운을 내 사주와 맞춰 본 흐름이에요. 같은 해에 기회와 지출 점검 신호가 함께 올 수도 있어요.'),
+      horizons,details);
+    return section;
+  }
+
   function calendarArticle(calendar) {
     const article=el('section',null,'sr-wealth-calendar');
     article.append(el('h4',calendar.year+'년 재물 달력'),el('p','달마다 가장 긴 절기 구간을 기준으로, 돈을 벌고 지키는 데 살펴볼 점을 정리했어요.'));
@@ -434,12 +560,13 @@
       article.append(el('h4','특히 눈여겨볼 시기'),focuses);
     }
     const months=el('details',null,'sr-evidence');
-    months.open=true;
-    months.append(el('summary','열두 달 장부'));
+    months.open=!calendar.ranking;
+    months.append(el('summary','열두 달 장부 한눈에 보기'));
     const list=el('dl',null,'sr-wealth-months');
     for(const row of calendar.rows){
       const group=el('div'), description=el('dd');
-      description.append(el('strong',row.label),el('p',row.action),el('small',row.ganZhi+' · '+row.term+(row.clash?' · 변화가 잦을 때 조건 재확인':'')));
+      const score=Number.isInteger(row.score)?' · 기회 '+row.score+'점 · 지출 점검 '+row.expenseScore+'점':'';
+      description.append(el('strong',row.label),el('p',row.action),el('small',row.ganZhi+' · '+row.term+score+(row.clash?' · 변화가 잦을 때 조건 재확인':'')));
       group.append(el('dt',row.month+'월'),description);
       list.append(group);
     }
@@ -457,8 +584,14 @@
     contents.append(balance,introGuide(reading,purchasedContext(reading,report),report.first));
     for(const [index,chapter] of [report.first,...report.body].entries()){
       const page=paper(chapter,index,result.questionsLeft>0?()=>followup(result,chapter,index-1,owner,reading):null,reading);
-      if(index===0&&report.calendar?.judgment)page.querySelector('.sr-highlight').after(wealthJudgment(report.calendar.judgment));
+      if(index===0&&report.calendar?.judgment){
+        const highlight=page.querySelector('.sr-highlight');
+        const judgment=wealthJudgment(report.calendar.judgment);
+        if(report.calendar.ranking)highlight.after(wealthRanking(report.calendar),judgment);
+        else highlight.after(judgment);
+      }
       if(index===2&&report.calendar)page.querySelector('.sr-evidence')?.before(calendarArticle(report.calendar));
+      if(index===5&&report.calendar?.outlook)page.querySelector('.sr-evidence')?.before(wealthOutlook(report.calendar.outlook));
       contents.append(page);
     }
     layout.append(toc(reading,report.first,false),contents);
