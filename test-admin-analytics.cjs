@@ -48,3 +48,7 @@ assert.equal(A.orderTime({pay_date:'20260231010000',createdAtMs:created}),create
 const delayed=A.aggregate({...data,orders:[{status:'paid',pay_state:4,amount:1900,product:'ai_question_pack_5',paidAtMs:approved,createdAt:created}]},'2026-11-18','2026-11-18');
 assert.equal(delayed.paid,1);assert.equal(delayed.revenue,1900);assert.equal(delayed.series[0].orders,1);
 console.log('PASS: server-approved payment time, delayed approvals and invalid calendar dates use the correct reporting day.');
+
+const example=A.aggregate({...data,funnel:[{date:'2026-11-10',card_wealth:5,preview_wealth:3,buy_wealth:2,read_wealth:4}],orders:[{status:'paid',product:'taekilso_dogyeom_story_report',amount:8900,paidAtMs:ms('2026-11-10T01:00:00Z')}]},'2026-11-10','2026-11-10');
+const wealth=example.productActivity.find(row=>row.name.includes('도겸'));
+assert.deepEqual([wealth.cards,wealth.previews,wealth.buy,wealth.orders,wealth.read],[5,3,2,1,4]);

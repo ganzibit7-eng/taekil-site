@@ -209,6 +209,7 @@
       return;
     }
     comparison={first,second};
+    window.TaekilCampaign?.activity('preview_relationship');
     field('relationshipPillars').textContent=`본인 ${ganjiFull(first)} · 상대방 ${ganjiFull(second)}`;
     review.hidden=false;
     field('relationshipReviewTitle').focus({preventScroll:true});
@@ -216,6 +217,7 @@
   });
 
   field('buyRelationshipReport').addEventListener('click',async () => {
+    window.TaekilCampaign?.activity('buy_relationship');
     const token=accountStore.snapshot();
     const selected=comparison;
     if (!selected || !view.classList.contains('visible') || !checkout.requireOpen()) return;
@@ -242,7 +244,7 @@
           purchaseStatus.textContent='신규 결제를 잠시 중단했어요.';
         }
         return client.pay(data,{price:5900,name:'두 사람 관계 리포트',pendingKey,
-          returnFlag:'relationshipReport',memo:'두 사람의 일주 비교 리포트 1건'});
+          metricTopic:'relationship',returnFlag:'relationshipReport',memo:'두 사람의 일주 비교 리포트 1건'});
       });
     } catch (error) {
       if (accountStore.current(token)) purchaseStatus.textContent=error.message;
@@ -267,6 +269,7 @@
         const result=report ? {state:'ready',report} : await client.request(endpoint,{operation:'open',id},token);
         if(!row.isConnected || !accountStore.current(token)) return;
         if(result.state!=='ready') throw new Error('현재 열람할 수 없는 리포트예요. 목록을 다시 확인해 주세요.');
+        window.TaekilCampaign?.activity('read_relationship');
         status.replaceWith(reportCard(result.report));
         row.removeEventListener('toggle',renderWhenOpened);
       } catch(error) {

@@ -33,8 +33,21 @@
    if(response.ok)sent.add(key);else console.warn('방문 집계가 지연되었습니다.',response.status);
   }catch(_){console.warn('방문 집계가 지연되었습니다.');}finally{pending.delete(key);}
  }
+ const cardTopics = ["love","wealth","career","wedding","first-date","reunion","marriage","career-start","side-job","saving","career-growth","study-routine","exam-planning","major-choice","new-learning","first-home","family-boundaries","work-rest","friendships","move-planning","opening-plan","contract-prep","yeonwoo","newyear"];
+ const reportTopics = ['love','wealth','reunion','career','newyear','date','relationship'];
+ const allowedActions = new Set([
+   'exampleReads','consultationOpens','homeBasicStart','basicResult','loginStart',
+   ...cardTopics.map(topic=>'card_'+topic),
+   ...reportTopics.flatMap(topic=>['preview','buy','checkout','openError','read'].map(stage=>stage+'_'+topic))
+ ]);
+ document.addEventListener('click',event=>{
+   const card=event.target.closest?.('#homeDirectory [data-story-topic]');
+   if(card)activity('card_'+card.dataset.storyTopic);
+   if(event.target.closest?.('#homeDirectory .directory-feature-year'))activity('card_newyear');
+   if(event.target.closest?.('#authOverlay button[data-provider]:not(:disabled)'))activity('loginStart');
+ },true);
  async function activity(field){
-  if(!enabled()||!['exampleReads','consultationOpens'].includes(field))return;
+  if(!['taekilso.com','www.taekilso.com'].includes(location.hostname)||!enabled()||!allowedActions.has(field))return;
   await firebaseAuthSettled;
   if(!canRecordVisitorAnalytics())return;
   const event={kind:'activity',field,eventId:randomId()};

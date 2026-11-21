@@ -8,7 +8,7 @@
         <details class="faq-item"><summary>내 정보는 어디에 저장되나요?</summary><p>기본 택일 계산과 일부 검색 기록은 브라우저에서 처리·저장됩니다. AI 상담을 이용할 때는 답변 생성을 위해 선택한 사주 정보와 질문·최근 대화 일부가 택일소 서버를 거쳐 AI 제공업체로 전송될 수 있습니다. 로그인·결제 상태와 사용자가 저장한 사주·AI 상담 기록은 계정 기능 제공과 기기 간 동기화를 위해 Firebase에 저장될 수 있습니다.</p></details>
         <details class="faq-item"><summary>사주 계산에는 어떤 정보를 쓰나요?</summary><p>택일은 일주와 후보일의 일진을 비교하고, 일반 AI 상담은 확인 가능한 연주·월주·일주·시주와 오행·십성·지장간을 참고해요. 2027년 신년 리포트는 여기에 사주 달력의 세운(한 해의 흐름)과 절기별 월운(월별 흐름)을 더해 비교해요. 대운은 계산이 가능한 경우에만 반영하고, 출생시간이 없거나 원국이 하나로 정해지지 않을 때는 확인 가능한 범위만 풀이해요.</p></details>
         <details class="faq-item"><summary>AI가 사주를 대신 봐주나요?</summary><p>택일소의 날짜 추천은 정해진 오행·일진 기준으로 계산됩니다. 생성형 AI가 임의로 운세를 만들어내는 방식과 달리, 계산 기준을 먼저 고정하고 결과를 설명하는 방향을 우선합니다.</p></details>
-        <details class="faq-item"><summary>유료 결제하면 무엇이 달라지나요?</summary><p>추가 질문권은 일반 AI 상담에서 사용해요. 2027 신년운세는 6,900원에 열두 달 전체 리포트를 열 수 있고, 주제별 리포트와 정밀 택일 리포트는 각 화면에서 구매할 수 있어요. 기존 프리미엄은 구매 당시 조건을 따릅니다.</p><p data-checkout-paused>신규 결제는 잠시 중단했어요. 기존 이용권은 구매한 계정에서 계속 확인할 수 있어요.</p></details>
+        <details class="faq-item"><summary>유료 결제하면 무엇이 달라지나요?</summary><p>추가 질문권은 일반 AI 상담에서 사용해요. 2027 신년운세는 6,900원에 열두 달 전체 리포트를 열 수 있고, 주제별 리포트와 정밀 택일 리포트는 각 화면에서 구매할 수 있어요. 기존 프리미엄은 구매 당시 조건을 따릅니다.</p><p data-checkout-paused>신규 결제는 잠시 중단했어요. 기존 이용권은 구매한 계정에서 계속 확인할 수 있어요.</p><div class="checkout-connection"><span role="status">구매 가능 여부를 확인하고 있어요.</span><span role="status">구매 가능 여부를 확인하지 못했어요.</span><button type="button" onclick="TaekilCheckout.retry()">다시 확인</button></div></details>
         <details class="faq-item"><summary>결과를 저장하거나 출력할 수 있나요?</summary><p>추천 결과는 브라우저 인쇄 기능으로 PDF 저장이 가능해요. 로그인 상태에서는 사주 보관함을 계정과 동기화해 다른 기기에서도 다시 불러올 수 있도록 구성했습니다.</p></details>
     </div>
     <div class="faq-page-support">
@@ -32,10 +32,10 @@
         <div><div class="section-kicker">DATE</div><h2 class="section-title" style="font-size:22px;">상담 후엔<br>실제 날짜까지</h2></div>
       </div>
       <div class="home-mini-event-grid">
-        <button onclick="goTo('tool','결혼식')"><img src="char-wedding.jpg" alt="결혼식"><span>💍 결혼식</span></button>
-        <button onclick="goTo('tool','이사')"><img src="char-moving.jpg" alt="이사"><span>🏠 이사</span></button>
-        <button onclick="goTo('tool','개업')"><img src="char-opening.jpg" alt="개업"><span>🏮 개업</span></button>
-        <button onclick="goTo('tool','계약체결')"><img src="char-contract.jpg" alt="계약체결"><span>📜 계약</span></button>
+        <button onclick="goTo('tool','결혼식')"><img src="char-wedding.jpg" width="640" height="1440" loading="lazy" decoding="async" alt="결혼식"><span>💍 결혼식</span></button>
+        <button onclick="goTo('tool','이사')"><img src="char-moving.jpg" width="640" height="1440" loading="lazy" decoding="async" alt="이사"><span>🏠 이사</span></button>
+        <button onclick="goTo('tool','개업')"><img src="char-opening.jpg" width="640" height="1440" loading="lazy" decoding="async" alt="개업"><span>🏮 개업</span></button>
+        <button onclick="goTo('tool','계약체결')"><img src="char-contract.jpg" width="640" height="1440" loading="lazy" decoding="async" alt="계약체결"><span>📜 계약</span></button>
       </div>
       <div class="home-daily-yeonwoo" id="homeDailyYeonwoo">
         <div class="home-feature-kicker">TODAY · 연우의 한마디</div>
@@ -183,7 +183,7 @@
 <section class="block"><div class="container payment-editorial">
 <div class="payment-free"><div><span class="payment-eyebrow">아직 연우와 이야기해 보지 않았다면</span><h2>먼저, 무료로 만나보세요.</h2><p>일반 AI 상담은 계정당 총 3개 질문을 무료로 이용할 수 있어요.<br>무료 택일은 최대 30일 후보 중 추천 날짜 TOP 5를 제공합니다.</p></div><button class="btn" onclick="goTo('tool')">무료 택일 시작</button></div>
 <div class="payment-section-heading"><span class="payment-eyebrow">나에게 맞는 선택</span><h2>한 해의 기록과, 이어지는 대화.</h2><p>2027 신년운세는 열두 달 리포트 한 권으로, AI 상담은 질문 수에 맞춰 구매할 수 있어요.</p></div>
-<p class="checkout-pause-note" data-checkout-paused><strong>신규 결제를 잠시 중단했습니다.</strong><br>이미 구매한 이용권과 신년 리포트는 계속 이용하실 수 있어요.</p>
+<p class="checkout-pause-note" data-checkout-paused><strong>신규 결제를 잠시 중단했습니다.</strong><br>이미 구매한 이용권과 신년 리포트는 계속 이용하실 수 있어요.</p><div class="checkout-connection"><span role="status">구매 가능 여부를 확인하고 있어요.</span><span role="status">구매 가능 여부를 확인하지 못했어요.</span><button type="button" onclick="TaekilCheckout.retry()">다시 확인</button></div>
 <div class="payment-offers"><article class="payment-questions"><span class="payment-eyebrow">지금의 고민을 조금 더</span><h3>상담 이어가기</h3><p class="payment-description">한 번의 답변으로 끝내기 아쉬울 때,<br>궁금한 내용을 이어서 물어보세요.</p>
 <div class="payment-pack"><div><h4>질문 5개</h4><p>질문 1개당 380원</p></div><div class="payment-pack-price"><strong>1,900원</strong><button class="btn" data-checkout-action onclick="purchaseQuestionPack('ai_question_pack_5')" aria-label="질문 5개 1,900원 구매하기">구매하기</button></div></div>
 <div class="payment-pack"><div><p class="payment-pack-savings">묶음 특가 · 약 34% 절약</p><h4>질문 10개</h4><p>질문 1개당 250원<br>5개권 두 번(3,800원) 구매 기준</p></div><div class="payment-pack-price"><strong>2,500원</strong><button class="btn" data-checkout-action onclick="purchaseQuestionPack('ai_question_pack_10')" aria-label="질문 10개 2,500원 구매하기">구매하기</button></div></div><p class="payment-footnote"><span data-checkout-action>프리미엄 가입 없이 구매할 수 있어요.<br></span>질문권에는 신년운세·신년 리포트와 정밀 택일 기능이 포함되지 않습니다.</p></article>
@@ -200,9 +200,9 @@
       <h1>잘 맞는 순간을 알고,<br>어긋난 대화를 다시 잇는 법</h1>
       <p>두 사람의 사주를 나란히 놓고, 연락과 약속처럼 일상에서 반복되는 상황을 살펴봐요. 바로 써볼 말과 이번 주에 함께 해볼 약속까지 담았습니다.</p>
       <p class="report-offer-price"><strong>5,900원</strong><span>리포트 1건 · 자동 갱신 없음</span></p>
-      <p class="relationship-sale-status" data-checkout-paused>신규 결제를 잠시 중단했어요. 아래에서 전체 예시를 읽을 수 있어요.</p>
+      <p class="relationship-sale-status" data-checkout-paused>신규 결제를 잠시 중단했어요. 아래에서 전체 예시를 읽을 수 있어요.</p><div class="checkout-connection"><span role="status">구매 가능 여부를 확인하고 있어요.</span><span role="status">구매 가능 여부를 확인하지 못했어요.</span><button type="button" onclick="TaekilCheckout.retry()">다시 확인</button></div>
     </div>
-    <img src="/char-wedding.jpg" width="640" height="1440" alt="" class="relationship-hero-photo">
+    <img src="/char-wedding.jpg" width="640" height="1440" alt="" class="relationship-hero-photo" loading="lazy" decoding="async">
   </header>
   <div class="relationship-content">
     <details id="relationshipExample" class="relationship-example">
@@ -239,7 +239,7 @@
       <h2 id="relationshipReviewTitle" tabindex="-1">두 사람의 일주</h2>
       <p id="relationshipPillars"></p>
       <p>결제를 완료하면 이 두 사람의 리포트가 내 기록에 저장돼요.</p>
-      <p data-checkout-paused>신규 결제를 잠시 중단했어요. 위에서 실제 구성 예시를 읽을 수 있어요.</p>
+      <p data-checkout-paused>신규 결제를 잠시 중단했어요. 위에서 실제 구성 예시를 읽을 수 있어요.</p><div class="checkout-connection"><span role="status">구매 가능 여부를 확인하고 있어요.</span><span role="status">구매 가능 여부를 확인하지 못했어요.</span><button type="button" onclick="TaekilCheckout.retry()">다시 확인</button></div>
       <button type="button" class="btn btn-primary" id="buyRelationshipReport" data-checkout-action>5,900원 · 관계 리포트 구매</button>
       <p id="relationshipPurchaseStatus" role="status"></p>
     </section>

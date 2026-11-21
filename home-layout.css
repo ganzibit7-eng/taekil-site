@@ -907,3 +907,20 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 .home-directory [aria-labelledby="directoryRelationshipsTitle"] .directory-card{background:#30262b}
 .home-directory [aria-labelledby="directoryCareerTitle"] .directory-card{background:#302a24}
 .home-directory [aria-labelledby="directoryStudyTitle"] .directory-card{background:#252832}
+
+.directory-hero-actions {display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.directory-hero-actions button {min-height:44px;padding:10px 16px;border:1px solid #e1ca9a;border-radius:7px;background:#e1ca9a;color:#261e17;font:650 15px/1.4 var(--sans);cursor:pointer}
+.directory-hero-actions [data-browse-advisors] {color:#fff4df;background:#282024de;border-color:#a89783}
+.directory-hero-actions button:focus-visible {outline:2px solid white;outline-offset:3px}
+.directory-character-copy .directory-price {margin-top:5px;color:#ecd0a0;font:600 13px/1.5 var(--sans)}
+#directoryChatTitle,#directoryTopicsTitle {scroll-margin-top:90px}
+@media (max-width:400px){.directory-hero-actions button{padding-inline:11px;font-size:14px}.directory-hero-actions{gap:6px}}
+
+.checkout-connection {font:400 14px/1.6 var(--sans);color:#d1c8bb;margin-block:10px}
+.checkout-connection button {min-height:44px;border:0;background:transparent;color:#ead1a3;text-decoration:underline;cursor:pointer}
+:root:is([data-checkout-open],[data-checkout-paused]) .checkout-connection,
+:root:not([data-checkout-unknown]) .checkout-connection span:nth-child(2),
+:root[data-checkout-unknown] .checkout-connection span:first-child {display:none}
+
+html[data-initial-directory] #view-home,html[data-initial-directory] #view-home .home-directory {display:block}
+html[data-initial-directory] :is(.topbar,footer) {max-width:1224px}

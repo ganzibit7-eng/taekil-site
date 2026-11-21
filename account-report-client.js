@@ -15,7 +15,7 @@
     return data;
   }
 
-  function pay(data, { price, name, payAppName = name, pendingKey, returnFlag, returnPath, memo }) {
+  function pay(data, { price, name, payAppName = name, pendingKey, returnFlag, returnPath, memo, metricTopic }) {
     if (data.state !== 'checkout' || data.price !== price || data.name !== name ||
         !checkout.requireOpen() || !window.PayApp) return false;
     accountStore.setItem(pendingKey,data.id);
@@ -26,7 +26,13 @@
       feedbackurl:PAYAPP_FEEDBACK_URL,var1:data.orderId,memo
     });
     window.PayApp.setTarget('_self');
-    window.PayApp.payrequest();
+    try {
+      window.PayApp.payrequest();
+    } catch (error) {
+      if(metricTopic)window.TaekilCampaign?.activity('openError_'+metricTopic);
+      throw error;
+    }
+    if(metricTopic)window.TaekilCampaign?.activity('checkout_'+metricTopic);
     return true;
   }
 

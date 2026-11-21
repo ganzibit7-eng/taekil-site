@@ -44,7 +44,12 @@ test('checkout opens only on an explicit server setting and closes again without
     publish(value);
     assert.equal(checkout.requireOpen(), false);
   }
+  assert.equal(attributes.has('data-checkout-paused'),true);
+  publish({},false);
+  assert.equal(attributes.has('data-checkout-unknown'),true);
+  assert.equal(attributes.has('data-checkout-paused'),false);
   publish({ enabled: true }, true);
+  assert.equal(attributes.has('data-checkout-paused'),false);
   assert.equal(checkout.requireOpen(), false);
   publish({ enabled: true });
   assert.equal(checkout.requireOpen(), true);

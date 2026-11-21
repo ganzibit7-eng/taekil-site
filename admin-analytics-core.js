@@ -1,6 +1,8 @@
 (function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory();else root.TaekilAnalytics=factory();})(typeof window!=='undefined'?window:this,function(){
   'use strict';
   const products={taekilso_premium_30days:'프리미엄 30일',taekilso_newyear_2027_report:'2027 신년운세',ai_question_pack_5:'질문권 5개',ai_question_pack_10:'질문권 10개'};
+  const reportProducts = {"love": ["taekilso_seohwa_story_report", "서화 · 연애"], "wealth": ["taekilso_dogyeom_story_report", "도겸 · 재물"], "reunion": ["taekilso_ijun_story_report", "이준 · 재회"], "career": ["taekilso_mujin_story_report", "무진 · 직업"], "newyear": ["taekilso_newyear_2027_report", "연우 · 신년"], "date": ["taekilso_date_report", "정밀 택일"], "relationship": ["taekilso_relationship_report", "두 사람 관계"]};
+  for (const [id,name] of Object.values(reportProducts)) products[id] ??= name;
   const number=v=>Number.isFinite(Number(v))&&Number(v)>0?Number(v):0;
   function settledPaid(o){
     if(!o||o.status!=='paid'||number(o.refundedAmount)||o.cancelledAtMs||o.entitlementRevokedAtMs)return false;
@@ -44,7 +46,13 @@
     const seoMap=new Map();data.seo.filter(r=>inRange(r.date)).forEach(r=>{const id=String(r.slug||'미분류');const row=seoMap.get(id)||{name:id,visits:0,signups:0,answers:0,purchases:0};row.visits+=number(r.visits);row.signups+=number(r.signups);row.answers+=number(r.firstAiAnswers);row.purchases+=number(r.purchases);seoMap.set(id,row);});
     const days=Math.round((Date.parse(end)-Date.parse(start))/86400000)+1;
     const series=keys(end,days).map(date=>({date,visits:sum(data.visits.filter(r=>(r.date||r.id)===date),'count'),revenue:paid.filter(o=>dateKey(orderTime(o))===date).reduce((n,o)=>n+number(o.amount),0),orders:paid.filter(o=>dateKey(orderTime(o))===date).length}));
-    return {visits:sum(data.visits,'count'),signups:sum(data.funnel,'signups'),paid:paid.length,revenue,aov:paid.length?Math.round(revenue/paid.length):null,products:productRows,campaigns,traffic,events,reportEvents,reportInstrumented,dailyActivities,series,seo:[...seoMap.values()].sort((a,b)=>b.purchases-a.purchases||b.visits-a.visits)};
+    const productActivity=Object.entries(reportProducts).map(([topic,[id,name]])=>{
+      const count=field=>sum(data.funnel,field+'_'+topic);
+      return {name,cards:count('card'),previews:count('preview'),buy:count('buy'),checkout:count('checkout'),openError:count('openError'),read:count('read'),orders:paid.filter(o=>o.product===id).length};
+    });
+    const cards=Object.entries({"love": "서화의 연애·관계 리포트", "wealth": "도겸의 재물운 리포트", "career": "무진의 직업·이직 리포트", "wedding": "소담의 결혼·택일 상담", "first-date": "하린의 새로운 만남 상담", "reunion": "이준의 재회운 리포트", "marriage": "연서의 결혼을 앞두고 상담", "career-start": "해온의 취업·진로 상담", "side-job": "태율의 창업·부업 상담", "saving": "다온의 소비·저축 상담", "career-growth": "시현의 승진·역할 변화 상담", "study-routine": "여울의 공부 습관 상담", "exam-planning": "서진의 시험·자격증 상담", "major-choice": "윤슬의 전공·진학 상담", "new-learning": "지안의 새 기술 배우기 상담", "first-home": "모은의 독립·첫 살림 상담", "family-boundaries": "이솔의 가족과 거리 상담", "work-rest": "유현의 일과 쉼 상담", "friendships": "소율의 친구·모임 상담", "move-planning": "담원의 이사 준비 상담", "opening-plan": "기윤의 개업 계획 상담", "contract-prep": "정온의 계약 전 점검 상담", "yeonwoo": "연우의 AI 사주 상담", "newyear": "2027 신년 리포트"}).map(([key,name])=>({name,value:sum(data.funnel,'card_'+key)})).filter(x=>x.value);
+    const basic={start:sum(data.funnel,'homeBasicStart'),result:sum(data.funnel,'basicResult'),login:sum(data.funnel,'loginStart')};
+    return {basic,cards,productActivity,visits:sum(data.visits,'count'),signups:sum(data.funnel,'signups'),paid:paid.length,revenue,aov:paid.length?Math.round(revenue/paid.length):null,products:productRows,campaigns,traffic,events,reportEvents,reportInstrumented,dailyActivities,series,seo:[...seoMap.values()].sort((a,b)=>b.purchases-a.purchases||b.visits-a.visits)};
   }
   function change(current,previous){return previous>0?Math.round((current-previous)/previous*1000)/10:null;}
   function baseline(counters){const count=number(counters.purchases),revenue=number(counters.revenue);return count>=13&&revenue>=33200?{count:count-13,revenue:revenue-33200}:null;}

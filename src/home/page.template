@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="/home-layout.js?v=drawer-navigation-1"></script>
-<link rel="stylesheet" href="/home-layout.css?v=drawer-navigation-1">
-<title>택일소 | AI 사주 상담 · 오늘의 운세 · 결혼·이사·개업 택일</title>
-<meta name="description" content="AI 사주 상담가 연우에게 오늘의 운세, 연애운, 재물운, 궁합을 묻고 결혼·이사·개업·계약 날짜까지 비교해보세요. 첫 질문 3개 무료.">
+<script src="/home-layout.js?v=home-paths-1"></script>
+<link rel="stylesheet" href="/home-layout.css?v=home-paths-1">
+<title>택일소 | 무료 사주 · 주제별 리포트 · AI 상담과 택일</title>
+<meta name="description" content="로그인 없이 내 오행과 기본 성향을 확인하세요. 연애·재물·재회·직업 리포트의 첫 장, 2027 신년운세와 고민별 상담사를 만나보세요.">
 <meta name="keywords" content="사주, 사주풀이, 무료사주, 사주궁합, 오늘의운세, 신년운세, 택일, 결혼택일, 이사택일, 개업택일, 손없는날, 만세력">
-<meta property="og:title" content="택일소 | AI 사주 상담과 중요한 날 택일">
-<meta property="og:description" content="오늘의 운세부터 연애·재물·직업 상담, 결혼·이사·개업·계약 택일까지 연우에게 물어보세요.">
+<meta property="og:title" content="택일소 | 무료 사주 · 주제별 리포트 · AI 상담과 택일">
+<meta property="og:description" content="로그인 없이 내 오행과 기본 성향을 확인하세요. 연애·재물·재회·직업 리포트의 첫 장, 2027 신년운세와 고민별 상담사를 만나보세요.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://taekilso.com/">
 <meta property="og:image" content="https://taekilso.com/assets/brand-emblem.png?v=20261111-share">
@@ -19,8 +19,8 @@
 <meta property="og:locale" content="ko_KR">
 <meta property="og:site_name" content="택일소">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="택일소 | AI 사주 상담 · 오늘의 운세 · 택일">
-<meta name="twitter:description" content="연우에게 오늘의 운세와 사주 고민을 묻고, 중요한 날짜까지 비교해보세요. 첫 질문 3개 무료.">
+<meta name="twitter:title" content="택일소 | 무료 사주 · 주제별 리포트 · AI 상담과 택일">
+<meta name="twitter:description" content="로그인 없이 내 오행과 기본 성향을 확인하세요. 연애·재물·재회·직업 리포트의 첫 장, 2027 신년운세와 고민별 상담사를 만나보세요.">
 <meta name="twitter:image" content="https://taekilso.com/assets/brand-emblem.png?v=20261111-share">
 <meta name="theme-color" content="#1c1a1c">
 <link rel="manifest" href="manifest.json?v=20261110-supplied">
@@ -111,10 +111,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
   <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="authTitle">
     <div class="auth-brand"><svg class="taekilso-symbol" data-brand-symbol viewBox="0 0 40 40" fill="none" aria-hidden="true" focusable="false"><image href="/assets/brand-emblem-transparent.png?v=20261111-1" width="40" height="40"/></svg><span>택일소</span></div>
     <h2 class="modal-title" id="authTitle">간편 로그인</h2>
-    <p class="auth-entry-copy">처음 오시면 선택한 계정으로 가입돼요.<br>가입 후 첫 질문 3개는 무료예요.</p>
+    <p class="auth-entry-copy">처음 오시면 선택한 계정으로 가입돼요.<br>일반 상담은 첫 질문 3개가 무료예요. 구매한 리포트는 같은 계정에서 다시 읽을 수 있어요.</p>
     <label class="signup-age-row"><input type="checkbox" id="authAgeConfirmed"><span>만 14세 이상입니다.</span></label>
     <div id="authSetupNotice" class="setup-notice" style="display:none;">
-      아직 계정 저장소가 연결되지 않았어요. Firebase 설정을 먼저 연결해야 실제로 저장됩니다.
+      로그인 연결을 준비하지 못했어요. 잠시 후 새로고침해 주세요. 계속되면 고객센터로 문의해 주세요.
     </div>
     <button class="btn" style="width:100%; margin-bottom:9px; gap:8px;" data-provider="google" disabled onclick="loginWithGoogle()">
       <svg width="16" height="16" viewBox="0 0 48 48" style="margin-right:6px;"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3c-7.6 0-14.1 4.3-17.4 10.7z"/><path fill="#4CAF50" d="M24 45c5.4 0 10.3-1.8 14.1-5l-6.5-5.5C29.5 36 26.9 37 24 37c-5.3 0-9.7-3.3-11.3-8l-6.5 5C9.9 40.6 16.4 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.4-2.3 4.4-4.3 5.9l6.5 5.5C40.8 36.9 44 30.9 44 24c0-1.4-.1-2.4-.4-3.5z"/></svg>
@@ -244,7 +244,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <!-- include account-and-tools.fragment -->
 
 <script src="account-session-core.js?v=20261111-1"></script>
-<script src="checkout-availability.js?v=3"></script>
+<script src="checkout-availability.js?v=home-paths-1"></script>
 <script src="metrics-preference.js?v=1"></script>
 <script src="/account-age.js?v=3"></script>
 <script src="privacy-controls.js?v=6"></script>
@@ -277,8 +277,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <!-- include consultation.js -->
 </script>
 <!-- include experience.fragment -->
-<script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=standalone-1"></script>
-<script src="admin-analytics.js?v=standalone-1"></script>
+<script src="admin-payment-baseline.js?v=20261111-1"></script><script src="admin-analytics-core.js?v=home-paths-1"></script>
+<script src="admin-analytics.js?v=home-paths-1"></script>
 
 <link rel="stylesheet" href="consultation-stage.css?v=chat-layers-1121">
 <script src="consultation-personas.js?v=20261118-chat-films"></script>
@@ -309,7 +309,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 </dialog>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=free-progress-1"></script><script src="premium-motion.js" defer></script>
 <script src="consultation-draft-core.js?v=featured-report-1"></script>
-<script src="consultation-stage.js?v=report-chat-1"></script>
+<script src="consultation-stage.js?v=home-paths-1"></script>
 <script src="consultation-history-filters.js?v=20261120-history-filters"></script>
 <link rel="stylesheet" href="consultation-experience.css?v=annual-reading-1">
 <script src="consultation-experience-core.js?v=20261117-saved-evidence"></script>
@@ -319,10 +319,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <link rel="stylesheet" href="report-pillar-guide.css?v=paper-1">
 <script src="report-pillar-guide.js?v=paper-1"></script>
 <link rel="stylesheet" href="newyear-consultation.css?v=paper-1">
-<script src="newyear-consultation.js?v=paper-1"></script><script src="newyear-example.js?v=20261119-handoff-refine"></script>
+<script src="newyear-consultation.js?v=home-paths-1"></script><script src="newyear-example.js?v=home-paths-1"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=free-progress-1">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
-<script src="free-report-handoff.js?v=free-progress-1"></script>
+<script src="free-report-handoff.js?v=home-paths-1"></script>
 <link rel="stylesheet" href="navigation-refinement.css?v=surfaces-1120">
 <script src="navigation-refinement.js?v=20261110-1"></script>
 <script src="profile-picker-controls.js?v=20261118-confirmed-delete"></script>
@@ -332,21 +332,21 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <link rel="stylesheet" href="site-menu.css?v=drawer-navigation-1"><script src="site-menu.js?v=drawer-navigation-1"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=ink-1120">
 <script src="account-session.js?v=nov20-entry"></script>
-<script src="campaign-attribution-core.js?v=20261119-campaign-visits"></script><script src="campaign-attribution.js?v=20261119-daily"></script>
+<script src="campaign-attribution-core.js?v=20261119-campaign-visits"></script><script src="campaign-attribution.js?v=home-paths-1"></script>
 <script src="preview-funnel.js?v=20261119-daily"></script>
 <link rel="stylesheet" href="date-comparison.css?v=surfaces-1120">
-<script src="account-report-client.js?v=seohwa-return-1"></script>
+<script src="account-report-client.js?v=home-paths-1"></script>
 <script src="report-decision-core.js?v=20261120-1"></script>
-<script src="date-report.js?v=nov20-fortune"></script>
+<script src="date-report.js?v=home-paths-1"></script>
 <script src="date-comparison.js?v=20261120-direct"></script>
 <link rel="stylesheet" href="date-entry.css?v=surfaces-1120">
 <script src="date-entry.js?v=nov20-resume"></script>
 <link rel="stylesheet" href="relationship-report.css?v=surfaces-1120">
-<script src="relationship-report.js?v=nov20-resume"></script>
+<script src="relationship-report.js?v=home-paths-1"></script>
 <link rel="stylesheet" href="seohwa-report.css?v=topic-monthly-v8">
 <script src="topic-monthly-reading.js?v=4"></script>
 <script src="relationship-report-periods.js?v=4"></script>
 <script src="topic-report-content.js?v=2"></script>
-<script src="seohwa-report.js?v=topic-monthly-v8"></script>
+<script src="seohwa-report.js?v=home-paths-1"></script>
 </body>
 </html>

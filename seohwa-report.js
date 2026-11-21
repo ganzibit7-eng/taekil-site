@@ -281,7 +281,7 @@
       benefit.append(el('strong',title),el('span',description));
       benefits.append(benefit);
     }
-    gate.append(el('h3','전체 리포트와 '+reading.name+' 상담'),benefits,paymentNote,pay,status,paused);
+    gate.append(el('h3','전체 리포트와 '+reading.name+' 상담'),benefits,paymentNote,pay,status,paused,checkout.statusNote());
     const samples=el('section',null,'sr-samples');
     samples.setAttribute('aria-labelledby','sr-sample-title');
     const label=el('h3','이어지는 장 미리보기');
@@ -324,6 +324,7 @@
     const isTopic=topicContent?.topics[reading.id];
     const data={reading,profile,choice,auth,context,first:isTopic?topicContent.first(reading,context,choice):reading.first(context,choice),excerpts:isTopic?[]:reading.excerpts(context,choice),host:by('aiChatSetup'),owner:accountStore.snapshot()};
     active=data;
+    window.TaekilCampaign?.activity('preview_'+reading.topic);
     preparePreview(data);
   }
   function finishPreview(data){
@@ -370,7 +371,8 @@
   }
   async function buy(data,status) {
     const {reading}=data;
-    if(!checkout.requireOpen()) {setStatus(status,'현재는 무료 첫 장을 읽을 수 있어요. 신규 결제는 잠시 중단했어요.');return;}
+    if(!checkout.requireOpen())return;
+    window.TaekilCampaign?.activity('buy_'+reading.topic);
     const owner=accountStore.snapshot();
     if(!owner.owner){
       try {sessionStorage.setItem(restoreKey,'1');} catch {}
@@ -420,7 +422,7 @@
         }
         if(order.state==='paused'){setStatus(status,'신규 결제를 잠시 중단했어요.');return false;}
         const returnPath=checkoutPath(reading,order.orderId);
-        const opened=client.pay(order,{price:reading.PRICE,name:reading.NAME,payAppName:reading.paymentName,
+        const opened=client.pay(order,{price:reading.PRICE,name:reading.NAME,payAppName:reading.paymentName,metricTopic:reading.topic,
           pendingKey:pendingKey(reading),returnPath,memo:reading.title+' 및 후속 상담 3회'});
         if(!opened)setStatus(status,'결제창을 열지 못했어요. 결제 상태를 다시 확인해 주세요.');
         return opened;
@@ -967,6 +969,7 @@
   }
 
   function drawPurchased(result,host,owner,reading) {
+    window.TaekilCampaign?.activity('read_'+reading.topic);
     const {report}=result;
     displayTitle(reading);
     const now={id:result.id,host,owner,reading};active=now;
