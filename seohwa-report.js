@@ -739,17 +739,20 @@
     }
     if(periods){
       const moments=el('dl',null,'sr-summary-moments');
-      const [open]=periods.opportunity,[pause]=periods.attention;
-      const annual=periods.years[0];
       overview.append(el('p',report.body[0].highlight,'sr-summary-lead'));
-      for(const [label,value,desc] of [
-        [reading.id==='mujin'?'성장에 주목할 달':reading.id==='ijun'?'인연의 접점을 돌아볼 달':'인연에 주목할 달',open?open.month+'월':'—',open?.insight.basis],
-        [reading.id==='mujin'?'역할 변화를 살필 달':'관계 변화를 살필 달',pause?pause.month+'월':'—',pause?.insight.basis],
-        ['2027년 세운',annual.pair,annual.insight.basis]
-      ]){
+      for(const {label,rows} of periods.highlights){
         const box=el('div');
-        box.append(el('dt',label),el('dd',value,'sr-summary-date'));
-        if(desc)box.append(el('dd',desc));
+        const months=el('dd',null,'sr-ranked-months');
+        box.append(el('dt',label+' · TOP 3'),months);
+        for(const [index,row] of rows.entries()){
+          const go=button(row.month+'월','sr-ranked-month',()=>{
+            const bar=overview.parentElement?.querySelector('[data-period-month="'+row.month+'"]');
+            if(bar){bar.click();bar.focus({preventScroll:true});bar.scrollIntoView({block:'center',behavior:'instant'});}
+          });
+          go.setAttribute('aria-label',label+' '+(index+1)+'번째 · '+row.month+'월 풀이');
+          months.append(go);
+        }
+        if(!rows.length)months.textContent='두드러진 달이 없어요';
         moments.append(box);
       }
       overview.append(moments);
@@ -789,7 +792,7 @@
     graph.setAttribute('role','group');
     graph.setAttribute('aria-label',career?'월별 직업운과 역할 변화':'월별 인연과 관계 변화');
     const legend=el('div',null,'sr-wealth-legend');
-    legend.append(el('span',career?'성장·역할 단서':'관계 접점 단서','sr-legend-opportunity'),el('span','변화 단서','sr-legend-expense'));
+    legend.append(el('span',periods.highlights[0].label,'sr-legend-opportunity'),el('span',career?'이직·역할 변화':'관계 변화','sr-legend-expense'));
     const detail=el('div',null,'sr-wealth-month-detail');
     detail.id='relationshipMonthDetail';
     detail.setAttribute('aria-live','polite');
@@ -814,7 +817,7 @@
       perspective.textContent=readings[selected][1];
     }
     picker.addEventListener('change',showPerspective);
-    const scale=Math.max(1,...periods.calendar.flatMap(row=>[row.affinity,row.adjustment]));
+    const scale=Math.max(1,...periods.calendar.flatMap(row=>[row.assessment.axes.open.score,row.assessment.axes.change.score]));
     const choose=(row,selected)=>{
       const activeCard=readingsByMonth?.[row.month-1];
       showPerspective();
@@ -832,7 +835,15 @@
       exact.append(el('p','대표 월운 '+row.solarFrom+'부터 '+row.solarUntil+' 직전까지'));
       exact.append(el('p','적용한 세운 · '+row.annual));
       for(const cycle of row.cycles)exact.append(el('p',cycle.pair+' 대운 · '+cycle.from+'부터 '+cycle.until+' 직전까지'));
+      for(const cycle of row.cycles){
+        const basis=[...cycle.natalLinks,...cycle.annualLinks];
+        if(basis.length)exact.append(el('p',cycle.pair+' 대운의 배경 · '+basis.join(' / ')));
+      }
       if(!row.cycles.length)exact.append(el('p','대운 전환 시점을 확인할 수 없어 원국과 세운·월운으로 읽었어요.'));
+      for(const {key,label,rows} of periods.highlights){
+        const index=rows.indexOf(row);
+        if(index!==-1)exact.append(el('p',label+' '+(index+1)+'번째 · '+row.assessment.axes[key].fact));
+      }
       for(const span of row.spans)exact.append(el('p',span.from+'부터 '+span.until+' 직전까지 · '+span.annual+' 세운 · '+span.pair+' 월운'));
       exact.append(el('p','택일소는 자평 명리의 일간·월령을 바탕으로 일지에 닿는 운과 월주의 여건을 살펴요. 시주는 보조로 보고, 형·파·해는 택일소 계산 기준의 참고 단서로 표시해요. 합만으로 오행이 바뀌었다고 풀이하지 않아요.'));
       const cardReading=activeCard?el('div',null,'sr-topic-reading'):relationshipEvidence(row);
@@ -848,6 +859,8 @@
         cardReading.append(list);
       }
       detail.replaceChildren(el('h4',row.from.slice(0,4)+'년 '+row.month+'월'),cardReading);
+      const tags=periods.highlights.filter(h=>h.rows.includes(row)).map(h=>h.label+' '+(h.rows.indexOf(row)+1)+'위');
+      if(tags.length)cardReading.prepend(el('p',tags.join(' · '),'sr-wealth-month-basis'));
       const dates=window.TaekilTopicMonthly?.periodLabels(row);
       if(dates){
         const periods=el('dl',null,'sr-topic-periods');
@@ -858,28 +871,32 @@
         }
         detail.append(periods);
       }
+      for(const span of row.spans.filter(s=>s.start!==row.start)){
+        detail.append(el('p','앞 구간 · '+span.until.slice(5,10).replace('-','.')+' '+span.until.slice(11,19)+' 절입 전에는 '+span.annual+'년 '+span.pair+'월이에요. 이때는 '+span.reading+'에 무게를 둬요.','sr-topic-perspective'));
+      }
       if(reading.id==='seohwa')detail.append(lens,perspective);
       detail.append(exact);
     };
     for(const row of periods.calendar){
       const bar=button('','sr-wealth-bar',()=>choose(row,bar));
       bar.dataset.signal='normal';
-      bar.setAttribute('aria-label',row.month+'월, '+(career?'성장 단서 ':'합 ')+row.affinity+'개, 변화 '+row.adjustment+'개');
+      bar.dataset.periodMonth=String(row.month);
+      const {open,change}=row.assessment.axes;
+      bar.setAttribute('aria-label',row.month+'월, '+periods.highlights[0].label+' 지표 '+open.score+', 변화 지표 '+change.score);
       bar.setAttribute('aria-controls',detail.id);
       const track=el('span',null,'sr-wealth-track');
       track.setAttribute('aria-hidden','true');
-      for(const [cls,count] of [['sr-wealth-fill',row.affinity],['sr-wealth-risk-fill',row.adjustment]]){
+      for(const [cls,count] of [['sr-wealth-fill',open.score],['sr-wealth-risk-fill',change.score]]){
         const fill=el('span',null,cls);fill.style.height=(100*count/scale)+'%';track.append(fill);
       }
       bar.append(track,el('span',row.month+'월'));
       graph.append(bar);
     }
-    const start=periods.opportunity[0]||periods.calendar[0];
+    const start=periods.highlights[0].rows[0]||periods.calendar[0];
     choose(start,graph.children[start.month-1]);
     const heading=el('h3',career?'2027년 월별 직업운':reading.id==='ijun'?'2027년 월별 재회·인연운':'2027년 월별 인연 흐름');
     heading.id='relationshipMonthsHeading';heading.tabIndex=-1;
-    const ranking=periods.legacyRanking?'주목할 달은 발급 당시 순서를 보여줘요.':'시기를 고를 때는 '+(career?'월주':'일지')+'에 직접 작용하는 달을 먼저 보고, 같은 순위의 달도 함께 보여줘요.';
-    section.append(heading,el('p','양력 달에서 가장 길게 이어지는 절기 월운을 대표로 보여줘요. 막대는 단서의 수예요. '+ranking),legend,graph,detail);
+    section.append(heading,el('p','각 달에서 가장 긴 절기 구간의 풀이예요. 막대는 '+(career?'월주와 직업 관련 십성':'일지와 가까운 관계')+'을 중심으로 본 주제별 중요도예요. 동점은 앞선 달부터 보여줘요.'),legend,graph,detail);
     if(reading.id==='ijun')section.append(el('p','상대가 연락을 원하지 않는다고 밝혔다면 그 의사를 존중해 주세요.','sr-topic-perspective'));
     return section;
   }
@@ -899,11 +916,12 @@
         const short=t=>t.slice(5,10).replace('-','.');
         const evidence=el('details',null,'sr-evidence');
         evidence.append(el('summary','절기 전체와 양력 표시 구간'),el('p','절기 월운 · '+row.solarFrom+'부터 '+row.solarUntil+' 직전까지'),el('p','양력 그래프 · '+row.from+'부터 '+row.until+' 직전까지'));
-        item.append(el('p',labelText,'sr-period-rank'),el('h5',short(row.solarFrom)+' – '+short(row.solarUntil)+' · '+row.pair+' 월운'),el('p',row.insight.basis),evidence);
+        const proof=periods.currentRanking?[opening&&row.assessment.axes.open.fact,attention&&row.assessment.axes.change.fact].filter(Boolean).join(' / '):row.insight.basis;
+        item.append(el('p',labelText,'sr-period-rank'),el('h5',short(row.solarFrom)+' – '+short(row.solarUntil)+' · '+row.pair+' 월운'),el('p',proof),evidence);
         list.append(item);
       }
     }
-    if(list.childElementCount)panel.append(el('p','양력 그래프에서 선택한 대표 월운의 전체 절기 구간이에요. 양력 달 안에서 집계한 구간과 함께 확인할 수 있어요.'),list);
+    if(list.childElementCount)panel.append(el('p',periods.currentRanking?'본문에서 살펴본 대표 월운의 전체 절기 구간이에요.':'이 장은 발급 당시 본문에서 고른 시기예요. 첫 화면에서는 질문별로 주목할 달도 살펴볼 수 있어요.'),list);
     else panel.append(el('p','강조할 합이나 변화 관계가 확인된 달이 없어요.'));
     return panel;
   }
@@ -963,7 +981,7 @@
         const context=purchasedContext(reading,report);
         pillars=context.pillars;
         try{
-          periods=window.TaekilRelationshipPeriods?.calc(window.Solar,window.LunarUtil,context.pillars,profileBirthDay(report.profile),report.profile,reading.id,{legacyRanking:!(report.topicVersion>=3)});
+          periods=window.TaekilRelationshipPeriods?.calc(window.Solar,window.LunarUtil,context.pillars,profileBirthDay(report.profile),report.profile,reading.id,{legacyRanking:!(report.topicVersion>=3),rankVersion:report.topicVersion>=4?8:7});
         }catch(error){console.warn('SEOHWA_PERIODS_UNAVAILABLE',error.name);}
       }
       front.push(reportOverview(report,reading,periods));

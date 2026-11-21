@@ -601,3 +601,7 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
   .sr-topic-map {grid-template-columns:minmax(0,1fr);gap:4px}
   .sr-topic-map li {padding:3px 0 9px}
 }
+.sr-ranked-months {display:flex;flex-wrap:wrap;gap:4px;margin-block-start:4px}
+.sr-ranked-month {min-height:36px;padding:4px 8px;border:1px solid var(--wealth-rule);border-radius:6px;background:transparent;color:var(--wealth-ink);font:inherit;font-weight:650;cursor:pointer}
+.sr-ranked-month:first-child {font-weight:800;border-color:currentColor}
+.sr-ranked-month:focus-visible {outline:2px solid currentColor;outline-offset:2px}

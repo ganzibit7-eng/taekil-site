@@ -386,9 +386,95 @@
       calendar:short(row.from)+'부터 '+short(lastDay)+(endsAtMidnight?'까지':' 절입 전까지')};
   }
 
+  const places={일지:'태어난 날',월지:'태어난 달',시지:'태어난 시간',연지:'태어난 해',
+    일간:'태어난 날',월간:'태어난 달',시간:'태어난 시간',연간:'태어난 해',대운지:'10년 운',대운간:'10년 운',세운지:'한 해의 운',세운간:'한 해의 운'};
+  const sounds=Object.fromEntries([...('甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥')].map((g,i)=>[g,'갑을병정무기경신임계자축인묘진사오미신유술해'[i]]));
+  const glyphLabel=g=>sounds[g]+'('+g+')';
+  const actions={
+    육합:'자연스레 이어지는 짝이에요',천간합:'서로 뜻이 모이는 짝이에요',충:'서로 반대 방향으로 움직이는 짝이에요',
+    형:'함께 움직일 때 마찰을 읽는 짝이에요',파:'익숙한 짜임이 느슨해지는 짝이에요',해:'겉으로 잘 드러나지 않는 엇갈림을 읽는 짝이에요'
+  };
+  const movement={육합:'자연스러운 접점',천간합:'뜻이 맞는 부분',충:'방향이 바뀌는 지점',형:'반복되기 쉬운 마찰',파:'느슨해지기 쉬운 연결',해:'눈에 잘 띄지 않는 불편',삼합:'힘이 모이는 지점',방합:'한 방향으로 쏠리는 힘'};
+  const focusPlace={
+    seohwa:['가까운 사이','만남을 둘러싼 환경','앞으로 바라는 관계','주변 인연','오랫동안 원한 관계','올해의 인연'],
+    ijun:['지난 사이에서 느낀 친밀감','둘을 이어 주던 환경','다음 인연에 거는 기대','함께 알던 사람들','오래 간직한 인연의 기준','올해 돌아볼 관계'],
+    mujin:['일을 풀어 가는 방식','일터의 여건','준비 중인 계획','외부 기회','장기 진로','올해의 역할']
+  };
+  function plainFocus(signal,topic){
+    if(!movement[signal.kind])return '';
+    if(signal.slot==='원국')return movement[signal.kind];
+    const index=['일','월','시','연','대','세'].indexOf(signal.slot[0]);
+    return index<0?'':focusPlace[topic][index]+'에서 '+movement[signal.kind];
+  }
+  const cycleScenes={
+    seohwa:['오래 바라던 관계를 다시 그릴 때','마음에 드는 사람이 누구인지보다 어떤 관계 속에서 살고 싶은지가 선명해져요.'],
+    ijun:['지난 인연을 보는 내 기준이 바뀔 때','그리운 사람이 있다면 그때의 마음과 지금 원하는 삶이 같은 방향인지 선명해지는 달이에요.'],
+    mujin:['장기 진로의 방향을 다시 잡을 때','당장 맡을 일 하나보다 앞으로 몇 년간 어느 분야에서 경력을 쌓고 싶은지가 더 큰 갈림길로 읽혀요.']
+  };
+  function purchaserCard(row,topic,previous){
+    const {main,support,candidates}=row.assessment;
+    const cue=cues[topic][row.top];
+    const fact=main.fact;
+    const group=['삼합','방합'].includes(main.kind);
+    const paired=Boolean(actions[main.kind]);
+    const same=paired?candidates.filter(s=>s.pair===main.pair&&s.fact!==fact):[];
+    const reference=candidates.find(s=>s.fact===support[0]);
+    const matched=previous.evidence.main===fact&&previous.pattern!=='quiet';
+    // Civil spans on either side of a cycle change must not imply month-long influence.
+    const cycle=main.layer==='cycle'&&row.cycles.find(c=>c.links.includes(fact));
+    const longShift=cycle&&main.kind==='충';
+    const side=main.kind==='육합'&&main.slot==='일지'?stories.directBond[topic]:
+      main.kind==='충'&&main.slot==='일지'?stories.clashDay[topic]:
+      main.kind==='육합'&&['연지','월지'].includes(main.slot)?stories.outerBond[topic]:null;
+    const [title,prose]=longShift?cycleScenes[topic]:matched?[previous.title,previous.reading]:side||cue;
+    const reading=lines(prose)[0]||prose;
+    let lead='';
+    if(paired){
+      const [left,right]=main.pair.match(glyphs);
+      const source=cycle?cycle.pair+' 대운':places[main.slot];
+      lead=source+'의 '+glyphLabel(left)+(supportsFinal(sounds[left])?'과':'와')+' 이달의 '+glyphLabel(right)+(supportsFinal(sounds[right])?'은 ':'는 ')+actions[main.kind]+'.';
+      if(cycle&&main.trace.partial)lead+=' 이 대운이 적용되는 기간은 '+cycle.from.slice(5,10).replace('-','.')+'부터 '+cycle.until.slice(5,10).replace('-','.')+' 전까지예요.';
+      if(same.length&&same.some(item=>item.bond!==main.bond))lead+=topic==='mujin'?' 연결될 자리는 보여도 일하는 방식까지 그대로 옮기기는 어려워요.':' 마음이 통할 여지와 익숙한 사이가 흔들릴 여지를 함께 읽어요.';
+      else if(longShift&&reference?.slot==='시간'&&reference.bond)lead+=' 장기 방향은 흔들려도 앞으로의 계획에는 접점을 찾는 합이 함께 보여요.';
+      else if(!longShift&&!matched)lead+=' 이때 겉에 드러나는 십성은 '+row.top+'이에요.';
+    }else if(group){
+      lead=fact.split(' ')[0]+' 세 글자가 원국과 이달에 모두 갖춰져요. 월간의 '+row.top+'도 함께 살펴요.';
+    }else{
+      lead='태어난 날의 천간을 기준으로 이달 겉에 드러나는 힘은 '+row.top+', 지지 안에서 중심을 잡는 힘은 '+row.hidden+'이에요.';
+    }
+    const other=[...new Set([...row.links,...row.groups,...row.annualLinks,...row.cycles.flatMap(c=>c.links)])]
+      .filter(s=>s!==fact&&!support.includes(s));
+    return {title,reading,lead,evidence:{main:fact,supporting:support.map(s=>[s]),other},key:fact+'|'+row.top+'|'+row.hidden};
+  }
+
   function create(rows,pillars,topic){
     if(!pillars?.day||!stories.joinedDay[topic]||rows.length!==12)return [];
     const cards=rows.map(row=>analyze(row,topic));
+    if(rows.every(row=>row.assessment)){
+      const result=rows.map((row,i)=>purchaserCard(row,topic,cards[i]));
+      const used=new Set();
+      for(const [i,card] of result.entries()){
+        const row=rows[i];
+        if(used.has(card.reading)){
+          // Use the independently calculated primary hidden stem for a repeated
+          // surface signal. The original relationship stays visible in the proof.
+          const alternate=[row.hidden,row.top].flatMap(god=>lines(cues[topic][god][1]).map(text=>({god,text}))).find(a=>!used.has(a.text));
+          if(alternate){
+            card.title=cues[topic][alternate.god][0];card.reading=alternate.text;
+            if(alternate.god===row.hidden)card.lead+=' 지지의 중심 십성은 '+row.hidden+'이에요.';
+          }else card.reading=row.month+'월의 '+row.top+'에서는 '+row.reading+'이 두드러져요.';
+        }
+        used.add(card.reading);
+      }
+      return result.map((card,i)=>{
+        const peer=[i-1,i+1].find(j=>result[j]&&result[j].title!==card.title&&
+          (rows[i].assessment.main.slot!==rows[j].assessment.main.slot||rows[i].assessment.main.kind!==rows[j].assessment.main.kind));
+        const here=plainFocus(rows[i].assessment.main,topic);
+        const there=peer===undefined?'':plainFocus(rows[peer].assessment.main,topic);
+        const contrast=here&&there&&here!==there?rows[peer].month+'월에는 '+there+'을 살펴요. 이달에는 '+here+'에 무게가 실려요.':'';
+        return {...card,contrast};
+      });
+    }
     const usedTitles=new Set(),usedCopy=[];
     return cards.map((card,i)=>{
       const row=rows[i];
@@ -407,6 +493,7 @@
       return {title,lead:card.lead,contrast:title===card.title?contrast:'',reading:chosen,evidence:card.evidence,key:card.key};
     });
   }
+
 
   return {create,audit,periodLabels};
 });
