@@ -278,7 +278,7 @@
     contents.append(introGuide(reading,context,first),paper(first,0),...(excerpts.length?[samples]:[]),gate);
     layout.append(toc(reading,first,true),contents);
     if(reading.id==='dogyeom'){
-      const jump=button('전체 리포트 · 5,900원','sr-wealth-buy-jump',()=>pay.scrollIntoView({block:'center'}));
+      const jump=button('전체 리포트 · '+won.format(reading.PRICE)+'원','sr-wealth-buy-jump',()=>pay.scrollIntoView({block:'center'}));
       jump.dataset.checkoutAction='';
       contents.prepend(jump);
     }
