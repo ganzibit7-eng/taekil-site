@@ -9,7 +9,6 @@
   const dialog=by('seohwaReportDialog'), body=by('seohwaReportBody');
   const writingVisual=by('seohwaWritingVisual');
   let writingFilm=writingVisual.querySelector('video');
-  const writingFilmToggle=by('seohwaWritingFilmToggle');
   const progress=by('seohwaReportProgress');
   const library=by('seohwaReportList'), libraryStatus=by('seohwaLibraryStatus');
   const returnView=by('view-seohwa-report'), returnHost=by('seohwaReturnHost');
@@ -17,11 +16,42 @@
   const returnLink=by('seohwaReturnLink');
   let active, loadingLibrary=0, accountOwner=accountStore.owner(), waitingLogin=false;
   let returnAttempt=null;
-  let progressTimer=0, statusTimer=0;
+  let progressTimer=0, statusTimer=0, previewTimer=0;
   const typicalWriteSeconds=60;
   const estimatedWriteMs=(typicalWriteSeconds+10)*1000;
+  const previewWaitMs=10000;
   const won=new Intl.NumberFormat('ko-KR');
   const withName=reading=>reading.name+(reading===defaultReading?'와':'과');
+  const reportGuides={
+    seohwa:{
+      chart:'연애 풀이를 시작하는 내 사주표',
+      title:'사랑받는다고 느끼는 순간은 저마다 달라요',
+      intro:'서화는 내 사주에서 마음을 표현하는 방식과 마음이 놓이는 조건을 살펴봐요. 같은 늦은 답장에도 약속이 바뀌어서 서운한 사람과 내 마음을 알아주지 않아 서운한 사람이 있지요.',
+      lenses:{peer:'내 마음을 정리하는 방식',expression:'마음을 전하는 방식',practical:'행동에서 느끼는 애정',trust:'약속에서 얻는 안심',support:'마음을 열게 하는 대화'},
+      prompts:{peer:'내가 잠깐 생각할 시간을 받으면, 어떤 말을 더 편하게 할 수 있나요?',expression:'서운한 일을 그 자리에서 말했을 때와 나중에 말했을 때, 어떤 차이가 있었나요?',practical:'상대의 말과 행동 중 무엇이 달라졌을 때 마음이 놓였나요?',trust:'함께 정한 약속 중 다시 지켜졌을 때 유난히 안심됐던 일이 있나요?',support:'조언을 들었을 때와 내 말을 끝까지 들어줬을 때, 어느 순간에 마음이 더 열렸나요?'}
+    },
+    dogyeom:{
+      chart:'재물운을 읽는 내 사주표',
+      title:'돈을 버는 힘과 남기는 힘을 나눠 봐요',
+      intro:'도겸은 내 사주에서 어떤 일을 할 때 보상으로 이어지기 쉬운지, 돈을 관리할 때 어디에 힘을 쓰는지 살펴봐요. 같은 금액을 벌어도 시간이나 먼저 내는 비용이 다르면 내 손에 남는 몫은 달라져요.',
+      lenses:{peer:'돈의 조건을 정하는 방식',expression:'내 결과물에 값을 붙이는 힘',practical:'실제로 남는 몫을 보는 감각',trust:'정한 대가를 꾸준히 받는 기준',support:'쌓아온 경험을 돈으로 잇는 방식'},
+      prompts:{peer:'내가 스스로 단가나 조건을 정했던 일은 어떤 점이 달랐나요?',expression:'내가 한 일 중 결과물 자체에 값을 지불한 사람이 있었나요?',practical:'최근 수입 중 시간과 비용까지 빼고도 다시 해보고 싶은 일은 무엇인가요?',trust:'같은 일을 반복해도 정산 조건이 분명할 때와 그렇지 않을 때 내 몫은 어떻게 달랐나요?',support:'새로 배우거나 준비물을 사지 않아도 지금 있는 경험으로 대가를 받을 수 있는 일은 무엇인가요?'}
+    },
+    ijun:{
+      chart:'재회 풀이를 시작하는 내 사주표',
+      title:'그 사람을 그리워할 때, 무엇이 먼저 떠오르나요?',
+      intro:'이준은 헤어짐을 받아들이는 방식과 마음을 다시 꺼내고 싶어지는 순간을 내 사주에서 읽어요. 요즘 그 사람과 하고 싶은 말이 예전에도 미처 끝내지 못했던 말인지부터 살펴보면, 재회 풀이의 맥락이 더 잘 보여요.',
+      lenses:{peer:'관계를 되돌아보는 나만의 시간',expression:'미처 전하지 못한 마음',practical:'기억에 남은 일상의 배려',trust:'다시 마주할 지난 약속',support:'이별의 이유를 받아들이는 방식'},
+      prompts:{peer:'혼자 시간을 보내며 내린 결론 중 상대의 이야기를 더 들어보고 싶은 부분은 무엇인가요?',expression:'지금 건넬 말을 안부, 사과, 다시 대화하자는 제안 중 하나로 줄인다면 무엇이 남나요?',practical:'그 사람이 그리울 때 함께했던 일상 중 어떤 장면이 먼저 떠오르나요?',trust:'다정했던 기억이 떠오를 때도 그대로 마음에 걸리는 지난 약속이 있나요?',support:'이별 뒤 실제로 들은 말과 내가 짐작한 이유를 나눠보면 무엇이 남나요?'}
+    },
+    mujin:{
+      chart:'직업운을 읽는 내 사주표',
+      title:'직함보다 내가 잘하는 장면부터 찾아요',
+      intro:'무진은 내 사주에서 판단하는 방식과 결과를 내기 쉬운 환경을 살펴봐요. 같은 직무라도 일을 정하는 사람이 누구인지, 피드백을 언제 받는지에 따라 내 강점이 드러나는 순간이 달라져요.',
+      lenses:{peer:'내가 직접 판단할 수 있는 범위',expression:'아이디어를 결과로 만드는 힘',practical:'계획을 실제 일로 옮기는 방식',trust:'책임과 평가가 맞물리는 조건',support:'경험과 도움을 얻는 환경'},
+      prompts:{peer:'일의 순서를 내가 정할 수 있을 때 가장 빨리 풀었던 문제는 무엇이었나요?',expression:'막연한 요구를 눈에 보이는 결과로 바꿨을 때, 누구의 반응이 다음 일을 더 낫게 했나요?',practical:'최근 일을 현실적인 계획으로 바꿨을 때 시간, 예산, 사람 중 무엇부터 정했나요?',trust:'책임의 경계와 평가 기준이 분명했을 때 평소보다 잘해낸 일은 무엇인가요?',support:'일이 막혔을 때 좋은 사례를 참고하거나 질문할 사람이 있어서 풀렸던 적이 있나요?'}
+    }
+  };
   function request(reading,payload,owner,timeout){
     if(reading===defaultReading)return client.request(endpoint+'seohwa-report',payload,owner,timeout);
     return client.request(endpoint+'featured-report',{...payload,...(reading&&{consultantId:reading.id})},owner,timeout);
@@ -54,18 +84,21 @@
   function clearGenerationTimers() {
     clearInterval(progressTimer);
     clearTimeout(statusTimer);
+    clearTimeout(previewTimer);
   }
   function pauseWritingFilm() {
     writingFilm.hidden=true;
     writingFilm.pause();
   }
-  writingFilmToggle.addEventListener('click',()=>{
-    const paused=!writingVisual.hasAttribute('data-film-paused');
-    writingVisual.toggleAttribute('data-film-paused',paused);
-    if(paused)pauseWritingFilm();
-    else writingFilm.hidden=false;
-    writingFilmToggle.textContent=paused?'영상 재생':'영상 멈추기';
-  });
+  function prepareWritingVisual(reading){
+    writingVisual.hidden=false;
+    pauseWritingFilm();
+    writingFilm=writingVisual.querySelector('video[data-advisor="'+reading.id+'"]');
+    for(const poster of writingVisual.querySelectorAll('img[data-advisor]'))poster.hidden=poster.dataset.advisor!==reading.id;
+    pauseWritingFilm();
+    if(writingFilm.currentTime>0)writingFilm.currentTime=0;
+    return writingVisual;
+  }
   function close() {
     clearGenerationTimers();
     pauseWritingFilm();
@@ -108,11 +141,57 @@
     image.width=640; image.height=800;
     head.append(image);
     const title=el('div',null,'sr-cover-text');
-    title.append(el('p',reading.title,'sr-kicker'),el('h2',reading.cover),
+    const heading=el('h2',reading.cover);
+    heading.tabIndex=-1;
+    title.append(el('p',reading.title,'sr-kicker'),heading,
       el('p',reading.stories[choice].label+(day?' · '+day+'일주':'')+
         (known===false?' · 출생시간 미상, 공통 근거로 풀이':'')));
+    title.append(button('내 풀이 바로 보기','sr-personal-jump',()=>jumpToChapter(0)));
     head.append(title);
     return head;
+  }
+  function jumpToChapter(index){
+    const heading=by('seohwa-report-chapter-'+index)?.querySelector('h3');
+    heading?.focus({preventScroll:true});
+    heading?.scrollIntoView({block:'start',behavior:'instant'});
+  }
+  function introGuide(reading,context,first){
+    const {chart,chapter,comparison,explainer,readGanZhi}=window.TaekilReportGuide;
+    const guide=el('div',null,'report-pillar-guide sr-report-guide');
+    const topic=reportGuides[reading.id];
+    const firstChapter=chart({pillars:context.pillars,hourKnown:context.known,title:topic.chart,heading:'h3'});
+    const second=chapter(2,topic.title,topic.intro,'h3');
+    const basis=Array.isArray(first.basis)?first.basis[0]:first.basis;
+    const pillar=readGanZhi(basis?.natal);
+    const label={연:'연주',월:'월주',일:'일주',시:'시주'}[basis?.location?.[0]];
+    if(label&&pillar&&basis.term){
+      const lens=topic.lenses[basis.family];
+      second.append(el('p','일간과 다른 글자 사이의 관계를 읽는 이름이 ‘십성’이에요. 이 리포트에서 먼저 살펴본 기둥과 그 풀이에 쓰인 이름을 아래에 표시했어요.'),
+        comparison([
+          ['본문에서 먼저 살펴볼 기둥',label+' · '+pillar.name+'('+pillar.hanja+')'],
+          [basis.term,lens||'일간과의 관계를 읽는 이름']
+        ]));
+    }
+    const prompt=topic.prompts[basis?.family];
+    if(prompt)second.append(explainer(prompt));
+    guide.append(firstChapter,second);
+    return guide;
+  }
+  function profileBirthDay(profile){
+    if(!profile)return null;
+    const date=resolveBirthDate([profile.y,String(profile.m).padStart(2,'0'),String(profile.d).padStart(2,'0')].join('-'),profile.calType,profile.isLeap);
+    return date?[date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-'):null;
+  }
+  function purchasedContext(reading,report){
+    const known=report.known??(report.profile?.hourValue?report.profile.hourValue!=='unknown':undefined);
+    try{
+      const birth=profileBirthDay(report.profile);
+      if(birth&&window.Solar&&window.LunarUtil){
+        const context=reading.timeSlots(birth,report.profile.hourValue,window.Solar,window.LunarUtil);
+        if(!report.day||context.day===report.day)return context;
+      }
+    }catch{}
+    return {known,pillars:report.calendar?.pillars??{day:report.day}};
   }
 
   function lockIcon() {
@@ -141,11 +220,7 @@
         row.className='sr-locked-row';
         row.append(lockIcon(),chapter);
       }else{
-        row.append(button(title,'sr-jump',()=>{
-          const heading=by('seohwa-report-chapter-'+index)?.querySelector('h3');
-          heading?.focus({preventScroll:true});
-          heading?.scrollIntoView({block:'start'});
-        }));
+        row.append(button(title,'sr-jump',()=>jumpToChapter(index)));
         if(locked)row.append(el('small','무료로 읽을 수 있어요'));
       }
       rows.append(row);
@@ -178,7 +253,7 @@
     paymentNote.append(el('strong',won.format(reading.PRICE)+'원'),el('span','1회 결제 · 자동 갱신 없음'));
     const benefits=el('ul',null,'sr-benefits');
     for(const [title,description] of [
-      ['리포트 6장 분량','무료 첫 장을 포함한 전체 리포트를 내 기록에서 다시 읽을 수 있어요.'],
+      ['개인 사주 풀이 6장','무료 첫 장과 함께 사주표 읽기 안내 2장까지 내 기록에서 다시 읽을 수 있어요.'],
       [withName(reading)+' 채팅 상담 3회','리포트 구매 후, 마음에 남은 대목에서 바로 이어서 물어볼 수 있어요.']
     ]){
       const benefit=el('li');
@@ -197,7 +272,7 @@
         el('p','이 장의 첫 문단을 공개했어요.','sr-excerpt-label'));
       samples.append(sample);
     }
-    contents.append(paper(first,0),samples,gate);
+    contents.append(introGuide(reading,context,first),paper(first,0),samples,gate);
     layout.append(toc(reading,first,true),contents);
     show([header(reading,choice,context.day,context.known),layout]);
   }
@@ -205,16 +280,54 @@
   function openPreview({profile,choice,auth,topic='love'}) {
     const reading=catalog.forTopic(topic);
     if(!reading)return;
-    const birth=resolveBirthDate([profile.y,String(profile.m).padStart(2,'0'),String(profile.d).padStart(2,'0')].join('-'),profile.calType,profile.isLeap);
-    if(!birth)return;
-    const day=[birth.getFullYear(),String(birth.getMonth()+1).padStart(2,'0'),String(birth.getDate()).padStart(2,'0')].join('-');
+    const day=profileBirthDay(profile);
+    if(!day)return;
     const today=new Date(Date.now()+9*3600000);
     const cutoff=new Date(Date.UTC(today.getUTCFullYear()-14,today.getUTCMonth(),today.getUTCDate()));
     if(day>cutoff.toISOString().slice(0,10))throw Error('만 14세 미만의 출생 정보는 사용할 수 없어요.');
     const context=reading.timeSlots(day,profile.hourValue,window.Solar,window.LunarUtil);
     const data={reading,profile,choice,auth,context,first:reading.first(context,choice),excerpts:reading.excerpts(context,choice),host:by('aiChatSetup'),owner:accountStore.snapshot()};
     active=data;
+    preparePreview(data);
+  }
+  function finishPreview(data){
+    if(active!==data||!data.previewPending)return;
+    if(!dialog.open||!data.host.closest('.view')?.classList.contains('visible')||!accountStore.current(data.owner)){
+      close();
+      return;
+    }
+    clearGenerationTimers();
+    pauseWritingFilm();
+    data.previewPending=false;
     drawPreview(data);
+    body.querySelector('.sr-cover h2').focus({preventScroll:true});
+  }
+  function preparePreview(data){
+    clearGenerationTimers();
+    data.previewPending=true;
+    displayTitle(data.reading);
+    const panel=el('section',null,'sr-generation sr-preview-generation');
+    const copy=el('div',null,'sr-generation-copy');
+    const title=el('h2','무료 미리보기를 준비하고 있어요');
+    const bar=el('progress');
+    bar.max=previewWaitMs;
+    bar.value=0;
+    bar.className='sr-preview-progress';
+    bar.setAttribute('aria-label','무료 미리보기 준비 진행률');
+    copy.append(title,el('p','입력한 출생 정보에 맞춰 사주표와 첫 풀이를 준비해요.','sr-status'),bar,
+      el('p','약 10초 · 내 사주표와 첫 풀이','sr-generation-next'));
+    panel.append(prepareWritingVisual(data.reading),copy);
+    show([panel]);
+    writingFilm.hidden=false;
+    const start=performance.now();
+    progressTimer=setInterval(()=>{
+      if(active!==data||!dialog.open||!data.host.closest('.view')?.classList.contains('visible')){
+        if(active===data)close();
+        return;
+      }
+      bar.value=Math.min(previewWaitMs,performance.now()-start);
+    },150);
+    previewTimer=setTimeout(()=>finishPreview(data),previewWaitMs);
   }
   async function buy(data,status) {
     const {reading}=data;
@@ -338,7 +451,7 @@
     const now={id:result.id,host,owner,reading};active=now;
     const layout=el('div',null,'sr-layout'), contents=el('div',null,'sr-pages');
     const balance=el('p',reading.name+' 상담 '+result.questionsLeft+'회 남음','sr-balance');
-    contents.append(balance);
+    contents.append(balance,introGuide(reading,purchasedContext(reading,report),report.first));
     for(const [index,chapter] of [report.first,...report.body].entries()){
       const page=paper(chapter,index,result.questionsLeft>0?()=>followup(result,chapter,index-1,owner,reading):null,reading);
       if(index===0&&report.calendar?.judgment)page.querySelector('.sr-highlight').after(wealthJudgment(report.calendar.judgment));
@@ -346,7 +459,7 @@
       contents.append(page);
     }
     layout.append(toc(reading,report.first,false),contents);
-    show([header(reading,report.choice,report.day,report.known??report.profile.hourValue!=='unknown'),layout],true);
+    show([header(reading,report.choice,report.day,report.known??report.profile?.hourValue!=='unknown'),layout],true);
   }
 
   async function renderPurchased(result,host,owner,autoGenerate,reading) {
@@ -373,19 +486,11 @@
     bar.setAttribute('aria-label','리포트 작성 진행률');
     meterLine.append(meterLabel,number);
     meter.append(meterLine,bar,eta);
-    const after=el('p','리포트 6장 분량 · '+withName(reading)+' 채팅 상담 3회','sr-generation-next');
+    const after=el('p','개인 풀이 6장 · 읽기 안내 2장 · '+withName(reading)+' 채팅 상담 3회','sr-generation-next');
     const action=button('전체 리포트 만들기','sr-secondary sr-generation-action',generate);
     action.hidden=autoGenerate||result.state==='generating';
     content.append(heading,message,meter,after,action);
-    writingVisual.hidden=false;
-    pauseWritingFilm();
-    writingFilm=writingVisual.querySelector('video[data-advisor="'+reading.id+'"]');
-    for(const poster of writingVisual.querySelectorAll('img[data-advisor]'))poster.hidden=poster.dataset.advisor!==reading.id;
-    pauseWritingFilm();
-    writingVisual.removeAttribute('data-film-paused');
-    writingFilmToggle.textContent='영상 멈추기';
-    if(writingFilm.currentTime>0)writingFilm.currentTime=0;
-    panel.append(writingVisual,content);
+    panel.append(prepareWritingVisual(reading),content);
     show([panel]);
     if(autoGenerate&&result.state==='paid')void generate();
     if(result.state==='generating')watchCompletion(result.startedAtMs);
@@ -398,8 +503,7 @@
     }
     function startProgress(startedAt=Date.now()) {
       clearInterval(progressTimer);
-      panel.setAttribute('data-writing','');
-      if(!writingVisual.hasAttribute('data-film-paused'))writingFilm.hidden=false;
+      writingFilm.hidden=false;
       heading.textContent=reading.name+(reading===defaultReading?'가':'이')+' 본편을 쓰고 있어요';
       setStatus(message,'고른 고민을 바탕으로 사주 풀이를 엮고 있어요.');
       eta.textContent='예상 소요 시간 약 '+typicalWriteSeconds+'초';
@@ -416,7 +520,6 @@
     }
     function showReady(ready) {
       clearGenerationTimers();
-      panel.removeAttribute('data-writing');
       pauseWritingFilm();
       heading.textContent='리포트가 완성됐어요';
       action.hidden=true;
@@ -429,7 +532,6 @@
     }
     function offerRetry(text) {
       clearGenerationTimers();
-      panel.removeAttribute('data-writing');
       pauseWritingFilm();
       meter.hidden=true;
       heading.textContent='리포트를 이어서 준비할 수 있어요';
@@ -721,6 +823,7 @@
   }
   function focusCheckoutAfterLogin() {
     if(!dialog.open||!active?.owner.owner||!accountStore.current(active.owner))return;
+    if(active.previewPending)finishPreview(active);
     const status=body.querySelector('.sr-gate .sr-status');
     const pay=body.querySelector('.sr-gate button[data-checkout-action]');
     if(!status||!pay?.getClientRects().length)return;
