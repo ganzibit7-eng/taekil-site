@@ -177,7 +177,7 @@
     set('insightYear',p.profile.y);set('insightMonth',p.profile.m);set('insightDay',p.profile.d);
     const toggle=document.querySelector(`#insightCalType [data-type="${p.profile.calType}"]`);if(toggle)toggle.click();
     document.getElementById('insightLeap').checked=p.profile.isLeap;
-    restoringFlowId=p.id;calculateSajuInsight();restoringFlowId=null;
+    restoringFlowId=p.id;calculateSajuInsight({restore:true});restoringFlowId=null;
     // Keep the original flow identity after recomputing a local, free result.
     if(current)current.id=p.id;
     if(current&&p.question){current.selectedQuestion=p.question;current.selectedPreset=p.preset;box.querySelector(`[data-preset="${['career','money','relationships'].includes(p.preset)?p.preset:'direct'}"]`)?.setAttribute('aria-pressed','true');}

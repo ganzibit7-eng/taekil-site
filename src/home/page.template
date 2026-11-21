@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="/home-layout.js?v=directory-compact-1"></script>
-<link rel="stylesheet" href="/home-layout.css?v=directory-compact-1">
+<link rel="stylesheet" href="/home-layout.css?v=report-chat-1">
 <title>택일소 | AI 사주 상담 · 오늘의 운세 · 결혼·이사·개업 택일</title>
 <meta name="description" content="AI 사주 상담가 연우에게 오늘의 운세, 연애운, 재물운, 궁합을 묻고 결혼·이사·개업·계약 날짜까지 비교해보세요. 첫 질문 3개 무료.">
 <meta name="keywords" content="사주, 사주풀이, 무료사주, 사주궁합, 오늘의운세, 신년운세, 택일, 결혼택일, 이사택일, 개업택일, 손없는날, 만세력">
@@ -306,7 +306,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <video data-advisor="mujin" data-story-preview-video data-video-src="/assets/consultant-mujin-chapter-film.mp4" aria-hidden="true" muted loop playsinline preload="none" hidden></video>
   </div>
 </dialog>
-<link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=annual-progress-1"></script><script src="premium-motion.js" defer></script>
+<link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=free-progress-1"></script><script src="premium-motion.js" defer></script>
 <script src="consultation-draft-core.js?v=featured-report-1"></script>
 <script src="consultation-stage.js?v=featured-report-2"></script>
 <script src="consultation-history-filters.js?v=20261120-history-filters"></script>
@@ -319,9 +319,9 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="report-pillar-guide.js?v=paper-1"></script>
 <link rel="stylesheet" href="newyear-consultation.css?v=paper-1">
 <script src="newyear-consultation.js?v=paper-1"></script><script src="newyear-example.js?v=20261119-handoff-refine"></script>
-<link rel="stylesheet" href="free-report-handoff.css?v=ink-1120">
+<link rel="stylesheet" href="free-report-handoff.css?v=free-progress-1">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
-<script src="free-report-handoff.js?v=nov20-fortune"></script>
+<script src="free-report-handoff.js?v=free-progress-1"></script>
 <link rel="stylesheet" href="navigation-refinement.css?v=surfaces-1120">
 <script src="navigation-refinement.js?v=20261110-1"></script>
 <script src="profile-picker-controls.js?v=20261118-confirmed-delete"></script>

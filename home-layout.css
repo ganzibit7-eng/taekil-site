@@ -130,6 +130,44 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   color: var(--directory-muted);
   font: 550 15px/1.4 var(--sans);
 }
+.home-directory .directory-sections .directory-mode-jump {
+  border-bottom:2px solid #c6aa76;
+  color:#f0d7b3;
+  font-weight:650;
+}
+.directory-mode-heading h2 {margin-bottom:6px}
+.directory-mode-heading p {
+  margin:0 0 17px;
+  color:var(--directory-muted);
+  font:400 15px/1.6 var(--sans);
+  word-break:keep-all;
+}
+.directory-chat-intro {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px 24px;
+  padding:clamp(17px,3vw,28px);
+  border:1px solid #746378;
+  border-radius:12px;
+  background:#302735;
+}
+.directory-chat-intro .directory-mode-heading p {margin-bottom:0;color:#d7cbd8}
+.home-directory .directory-chat-start {
+  min-height:46px;
+  padding:8px 15px;
+  border:1px solid #b29cbc;
+  border-radius:7px;
+  background:#43374d;
+  color:#f7e9f6;
+  font:650 14px/1.5 var(--sans);
+  word-break:keep-all;
+}
+.home-directory .directory-chat-start:hover {background:#55455e}
+.directory-chat-intro + .directory-section {margin-top:clamp(22px,3vw,34px)}
+@media(max-width:520px) {
+  .directory-chat-intro {align-items:stretch;flex-direction:column}
+}
 .directory-sections + .directory-section { margin-top: 26px; }
 .directory-section h2 {
   margin: 0 0 16px;
