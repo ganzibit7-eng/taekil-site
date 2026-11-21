@@ -730,7 +730,7 @@
     const overview=el('section',null,'sr-summary sr-topic-summary');
     overview.append(el('h3',theme.map));
     const list=el('ol',null,'sr-topic-map');
-    for(const [label,index] of report.topicVersion===2?newSteps[reading.id]:theme.steps){
+    for(const [label,index] of report.topicVersion>=2?newSteps[reading.id]:theme.steps){
       const chapter=report.body[index];
       if(!chapter)continue;
       const row=el('li');
@@ -741,10 +741,11 @@
       const moments=el('dl',null,'sr-summary-moments');
       const [open]=periods.opportunity,[pause]=periods.attention;
       const annual=periods.years[0];
+      overview.append(el('p',report.body[0].highlight,'sr-summary-lead'));
       for(const [label,value,desc] of [
-        [reading.id==='mujin'?'성장에 주목할 달':'인연에 주목할 달',open?open.month+'월':'—',open?.pair],
-        [reading.id==='mujin'?'변화를 살필 달':'관계를 살필 달',pause?pause.month+'월':'—',pause?.pair],
-        ['2027년 세운',annual.pair,annual.reading]
+        [reading.id==='mujin'?'성장에 주목할 달':reading.id==='ijun'?'인연의 접점을 돌아볼 달':'인연에 주목할 달',open?open.month+'월':'—',open?.insight.basis],
+        [reading.id==='mujin'?'역할 변화를 살필 달':'관계 변화를 살필 달',pause?pause.month+'월':'—',pause?.insight.basis],
+        ['2027년 세운',annual.pair,annual.insight.basis]
       ]){
         const box=el('div');
         box.append(el('dt',label),el('dd',value,'sr-summary-date'));
@@ -763,6 +764,23 @@
     else group.append(el('p','이 구간에는 확인된 원국과 직접 맞물리는 합·충 관계가 없어요.'));
     return group;
   }
+  function relationshipReading(row,reading){
+    const article=el('div',null,'sr-topic-reading');
+    const labels={
+      seohwa:['새 인연과 관계 발전','관계에서 달라지는 점'],
+      ijun:['지난 인연과 다음 인연','관계를 다시 돌아볼 점'],
+      mujin:['취업·이직·승진의 흐름','역할과 환경에서 살필 점']
+    }[reading.id];
+    article.append(el('p',row.insight.signal,'sr-topic-reading-lead'),el('p',row.insight.basis));
+    const list=el('dl');
+    for(const [index,key] of ['opportunity','caution'].entries()){
+      const group=el('div');
+      group.append(el('dt',labels[index]),el('dd',row.insight[key]));
+      list.append(group);
+    }
+    article.append(list);
+    return article;
+  }
   function relationshipMonths(periods,reading){
     const career=reading.id==='mujin';
     const section=el('section',null,'sr-wealth-ranking sr-topic-calendar');
@@ -770,7 +788,7 @@
     graph.setAttribute('role','group');
     graph.setAttribute('aria-label',career?'월별 직업운과 역할 변화':'월별 인연과 관계 변화');
     const legend=el('div',null,'sr-wealth-legend');
-    legend.append(el('span',career?'성장·역할 단서':'인연을 살피는 합','sr-legend-opportunity'),el('span','변화를 살피는 충·형·파·해','sr-legend-expense'));
+    legend.append(el('span',career?'성장·역할 단서':'관계 접점 단서','sr-legend-opportunity'),el('span','변화 단서','sr-legend-expense'));
     const detail=el('div',null,'sr-wealth-month-detail');
     detail.id='relationshipMonthDetail';
     detail.setAttribute('aria-live','polite');
@@ -792,8 +810,7 @@
     let activeMonth;
     function showPerspective(){
       const lensText=readings[Number(picker.value)][1];
-      const signal=activeMonth.adjustment>activeMonth.affinity?'변화를 살필 단서가 더 많이 보여요.':activeMonth.affinity>activeMonth.adjustment?'인연의 접점으로 읽는 합이 더 많이 보여요.':'합과 변화의 개수가 같아요.';
-      perspective.textContent=activeMonth.month+'월은 '+signal+' '+lensText;
+      perspective.textContent=activeMonth.month+'월 · '+lensText;
     }
     picker.addEventListener('change',showPerspective);
     const scale=Math.max(1,...periods.calendar.flatMap(row=>[row.affinity,row.adjustment]));
@@ -802,9 +819,12 @@
       showPerspective();
       for(const bar of graph.children)bar.setAttribute('aria-pressed',String(bar===selected));
       const exact=el('details',null,'sr-evidence');
-      exact.append(el('summary','절입 시각과 구간별 근거'));
+      exact.append(el('summary','월운·세운·대운의 계산 근거'));
+      exact.append(el('p',row.annual+' 세운 · '+(row.annualLinks.join(' / ')||'대표 월운과 직접 맞물리는 합·충 등이 없어요.')));
+      for(const cycle of row.cycles)exact.append(el('p',cycle.pair+' 대운 · '+(cycle.links.join(' / ')||'대표 월운과 직접 맞물리는 합·충 등이 없어요.')));
+      if(!row.cycles.length)exact.append(el('p','대운 전환 시점을 확인할 수 없어 원국과 세운·월운으로 읽었어요.'));
       for(const span of row.spans)exact.append(el('p',span.from+'부터 '+span.until+' 직전까지 · '+span.annual+' 세운 · '+span.pair+' 월운'),relationshipEvidence(span));
-      detail.replaceChildren(el('h4',row.month+'월 · '+row.pair+' 월운'),relationshipEvidence(row),exact);
+      detail.replaceChildren(el('h4',row.month+'월 · '+row.pair+' 월운'),relationshipReading(row,reading),exact);
     };
     for(const row of periods.calendar){
       const bar=button('','sr-wealth-bar',()=>choose(row,bar));
@@ -823,7 +843,8 @@
     choose(start,graph.children[start.month-1]);
     const heading=el('h3',career?'2027년 월별 직업운':reading.id==='ijun'?'2027년 월별 재회·인연운':'2027년 월별 인연 흐름');
     heading.id='relationshipMonthsHeading';heading.tabIndex=-1;
-    section.append(heading,el('p',career?'대표 월운의 식상·관성·인성과 원국의 합을 성장·역할 단서로 세어요. 변화 지표는 충·형·파·해의 글자쌍을 세어요.':'가장 긴 절기 구간에서 원국과 월운을 비교해요. 같은 글자쌍은 지표마다 한 번 세고, 실제 관계는 펼쳐볼 수 있어요.'),legend,graph,detail);
+    const ranking=periods.legacyRanking?'주목할 달은 발급 당시 순서를 보여줘요.':'시기를 고를 때는 '+(career?'월주':'일지')+'에 직접 작용하는 달을 먼저 보고, 같은 순위의 달도 함께 보여줘요.';
+    section.append(heading,el('p','양력 달에서 가장 길게 이어지는 절기 월운을 대표로 보여줘요. 막대는 단서의 수예요. '+ranking),legend,graph,detail);
     if(reading.id==='seohwa')section.append(lens,perspective);
     return section;
   }
@@ -843,7 +864,7 @@
         const short=t=>t.slice(5,10).replace('-','.');
         const evidence=el('details',null,'sr-evidence');
         evidence.append(el('summary','절기 전체와 양력 표시 구간'),el('p','절기 월운 · '+row.solarFrom+'부터 '+row.solarUntil+' 직전까지'),el('p','양력 그래프 · '+row.from+'부터 '+row.until+' 직전까지'));
-        item.append(el('p',labelText,'sr-period-rank'),el('h5',short(row.solarFrom)+' – '+short(row.solarUntil)+' · '+row.pair+' 월운'),relationshipEvidence(row),evidence);
+        item.append(el('p',labelText,'sr-period-rank'),el('h5',short(row.solarFrom)+' – '+short(row.solarUntil)+' · '+row.pair+' 월운'),el('p',row.insight.basis),evidence);
         list.append(item);
       }
     }
@@ -854,6 +875,14 @@
   function relationshipYears(periods,reading){
     const panel=el('section',null,'sr-wealth-outlook sr-topic-timeline');
     panel.append(el('h4',reading.id==='mujin'?'2027~2036년 직업운':'2027~2036년 인연 흐름'));
+    const horizons=el('dl',null,'sr-summary-moments');
+    for(const range of periods.horizons){
+      const box=el('div');
+      const describeYears=(label,years)=>years.length?label+' '+years.join('·')+'년':'';
+      box.append(el('dt',range.length+'년 · '+range.from+'~'+range.through),
+        el('dd',[describeYears('접점',range.opportunity),describeYears('변화',range.attention),describeYears('대운 전환',range.transitions)].filter(Boolean).join(' / ')));
+      horizons.append(box);
+    }
     const choices=el('div',null,'sr-year-picker');
     choices.setAttribute('role','group');
     choices.setAttribute('aria-label','인연운 연도 선택');
@@ -863,7 +892,7 @@
     function select(row,selected){
       for(const choice of choices.children)choice.setAttribute('aria-pressed',String(choice===selected));
       const year=el('div',null,'sr-wealth-year');
-      year.append(el('h5',row.year+'년 · '+row.pair+' 세운'),relationshipEvidence(row));
+      year.append(el('h5',row.year+'년 · '+row.pair+' 세운'),relationshipReading(row,reading));
       for(const cycle of row.cycles)year.append(el('p',(cycle.transition?cycle.transition.slice(0,7).replace('-','년 ')+'월 무렵부터 ':'')+cycle.pair+' 대운'+(cycle.links.length?' · '+cycle.links.join(' / '):'')));
       if(!row.cycles.length)year.append(el('small','대운 시점이 확인되지 않아 입춘 기준 세운으로 읽어요.'));
       if(row.cycles.some(c=>c.transition))year.append(el('small','전환 월은 입력한 출생시간과 택일소의 기산 방식에 따른 추정이에요.'));
@@ -872,7 +901,7 @@
     for(const row of periods.years){
       const buttonEl=button(String(row.year),'sr-year-choice',()=>select(row,buttonEl));
       const labels=[];
-      if(row.affinity)labels.push('합');
+      if(row.affinity)labels.push(reading.id==='mujin'?'성장':'접점');
       if(row.adjustment)labels.push('변화');
       if(row.cycles.some(c=>c.transition))labels.push('대운 전환');
       if(labels.length)buttonEl.append(el('small',labels.join(' · ')));
@@ -880,7 +909,7 @@
       choices.append(buttonEl);
     }
     select(periods.years[0],choices.firstElementChild);
-    panel.append(choices,detail);
+    panel.append(horizons,choices,detail);
     return panel;
   }
 
@@ -895,10 +924,10 @@
     const topic=topicPresentation[reading.id];
     let periods;
     if(topic){
-      if(reading.id==='seohwa'||report.topicVersion===2){
+      if(reading.id==='seohwa'||report.topicVersion>=2){
         const context=purchasedContext(reading,report);
         try{
-          periods=window.TaekilRelationshipPeriods?.calc(window.Solar,window.LunarUtil,context.pillars,profileBirthDay(report.profile),report.profile,reading.id);
+          periods=window.TaekilRelationshipPeriods?.calc(window.Solar,window.LunarUtil,context.pillars,profileBirthDay(report.profile),report.profile,reading.id,{legacyRanking:!(report.topicVersion>=3)});
         }catch(error){console.warn('SEOHWA_PERIODS_UNAVAILABLE',error.name);}
       }
       front.push(reportOverview(report,reading,periods));
@@ -994,12 +1023,12 @@
         });
         page.querySelector('.sr-evidence')?.before(calendarLink);
       }
-      if(periods&&index===(report.topicVersion===2?4:3))page.querySelector('.sr-evidence')?.before(relationshipTimeline(periods,reading));
+      if(periods&&index===(report.topicVersion>=2?4:3))page.querySelector('.sr-evidence')?.before(relationshipTimeline(periods,reading));
       if(periods&&index===5)page.querySelector('.sr-evidence')?.before(relationshipYears(periods,reading));
       if(topic&&index===5){
         const recap=el('section',null,'sr-topic-recap');
         const list=el('ol');
-        for(const [label,i] of report.topicVersion===2?newSteps[reading.id]:topic.steps){
+        for(const [label,i] of report.topicVersion>=2?newSteps[reading.id]:topic.steps){
           const item=el('li');
           item.append(el('strong',label),el('p',report.body[i].highlight));
           list.append(item);
