@@ -122,11 +122,16 @@
       page.append(el('h4',section.title));
       for(const text of section.text.split('\n'))page.append(el(section.quote?'blockquote':'p',text));
     }
-    else for(const paragraph of chapter.paragraphs)page.append(el('p',paragraph));
+    else for(const paragraph of chapter.paragraphs){
+      const sentences=reading?.id==='dogyeom'?paragraph.match(/[^.!?]+(?:[.!?]+|$)/g):null;
+      if(sentences?.length>4){
+        for(let i=0;i<sentences.length;i+=3)page.append(el('p',sentences.slice(i,i+3).join('').trim()));
+      }else page.append(el('p',paragraph));
+    }
     const basis=Array.isArray(chapter.basis)?chapter.basis[0]:chapter.basis;
     if(basis){
       const details=el('details',null,'sr-evidence');
-      details.append(el('summary','이 장에 사용한 사주 근거'),el('p',basis.location+' · '+basis.natal+' · '+basis.term),
+      details.append(el('summary','이 장에 사용한 사주 근거'),el('p',basis.natal+' 기둥 · '+basis.location+' · '+basis.term),
         el('p',basis.meaning));
       page.append(details);
     }
@@ -502,10 +507,11 @@
       basis.append(el('summary','이 달을 읽은 사주 근거'),
         el('p',selected.ganZhi+' 월운 · '+selected.basis),
         el('p',selected.segments?'한국시간 · 각 구간은 종료 시각 직전까지예요.':selected.from+'부터 '+selected.untilExclusive+' 직전까지 (한국시간)'));
+      if(selected.relations?.length)basis.append(el('p','원국과의 관계 · '+selected.relations.join(' / ')));
       for(const segment of selected.segments||[])basis.append(el('p',segment.from+' ~ '+segment.untilExclusive+' · '+segment.yearGanZhi+' 세운 · '+segment.monthGanZhi+' 월운'));
       if(selected.components){
         const {income,retention,risk}=selected.components;
-        basis.append(el('p','기회 = 49 + 2 × 수입 신호('+income+') + 보유 신호('+retention+') − 주의 신호('+risk+'). 지출 점검 = 18 + 6 × 주의 신호. 각 지표는 0~100 범위로 표시해요.'));
+        basis.append(el('p','택일소가 달을 비교하기 위해 정한 해석 지표예요. 수익 확률이나 검증된 명리 점수가 아니에요. 기회 = 49 + 2 × 수입 신호('+income+') + 보유 신호('+retention+') − 주의 신호('+risk+'). 지출 점검 = 18 + 6 × 주의 신호. 각 지표는 0~100 범위로 표시해요.'));
         basis.append(el('p',selected.natalLink.length?'월간의 십성이 원국의 '+selected.natalLink.join('·')+'에도 있어 익숙한 성향이 드러나는 달로 읽어요.':'확인된 원국에서 이 달의 월간과 같은 십성은 보이지 않아, 평소와 다른 흐름으로 읽어요.'));
       }
       detail.replaceChildren(el('h6',month+'월 재물운 · 기회 '+selected.rank+'위'),
@@ -533,14 +539,21 @@
     return section;
   }
 
-  function wealthOutlook(outlook){
+  function wealthOutlook(outlook,calendar){
     const section=el('section',null,'sr-wealth-outlook');
     const details=el('details',null,'sr-evidence');
-    details.append(el('summary','연도별 재물운 살펴보기'));
+    if(calendar.version>=6){
+      section.append(el('h4',calendar.daewoon?'대운 · 여러 해에 걸친 배경':'10년 세운 전망'));
+      if(!calendar.daewoon)section.append(el('p','확정할 수 있는 대운 구간이 없어 해마다 달라지는 세운만 읽었어요.'));
+      for(const c of calendar.daewoon?.cycles||[])section.append(el('h5',c.startYear+'~'+c.endYear+'년 · '+c.ganZhi+' 대운'),el('p',c.basis),el('small',c.relations.join(' / ')||'원국과 직접 맞물리는 두 글자 관계가 없어요.'));
+    }
+    details.append(el('summary','연도별 세운과 원국 근거 살펴보기'));
     for(const year of outlook.years){
       const item=el('section',null,'sr-wealth-year');
       item.append(el('h6',year.year+'년 · '+year.label),el('p',year.talk),el('p',year.caution),
         el('small',year.ganZhi+' 세운 · '+year.basis));
+      if(year.relations?.length)item.append(el('p',year.relations.join(' / ')));
+      if(year.cycle)item.append(el('small',year.cycle.ganZhi+' 대운과 함께 읽어요. '+year.cycle.relations.join(' / ')));
       details.append(item);
     }
     const horizons=el('dl',null,'sr-wealth-horizons');
@@ -603,13 +616,14 @@
     if(reading.id==='dogyeom'&&report.calendar?.ranking){
       const {year,judgment,ranking}=report.calendar;
       const summary=el('section',null,'sr-summary');
-      summary.append(el('h3','올해 내 재물운 한눈에 보기'),el('p',judgment.route.title),
+      summary.append(el('h3','올해 내 재물운 한눈에 보기'),el('p',report.calendar.version>=6?report.body[0].highlight:judgment.route.title),
         el('p',year+'년 기회가 가장 강한 때는 '+ranking.opportunity[0]+'월이에요.'),
         el('p','지출을 먼저 살펴볼 때는 '+ranking.expense[0]+'월이에요.'));
       if(report.calendar.natal){
         const natal=el('details',null,'sr-evidence');
         natal.append(el('summary','내 재물운을 읽은 원국 근거'));
         for(const pillar of report.calendar.natal)natal.append(el('p',pillar.position+' · 겉 '+pillar.visible+' · 지장간 '+pillar.hidden.join('·')));
+        if(report.calendar.internal?.length)natal.append(el('p','원국 안에서 맞물리는 글자 · '+report.calendar.internal.join(' / ')));
         if(!report.calendar.pillars.hour)natal.append(el('p','출생시간 미상으로 시주를 제외했어요.'));
         if(!report.calendar.pillars.month||!report.calendar.pillars.year)natal.append(el('p','출생 시각에 따라 달라지는 기둥은 제외했어요.'));
         summary.append(natal);
@@ -628,8 +642,20 @@
         if(report.calendar.ranking)highlight.after(wealthRanking(report.calendar),judgment);
         else highlight.after(judgment);
       }
+      if(index===1&&report.calendar?.version>=6){
+        const c=report.calendar,annual=c.outlook.years[0],summary=el('details',null,'sr-evidence');
+        summary.append(el('summary','올해를 읽는 세 가지 단서'),el('h5','입춘을 지나 달라지는 기운'),
+          el('p',c.prior.ganZhi+'년의 '+c.prior.basis+'에서 '+annual.ganZhi+'년의 '+annual.basis+'로 바뀌어요.'),
+          el('h5','정미년과 내 원국의 관계'),el('p',annual.relations.join(' / ')||'정미와 직접 짝을 이루는 두 글자 관계는 확인되지 않아요. 십성의 변화에 무게를 두었어요.'),
+          el('h5','반년씩 나눠 본 재물 기회'));
+        for(const start of [0,6]){
+          const best=c.rows.slice(start,start+6).reduce((a,b)=>a.score>=b.score?a:b);
+          summary.append(el('p',(start?'하반기':'상반기')+'에서 기회 지표가 가장 높은 '+best.month+'월 · '+best.ganZhi+' · '+best.basis));
+        }
+        page.querySelector('.sr-evidence')?.before(summary);
+      }
       if(index===2&&report.calendar)page.querySelector('.sr-evidence')?.before(calendarArticle(report.calendar));
-      if(index===5&&report.calendar?.outlook)page.querySelector('.sr-evidence')?.before(wealthOutlook(report.calendar.outlook));
+      if(index===5&&report.calendar?.outlook)page.querySelector('.sr-evidence')?.before(wealthOutlook(report.calendar.outlook,report.calendar));
       if(paidWealth&&index===0){
         const first=el('details',null,'sr-paid-details');
         first.append(el('summary','무료 첫 장 다시 보기'),page);
@@ -640,7 +666,19 @@
           more.append(el('summary','상세 풀이 읽기'));
           for(const paragraph of page.querySelectorAll(':scope > p:not(.sr-page-label):not(.sr-highlight)'))more.append(paragraph);
           page.querySelector('.sr-highlight').after(more);
-          if(index===3)page.append(wealthJudgment(report.calendar.judgment));
+          if(index===3){
+            if(report.calendar.version<6)page.append(wealthJudgment(report.calendar.judgment));
+            else{
+              const panel=el('section',null,'sr-wealth-judgment');
+              panel.append(el('h4','세 기회의 명리 근거'));
+              for(const m of report.calendar.ranking.opportunity){
+                const row=report.calendar.rows[m-1], card=el('section',null,'sr-wealth-timing');
+                card.append(el('h5',m+'월 · '+row.label),el('p',row.ganZhi+' 월운 · '+row.basis),el('small',row.relations.join(' / ')||'겉과 지지 속 십성의 조합으로 읽었어요.'));
+                panel.append(card);
+              }
+              page.append(panel);
+            }
+          }
         }
         contents.append(page);
       }
