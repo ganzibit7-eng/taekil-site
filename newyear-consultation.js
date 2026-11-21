@@ -8,12 +8,6 @@
   let active=false,busy=false,timer=0,version=0,pendingChat=false,pendingQuestion='',profiles=[],progressClock=0,progressStarted=0,progressView=null,completionTimer=0,draft=null,draftOwner=null,paymentPolls=0;
   const price=6900, productName='2027 신년운세 리포트', pendingKey='taekilso_newyear_report_pending_v1';
   const expectedWriteMs=120000;
-  const writingFilm=view.querySelector('[data-year-progress-video]'),filmToggle=view.querySelector('[data-year-film-toggle]');
-  filmToggle?.addEventListener('click',()=>{
-    const paused=writingFilm.toggleAttribute('data-video-paused');
-    filmToggle.textContent=paused?'영상 재생':'영상 멈추기';
-    window.dispatchEvent(new Event('taekilso:readingMode'));
-  });
   const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
   const button=(text,action,primary=false)=>{const b=el('button',text,'btn'+(primary?' btn-primary':''));b.type='button';b.addEventListener('click',action);return b;};
   const loggedIn=()=>!!((typeof getKakaoUser==='function'&&getKakaoUser())||(typeof firebaseAuthUser!=='undefined'&&firebaseAuthUser&&!firebaseAuthUser.isAnonymous));
@@ -213,6 +207,26 @@
     target.append(note);
   }
   function section(title,text){const s=el('section',null,'newyear-report-section');s.append(el('h2',title));appendReading(s,text);return s;}
+  function readingGuide(data){
+    const {chart,chapter,comparison,explainer,readGanZhi}=window.TaekilReportGuide;
+    const guide=el('div',null,'report-pillar-guide annual-report-guide');
+    const pillars=data.calculation.pillars||{};
+    const first=chart({pillars,hourKnown:data.profile.hourValue!=='unknown'});
+    const second=chapter(2,'같은 2027년인데 풀이가 다른 이유','태어난 네 기둥을 ‘원국’, 해마다 바뀌는 글자를 ‘세운’, 달마다 바뀌는 글자를 ‘월운’이라고 해요. 연우는 먼저 내 사주에 있는 글자와 올해의 글자를 비교하고, 이어서 달이 바뀔 때 무엇을 눈여겨볼지 풀어드려요.');
+    const day=readGanZhi(pillars.day);
+    const annual=readGanZhi(data.calculation.annual.ganZhi);
+    if(day&&annual)second.append(comparison([
+      ['나를 읽는 첫 글자',day.stem+'('+day.hanja[0]+')'],
+      ['입춘부터 시작하는 올해의 세운',annual.name+'('+annual.hanja+')']
+    ]));
+    second.append(explainer('같은 2027년이라도 내 일간에 따라 짚어볼 주제가 달라져요. 월별 풀이를 읽을 때는 달력의 날짜도 함께 봐주세요. 예를 들어 2월 초라도 입춘 전이라면 사주에서는 아직 앞 해에 속해요.'));
+    guide.append(first,second);
+    return guide;
+  }
+  function focusReportHeading(heading){
+    heading.focus({preventScroll:true});
+    heading.scrollIntoView({block:'start',behavior:'instant'});
+  }
   function decisionGuide(guide,year){
     const focus=section('분야별로 먼저 살펴볼 시기',year+'년 달력에서 각 분야와 맞닿는 전통적 풀이가 겹치는 구간을 골랐어요. 실제 사건이 일어날 날짜나 확률을 뜻하지 않아요.');
     for(const item of guide.areas){
@@ -255,6 +269,7 @@
       el('strong',`${data.profile.name} 님의 한 해`),
       el('p',`${data.profile.date} · ${window.TaekilBirthTime.label(data.profile.hourValue)}`,'newyear-report-owner'));
     cover.append(portrait,coverText);
+    const introduction=readingGuide(data);
     const overview=section('한 해의 큰 흐름',r.overview);
     overview.classList.add('annual-report-overview');
     const foundation=section('나의 사주와 2027년',r.foundation);
@@ -273,13 +288,17 @@
     const months=el('section',null,'newyear-months');months.append(el('h2','열두 달, 나의 흐름'));
     const contents=el('nav',null,'newyear-report-contents');
     contents.setAttribute('aria-label','신년 리포트 목차');
+    const introJump=el('button','사주표 읽는 법');
+    introJump.type='button';
+    introJump.addEventListener('click',()=>focusReportHeading(introduction.querySelector('h2')));
+    contents.append(introJump);
     const guide=data.decisionGuide?decisionGuide(data.decisionGuide,data.year):null;
     const opportunities=section('기회를 살리는 방법',r.opportunities);
     const cautions=section('조금 더 신중할 때',r.cautions);
     const closing=section('연우가 전하는 말',r.closing);
     closing.classList.add('annual-report-closing');
     const sections=[overview,foundation,areas,months,...(guide?[guide.focus,guide.decade]:[]),opportunities,cautions,closing];
-    const links=[['한 해의 흐름',overview],['분야별 풀이',areas],['월별 풀이',months]];
+    const links=[['내 풀이 바로 보기',overview],['분야별 풀이',areas],['월별 풀이',months]];
     if(guide)links.push(['주요 시기',guide.focus],['10년 흐름',guide.decade]);
     for (const [label, target] of links) {
       const heading=target.querySelector('h2');
@@ -287,13 +306,10 @@
       const jump=el('button',label);
       jump.type='button';
       jump.dataset.newyearJump=String(sections.indexOf(target));
-      jump.addEventListener('click',()=>{
-        heading.focus({preventScroll:true});
-        heading.scrollIntoView({block:'start',behavior:'instant'});
-      });
+      jump.addEventListener('click',()=>focusReportHeading(heading));
       contents.append(jump);
     }
-    content.append(cover,contents,...sections);
+    content.append(cover,contents,introduction,...sections);
     const monthIndex=el('nav',null,'newyear-month-index');
     monthIndex.setAttribute('aria-label','월별 풀이 바로가기');
     months.append(monthIndex);

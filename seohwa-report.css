@@ -74,7 +74,12 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 }
 .sr-cover h2 {max-width:21ch;color:#fff8ee;font-size:clamp(25px,4.4vw,46px)}
 .sr-kicker {color:var(--sr-gold);font-weight:700;font-size:14px;margin:0 0 7px}
-.sr-cover-text>p:last-child {color:#f2dad4;margin:10px 0 0;font-size:14px;line-height:1.5}
+.sr-cover-text>p:last-of-type {color:#f2dad4;margin:10px 0 0;font-size:14px;line-height:1.5}
+.sr-personal-jump {
+  min-height:44px;margin-top:15px;padding:7px 13px;border:1px solid #bc9b73;
+  border-radius:7px;background:#e4c49b;color:#30202c;font:650 14px/1.5 var(--sans);
+}
+.sr-personal-jump:focus-visible {outline:2px solid #ffe5be;outline-offset:3px}
 .sr-layout {display:grid;grid-template-columns:195px minmax(0,1fr);gap:clamp(16px,3vw,34px);margin-top:clamp(15px,3vw,30px);align-items:start}
 .sr-toc {position:sticky;inset-block-start:81px;border-block:1px solid var(--sr-line);padding:12px 0;color:#e8d3c9}
 .sr-toc h3 {font-size:15px;margin:0 0 5px;color:var(--sr-cream)}
@@ -124,27 +129,11 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 .sr-generation-visual video.yeonwoo-playing {opacity:1}
 .sr-generation-visual :is(img,video)[hidden] {display:none}
 .sr-generation-visual::after {content:"";position:absolute;inset:0;background:linear-gradient(90deg,#261d25a8,transparent 26%);pointer-events:none}
-.sr-generation-film-toggle {
-  display:none;
-  position:absolute;
-  z-index:1;
-  inset-inline-end:10px;
-  inset-block-end:9px;
-  min-height:44px;
-  padding:5px 10px;
-  border:1px solid #f4d4b770;
-  border-radius:6px;
-  background:#271c25e6;
-  color:#fff0de;
-  font:500 13px/1.35 var(--sans,sans-serif);
-  cursor:pointer;
-}
-.sr-generation[data-writing] .sr-generation-visual:is(:has(video.yeonwoo-playing),[data-film-paused],:focus-within) .sr-generation-film-toggle {display:block}
-.sr-generation-film-toggle:focus-visible {outline:2px solid #ffdfac;outline-offset:2px}
 .sr-generation-copy {grid-area:copy;align-self:center;min-width:0;padding:clamp(24px,4vw,44px);word-break:keep-all}
 .sr-generation h2 {margin:0;color:#fff1e1;font:700 clamp(25px,3.9vw,38px)/1.27 var(--serif,"Batang",serif);letter-spacing:-.045em;text-wrap:balance}
 .sr-generation .sr-status {margin:10px 0 0;color:#e6d3ca;font-size:15px;line-height:1.55}
 .sr-generation-next {margin:23px 0 0;padding-top:13px;border-top:1px solid #675050;color:#dfc5b7;font-size:13px;line-height:1.55}
+.sr-preview-progress {width:100%;height:7px;margin-top:20px;accent-color:#e4be8b}
 .sr-generation-action {margin-top:8px;color:#ffe3b4}
 .seohwa-report-dialog:has(.sr-generation) .sr-toolbar progress {display:none}
 .sr-return-wrap {padding:clamp(26px,7vw,70px) 16px}
@@ -213,6 +202,7 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
   .sr-toc {position:static;width:100%}
   .sr-pages {width:100%}
   .sr-layout:has(.sr-payment-note) .sr-pages {display:contents}
+  .sr-layout:has(.sr-payment-note) .sr-report-guide {order:-3;width:100%}
   .sr-layout:has(.sr-payment-note) .sr-paper {order:-2}
   .sr-layout:has(.sr-payment-note) .sr-samples {order:-1}
   .sr-layout:has(.sr-payment-note) .sr-gate {order:1}
