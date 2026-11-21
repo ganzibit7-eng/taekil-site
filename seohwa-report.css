@@ -375,3 +375,165 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 .sr-wealth-buy-jump{position:sticky;top:.5rem;z-index:2;display:block;margin:0 0 .75rem auto;padding:.6rem 1rem;border:1px solid #b89a62;border-radius:2rem;background:#332a26;color:#fff0d0;font:inherit}.sr-summary{padding:1rem 1.25rem;border-inline-start:3px solid #b89a62;background:#eee4d1;color:#392e24}.sr-summary p{margin:.45rem 0}
 
 .sr-pages .sr-summary :is(h3,p){color:#392e24}.sr-paid-details>summary{cursor:pointer;padding:.8rem 0;color:inherit;font-weight:600}.sr-paid-details>article{margin-top:.75rem}
+
+/* Dogyeom report palette and reading layout */
+.seohwa-report-dialog[data-advisor="dogyeom"] {
+  --sr-surface:#19191b;
+  --sr-line:#514841;
+  --sr-cream:#f0e9dd;
+  --sr-gold:#dfba87;
+  --wealth-paper:#f0e9dd;
+  --wealth-ink:#302a29;
+  --wealth-muted:#61554d;
+  --wealth-rule:#d4c7b5;
+  --wealth-gold:#79562e;
+  --wealth-green:#486757;
+  --wealth-red:#8a4841;
+  font-family:var(--sans);
+}
+[data-advisor="dogyeom"] .sr-toolbar {background:#222124;color:var(--sr-cream)}
+[data-advisor="dogyeom"] .sr-cover {
+  min-height:clamp(205px,28vw,300px);
+  align-items:center;
+  border-color:var(--sr-line);
+  background:#272321;
+}
+[data-advisor="dogyeom"] .sr-cover img {width:53%;object-position:50% 29%}
+[data-advisor="dogyeom"] .sr-cover::after {
+  background:linear-gradient(90deg,#272321 43%,#272321ed 53%,#27232138 86%);
+}
+[data-advisor="dogyeom"] .sr-cover h2 {max-width:15ch}
+[data-advisor="dogyeom"] .sr-cover-text>p:last-of-type {color:#efddd0}
+[data-advisor="dogyeom"] :is(.sr-paper,.sr-summary,.sr-wealth-ranking) {
+  --report-paper:var(--wealth-paper);
+  --report-ink:var(--wealth-ink);
+  --report-title:var(--wealth-ink);
+  --report-fine-rule:var(--wealth-rule);
+  --report-panel:#e9decc;
+  --report-panel-border:#b48d5b;
+  background:var(--wealth-paper);
+  color:var(--wealth-ink);
+  border:1px solid var(--wealth-rule);
+  border-radius:8px;
+  box-shadow:none;
+}
+[data-advisor="dogyeom"] .sr-paper {
+  box-sizing:border-box;
+  width:100%;
+  max-width:720px;
+  padding:clamp(17px,4vw,40px);
+  overflow-wrap:break-word;
+}
+[data-advisor="dogyeom"] .sr-paper::before {display:none}
+[data-advisor="dogyeom"] .sr-paper .report-folio {color:var(--wealth-gold);font-size:12px;letter-spacing:.12em}
+[data-advisor="dogyeom"] .sr-paper h3 {font-size:clamp(24px,3.4vw,34px)}
+[data-advisor="dogyeom"] .sr-paper p:not(.report-folio) {line-height:1.75}
+[data-advisor="dogyeom"] .sr-paper :is(.sr-evidence,.sr-paid-details)>summary {font-weight:650}
+[data-advisor="dogyeom"] .sr-paper .sr-ask {
+  margin-top:24px;
+  padding:8px 14px;
+  background:#e9decc;
+  border-color:#ab8454;
+  color:#4c351f;
+  font-weight:650;
+}
+[data-advisor="dogyeom"] .sr-layout {margin-top:28px}
+[data-advisor="dogyeom"] .sr-pages {gap:26px}
+[data-advisor="dogyeom"] .sr-toc {padding:14px 0}
+[data-advisor="dogyeom"] .sr-toc li+li {border-color:var(--sr-line)}
+[data-advisor="dogyeom"] .sr-toc small {color:#dfcfc0}
+[data-advisor="dogyeom"] .sr-balance {font-size:14px;color:var(--sr-gold)}
+[data-advisor="dogyeom"] .sr-wealth-preview {display:block;max-width:720px;margin-inline:auto}
+[data-advisor="dogyeom"] .sr-wealth-preview .sr-pages {display:grid}
+[data-advisor="dogyeom"] .sr-wealth-preview .sr-toc {position:static}
+[data-advisor="dogyeom"] .sr-wealth-origin .sr-report-guide {margin-block:10px;gap:12px}
+[data-advisor="dogyeom"] .sr-wealth-preview .sr-gate {background:#262321;border-color:#7c664f}
+[data-advisor="dogyeom"] .sr-wealth-preview .sr-benefits {gap:0;grid-template-columns:1fr}
+[data-advisor="dogyeom"] .sr-wealth-preview .sr-benefits li {
+  padding:11px 0;
+  border:0;
+  border-bottom:1px solid var(--sr-line);
+  border-radius:0;
+  background:transparent;
+}
+.sr-wealth-quick {display:none}
+[data-advisor="dogyeom"] :is(.sr-summary,.sr-wealth-ranking) {
+  margin:20px 0 0;
+  padding:clamp(16px,3.4vw,30px);
+}
+[data-advisor="dogyeom"] :is(.sr-summary,.sr-wealth-ranking)>h3 {
+  margin:0 0 12px;
+  font:700 clamp(23px,3vw,31px)/1.35 var(--serif,"Batang",serif);
+  color:var(--wealth-ink);
+}
+[data-advisor="dogyeom"] .sr-summary-lead {font-weight:650;color:var(--wealth-ink);font-size:clamp(17px,2vw,20px);line-height:1.65}
+.sr-summary-moments {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:20px 0 0;border-block:1px solid var(--wealth-rule)}
+.sr-summary-moments>div {padding:12px;min-width:0}
+.sr-summary-moments>div:first-child {padding-inline-start:0}
+.sr-summary-moments>div+div {border-inline-start:1px solid var(--wealth-rule)}
+.sr-summary-moments dt {color:var(--wealth-muted);font-size:13px;font-weight:650}
+.sr-summary-moments dd {margin:0;color:var(--wealth-muted);font-size:13px;overflow-wrap:anywhere}
+.sr-summary-moments .sr-summary-date {color:var(--wealth-ink);font-size:clamp(19px,2.8vw,27px);font-weight:750;font-variant-numeric:tabular-nums}
+.sr-wealth-legend {display:flex;gap:10px 16px;flex-wrap:wrap;font-size:13px;color:var(--wealth-muted)}
+.sr-wealth-legend span {display:inline-flex;gap:7px;align-items:center}
+.sr-wealth-legend span::before {content:"";width:11px;height:11px;border-radius:2px;border:1px solid currentColor}
+.sr-legend-opportunity::before {background:var(--wealth-green);color:var(--wealth-green)}
+.sr-legend-expense::before {background:repeating-linear-gradient(135deg,#f0e9dd 0 2px,#8a4841 2px 4px);color:var(--wealth-red)}
+[data-advisor="dogyeom"] .sr-wealth-chart {gap:6px}
+[data-advisor="dogyeom"] .sr-wealth-track {gap:3px;border-color:#a99682}
+[data-advisor="dogyeom"] .sr-wealth-bar[data-signal] .sr-wealth-fill {width:33%;background:var(--wealth-green)}
+.sr-wealth-risk-fill {width:33%;border-radius:3px 3px 0 0;border:1px solid var(--wealth-red);background:repeating-linear-gradient(135deg,#f0e9dd 0 2px,#8a4841 2px 4px);box-sizing:border-box}
+.sr-wealth-risk-fill[style="height: 0%;"] {border:none}
+[data-advisor="dogyeom"] .sr-wealth-chart .sr-wealth-bar {font-size:13px;color:var(--wealth-ink)}
+[data-advisor="dogyeom"] .sr-wealth-bar[aria-pressed="true"] {border-color:#8b693d;background:#e9decc}
+[data-advisor="dogyeom"] .sr-wealth-leaders {gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
+[data-advisor="dogyeom"] .sr-wealth-leader {background:none;border-radius:0;border-top:1px solid var(--wealth-rule);padding:10px 0}
+[data-advisor="dogyeom"] .sr-wealth-leader button {min-height:44px}
+[data-advisor="dogyeom"] .sr-wealth-month-detail {border-color:var(--wealth-rule)}
+[data-advisor="dogyeom"] .sr-wealth-month-detail h6 {font-size:20px;color:var(--wealth-ink)}
+.sr-wealth-month-basis,.sr-wealth-month-relations {color:var(--wealth-muted);font-weight:600}
+.sr-wealth-timeline {margin:22px 0 0;padding:0;border:0;background:none}
+.sr-wealth-timeline ol {margin:14px 0 0;padding-inline-start:14px;border-inline-start:1px solid #b48d5b;list-style:none}
+.sr-wealth-timeline .sr-wealth-timing {position:relative;background:none;margin:0 0 16px;padding:0 0 14px 8px;border:0;border-bottom:1px solid var(--wealth-rule);border-radius:0}
+.sr-wealth-timeline .sr-wealth-timing::before {content:"";position:absolute;inset-inline-start:-19px;top:9px;width:9px;height:9px;border-radius:50%;background:var(--wealth-gold)}
+.sr-wealth-timeline .sr-period-rank {margin:0;color:var(--wealth-gold);font-size:13px;font-weight:700}
+.sr-wealth-timeline .sr-wealth-timing h5 {margin:3px 0;color:var(--wealth-ink);font-size:clamp(17px,2.6vw,22px)}
+[data-advisor="dogyeom"] .sr-wealth-outlook {background:none;border:0;border-top:1px solid var(--wealth-rule);padding:0;margin-top:25px}
+.sr-year-picker {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:14px 0}
+.sr-year-choice {min-height:52px;padding:3px 2px;border:1px solid #b4a28f;border-radius:5px;background:transparent;color:var(--wealth-ink);font:650 14px/1.35 var(--sans);cursor:pointer}
+.sr-year-choice small {display:block;color:var(--wealth-gold);font-size:11px;font-weight:700}
+.sr-year-choice[aria-pressed="true"] {background:#ded0ba;border-color:#87623e}
+.sr-year-selected {padding:0 12px;background:#eae0d0;border-radius:5px}
+.sr-year-selected .sr-wealth-year {border:0}
+.sr-wealth-recap ol {margin:12px 0 0;padding-inline-start:28px}
+.sr-wealth-recap li {padding:8px 0;border-bottom:1px solid var(--wealth-rule)}
+.sr-wealth-recap li::marker {color:var(--wealth-gold);font-weight:700}
+[data-advisor="dogyeom"] .sr-wealth-recap li p {margin:4px 0}
+[data-advisor="dogyeom"] button:focus-visible,[data-advisor="dogyeom"] summary:focus-visible {outline:2px solid #94703f;outline-offset:2px}
+@media (max-width:690px){
+  [data-advisor="dogyeom"] .sr-cover img {width:61%}
+  [data-advisor="dogyeom"] .sr-cover::after {background:linear-gradient(90deg,#272321 28%,#272321ef 49%,#2723213d 86%)}
+  [data-advisor="dogyeom"] .sr-cover h2 {max-width:11ch}
+  [data-advisor="dogyeom"] .sr-wealth-chart {grid-template-columns:repeat(6,minmax(0,1fr))}
+  [data-advisor="dogyeom"] .sr-wealth-track {height:66px}
+  [data-advisor="dogyeom"] .sr-layout {display:flex;flex-direction:column}
+  [data-advisor="dogyeom"] .sr-wealth-preview {display:block}
+  [data-advisor="dogyeom"] .sr-wealth-quick {
+    display:block;
+    position:sticky;
+    bottom:0;
+    z-index:2;
+    background:var(--sr-surface);
+    padding:8px 0 max(8px,env(safe-area-inset-bottom));
+  }
+  [data-advisor="dogyeom"] .sr-wealth-quick button {width:100%}
+}
+@media (max-width:380px){
+  .sr-summary-moments>div {padding-inline:6px}
+  .sr-summary-moments dt,.sr-summary-moments dd {font-size:12px}
+  .sr-year-picker {grid-template-columns:repeat(5,minmax(0,1fr))}
+  .sr-year-choice {font-size:12px}
+}
+.sr-cover-nav {display:flex;align-items:end;flex-wrap:wrap;gap:6px 12px}
+.sr-cover-toc {min-height:44px;padding:5px 8px;border:0;border-radius:5px;background:#272321e8;color:#f0e9dd;font:650 14px/1.4 var(--sans);cursor:pointer}
+.sr-cover-toc:hover {text-decoration:underline;text-underline-offset:3px}
