@@ -373,3 +373,5 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 }
 
 .sr-wealth-buy-jump{position:sticky;top:.5rem;z-index:2;display:block;margin:0 0 .75rem auto;padding:.6rem 1rem;border:1px solid #b89a62;border-radius:2rem;background:#332a26;color:#fff0d0;font:inherit}.sr-summary{padding:1rem 1.25rem;border-inline-start:3px solid #b89a62;background:#eee4d1;color:#392e24}.sr-summary p{margin:.45rem 0}
+
+.sr-pages .sr-summary :is(h3,p){color:#392e24}.sr-paid-details>summary{cursor:pointer;padding:.8rem 0;color:inherit;font-weight:600}.sr-paid-details>article{margin-top:.75rem}
