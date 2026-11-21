@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {create,audit}=require('./topic-monthly-reading');
+const {create,audit,periodLabels}=require('./topic-monthly-reading');
 const interactions=require('./wealth-interactions');
 
 const pillars={year:'己巳',month:'丙子',day:'丙寅',hour:'乙未'};
@@ -30,22 +30,29 @@ test('the base chart has twelve distinct readings and no repeated interpretation
     assert.deepEqual(result.particles,[]);
     assert.equal(new Set(cards.map(card=>card.key)).size,12);
     for(const [i,card] of cards.entries()){
-      const row=rows[i], evidence=[...card.evidence];
+      const row=rows[i], {main,supporting,other}=card.evidence;
+      const evidence=[main,...supporting.flat(),...other];
       const source=new Set([...row.links,...row.groups,...row.annualLinks,...row.cycles.flatMap(cycle=>cycle.links)]);
-      assert(evidence[0].includes(row.pair)&&evidence[0].includes(row.top)&&evidence[0].includes(row.hidden));
-      for(const fact of evidence.slice(1)){
-        assert(source.has(fact)||fact===row.pair+' 세운·월운'&&row.pair===row.annual||fact.startsWith('관계 보조 근거 · '),fact);
+      assert(supporting.length<=2);
+      assert.equal(new Set(evidence).size,evidence.length);
+      for(const fact of evidence){
+        assert(source.has(fact)||fact===row.pair+' 세운·월운'&&row.pair===row.annual||fact.startsWith('십성 참고 · '),fact);
       }
       assert.match(card.contrast,new RegExp((i>0?i:2)+'월'));
+      assert.doesNotMatch(card.reading,/[甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥]|^(원국|월운|대운|세운)/u);
     }
   }
   for(const i of rows.keys())assert.equal(new Set(byTopic.map(cards=>cards[i].reading)).size,3);
-  assert.match(byTopic[0][4].lead,/일지\(寅\).*해·형/);
-  assert.match(byTopic[0][5].lead,/월지\(子\).*충 관계.*시지\(未\).*육합/);
-  assert.match(byTopic[0][10].lead,/일지\(寅\).*육합·파/);
-  assert.match(byTopic[1][7].lead,/일지\(寅\).*충·형.*연지\(巳\).*육합/);
-  for(const [i,terms] of [[2,/정관.*정인/],[3,/편인.*식신/],[7,/식신.*편재/],[8,/상관.*정재/],[10,/정재.*편관/]])assert.match(byTopic[2][i].lead,terms);
-  assert.match(byTopic[2][10].lead,/월간\(丙\).*천간합.*연지\(巳\).*충/);
+  assert.equal(byTopic[0][4].evidence.main,'일지 寅·월운지 巳 형');
+  assert.equal(byTopic[0][5].evidence.main,'월지 子·월운지 午 충');
+  assert.equal(byTopic[0][10].evidence.main,'일지 寅·월운지 亥 육합');
+  assert.deepEqual(byTopic[1][7].evidence.supporting[0],['일지 寅·월운지 申 형']);
+  assert.match(byTopic[0][7].contrast,/7월.*기대 차이.*만남의 빈도나 거리가 달라지는지/);
+  assert.match(byTopic[2][7].lead,/새 역할.*업무 방식/);
+  assert.doesNotMatch(byTopic[2][7].lead,/가까운 사이/);
+  for(const [i,terms] of [[2,/정관.*정인/],[3,/편인.*식신/],[8,/상관.*정재/],[10,/정재.*편관/]])assert.match(byTopic[2][i].lead,terms);
+  assert.equal(byTopic[2][10].evidence.main,'월간 丙·월운간 辛 천간합');
+  assert(byTopic[2][10].evidence.supporting.flat().includes('연지 巳·월운지 亥 충'));
 });
 
 test('unconfirmed birth hour and a missing cycle do not add inferred facts',()=>{
@@ -53,9 +60,18 @@ test('unconfirmed birth hour and a missing cycle do not add inferred facts',()=>
   const rows=createRows(natal).map(row=>({...row,cycles:[]}));
   for(const topic of topics){
     const cards=create(rows,natal,topic);
-    for(const card of cards)assert(![...card.evidence].some(line=>/시지 |시간 |대운/.test(line)));
+    for(const {evidence} of cards)assert(![evidence.main,...evidence.supporting.flat(),...evidence.other].some(line=>/시지 |시간 |대운/.test(line)));
   }
   assert.deepEqual(create(rows,{},'seohwa'),[]);
+});
+
+test('calendar and full solar ranges use the same exact KST instants with different end dates',()=>{
+  const dates=periodLabels({from:'2027-08-08 02:26:46 KST',until:'2027-09-01 00:00:00 KST',
+    solarFrom:'2027-08-08 02:26:46 KST',solarUntil:'2027-09-08 05:28:28 KST'});
+  assert.deepEqual(dates,{solar:'8월 8일부터 9월 8일 절입 전까지',calendar:'8월 8일부터 8월 31일까지'});
+  const december=periodLabels({from:'2027-12-07 17:37:41 KST',until:'2028-01-01 00:00:00 KST',
+    solarFrom:'2027-12-07 17:37:41 KST',solarUntil:'2028-01-06 04:54:39 KST'});
+  assert.equal(december.calendar,'12월 7일부터 12월 31일까지');
 });
 
 test('copy audit detects cloned meaning, altered stem placeholders, and incorrect particles',()=>{

@@ -808,43 +808,56 @@
     }
     lens.append(picker);
     const perspective=el('p',null,'sr-topic-perspective');
-    let activeCard;
     function showPerspective(){
       const selected=Number(picker.value);
       perspective.hidden=selected===0;
-      const focus=activeCard?.focus;
-      perspective.textContent=focus?'이번 달에 두드러지는 주제는 ‘'+focus+'’예요. '+readings[selected][1]:readings[selected][1];
+      perspective.textContent=readings[selected][1];
     }
     picker.addEventListener('change',showPerspective);
     const scale=Math.max(1,...periods.calendar.flatMap(row=>[row.affinity,row.adjustment]));
     const choose=(row,selected)=>{
-      activeCard=readingsByMonth?.[row.month-1];
+      const activeCard=readingsByMonth?.[row.month-1];
       showPerspective();
       for(const bar of graph.children)bar.setAttribute('aria-pressed',String(bar===selected));
       const exact=el('details',null,'sr-evidence');
-      exact.append(el('summary','월운·세운·대운의 계산 근거'));
+      exact.append(el('summary','이 해석의 사주 근거 보기'));
+      exact.append(el('p',row.pair+' 월운 · 월간 '+row.top+' · 월지의 중심 십성 '+row.hidden));
       if(activeCard){
         const used=el('ul',null,'sr-topic-used');
-        for(const source of activeCard.evidence)used.append(el('li',source));
-        exact.append(el('p','이달 풀이에 사용한 근거'),used);
+        used.append(el('li','핵심 · '+activeCard.evidence.main));
+        for(const group of activeCard.evidence.supporting)used.append(el('li','보조 · '+group.join(' / ')));
+        if(activeCard.evidence.other.length)used.append(el('li','추가 단서 · '+activeCard.evidence.other.join(' / ')));
+        exact.append(used);
       }
-      exact.append(el('p',row.annual+' 세운 · '+(row.annualLinks.join(' / ')||'대표 월운과 직접 맞물리는 합·충 등이 없어요.')));
-      for(const cycle of row.cycles)exact.append(el('p',cycle.pair+' 대운 · '+(cycle.links.join(' / ')||'대표 월운과 직접 맞물리는 합·충 등이 없어요.')));
+      exact.append(el('p','대표 월운 '+row.solarFrom+'부터 '+row.solarUntil+' 직전까지'));
+      exact.append(el('p','적용한 세운 · '+row.annual));
+      for(const cycle of row.cycles)exact.append(el('p',cycle.pair+' 대운 · '+cycle.from+'부터 '+cycle.until+' 직전까지'));
       if(!row.cycles.length)exact.append(el('p','대운 전환 시점을 확인할 수 없어 원국과 세운·월운으로 읽었어요.'));
-      for(const span of row.spans)exact.append(el('p',span.from+'부터 '+span.until+' 직전까지 · '+span.annual+' 세운 · '+span.pair+' 월운'),relationshipEvidence(span));
+      for(const span of row.spans)exact.append(el('p',span.from+'부터 '+span.until+' 직전까지 · '+span.annual+' 세운 · '+span.pair+' 월운'));
+      exact.append(el('p','택일소는 자평 명리의 일간·월령을 바탕으로 일지에 닿는 운과 월주의 여건을 살펴요. 시주는 보조로 보고, 형·파·해는 택일소 계산 기준의 참고 단서로 표시해요. 합만으로 오행이 바뀌었다고 풀이하지 않아요.'));
       const cardReading=activeCard?el('div',null,'sr-topic-reading'):relationshipEvidence(row);
       if(activeCard){
-        cardReading.append(el('h5',activeCard.title,'sr-topic-reading-lead'),el('p',activeCard.lead));
+        cardReading.append(el('h5',activeCard.title,'sr-topic-reading-lead'),el('p',activeCard.reading,'sr-topic-answer'));
         const list=el('dl');
-        const label={seohwa:'새 인연과 관계 발전',ijun:'지난 인연과 다음 인연',mujin:'취업·이직·승진의 흐름'}[reading.id];
-        for(const [title,copy] of [['다른 달과의 차이',activeCard.contrast],[label,activeCard.reading]]){
+        for(const [title,copy] of [['왜 이 달이 중요한가요?',activeCard.lead],['다른 달과의 차이',activeCard.contrast]]){
+          if(!copy)continue;
           const group=el('div');
           group.append(el('dt',title),el('dd',copy));
           list.append(group);
         }
         cardReading.append(list);
       }
-      detail.replaceChildren(el('h4',row.month+'월 · '+row.pair+' 월운'),cardReading);
+      detail.replaceChildren(el('h4',row.from.slice(0,4)+'년 '+row.month+'월'),cardReading);
+      const dates=window.TaekilTopicMonthly?.periodLabels(row);
+      if(dates){
+        const periods=el('dl',null,'sr-topic-periods');
+        for(const [title,copy] of [['대표 절기 월운 · '+row.pair,dates.solar],[row.month+'월에 해당하는 기간',dates.calendar]]){
+          const group=el('div');
+          group.append(el('dt',title),el('dd',copy));
+          periods.append(group);
+        }
+        detail.append(periods);
+      }
       if(reading.id==='seohwa')detail.append(lens,perspective);
       detail.append(exact);
     };

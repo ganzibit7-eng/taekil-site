@@ -4,24 +4,46 @@
 })(globalThis,function(){
   'use strict';
 
-  const slots={일지:'day',일간:'day',월지:'month',월간:'month',연지:'year',연간:'year',시지:'hour',시간:'hour'};
   const joins=new Set(['육합','천간합']);
   const changes=new Set(['충','형','파','해']);
   const families={정재:'재성',편재:'재성',식신:'식상',상관:'식상',비견:'비겁',겁재:'비겁',정관:'관성',편관:'관성',정인:'인성',편인:'인성'};
-  const scopes={
-    seohwa:{일지:'가까운 사이에서의 반응',일간:'내가 먼저 보이는 태도',월지:'관계의 일상',월간:'서로 의견을 내는 방식',연지:'바깥에서 생기는 계기',연간:'처음 관계를 맺는 방식',시지:'앞으로 함께 지낼 그림',시간:'앞날을 이야기하는 방식'},
-    ijun:{일지:'지난 관계에서 반복된 거리감',일간:'내가 다시 관계에 임하는 태도',월지:'둘 사이에서 익숙했던 일상',월간:'다시 오가는 조건',연지:'예전에 인연이 닿았던 환경',연간:'처음 인연을 맺던 방식',시지:'앞으로 이어갈 수 있는 생활',시간:'기대했던 두 사람의 앞날'},
-    mujin:{일지:'내가 익숙하게 일을 처리하는 방식',일간:'직접 맡고 싶은 일',월지:'일터의 환경과 규칙',월간:'일터에서 의견을 내는 방식',연지:'조직 바깥의 여건',연간:'바깥에 보여 온 일의 방식',시지:'실행 여건과 일정',시간:'앞으로 만들어 낼 결과'}
+  // These phrases describe the interpretation, independently of the technical
+  // proof. They also make a comparison meaningful when two months score alike.
+  const themes={
+    joinedDay:['끌림이 생겨도 실제로 편해지는지','익숙함이 돌아와도 옛 방식이 지금도 맞는지','익숙한 업무 방식이 새 환경에서도 통하는지'],
+    directBond:['둘만의 대화가 서로 편하게 이어지는지','기억 속에 남은 친밀함이 어떤 대화에서 생겼는지','익숙한 처리 방식이 새 역할과 자연스럽게 맞는지'],
+    clashDay:['가까운 사이에서 만남의 빈도나 거리가 달라지는지','재회를 떠올릴 때 예전의 거리도 바꿀 수 있는지','지금까지 써 온 방법을 다른 환경에 맞출 수 있는지'],
+    assignmentTerms:['','','처우가 맞더라도 새 소속에서 맡을 책임은 감당할 만한지'],
+    frictionDay:['배려하는 방식이 서로 다르게 받아들여지는지','당시 마음에 걸렸던 일을 왜 말하지 못했는지','내가 익숙한 처리 방식과 상대가 요구하는 방식이 얼마나 다른지'],
+    shiftBridge:['만나는 여건이 바뀐 자리에서 새 약속을 정할 수 있는지','기존 관계의 습관을 바꿨을 때에도 접점이 남는지','평가나 업무 기준이 움직일 때 실제로 일을 진행할 여건이 있는지'],
+    termsMeet:['말이 통했을 때 구체적인 만남까지 이어갈 수 있는지','다시 연락했을 때 실제로 지킬 수 있는 약속이 있는지','제안 조건이 맞은 뒤에도 그 일을 감당할 수 있는지'],
+    echo:['올해 자주 느낀 기대 차이가 다시 드러나는지','예전에 말하지 못한 요구가 지금도 중요한지','올해 반복되는 책임 배분에서 결정권의 범위가 어느 정도인지'],
+    ruleFriction:['작은 약속에서 계속 비슷한 불편이 생기는지','예전에 풀지 못한 약속 문제가 무엇인지','준비한 역량이나 공식 책임이 세부 평가 기준에 맞는지'],
+    ruleBreak:['늘 지켜 오던 약속에서 작은 변화가 보이는지','관계의 큰 사건보다 일상의 작은 약속이 언제부터 느슨해졌는지','개선한 결과의 가치가 일터의 평가 방식에 제대로 반영되는지'],
+    ruleHidden:['서로 말로 합의한 것과 실제 기대가 같은지','내가 원한 약속과 실제로 전한 말 사이에 구멍이 있었는지','명시된 역할과 실제로 기대되는 일이 얼마나 다른지'],
+    plansMeet:['앞으로의 이야기를 실제 일정과 생활에 옮길 수 있는지','예전에 함께 바라던 미래가 지금의 생활에도 맞는지','새 역할을 시작할 일정과 준비 여건이 따라오는지'],
+    socialFriction:['주변 분위기에서 생긴 관심이 둘만 있을 때도 이어지는지','그 사람이 그리운지 함께 지내던 환경이 그리운지','바깥에서 오는 제안의 내용과 실제 요구가 같은지'],
+    recurringSetting:['주변에 보이는 모습과 두 사람이 편한 방식이 같은지','당시 주변 환경이 지금도 내 관계 기준에 남아 있는지','바깥의 제약이 이번 달만의 일인지 계속 이어지는지'],
+    outerBond:['이미 공유하는 관심사나 모임에서 마음이 열리는지','예전 인연과 나눈 관심사를 새 인연에서도 편하게 나눌 수 있는지','지금까지의 경험이 바깥의 협업에서도 쓰일 수 있는지'],
+    futureFriction:['서로에게 실제로 내줄 시간과 자리가 있는지','다시 이어진다고 가정했을 때 일상을 함께할 수 있는지','책임이 늘 때 일정과 지원도 그만큼 따라오는지'],
+    outerOpening:['처음 만난 사람과 편하게 말을 잇는 계기가 생기는지','지나간 대화를 이제는 다른 뜻으로 이해하는지','새로 익힌 기술이 다른 일에서도 결과로 이어지는지']
   };
-  const relationSense={
-    육합:'서로 엮이기 쉬운 자리',천간합:'표현이나 조건이 맞닿는 지점',
-    충:'익숙한 방향을 바꾸는 힘',형:'같은 문제에서 다시 생기는 마찰',
-    파:'유지되던 방식에 틈이 생기는 흐름',해:'겉으로 드러난 말과 실제 기대가 어긋나는 흐름'
+  const angle={seohwa:0,ijun:1,mujin:2};
+  const patternKind={
+    joinedDay:'mixed',directBond:'opening',clashDay:'change',assignmentTerms:'mixed',frictionDay:'change',shiftBridge:'mixed',termsMeet:'mixed',
+    echo:'change',ruleFriction:'change',ruleBreak:'change',ruleHidden:'change',plansMeet:'mixed',socialFriction:'change',
+    recurringSetting:'change',outerBond:'opening',futureFriction:'change',outerOpening:'opening'
   };
+  const rankKinds={육합:2,천간합:1,충:4,형:3,파:2,해:1};
 
   // Each rule represents a different interaction. The same facts can answer
   // different questions in the three products without changing the calculation.
   const stories={
+    directBond:{
+      seohwa:['둘이 편해지는 계기가 또렷한 달','새 만남에서는 둘이 있을 때 말이 편하게 이어지는 사람이 눈에 들어와요. 이미 관계가 있다면 특별한 일이 없어도 함께 시간을 보내기 수월한 쪽으로 읽어요.'],
+      ijun:['지난 인연의 편안함이 선명해지는 달','지난 관계에서 마음이 편했던 대화나 태도를 떠올리기 쉬워요. 그때의 편안함은 앞으로 어떤 사람이 나와 어울리는지를 읽는 단서가 돼요.'],
+      mujin:['익숙한 방식이 새 역할에 맞닿는 달','일하는 방식을 전부 바꾸기보다 지금 손에 익은 기술이나 절차를 이어 갈 수 있는 자리에 힘이 실려요. 역할을 넓힐 때도 기존 경험을 그대로 쓸 수 있는 구간이 먼저 보여요.']
+    },
     joinedDay:{
       seohwa:['끌림과 편안함이 따로 움직일 때','가까워질 계기가 생기기 쉬워도 서로 편해지는 속도까지 맞는 달은 아니에요. 새 만남이라면 처음의 친밀함보다 두 번째 대화의 느낌이, 기존 관계라면 다시 가까워진 뒤에도 약속이 편하게 지켜지는지가 중요해요.'],
       ijun:['다시 편해져도 예전 방식은 달라져요','익숙한 친밀감을 떠올리기 쉬운 달이지만, 예전 방식까지 편안하게 받아들이는 흐름은 약해요. 새 인연과 비교할 때는 누가 익숙한지보다 어떤 사이에서 내 말과 행동이 더 자연스러운지 살펴볼 만해요.'],
@@ -37,12 +59,12 @@
     },
     frictionDay:{
       seohwa:['다정함을 다르게 받아들이는 달','상대가 다정하게 건넨 말도 내가 바란 배려와 어긋나기 쉬워요. 새 만남에선 마음을 알아주리라 기대하기보다 원하는 연락 간격이나 만남의 속도를 말로 맞추는 쪽이 편해요.'],
-      ijun:['같은 장면을 다시 떠올리는 이유','상대가 왜 그랬는지를 알아내고 싶은 마음보다 내가 왜 그때 자꾸 참았는지가 잘 보이는 달이에요. 예전 일의 해석을 새로 하더라도 상대의 마음까지 안다고 여기지는 않아요.'],
+      ijun:['같은 장면을 다시 떠올리는 이유','지난 관계에서 말하지 못한 서운함이 있었다면, 그때 어떤 배려를 기대했는지 또렷해지기 쉬워요. 익숙한 사이에서 넘겼던 문제라면 새 관계에서는 더 일찍 알아차릴 수 있어요.'],
       mujin:['일의 요구와 내 방식 사이의 틈','지금까지 익혀 온 방법을 더 꼼꼼히 쓰고 싶어도 주변의 요구와 세부 방식이 어긋날 수 있어요. 익숙한 업무를 맡더라도 지원을 받는 지점과 스스로 판단해야 할 지점을 나눠 보는 달이에요.']
     },
     shiftBridge:{
       seohwa:['일상이 바뀌며 생기는 새 접점','만나는 여건이나 연락 리듬은 흔들릴 수 있어요. 그와 별개로 앞으로 시간을 맞출 접점이 보여, 기존 약속을 지키는 것보다 두 사람이 다른 방식을 함께 정할 때 가까워지기 쉬워요.'],
-      ijun:['예전과 다른 방식으로 볼 수 있는 사이','둘 사이에 익숙했던 방식은 바꾸고 싶지만, 앞으로 시간을 나누는 그림까지 막히는 달은 아니에요. 익숙함이 다시 닿더라도 실제로 달라진 약속이 있는지가 재검토의 기준이에요.'],
+      ijun:['예전과 다른 방식으로 볼 수 있는 사이','예전에 만나던 방식이 불편했다면 이달엔 다른 약속을 정할 여지가 보여요. 마음이 다시 간다면 무엇을 그대로 두고 무엇을 바꿀 수 있는지가 재검토의 기준이에요.'],
       mujin:['일터 기준은 흔들리고 실행에는 길이 열려요','기존 평가나 업무 방식이 바뀔 수 있는 달이에요. 실제로 일을 굴리는 여건에는 접점이 있어서, 승진이나 역할 확대를 본다면 직함을 바꾸는 일과 실행 조건을 확보하는 일을 따로 살펴요.']
     },
     termsMeet:{
@@ -52,12 +74,12 @@
     },
     echo:{
       seohwa:['올해의 관계 과제가 선명해지는 달','올해 관계에서 느끼기 쉬운 기대 차이가 이번 달에도 같은 방식으로 들어와요. 주변의 의견을 듣는 것과 두 사람이 직접 정할 약속을 구분하면 어디서 서운함이 시작되는지 보기 쉬워요.'],
-      ijun:['올해 다시 묻게 되는 관계의 기준','지난 관계에서 왜 내 뜻을 늦게 말했는지 되짚기 쉬워요. 반복되는 약속 문제라면 연락할 때를 고르기 전에, 지금의 내가 같은 조건으로 관계를 이어갈 수 있는지 먼저 살펴요.'],
+      ijun:['올해 다시 묻게 되는 관계의 기준','지난 관계에서 꺼내기 어려웠던 요구가 있다면 그 일이 다시 마음에 걸리기 쉬워요. 비슷한 약속을 다시 맺는다면 지금도 받아들일 수 있는 조건인지가 분명해지는 달이에요.'],
       mujin:['올해의 역할 조정이 앞에 나오는 달','일을 함께 맡는 범위와 개선 의견을 어디까지 낼 수 있는지가 또렷해져요. 새 역할을 검토한다면 책임만 늘어나는 자리인지, 방식도 함께 바꿀 수 있는 자리인지가 핵심이에요.']
     },
     ruleFriction:{
       seohwa:['같은 약속에서 다시 어긋나기 쉬워요','관계의 이름을 확실히 하고 싶은 마음과 세부 약속을 맞추는 일이 동시에 부각돼요. 새 만남에서 진지함을 볼 때는 큰 말보다 평소 연락이나 만날 시간을 맞추는 습관이 더 잘 보여요.'],
-      ijun:['예전에 맞추지 못했던 약속이 보여요','좋았던 때보다 자꾸 같은 말다툼으로 돌아간 이유를 짚기 쉬워요. 다음 인연에서는 애정 표현의 크기보다 작은 약속을 다루는 방식이 이달에 선명하게 들어와요.'],
+      ijun:['예전에 맞추지 못했던 약속이 보여요','지난 관계에서 비슷한 문제로 다툰 적이 있다면, 이달엔 그때 왜 같은 지점에서 막혔는지 짚기 쉬워요. 다음 인연에서는 작은 약속을 다루는 방식이 먼저 눈에 들어와요.'],
       mujin:['기준은 뚜렷하고 세부 요구는 까다로워요','취업에서는 준비해 온 역량이 실제 평가 항목에 맞는지, 승진에서는 공식 책임과 일상적인 요청이 서로 맞는지가 두드러지는 달이에요. 요건이 명확해질수록 작은 마찰도 더 잘 보여요.']
     },
     ruleBreak:{
@@ -92,7 +114,7 @@
     },
     futureFriction:{
       seohwa:['마음이 가도 생활에 내줄 자리가 중요해요','호감의 크기보다 서로에게 시간을 낼 수 있는지가 잘 보여요. 가까운 관계를 오래 이어갈 생각이라면 각자 지키고 싶은 생활 리듬을 먼저 확인하기 좋은 달이에요.'],
-      ijun:['다시 이어졌을 때의 일상을 봐요','지금 마음이 어떤지만 보면 쉽게 결론이 나지 않아요. 다시 이어진다고 가정했을 때 예전에 비어 있거나 무리했던 생활의 자리를 이번에는 어떻게 채울지가 두드러지는 달이에요.'],
+      ijun:['다시 이어졌을 때의 일상을 봐요','재회를 생각할 때 설렘보다 다시 만났을 때의 생활이 먼저 눈에 들어와요. 만나는 시간이나 연락에 들이는 마음을 어느 정도 나눌 수 있는지가 인연을 바라보는 기준이 돼요.'],
       mujin:['책임이 커질 때 실행 여건을 살펴요','기준이 분명해져 일의 방향을 잡기 쉬워도 실제 일정이나 지원 조건에서는 어긋남이 생길 수 있어요. 승진이나 역할 확대를 가늠한다면 시작한 뒤 쓸 수 있는 자원까지 확인할 달이에요.']
     },
     outerOpening:{
@@ -167,6 +189,7 @@
     const native=groupLinks(row.links);
     const bySlot=(slot,kind)=>native.find(link=>link.slot===slot&&(kind?link.kinds.includes(kind):link.kinds.some(k=>changes.has(k))));
     const local=bySlot('일지');
+    const dayBond=bySlot('일지','육합');
     const environment=bySlot('월지');
     const horizon=bySlot('시지');
     const bridge=bySlot('시지','육합');
@@ -179,6 +202,7 @@
     const monthlyMatch=(topic==='mujin'?[environment,local]:[local,environment]).find(Boolean);
     if(topic==='mujin'&&workTerms&&recent?.kinds.includes('충')&&[row.top,row.hidden].includes('편관'))return ['assignmentTerms',workTerms,recent];
     if(local?.kinds.includes('육합'))return ['joinedDay',local,topic==='mujin'&&environment];
+    if(dayBond&&(topic!=='mujin'||!environment))return ['directBond',dayBond];
     if(local?.kinds.includes('충'))return ['clashDay',local,native.find(link=>link.kinds.includes('육합'))];
     if(local)return ['frictionDay',local];
     if(environment?.kinds.includes('충')&&bridge)return ['shiftBridge',environment,bridge];
@@ -198,20 +222,28 @@
     return ['quiet',native[0]];
   }
 
-  const shortSlot=slot=>slot.endsWith('간')?'천간':slot.endsWith('지')?'지지':slot;
-  const pairText=link=>`원국 ${link.slot}(${link.glyph})와 월운 ${shortSlot(link.visitorSlot)}(${link.visitor})`
-    .replace(/(일간|월간|연간|시간)(\(.\))와/u,'$1$2과');
   const listKinds=link=>link.kinds.join('·');
-  const impact=(link,topic)=>{
-    const preferred=link.kinds.find(kind=>changes.has(kind))||link.kinds[0];
-    const movement=relationSense[preferred];
-    return `‘${scopes[topic][link.slot]}’에는 ${movement}${supportsFinal(movement)?'이':'가'} 보여요.`;
+  const labelKind={
+    육합:'서로 이어질 여지를 보는 육합이 들어와요',천간합:'조건이나 뜻이 맞닿는 천간합이 잡혀요',
+    충:'익숙한 방향을 바꾸는 충이 들어와요',형:'마찰이 반복되기 쉬운 형이 나타나요',
+    파:'유지해 온 방식에 틈이 생기는 파가 들어와요',해:'겉으로 오간 말과 실제 기대가 어긋나는 해가 나타나요'
   };
+  function centralKind(link,pattern){
+    if(['joinedDay','directBond','termsMeet','outerBond'].includes(pattern))return '육합';
+    return link.kinds.reduce((first,kind)=>rankKinds[kind]>rankKinds[first]?kind:first);
+  }
+  function position(link,topic){
+    if(link.slot==='일지')return topic==='mujin'?'태어난 날의 지지':'가까운 관계를 보는 일지';
+    if(link.slot==='월지'||link.slot==='월간')return topic==='mujin'?'일을 둘러싼 여건을 함께 보는 월주':'관계를 둘러싼 여건을 참고하는 월주';
+    if(link.slot==='연지'||link.slot==='연간')return '주변 환경을 보조해 읽는 연주';
+    if(link.slot==='시간'||link.slot==='시지')return '보조 단서인 시주';
+    return '자신을 나타내는 일간';
+  }
 
   function contextFor(row,pattern,primary,secondary){
-    if(pattern==='echo')return {text:`이달 대표 월운과 세운이 ${row.pair}로 같아요. 원국의 같은 자리에 월운과 세운이 나란히 닿아요.`,facts:[row.pair+' 세운·월운']};
+    if(pattern==='echo')return {reason:'올해의 운과 이달의 운이 같은 글자로 같은 자리에 닿아서, 해 전체에서 보이던 주제가 이달에 한 번 더 드러나요.',facts:[row.pair+' 세운·월운']};
     if(pattern==='shiftBridge'&&row.groups.length){
-      return {text:`${row.groups.join('·')}도 함께 잡혀, 바뀐 여건에 대응하는 힘을 보태요.`,facts:row.groups};
+      return {reason:'원국과 월운의 여러 글자가 한 방향으로 모이는 단서도 있어, 바뀐 여건에서 이어 갈 길을 함께 읽어요.',facts:row.groups};
     }
     const cycles=row.cycles.flatMap(cycle=>groupLinks(cycle.links).map(link=>({pair:cycle.pair,link})));
     const links=[...cycles,...groupLinks(row.annualLinks).map(link=>({pair:row.annual,link}))];
@@ -219,12 +251,16 @@
       links.find(({link})=>primary&&link.kinds.some(kind=>primary.kinds.includes(kind)))||
       links.find(({link})=>secondary&&link.kinds.some(kind=>secondary.kinds.includes(kind)))||
       links.find(({link})=>link.kinds.includes('충'))||links[0];
-    if(!match)return {text:'',facts:[]};
-    const {pair,link}=match;
-    const layer=link.slot.startsWith('대운')?'대운':'세운';
-    const placement=link.slot.endsWith('간')?'천간':'지지';
-    const text=`${pair} ${layer}의 ${placement}(${link.glyph})도 이달 월운(${link.visitor})과 ${listKinds(link)} 관계를 이뤄요.`;
-    return {text,facts:link.facts};
+    if(!match)return {reason:'',facts:[]};
+    const {link}=match;
+    const layer=link.slot.startsWith('대운')?'대운':'올해의 운';
+    const kind=link.kinds.find(k=>changes.has(k))||link.kinds[0];
+    const sameDirection=primary?.kinds.includes(kind);
+    const reason=pattern==='recurringSetting'?'올해의 운에도 원국과 같은 글자가 있어, 주변에서 느끼는 기대 차이를 이번 달의 일로만 읽기 어려워요.':
+      sameDirection?`${layer}도 월운에 같은 방향으로 작용해서, 이 주제가 한 달의 일로만 끝나지 않을 수 있어요.`:
+      changes.has(kind)?`${layer}에서 기존 조건을 다시 살필 단서가 함께 들어와요.`:
+      `${layer}에서 월운과 조건이 맞닿는 단서도 들어와요.`;
+    return {reason,facts:link.facts};
   }
 
   function analyze(row,topic){
@@ -236,30 +272,39 @@
     const cue=cues[topic][row.top];
     const context=contextFor(row,pattern,primary,secondary);
     const mix=topic==='mujin'&&careerMix[row.top+'·'+row.hidden];
-    const supports=secondary&&slots[secondary.slot]!==undefined;
-    const mainFact=primary?`${pairText(primary)} 사이에 ${listKinds(primary)} 관계가 있어요.`:
-      row.groups.length?`이달 월운과 원국 지지에서 ${row.groups.join('·')}이 보여요.`:
-        '이달 월운에서 원국과 직접 맞물리는 합이나 충돌이 두드러지지 않아요.';
-    const shortReading=mix||(primary?impact(primary,topic):'월운의 십성에서 읽는 변화가 중심이에요.');
-    const bridge=supports?`${pairText(secondary)} 사이에는 ${listKinds(secondary)} 관계도 잡혀요.`:'';
     const title=scene?.[0]||cue[0];
     const interpretation=scene?.[1]||cue[1];
-    const emphasis=topic==='mujin'?row.top+'·'+row.hidden+'의 직업 흐름':primary?scopes[topic][primary.slot]:row.top+'의 표현 방식';
-    const other=[...(primary?.facts||[]),...(supports?secondary.facts:[]),...context.facts];
-    const evidence=new Set([row.pair+' 월운 · 천간 '+row.top+' · 지지 주기운 '+row.hidden,...other,...(!primary?row.groups:[])]);
+    const kind=primary&&centralKind(primary,pattern);
+    const samePair=primary?.facts.filter(fact=>!fact.endsWith(' '+kind))||[];
+    const main=kind?primary.facts.find(fact=>fact.endsWith(' '+kind)):
+      row.groups[0]||row.pair+' 월운의 '+row.top+'·'+row.hidden;
+    const supporting=[samePair,secondary?.facts||[],context.facts].filter(facts=>facts.length).slice(0,2);
+    const evidence={main,supporting,other:[...new Set([...row.links,...row.groups,...row.annualLinks,...row.cycles.flatMap(c=>c.links)])]
+      .filter(fact=>fact!==main&&!supporting.flat().includes(fact))};
     const topicalStars=[row.top,row.hidden].filter((god,i,all)=>['관성','재성'].includes(families[god])&&all.indexOf(god)===i);
     if(topic!=='mujin'&&primary?.slot==='일지'&&topicalStars.length){
-      evidence.add('관계 보조 근거 · '+topicalStars.join('·')+' · 전통 배우자성을 읽는 관성·재성의 관점');
+      evidence.other.push('십성 참고 · '+topicalStars.join('·')+' · 전통 명리에서 관계를 보조해 읽는 관성·재성');
     }
-    return {title,lead:[mainFact,shortReading,bridge].filter(Boolean).join(' '),reading:interpretation,context,evidence,
-      key:[pattern,primary?.slot,listKinds(primary||{kinds:[]}),row.top,row.hidden,context.facts.join(' ')].join('|'),
-      emphasis,focus:primary?scopes[topic][primary.slot]:'',kind:primary&&listKinds(primary)};
+    const anchor=primary&&position(primary,topic);
+    let cause=kind?`${anchor}${supportsFinal(anchor)?'과':'와'} 이달 월운 사이에 ${labelKind[kind]}.`:
+      row.groups.length?'태어난 사주와 월운의 여러 글자가 한 흐름으로 모여, 익숙한 경로에서 이어지는 면을 살펴요.':
+        '원국의 중요한 자리가 크게 움직이는 달은 아니어서, 이달 들어오는 십성에서 힘이 쏠리는 쪽을 읽어요.';
+    // A pair can carry more than one conventional relation. It remains one
+    // pair, and a secondary relation can qualify the first interpretation.
+    if(pattern==='joinedDay'&&samePair.length)cause+=' 같은 두 글자에 익숙한 방식이 흔들리는 관계도 겹쳐요. 가까워질 계기와 그 뒤에 이어지는 흐름을 따로 보는 이유예요.';
+    else if(pattern==='shiftBridge')cause+=' 태어난 시간 쪽에는 반대로 이어지는 관계도 있어, 바뀐 여건에 맞출 여지가 생겨요.';
+    else if(pattern==='clashDay'&&secondary)cause+=topic==='mujin'?' 바깥에서 새 역할과 연결되는 단서도 있지만, 그 자리에서 익숙한 업무 방식까지 통할지는 따로 읽어요.':' 바깥에서 접점이 생기는 흐름도 있어, 가까운 사이의 변화와 구분해서 봐요.';
+    else if(mix)cause+=' '+mix.split(/(?<=\.) /u)[0];
+    else if(context.reason)cause+=' '+context.reason;
+    return {title,lead:cause,reading:interpretation,evidence,pattern,slot:primary?.slot,kind,
+      focus:scene&&themes[pattern]?.[angle[topic]],type:scene&&patternKind[pattern],
+      key:[pattern,primary?.slot,listKinds(primary||{kinds:[]}),row.top,row.hidden,context.facts.join(' ')].join('|')};
   }
 
   const glyphs=/[甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥]+/gu;
   const mask=new RegExp(Object.keys(families).join('|'),'gu');
   const particleError=/(?:[가-힣]+)(?:으로|로|은|는|이|가)(?=\s)/gu;
-  const grammaticalTerms=new Set([...Object.keys(families),...Object.keys(relationSense),...Object.values(relationSense).map(text=>text.split(' ').at(-1))]);
+  const grammaticalTerms=new Set([...Object.keys(families),...Object.keys(labelKind)]);
   const normalize=value=>value.replace(glyphs,'글자').replace(mask,'십성').replace(/\d+월/gu,'몇월').replace(/[^가-힣\p{L}\d ]/gu,'').replace(/\s+/gu,' ').trim();
   const lines=value=>(value||'').split(/(?<=[.!?])\s+/u).map(s=>s.trim()).filter(s=>s.length>=14);
   const trigrams=text=>new Set([...text].slice(2).map((v,i)=>text.slice(i,i+3)));
@@ -312,6 +357,36 @@
   function qualityKey(text){
     return normalize(text).replace(/ /gu,'');
   }
+  function compareMonth(cards,rows,index,topic){
+    const card=cards[index];
+    if(!card.focus)return '';
+    const candidates=[index-1,index+1].filter(i=>i>=0&&i<cards.length);
+    const other=candidates.find(i=>{
+      const peer=cards[i];
+      return peer.focus&&peer.pattern!==card.pattern&&(peer.slot!==card.slot||peer.kind!==card.kind||peer.type!==card.type);
+    });
+    if(other===undefined)return '';
+    const previous=cards[other];
+    const month=rows[other].month+'월';
+    const peerFocus=`${month}에는 ${previous.focus} 살펴요.`;
+    if(topic!=='mujin'&&card.slot==='일지'&&previous.slot!=='일지'){
+      return peerFocus+` 이번 달은 가까운 관계를 읽는 일지에 월운이 직접 닿아서, ${card.focus}가 더 중요해요.`;
+    }
+    if(topic==='mujin'&&card.slot==='월지'&&previous.slot!=='월지'){
+      return peerFocus+` 이번 달은 일하는 여건을 보는 월지에 월운이 닿아, ${card.focus}에 무게가 실려요.`;
+    }
+    if(card.type==='opening')return peerFocus+` 이달은 ${card.focus}에 더 무게가 실려요.`;
+    if(card.type==='mixed')return peerFocus+` 이달에는 ${card.focus}가 기회를 이어 가는 기준이에요.`;
+    return peerFocus+` 이달에는 ${card.focus} 먼저 읽어요.`;
+  }
+
+  function periodLabels(row){
+    const short=date=>Number(date.slice(5,7))+'월 '+Number(date.slice(8,10))+'일';
+    const endsAtMidnight=row.until.slice(11,19)==='00:00:00';
+    const lastDay=endsAtMidnight?new Date(Date.parse(row.until.slice(0,10)+'T00:00:00Z')-86400000).toISOString():row.until;
+    return {solar:short(row.solarFrom)+'부터 '+short(row.solarUntil)+' 절입 전까지',
+      calendar:short(row.from)+'부터 '+short(lastDay)+(endsAtMidnight?'까지':' 절입 전까지')};
+  }
 
   function create(rows,pillars,topic){
     if(!pillars?.day||!stories.joinedDay[topic]||rows.length!==12)return [];
@@ -319,19 +394,7 @@
     const usedTitles=new Set(),usedCopy=[];
     return cards.map((card,i)=>{
       const row=rows[i];
-      const otherIndex=i>0?i-1:1;
-      const other=cards[otherIndex];
-      const otherLabel=rows[otherIndex].month+'월';
-      const otherReading=other.focus&&other.kind?`${other.focus} · ${other.kind} 관계`:other.emphasis;
-      const currentReading=card.focus&&card.kind?`${card.focus} · ${card.kind} 관계`:card.emphasis;
-      let difference=`${otherLabel}의 핵심은 ‘${otherReading}’예요.`;
-      if(otherReading===currentReading){
-        const previous=rows[otherIndex];
-        const sameGods=row.top===previous.top&&row.hidden===previous.hidden;
-        difference=sameGods?`${otherLabel}과 두드러진 단서를 공유해요. 각 달의 원국·월운 관계는 아래에서 확인할 수 있어요.`:
-          `${otherLabel}과 원국에 닿는 방식은 비슷해요. 월운 천간과 지지에서 읽는 십성은 ${previous.top}·${previous.hidden}에서 ${row.top}·${row.hidden} 조합으로 달라져요.`;
-      }
-      const contrast=[difference,card.context.text].filter(Boolean).join(' ');
+      const contrast=compareMonth(cards,rows,i,topic);
 
       // When the same theme genuinely repeats, use the distinct interaction or
       // the independent hidden stem already present in this month.
@@ -343,9 +406,9 @@
         alternatives.find(([,line])=>original(line))||alternatives[0];
       usedCopy.push(...lines(chosen));
       usedTitles.add(title);
-      return {title,lead:card.lead,contrast,reading:chosen,evidence:card.evidence,key:card.key,focus:card.focus};
+      return {title,lead:card.lead,contrast:title===card.title?contrast:'',reading:chosen,evidence:card.evidence,key:card.key};
     });
   }
 
-  return {create,audit};
+  return {create,audit,periodLabels};
 });
