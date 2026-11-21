@@ -508,7 +508,8 @@
         el('p',selected.ganZhi+' 월운 · '+selected.basis),
         el('p',selected.segments?'한국시간 · 각 구간은 종료 시각 직전까지예요.':selected.from+'부터 '+selected.untilExclusive+' 직전까지 (한국시간)'));
       if(selected.relations?.length)basis.append(el('p','원국과의 관계 · '+selected.relations.join(' / ')));
-      for(const segment of selected.segments||[])basis.append(el('p',segment.from+' ~ '+segment.untilExclusive+' · '+segment.yearGanZhi+' 세운 · '+segment.monthGanZhi+' 월운'));
+      if(selected.segments?.some(s=>s.groups))basis.append(el('p','월 점수는 가장 긴 절기 구간의 원국·월운 비교값이에요. 대운과 세운의 작용은 별도 풀이에 반영해요. 동점은 같은 순위이며 세 달을 고를 때는 앞선 달부터 표시해요.'));
+      for(const segment of selected.segments||[])basis.append(el('p',segment.from+' ~ '+segment.untilExclusive+' · '+segment.yearGanZhi+' 세운 · '+segment.monthGanZhi+' 월운'+(segment.groups?' · 기회 '+segment.score+' / 주의 '+segment.expenseScore+' · '+segment.basis+(segment.groups.length?' · '+segment.groups.join(' / '):''):'')));
       if(selected.components){
         const {income,retention,risk}=selected.components;
         basis.append(el('p','택일소가 달을 비교하기 위해 정한 해석 지표예요. 수익 확률이나 검증된 명리 점수가 아니에요. 기회 = 49 + 2 × 수입 신호('+income+') + 보유 신호('+retention+') − 주의 신호('+risk+'). 지출 점검 = 18 + 6 × 주의 신호. 각 지표는 0~100 범위로 표시해요.'));
@@ -545,7 +546,12 @@
     if(calendar.version>=6){
       section.append(el('h4',calendar.daewoon?'대운 · 여러 해에 걸친 배경':'10년 세운 전망'));
       if(!calendar.daewoon)section.append(el('p','확정할 수 있는 대운 구간이 없어 해마다 달라지는 세운만 읽었어요.'));
-      for(const c of calendar.daewoon?.cycles||[])section.append(el('h5',c.startYear+'~'+c.endYear+'년 · '+c.ganZhi+' 대운'),el('p',c.basis),el('small',c.relations.join(' / ')||'원국과 직접 맞물리는 두 글자 관계가 없어요.'));
+      if(calendar.cycleRule?.direction)section.append(el('p',calendar.cycleRule.yearStem+' 연간('+calendar.cycleRule.polarity+')과 입력 성별 기준 '+calendar.cycleRule.direction+'이에요.'));
+      if(calendar.daewoon?.age){
+        const {years,months,days,hours}=calendar.daewoon.age;
+        section.append(el('p','절입 간격을 환산한 첫 대운은 출생 후 '+years+'년 '+months+'개월 '+days+'일 '+hours+'시간, '+calendar.daewoon.start+'부터예요. 입력 시각과 택일소 기산법 기준이에요.'));
+      }
+      for(const c of calendar.daewoon?.cycles||[])section.append(el('h5',(c.from?c.from.slice(0,16)+'부터 '+c.until.slice(0,16)+' 직전까지':c.startYear+'~'+c.endYear+'년')+' · '+c.ganZhi+' 대운'),el('p',c.basis),el('small',c.relations.join(' / ')||'원국과 직접 맞물리는 두 글자 관계가 없어요.'));
     }
     details.append(el('summary','연도별 세운과 원국 근거 살펴보기'));
     for(const year of outlook.years){
@@ -553,6 +559,7 @@
       item.append(el('h6',year.year+'년 · '+year.label),el('p',year.talk),el('p',year.caution),
         el('small',year.ganZhi+' 세운 · '+year.basis));
       if(year.relations?.length)item.append(el('p',year.relations.join(' / ')));
+      if(year.cycles?.length>1)for(const c of year.cycles)item.append(el('p',c.from.slice(0,16)+'부터 '+c.ganZhi+' 대운 · '+(c.relations.join(' / ')||'직접적인 두 글자 관계 없음')));
       if(year.cycle)item.append(el('small',year.cycle.ganZhi+' 대운과 함께 읽어요. '+year.cycle.relations.join(' / ')));
       details.append(item);
     }
@@ -656,6 +663,17 @@
       }
       if(index===2&&report.calendar)page.querySelector('.sr-evidence')?.before(calendarArticle(report.calendar));
       if(index===5&&report.calendar?.outlook)page.querySelector('.sr-evidence')?.before(wealthOutlook(report.calendar.outlook,report.calendar));
+      if(index===5&&report.calendar?.version>=7){
+        const c=report.calendar,year=c.outlook.years[0],cycles=c.daewoon?.cycles||[];
+        const active=cycles.find(v=>v.ganZhi===year.cycles?.[0]?.ganZhi),next=active&&cycles[cycles.indexOf(active)+1];
+        const opportunity=c.rows[c.ranking.opportunity[0]-1],risk=c.rows[c.ranking.expense[0]-1];
+        const recap=el('section',null,'sr-wealth-outlook'),list=el('ol');
+        const items=[report.first.highlight,opportunity.month+'월 · '+opportunity.basis+' — '+opportunity.label,
+          risk.month+'월 · '+risk.basis+' — '+risk.caution,
+          active&&next?active.ganZhi+' 대운의 '+active.basis+'에서 '+next.from.slice(0,10)+' 이후 '+next.ganZhi+' 대운의 '+next.basis+'로 달라져요.':'대운 전환 시점은 미확인이에요. 확인한 세운으로 흐름을 읽었어요.',chapter.highlight];
+        for(const text of items)list.append(el('li',text));
+        recap.append(el('h4','내 재물운에서 기억할 다섯 가지'),list);page.append(recap);
+      }
       if(paidWealth&&index===0){
         const first=el('details',null,'sr-paid-details');
         first.append(el('summary','무료 첫 장 다시 보기'),page);
