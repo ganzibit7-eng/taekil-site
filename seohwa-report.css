@@ -506,6 +506,10 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 .sr-topic-calendar .sr-topic-reading h5 {margin:0;font-size:clamp(1.04rem,2.2vw,1.28rem);line-height:1.5;font-family:inherit;word-break:keep-all}
 .sr-topic-calendar .sr-topic-used {margin-block:8px 16px;padding-inline-start:20px;overflow-wrap:anywhere}
 .sr-topic-calendar .sr-wealth-role {margin-block:4px 6px}
+.sr-topic-calendar .sr-topic-answer {font-weight:600}
+.sr-topic-periods {margin:12px 0 8px;display:grid;gap:8px 14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));padding:10px 12px;background:rgb(170 141 105 / .10);border-radius:8px;font-size:.87em}
+.sr-topic-periods :is(dt,dd) {margin:0;line-height:1.55;word-break:keep-all}
+.sr-topic-periods dt {font-weight:700;color:var(--wealth-gold)}
 .sr-wealth-timeline .sr-wealth-timing h5 {margin:3px 0;color:var(--wealth-ink);font-size:clamp(17px,2.6vw,22px)}
 .seohwa-report-dialog[data-advisor] .sr-wealth-outlook {background:none;border:0;border-top:1px solid var(--wealth-rule);padding:0;margin-top:25px}
 .sr-year-picker {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:14px 0}

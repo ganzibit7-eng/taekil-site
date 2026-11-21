@@ -7,7 +7,7 @@ const scripts=html=>[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)
 const paySdk='https://lite.payapp.kr/public/api/v2/payapp-lite.js';
 assert(!scripts(current).some(([attrs])=>attrs.includes(paySdk)));
 assert(fs.readFileSync('checkout-availability.js','utf8').includes(paySdk));
-const monthlyScript='<script src="topic-monthly-reading.js?v=1"></script>';
+const monthlyScript='<script src="topic-monthly-reading.js?v=2"></script>';
 assert.equal(current.split(monthlyScript).length,2);
 assert(current.indexOf(monthlyScript)<current.indexOf('<script src="seohwa-report.js?'));
 new Function(fs.readFileSync('topic-monthly-reading.js','utf8'));
