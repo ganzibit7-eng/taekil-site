@@ -29,10 +29,22 @@
     <div data-menu-account hidden></div>
     <nav class="site-menu-navigation" aria-label="전체 메뉴">
       <section class="site-menu-group" aria-labelledby="siteMenuReadings">
-        <h3 id="siteMenuReadings">사주·상담</h3>
-        <button type="button" data-menu-route="topics">고민별 상담 찾기</button>
+        <h3 id="siteMenuReadings">사주 리포트</h3>
+        <a href="/#directoryTopicsTitle" data-menu-home-section>사주 리포트 둘러보기</a>
         <button type="button" data-menu-basic-report>무료 사주 리포트</button>
         <button type="button" data-menu-route="newyear">2027년 신년운세</button>
+      </section>
+      <section class="site-menu-group" aria-labelledby="siteMenuChat">
+        <h3 id="siteMenuChat">채팅 상담</h3>
+        <a href="/#directoryChatTitle" data-menu-home-section>채팅 상담 둘러보기</a>
+        <div class="site-menu-links">
+          <a href="/#directoryRelationshipsTitle" data-menu-home-section>연애·궁합</a>
+          <a href="/#directoryCareerTitle" data-menu-home-section>일·재물</a>
+          <a href="/#directoryStudyTitle" data-menu-home-section>학업·성장</a>
+          <a href="/#directoryLifeTitle" data-menu-home-section>생활·관계</a>
+          <a href="/#directoryDatesTitle" data-menu-home-section>중요한 결정</a>
+          <button type="button" data-menu-route="topics">전체 주제</button>
+        </div>
         <button type="button" data-menu-route="history">나의 상담 기록</button>
       </section>
       <section class="site-menu-group" aria-labelledby="siteMenuDates">
@@ -103,6 +115,26 @@
   menu.querySelector('[data-menu-basic-report]').addEventListener('click', () => {
     close();
     openSajuInsight('profile');
+  });
+  const focusHomeSection = hash => {
+    const heading = document.getElementById(hash.slice(1));
+    if (!heading?.matches('#homeDirectory .directory-section :is(h2,h3)[tabindex]')) return;
+    heading.focus({ preventScroll: true });
+    heading.scrollIntoView({ block: 'start', behavior: 'instant' });
+  };
+  menu.querySelectorAll('[data-menu-home-section]').forEach(link => link.addEventListener('click', event => {
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+    if (document.documentElement.dataset.homeLayout !== 'directory' || location.pathname !== '/') return;
+    event.preventDefault();
+    close(false);
+    if (document.documentElement.classList.contains('consultation-open')) document.getElementById('consultationExit')?.click();
+    if (!document.getElementById('view-home')?.classList.contains('visible')) goTo('home');
+    requestAnimationFrame(() => focusHomeSection(link.hash));
+  }));
+  window.addEventListener('pageshow', () => {
+    if (document.documentElement.dataset.homeLayout === 'directory' && location.hash.startsWith('#directory')) {
+      requestAnimationFrame(() => focusHomeSection(location.hash));
+    }
   });
   document.querySelectorAll('a[data-site-home]').forEach(link => link.addEventListener('click', event => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;

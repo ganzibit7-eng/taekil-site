@@ -819,28 +819,29 @@
 
 
 <footer>
-  <div class="container footer-inner">
-    <div class="footer-brand"><svg class="taekilso-symbol" data-brand-symbol viewBox="0 0 40 40" fill="none" aria-hidden="true" focusable="false"><image href="/assets/brand-emblem-transparent.png?v=20261111-1" width="40" height="40"/></svg>택일소</div>
-    <div class="footer-copy">
+  <div class="container footer-inner business-site-footer">
+    <div class="business-footer-header">
+      <div class="footer-brand"><svg class="taekilso-symbol" data-brand-symbol viewBox="0 0 40 40" fill="none" aria-hidden="true" focusable="false"><image href="/assets/brand-emblem-transparent.png?v=20261111-1" width="40" height="40"/></svg>택일소</div>
       <nav class="footer-links" aria-label="이용 정책과 문의">
         <button type="button" class="footer-link" onclick="goTo('legal')">이용약관</button>
         <button type="button" class="footer-link" onclick="goTo('legal')">개인정보처리방침</button>
         <button type="button" class="footer-link" onclick="goTo('support')">문의하기</button>
       </nav>
+    </div>
 <!-- BUSINESS_INFO_START -->
-<section class="business-info" aria-label="사업자 정보">
+<section class="business-info" aria-labelledby="footerBusinessTitle">
+  <h2 id="footerBusinessTitle">사업자 정보</h2>
   <dl>
     <div><dt>상호</dt><dd>테일모라 <span class="business-service">(TALEMORRA)</span></dd></div>
     <div><dt>대표자</dt><dd>김도윤</dd></div>
     <div><dt>사업자등록번호</dt><dd>804-03-03583</dd></div>
-    <div><dt>사업장 주소</dt><dd>전남광주통합특별시 북구 첨단연신로 216, 109동 1501호</dd></div>
-    <div><dt>고객 문의</dt><dd><a href="tel:01021305797">010-2130-5797</a><br><a href="mailto:contact@taekilso.com">contact@taekilso.com</a></dd></div>
     <div><dt>통신판매업</dt><dd>신고 면제</dd></div>
+    <div class="business-detail-wide"><dt>사업장 주소</dt><dd>전남광주통합특별시 북구 첨단연신로 216, 109동 1501호</dd></div>
+    <div class="business-detail-wide"><dt>고객 문의</dt><dd class="business-contact"><a href="tel:01021305797">010-2130-5797</a><a href="mailto:contact@taekilso.com">contact@taekilso.com</a></dd></div>
     <div><dt>호스팅 제공자</dt><dd>Cloudflare, Inc.</dd></div>
   </dl>
 </section>
 <!-- BUSINESS_INFO_END -->
-      <div style="margin-top:14px; color:var(--muted-2);">© 2026 택일소. All rights reserved.</div>
-    </div>
+    <p class="business-copyright">© 2026 택일소. All rights reserved.</p>
   </div>
 </footer>

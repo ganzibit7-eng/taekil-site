@@ -25,21 +25,6 @@
       </button>
     </div>
 
-    <nav class="directory-sections" aria-label="홈에서 리포트와 상담 찾기">
-      <div class="directory-section-rail">
-        <button type="button" class="directory-mode-jump" data-directory-jump="directoryTopicsTitle">사주 리포트</button>
-        <button type="button" class="directory-mode-jump" data-directory-jump="directoryChatTitle">채팅 상담</button>
-        <button type="button" data-directory-jump="directoryNewyearTitle">신년운세</button>
-        <button type="button" data-directory-jump="directoryRelationshipsTitle">연애·궁합</button>
-        <button type="button" data-directory-jump="directoryCareerTitle">일·재물</button>
-        <button type="button" data-directory-jump="directoryStudyTitle">학업·성장</button>
-        <button type="button" data-directory-jump="directoryLifeTitle">생활·관계</button>
-        <button type="button" data-directory-jump="directoryDatesTitle">중요한 결정</button>
-        <button type="button" data-directory-jump="directoryFeaturedTitle">무료 사주</button>
-      </div>
-      <a class="directory-all-topics" href="#topics">전체 주제</a>
-    </nav>
-
     <section class="directory-section directory-report-mode" aria-labelledby="directoryTopicsTitle">
       <div class="directory-mode-heading">
         <h2 id="directoryTopicsTitle" tabindex="-1">사주 리포트</h2>
@@ -229,43 +214,45 @@
       </section>
     </section>
 
-    <section class="directory-section directory-preview" aria-labelledby="directoryPreviewTitle">
-      <details class="directory-preview-fold">
-        <summary><h2 id="directoryPreviewTitle">실제 상담 답변 보기</h2></summary>
-        <div class="directory-preview-body">
-          <div class="directory-preview-intro">
-            <p>가상 사주로 받은 실제 답변 일부예요.</p>
-            <div class="directory-preview-choices" role="group" aria-label="상담 예시 주제">
-              <button type="button" data-preview-choice="career" aria-controls="directoryPreviewCareer" aria-pressed="true">이직</button>
-              <button type="button" data-preview-choice="reunion" aria-controls="directoryPreviewReunion" aria-pressed="false">재회</button>
-              <button type="button" data-preview-choice="saving" aria-controls="directoryPreviewSaving" aria-pressed="false">소비 습관</button>
+    <div class="directory-support-panel">
+      <section class="directory-section directory-preview" aria-labelledby="directoryPreviewTitle">
+        <details class="directory-preview-fold">
+          <summary><h2 id="directoryPreviewTitle">실제 상담 답변 보기</h2></summary>
+          <div class="directory-preview-body">
+            <div class="directory-preview-intro">
+              <p>가상 사주로 받은 실제 답변 일부예요.</p>
+              <div class="directory-preview-choices" role="group" aria-label="상담 예시 주제">
+                <button type="button" data-preview-choice="career" aria-controls="directoryPreviewCareer" aria-pressed="true">이직</button>
+                <button type="button" data-preview-choice="reunion" aria-controls="directoryPreviewReunion" aria-pressed="false">재회</button>
+                <button type="button" data-preview-choice="saving" aria-controls="directoryPreviewSaving" aria-pressed="false">소비 습관</button>
+              </div>
+              <a class="directory-text-link" href="/?landing=yeonwoo#uiDemoTitle">실제 상담 답변 더 보기</a>
             </div>
-            <a class="directory-text-link" href="/?landing=yeonwoo#uiDemoTitle">실제 상담 답변 더 보기</a>
+            <div class="directory-preview-reading" id="directoryPreviewCareer" data-preview-panel="career">
+              <h3>이직을 고민해요. 일을 혼자 정할 수 있는 작은 조직과 절차가 분명한 큰 조직을 제 사주를 바탕으로 비교해 주세요.</h3>
+              <!-- reading-sample career -->
+              <button class="directory-preview-action" type="button" data-consultation-example="career">무진의 직업·이직 리포트 보기</button>
+            </div>
+            <div class="directory-preview-reading" id="directoryPreviewReunion" data-preview-panel="reunion" hidden>
+              <h3>헤어진 사람에게 다시 연락할지 고민이에요. 제 사주에서 관계를 돌아보는 관점과 연락을 결정할 기준을 알려주세요.</h3>
+              <!-- reading-sample reunion -->
+              <button class="directory-preview-action" type="button" data-consultation-example="reunion">이준의 재회운 리포트 보기</button>
+            </div>
+            <div class="directory-preview-reading" id="directoryPreviewSaving" data-preview-panel="saving" hidden>
+              <h3>야근 뒤 배달을 시킬 때 배달비를 아끼려다 음식을 더 담아요. 제 사주를 바탕으로 주문 직전에 써볼 소비 기준을 알려주세요.</h3>
+              <!-- reading-sample saving -->
+              <button class="directory-preview-action" type="button" data-home-consultation data-consultation-example="saving">다온에게 소비 습관 상담하기</button>
+            </div>
           </div>
-          <div class="directory-preview-reading" id="directoryPreviewCareer" data-preview-panel="career">
-            <h3>이직을 고민해요. 일을 혼자 정할 수 있는 작은 조직과 절차가 분명한 큰 조직을 제 사주를 바탕으로 비교해 주세요.</h3>
-            <!-- reading-sample career -->
-            <button class="directory-preview-action" type="button" data-consultation-example="career">무진의 직업·이직 리포트 보기</button>
-          </div>
-          <div class="directory-preview-reading" id="directoryPreviewReunion" data-preview-panel="reunion" hidden>
-            <h3>헤어진 사람에게 다시 연락할지 고민이에요. 제 사주에서 관계를 돌아보는 관점과 연락을 결정할 기준을 알려주세요.</h3>
-            <!-- reading-sample reunion -->
-            <button class="directory-preview-action" type="button" data-consultation-example="reunion">이준의 재회운 리포트 보기</button>
-          </div>
-          <div class="directory-preview-reading" id="directoryPreviewSaving" data-preview-panel="saving" hidden>
-            <h3>야근 뒤 배달을 시킬 때 배달비를 아끼려다 음식을 더 담아요. 제 사주를 바탕으로 주문 직전에 써볼 소비 기준을 알려주세요.</h3>
-            <!-- reading-sample saving -->
-            <button class="directory-preview-action" type="button" data-home-consultation data-consultation-example="saving">다온에게 소비 습관 상담하기</button>
-          </div>
-        </div>
-      </details>
-    </section>
+        </details>
+      </section>
 
-    <nav class="directory-utility" aria-label="택일소 서비스 안내">
-      <a href="#services" onclick="goTo('services');return false;">서비스 안내</a>
-      <a href="#plans" onclick="goTo('plans');return false;">이용권 안내</a>
-      <a href="#faq">자주 묻는 질문</a>
-    </nav>
+      <nav class="directory-utility" aria-label="택일소 서비스 안내">
+        <a href="#services" onclick="goTo('services');return false;">서비스 안내</a>
+        <a href="#plans" onclick="goTo('plans');return false;">이용권 안내</a>
+        <a href="#faq">자주 묻는 질문</a>
+      </nav>
+    </div>
   </div>
   <div class="block home-first-block" style="padding-bottom:8px;">
     <div class="container" style="max-width:480px;">
