@@ -251,6 +251,7 @@
     body.replaceChildren(...nodes);
     if(!dialog.open)dialog.showModal();
     dialog.scrollTop=scroll;
+    progress.value=dialog.scrollTop/Math.max(1,dialog.scrollHeight-dialog.clientHeight);
   }
   function setStatus(node,message){
     node.textContent=message;
