@@ -13,6 +13,8 @@
     '正官':'관계의 약속과 방향을 분명히 하고 싶은 흐름','七杀':'관계의 속도와 기대가 빠르게 커지는 흐름',
     '正印':'이해받는 느낌과 안정감에 눈이 가는 흐름','偏印':'마음을 열기 전에 상대의 말을 곱씹어 보는 흐름'
   };
+  const work={ '正财':'실제로 남는 결과와 대가를 맞추는 흐름','偏财':'기존 방식 밖에서 새 역할을 탐색하는 흐름','食神':'쌓은 숙련을 결과물로 꺼내는 흐름','伤官':'막힌 절차를 개선하고 의견을 제안하는 흐름','比肩':'일의 주도권과 순서를 스스로 정하는 흐름','劫财':'같은 일을 맡는 사람 사이에서 역할을 가려 보는 흐름','正官':'평가 기준이 선명해지고 책임을 맡는 흐름','七杀':'빠른 결정과 책임을 동시에 다루는 흐름','正印':'이미 가진 경험과 기록에서 기준을 얻는 흐름','偏印':'기존 지식을 다른 일에 응용하는 흐름' };
+  const countPairs=links=>new Set(links.map(link=>link.match(/([甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥])·[^ ]+ ([甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥])/u)?.slice(1).sort().join('')||link)).size;
   const ms=stamp=>Date.parse(stamp.replace(' ','T')+'+08:00');
   const kst=t=>new Date(t+9*3600000).toISOString().slice(0,19).replace('T',' ')+' KST';
   const engine=(Solar,t)=>{
@@ -20,27 +22,33 @@
     return Solar.fromYmdHms(...date.split(/[-T:]/).map(Number));
   };
   const asTime=(y,m)=>Date.UTC(y,m,1)-9*3600000;
-  function calc(Solar,util,pillars,birth,profile){
+  function calc(Solar,util,pillars,birth,profile,topic){
     if(!Solar||!util||!pillars?.day||!interactions)return null;
+    const career=topic==='mujin';
     const stage=(pair,label)=>{
       const [stem,branch]=pair;
       const top=util.SHI_SHEN[pillars.day[0]+stem];
       const hidden=util.SHI_SHEN[pillars.day[0]+util.ZHI_HIDE_GAN[branch][0]];
       const links=interactions.toPeriod(pillars,label,pair);
       const groups=interactions.groups(pillars,[pair]);
-      return {pair,top:names[top],hidden:names[hidden],reading:meanings[top],links,groups,
-        affinity:links.filter(link=>link.endsWith('합')).length+groups.length,
-        adjustment:links.filter(link=>/[충형파해]$/.test(link)).length};
+      const supports=[top,hidden].filter(god=>['食神','伤官','正官','七杀','正印','偏印'].includes(god));
+      const connection=countPairs(links.filter(link=>link.endsWith('합')))+groups.length;
+      const adjustment=countPairs(links.filter(link=>/[충형파해]$/.test(link)));
+      return {pair,top:names[top],hidden:names[hidden],reading:(career?work:meanings)[top],links,groups,
+        affinity:career?connection+new Set(supports).size:connection,adjustment};
     };
     const getTerms=year=>Solar.fromYmd(year,6,1).getLunar().getJieQiTable();
     const table=getTerms(YEAR);
     const boundaries=terms.map(term=>ms(table[term].toYmdHms()));
+    const fullBoundaries=[ms(getTerms(YEAR-1)['大雪'].toYmdHms()),...boundaries,ms(getTerms(YEAR+1)['小寒'].toYmdHms())];
     const calendar=Array.from({length:12},(_,i)=>{
       const from=asTime(YEAR,i),until=asTime(YEAR,i+1);
       const points=[from,...boundaries.filter(t=>t>from&&t<until),until];
       const spans=points.slice(0,-1).map((start,j)=>{
         const lunar=engine(Solar,start+1000).getLunar(),end=points[j+1];
+        const boundary=fullBoundaries.findLastIndex(t=>t<=start);
         return {...stage(lunar.getMonthInGanZhiExact(),'월운'),start,end,from:kst(start),until:kst(end),
+          solarFrom:kst(fullBoundaries[boundary]),solarUntil:kst(fullBoundaries[boundary+1]),
           annual:lunar.getYearInGanZhiExact()};
       });
       const main=spans.reduce((a,b)=>b.end-b.start>a.end-a.start?b:a);
@@ -66,7 +74,8 @@
       }))};
     });
     const top=key=>calendar.filter(row=>row[key]>0).sort((a,b)=>b[key]-a[key]||a.month-b.month).slice(0,3);
-    return {calendar,years,opportunity:top('affinity'),attention:top('adjustment')};
+    const priorPair=engine(Solar,ms(getTerms(YEAR-1)['立春'].toYmdHms())+1000).getLunar().getYearInGanZhiExact();
+    return {calendar,years,prior:stage(priorPair,'세운'),opportunity:top('affinity'),attention:top('adjustment')};
   }
   return {calc};
 });
