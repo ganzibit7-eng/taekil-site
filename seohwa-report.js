@@ -117,14 +117,14 @@
     page.id='seohwa-report-chapter-'+index;
     const h=el('h3',chapter.title);
     h.tabIndex=-1;
-    const folio=reading?.id==='dogyeom'?String(index+1).padStart(2,'0')+' / 06':'제'+(index+1)+'장';
+    const folio=reading?String(index+1).padStart(2,'0')+' / 06':'제'+(index+1)+'장';
     page.append(el('p',folio,'sr-page-label report-folio'),h,el('p',chapter.highlight,'sr-highlight'));
     if(chapter.sections)for(const section of chapter.sections){
       page.append(el('h4',section.title));
       for(const text of section.text.split('\n'))page.append(el(section.quote?'blockquote':'p',text));
     }
     else for(const paragraph of chapter.paragraphs){
-      const sentences=reading?.id==='dogyeom'?paragraph.match(/[^.!?]+(?:[.!?]+|$)/g):null;
+      const sentences=reading?paragraph.match(/[^.!?]+(?:[.!?]+|$)/g):null;
       if(sentences?.length>4){
         for(let i=0;i<sentences.length;i+=3)page.append(el('p',sentences.slice(i,i+3).join('').trim()));
       }else page.append(el('p',paragraph));
@@ -147,14 +147,14 @@
     image.width=640; image.height=800;
     head.append(image);
     const title=el('div',null,'sr-cover-text');
-    const heading=el('h2',paidYear?paidYear+'년 나의 재물운':reading.id==='dogyeom'?reading.title:reading.cover);
+    const heading=el('h2',paidYear?(topicPresentation[reading.id]?.title||paidYear+'년 나의 재물운'):reading.title);
     heading.tabIndex=-1;
     const metadata=[reading.stories[choice].label,day&&day+' 일주',known===false&&'출생시간 미상'].filter(Boolean);
     if(paidYear)metadata.shift();
-    title.append(el('p',reading.id==='dogyeom'?(paidYear?'도겸의 재물운 리포트':'무료 첫 장'):reading.title,'sr-kicker'),heading,
+    title.append(el('p',paidYear?reading.title:'무료 첫 장','sr-kicker'),heading,
       el('p',metadata.join(' · ')));
     const navigation=el('div',null,'sr-cover-nav');
-    navigation.append(button(paidYear?'올해 총평 읽기':'내 풀이 바로 보기','sr-personal-jump',()=>jumpToChapter(paidYear?1:0)));
+    navigation.append(button(paidYear?(reading.id==='dogyeom'?'올해 총평 읽기':'본편 바로 읽기'):'내 풀이 바로 보기','sr-personal-jump',()=>jumpToChapter(paidYear?1:0)));
     if(paidYear)navigation.append(button('목차 보기','sr-cover-toc',()=>{
       const list=by('wealthReportToc');
       list.querySelector('button').focus({preventScroll:true});
@@ -226,7 +226,7 @@
   function toc(reading,first,locked) {
     const list=el('nav',null,'sr-toc');
     list.setAttribute('aria-label','리포트 목차');
-    if(reading.id==='dogyeom'&&!locked)list.id='wealthReportToc';
+    if(!locked)list.id='wealthReportToc';
     list.append(el('h3','리포트 목차'));
     const rows=el('ol');
     for(const [index,title] of [first.title,...reading.chapters].entries()){
@@ -293,27 +293,21 @@
       samples.append(sample);
     }
     const cover=header(reading,choice,context.day,context.known);
-    if(reading.id==='dogyeom'){
-      const chapter=paper(first,0,null,reading);
-      const guide=el('details',null,'sr-evidence sr-wealth-origin');
-      guide.append(el('summary','내 사주 원국과 핵심 근거 보기'),introGuide(reading,context,first));
-      chapter.append(guide);
-      contents.append(chapter,toc(reading,first,true),gate);
-      const quick=el('div',null,'sr-wealth-quick');
-      const jump=button('전체 리포트 · '+won.format(reading.PRICE)+'원','sr-primary',()=>{
-        pay.focus({preventScroll:true});
-        pay.scrollIntoView({block:'center'});
-      });
-      jump.dataset.checkoutAction='';
-      quick.append(jump);
-      layout.classList.add('sr-wealth-preview');
-      layout.append(contents);
-      show([cover,layout,quick]);
-      return;
-    }
-    contents.append(introGuide(reading,context,first),paper(first,0),...(excerpts.length?[samples]:[]),gate);
-    layout.append(toc(reading,first,true),contents);
-    show([cover,layout]);
+    const chapter=paper(first,0,null,reading);
+    const guide=el('details',null,'sr-evidence sr-wealth-origin');
+    guide.append(el('summary','내 사주 원국과 핵심 근거 보기'),introGuide(reading,context,first));
+    chapter.append(guide);
+    contents.append(chapter,toc(reading,first,true),...(excerpts.length?[samples]:[]),gate);
+    const quick=el('div',null,'sr-wealth-quick');
+    const jump=button('전체 리포트 · '+won.format(reading.PRICE)+'원','sr-primary',()=>{
+      pay.focus({preventScroll:true});
+      pay.scrollIntoView({block:'center'});
+    });
+    jump.dataset.checkoutAction='';
+    quick.append(jump);
+    layout.classList.add('sr-wealth-preview');
+    layout.append(contents);
+    show([cover,layout,quick]);
   }
 
   function openPreview({profile,choice,auth,topic='love'}) {
@@ -715,6 +709,169 @@
     return article;
   }
 
+  const topicPresentation={
+    seohwa:{title:'2027년 나의 연애운',map:'내 관계를 읽는 세 가지 단서',recap:'인연을 볼 때 기억할 세 가지',
+      steps:[['서운함의 뿌리',0],['편안해지는 조건',1],['마음을 전할 때',3]]},
+    ijun:{title:'다시 이어갈 관계를 읽는 법',map:'재회를 고민할 때 살펴볼 순서',recap:'다시 연락하기 전에 읽을 세 가지',
+      steps:[['내 마음 읽기',0],['지난 관계 살피기',1],['다음 선택 정하기',4]]},
+    mujin:{title:'나에게 맞는 일과 환경',map:'내 일에 맞는 조건 세 가지',recap:'다음 자리를 고를 때 기억할 세 가지',
+      steps:[['일할 때의 강점',0],['실력을 보이기 좋은 팀',1],['책임과 권한',2]]}
+  };
+  function reportOverview(report,reading,periods){
+    const theme=topicPresentation[reading.id];
+    const overview=el('section',null,'sr-summary sr-topic-summary');
+    overview.append(el('h3',theme.map));
+    const list=el('ol',null,'sr-topic-map');
+    for(const [label,index] of theme.steps){
+      const chapter=report.body[index];
+      if(!chapter)continue;
+      const row=el('li');
+      row.append(button(label,'sr-topic-jump',()=>jumpToChapter(index+1)),el('p',chapter.highlight));
+      list.append(row);
+    }
+    if(periods){
+      const moments=el('dl',null,'sr-summary-moments');
+      const [open]=periods.opportunity,[pause]=periods.attention;
+      const annual=periods.years[0];
+      for(const [label,value,desc] of [
+        ['인연에 주목할 달',open?open.month+'월':'—',open?.pair],
+        ['관계를 살필 달',pause?pause.month+'월':'—',pause?.pair],
+        ['2027년 세운',annual.pair,annual.reading]
+      ]){
+        const box=el('div');
+        box.append(el('dt',label),el('dd',value,'sr-summary-date'));
+        if(desc)box.append(el('dd',desc));
+        moments.append(box);
+      }
+      overview.append(moments);
+    }
+    overview.append(list);
+    return overview;
+  }
+  function relationshipEvidence(row){
+    const group=el('div');
+    group.append(el('p',row.pair+' · 천간 '+row.top+' · 지지 주기운 '+row.hidden,'sr-wealth-month-basis'),el('p',row.reading+'으로 읽어요.'));
+    if(row.links.length||row.groups.length)group.append(el('p',[...row.links,...row.groups].join(' / ')));
+    else group.append(el('p','이 구간에는 확인된 원국과 직접 맞물리는 합·충 관계가 없어요.'));
+    return group;
+  }
+  function relationshipMonths(periods){
+    const section=el('section',null,'sr-wealth-ranking sr-topic-calendar');
+    const graph=el('div',null,'sr-wealth-chart');
+    graph.setAttribute('role','group');
+    graph.setAttribute('aria-label','월별 인연과 관계 변화');
+    const legend=el('div',null,'sr-wealth-legend');
+    legend.append(el('span','인연을 살피는 합','sr-legend-opportunity'),el('span','변화를 살피는 충·형·파·해','sr-legend-expense'));
+    const detail=el('div',null,'sr-wealth-month-detail');
+    detail.id='relationshipMonthDetail';
+    detail.setAttribute('aria-live','polite');
+    const lens=el('label','관계 상황에 맞춰 보기','sr-wealth-role');
+    const picker=el('select');
+    const readings=[
+      ['선택 안 함','합은 이어지는 접점을, 충·형·파·해는 속도나 기대가 달라지는 지점을 살펴보는 단서예요.'],
+      ['새 인연을 찾는 중','인연의 접점이 눈에 띄는 구간에서는 내가 어떤 대화에 흥미를 느끼는지 살펴보세요.'],
+      ['관심 있는 사람이 있어요','표현의 흐름이 보이는 구간에는 상대가 부담 없이 답할 수 있는 대화부터 생각해 보세요.'],
+      ['연애 중이에요','관계 변화가 눈에 띄는 구간에는 가까워지는 속도에 서로 다른 기대가 있는지 살펴보세요.'],
+      ['기혼·장기 관계예요','약속과 기준이 눈에 띄는 구간에는 반복해서 맞춰 온 두 사람의 생활 리듬을 돌아보세요.'],
+      ['이별 후예요','관계 변화가 눈에 띄는 구간에는 지난 관계에서 유지하고 싶은 것과 달라졌으면 하는 점을 가려보세요.']
+    ];
+    for(const [index,[label]] of readings.entries()){
+      const option=el('option',label);option.value=String(index);picker.append(option);
+    }
+    lens.append(picker);
+    const perspective=el('p',null,'sr-topic-perspective');
+    let activeMonth;
+    function showPerspective(){
+      const lensText=readings[Number(picker.value)][1];
+      const signal=activeMonth.adjustment>activeMonth.affinity?'변화를 살필 단서가 더 많이 보여요.':activeMonth.affinity>activeMonth.adjustment?'인연의 접점으로 읽는 합이 더 많이 보여요.':'합과 변화의 개수가 같아요.';
+      perspective.textContent=activeMonth.month+'월은 '+signal+' '+lensText;
+    }
+    picker.addEventListener('change',showPerspective);
+    const scale=Math.max(1,...periods.calendar.flatMap(row=>[row.affinity,row.adjustment]));
+    const choose=(row,selected)=>{
+      activeMonth=row;
+      showPerspective();
+      for(const bar of graph.children)bar.setAttribute('aria-pressed',String(bar===selected));
+      const exact=el('details',null,'sr-evidence');
+      exact.append(el('summary','절입 시각과 구간별 근거'));
+      for(const span of row.spans)exact.append(el('p',span.from+'부터 '+span.until+' 직전까지 · '+span.annual+' 세운 · '+span.pair+' 월운'),relationshipEvidence(span));
+      detail.replaceChildren(el('h4',row.month+'월 · '+row.pair+' 월운'),relationshipEvidence(row),exact);
+    };
+    for(const row of periods.calendar){
+      const bar=button('','sr-wealth-bar',()=>choose(row,bar));
+      bar.dataset.signal='normal';
+      bar.setAttribute('aria-label',row.month+'월, 합 '+row.affinity+'개, 변화 '+row.adjustment+'개');
+      bar.setAttribute('aria-controls',detail.id);
+      const track=el('span',null,'sr-wealth-track');
+      track.setAttribute('aria-hidden','true');
+      for(const [cls,count] of [['sr-wealth-fill',row.affinity],['sr-wealth-risk-fill',row.adjustment]]){
+        const fill=el('span',null,cls);fill.style.height=(100*count/scale)+'%';track.append(fill);
+      }
+      bar.append(track,el('span',row.month+'월'));
+      graph.append(bar);
+    }
+    const start=periods.opportunity[0]||periods.calendar[0];
+    choose(start,graph.children[start.month-1]);
+    const heading=el('h3','2027년 월별 인연 흐름');
+    heading.id='relationshipMonthsHeading';heading.tabIndex=-1;
+    section.append(heading,el('p','가장 긴 절기 구간을 기준으로 내 원국과 월운이 이루는 합과 변화를 비교해요. 막대는 확인된 관계의 수를 보여줘요.'),legend,graph,detail,lens,perspective);
+    return section;
+  }
+  function relationshipTimeline(periods){
+    const panel=el('section',null,'sr-wealth-timeline sr-topic-timeline');
+    panel.append(el('h4','인연과 관계 변화에 주목할 구간'));
+    const list=el('ol');
+    const already=new Set();
+    for(const [label,items] of [['인연의 접점',periods.opportunity],['관계 변화',periods.attention]]){
+      for(const row of items){
+        if(already.has(row.month))continue;
+        already.add(row.month);
+        const opening=periods.opportunity.includes(row),attention=periods.attention.includes(row);
+        const item=el('li',null,'sr-wealth-timing');
+        const labelText=opening&&attention?'인연의 접점 · 관계 변화':label;
+        const short=t=>t.slice(5,10).replace('-','.');
+        const evidence=el('details',null,'sr-evidence');
+        evidence.append(el('summary','정확한 구간 보기'),el('p',row.from+'부터 '+row.until+' 직전까지'));
+        item.append(el('p',labelText,'sr-period-rank'),el('h5',short(row.from)+' – '+short(row.until)+' · '+row.pair+' 월운'),relationshipEvidence(row),evidence);
+        list.append(item);
+      }
+    }
+    if(list.childElementCount)panel.append(el('p','2027년 양력 월별 대표 구간이에요. 종료일은 절입 또는 다음 달 시작 전까지예요.'),list);
+    else panel.append(el('p','강조할 합이나 변화 관계가 확인된 달이 없어요.'));
+    return panel;
+  }
+  function relationshipYears(periods){
+    const panel=el('section',null,'sr-wealth-outlook sr-topic-timeline');
+    panel.append(el('h4','2027~2036년 인연 흐름'));
+    const choices=el('div',null,'sr-year-picker');
+    choices.setAttribute('role','group');
+    choices.setAttribute('aria-label','인연운 연도 선택');
+    const detail=el('div',null,'sr-year-selected');
+    detail.id='relationshipYearDetail';
+    detail.setAttribute('aria-live','polite');
+    function select(row,selected){
+      for(const choice of choices.children)choice.setAttribute('aria-pressed',String(choice===selected));
+      const year=el('div',null,'sr-wealth-year');
+      year.append(el('h5',row.year+'년 · '+row.pair+' 세운'),relationshipEvidence(row));
+      for(const cycle of row.cycles)year.append(el('p',(cycle.transition?cycle.transition+'부터 ':'')+cycle.pair+' 대운'+(cycle.links.length?' · '+cycle.links.join(' / '):'')));
+      if(!row.cycles.length)year.append(el('small','이 구간은 입춘 기준 세운으로 읽어요.'));
+      detail.replaceChildren(year);
+    }
+    for(const row of periods.years){
+      const buttonEl=button(String(row.year),'sr-year-choice',()=>select(row,buttonEl));
+      const labels=[];
+      if(row.affinity)labels.push('합');
+      if(row.adjustment)labels.push('변화');
+      if(row.cycles.some(c=>c.transition))labels.push('대운 전환');
+      if(labels.length)buttonEl.append(el('small',labels.join(' · ')));
+      buttonEl.setAttribute('aria-controls',detail.id);
+      choices.append(buttonEl);
+    }
+    select(periods.years[0],choices.firstElementChild);
+    panel.append(choices,detail);
+    return panel;
+  }
+
   function drawPurchased(result,host,owner,reading) {
     const {report}=result;
     displayTitle(reading);
@@ -723,6 +880,18 @@
     const balance=el('p',reading.name+' 상담 '+result.questionsLeft+'회 남음','sr-balance');
     const paidWealth=reading.id==='dogyeom'&&report.calendar?.ranking;
     const front=[];
+    const topic=topicPresentation[reading.id];
+    let periods;
+    if(topic){
+      if(reading.id==='seohwa'){
+        const context=purchasedContext(reading,report);
+        try{
+          periods=window.TaekilRelationshipPeriods?.calc(window.Solar,window.LunarUtil,context.pillars,profileBirthDay(report.profile),report.profile);
+        }catch(error){console.warn('SEOHWA_PERIODS_UNAVAILABLE',error.name);}
+      }
+      front.push(reportOverview(report,reading,periods));
+      if(periods)front.push(relationshipMonths(periods));
+    }
     if(paidWealth){
       const {year,judgment,ranking,rows,outlook,daewoon}=report.calendar;
       const summary=el('section',null,'sr-summary');
@@ -758,7 +927,7 @@
       front.push(summary,wealthRanking(report.calendar));
     }
     contents.append(balance);
-    if(!paidWealth)contents.append(introGuide(reading,purchasedContext(reading,report),report.first));
+    if(!paidWealth&&!topic)contents.append(introGuide(reading,purchasedContext(reading,report),report.first));
     for(const [index,chapter] of [report.first,...report.body].entries()){
       const page=paper(chapter,index,result.questionsLeft>0?()=>followup(result,chapter,index-1,owner,reading):null,reading);
       if(index===0&&!paidWealth&&report.calendar?.judgment){
@@ -805,28 +974,50 @@
         }
         recap.append(el('h4','내 재물운에서 기억할 다섯 가지'),list);page.append(recap);
       }
-      if(paidWealth&&index===0){
+      if(periods&&index===2){
+        const calendarLink=button('월별 인연 흐름 보기','sr-ask',()=>{
+          const heading=by('relationshipMonthsHeading');
+          heading.focus({preventScroll:true});
+          heading.scrollIntoView({block:'start',behavior:'instant'});
+        });
+        page.querySelector('.sr-evidence')?.before(calendarLink);
+      }
+      if(periods&&index===3)page.querySelector('.sr-evidence')?.before(relationshipTimeline(periods));
+      if(periods&&index===5)page.querySelector('.sr-evidence')?.before(relationshipYears(periods));
+      if(topic&&index===5){
+        const recap=el('section',null,'sr-topic-recap');
+        const list=el('ol');
+        for(const [label,i] of topic.steps){
+          const item=el('li');
+          item.append(el('strong',label),el('p',report.body[i].highlight));
+          list.append(item);
+        }
+        recap.append(el('h4',topic.recap),list);
+        page.append(recap);
+      }
+      if((paidWealth||topic)&&index===0){
         const first=el('details',null,'sr-paid-details');
+        if(topic)page.append(introGuide(reading,purchasedContext(reading,report),report.first));
         first.append(el('summary','무료 첫 장 다시 보기'),page);
         contents.append(first);
       }else{
-        if(paidWealth){
+        if(paidWealth||topic){
           const more=el('details',null,'sr-paid-details');
           more.append(el('summary','상세 풀이 읽기'));
           for(const paragraph of page.querySelectorAll(':scope > p:not(.sr-page-label):not(.sr-highlight)'))more.append(paragraph);
           page.querySelector('.sr-highlight').after(more);
-          if(index===3||index===4){
+          if(paidWealth&&(index===3||index===4)){
             const timeline=wealthTimeline(report.calendar,index===3?'opportunity':'expense');
             page.querySelector('.sr-evidence')?.before(timeline);
           }
         }
         const ask=page.querySelector('.sr-ask');
-        if(paidWealth&&ask)page.append(ask);
+        if((paidWealth||topic)&&ask)page.append(ask);
         contents.append(page);
       }
     }
     layout.append(toc({...reading,chapters:report.body.map(chapter=>chapter.title)},report.first,false),contents);
-    show([header(reading,report.choice,report.day,report.known??report.profile?.hourValue!=='unknown',paidWealth?report.calendar.year:undefined),...front,layout],!paidWealth);
+    show([header(reading,report.choice,report.day,report.known??report.profile?.hourValue!=='unknown',paidWealth?report.calendar.year:topic?true:undefined),...front,layout],!paidWealth&&!topic);
   }
 
   async function renderPurchased(result,host,owner,autoGenerate,reading) {
