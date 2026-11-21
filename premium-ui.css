@@ -420,7 +420,7 @@ body:has(#view-home.visible) .topbar{max-width:560px}body:has(#view-home.visible
 #view-home>.home-faq-section{padding-top:40px;padding-bottom:60px}
 #view-home .home-first-block .home-section-arrow-down{display:none}
 body:has(#view-home.visible) footer{max-width:560px;margin:0 auto}
-body:has(#view-home.visible) .footer-inner{display:block}.footer-brand{margin-bottom:22px}
+body:has(#view-home.visible) .footer-inner:not(.business-site-footer){display:block}.footer-brand{margin-bottom:22px}
 .premium-services-view .home-section-nav{display:none}
 .premium-services-view .seo-landing-block,.premium-services-view .seo-service-hub{max-width:880px;margin:0 auto;padding:36px 24px;border-top:1px solid #514b48}
 .premium-services-view .seo-landing-block p{font-size:16px;line-height:1.85;color:#c2bab2}

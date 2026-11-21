@@ -7,10 +7,6 @@
       </div>
       <div class="directory-hero-copy">
         <h1 id="directoryHeroTitle">내 사주로 풀어보는<br>지금의 고민</h1>
-        <div class="directory-hero-actions">
-          <button type="button" data-open-basic-report>무료로 내 사주 보기</button>
-          <button type="button" data-browse-advisors>상담사 찾아보기 <span aria-hidden="true">↓</span></button>
-        </div>
       </div>
     </section>
 

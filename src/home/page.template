@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="/home-layout.js?v=home-paths-1"></script>
-<link rel="stylesheet" href="/home-layout.css?v=home-paths-1">
+<link rel="stylesheet" href="/home-layout.css?v=footer-flow-2">
 <title>택일소 | 무료 사주 · 주제별 리포트 · AI 상담과 택일</title>
 <meta name="description" content="로그인 없이 내 오행과 기본 성향을 확인하세요. 연애·재물·재회·직업 리포트의 첫 장, 2027 신년운세와 고민별 상담사를 만나보세요.">
 <meta name="keywords" content="사주, 사주풀이, 무료사주, 사주궁합, 오늘의운세, 신년운세, 택일, 결혼택일, 이사택일, 개업택일, 손없는날, 만세력">
@@ -309,7 +309,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 </dialog>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=free-progress-1"></script><script src="premium-motion.js" defer></script>
 <script src="consultation-draft-core.js?v=featured-report-1"></script>
-<script src="consultation-stage.js?v=home-paths-1"></script>
+<script src="consultation-stage.js?v=footer-flow-2"></script>
 <script src="consultation-history-filters.js?v=20261120-history-filters"></script>
 <link rel="stylesheet" href="consultation-experience.css?v=annual-reading-1">
 <script src="consultation-experience-core.js?v=20261117-saved-evidence"></script>
@@ -323,7 +323,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <link rel="stylesheet" href="free-report-handoff.css?v=free-progress-1">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
 <script src="free-report-handoff.js?v=home-paths-1"></script>
-<link rel="stylesheet" href="navigation-refinement.css?v=surfaces-1120">
+<link rel="stylesheet" href="navigation-refinement.css?v=footer-flow-2">
 <script src="navigation-refinement.js?v=20261110-1"></script>
 <script src="profile-picker-controls.js?v=20261118-confirmed-delete"></script>
 <link rel="stylesheet" href="consultation-quality.css?v=entry-1120">

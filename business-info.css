@@ -17,6 +17,7 @@
 body footer .footer-inner.business-site-footer {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  justify-content: stretch;
   align-items: start;
   gap: 16px;
 }
@@ -83,4 +84,10 @@ body footer .footer-inner.business-site-footer {
   .business-service { display: block; margin-left: 0; }
   .business-site-footer .business-info dl > div { grid-template-columns: minmax(6.4em, max-content) minmax(0, 1fr); }
   .business-site-footer .business-service { margin-left: 0; }
+}
+
+@media (max-width: 440px) {
+  .business-site-footer .business-footer-header {align-items:flex-start;flex-direction:column;gap:6px}
+  .business-site-footer .business-info dl > .business-detail-wide {grid-template-columns:1fr;gap:3px}
+  .business-site-footer .business-contact {flex-direction:column;align-items:flex-start}
 }

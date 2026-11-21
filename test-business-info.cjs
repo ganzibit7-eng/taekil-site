@@ -6,7 +6,7 @@ test('every public page displays the registered operator and usable contacts wit
   const block=html.match(/<!-- BUSINESS_INFO_START -->\s*([\s\S]*?)\s*<!-- BUSINESS_INFO_END -->/)?.[1];assert.ok(block,file);
   for(const value of ['테일모라','김도윤','804-03-03583','첨단연신로 216, 109동 1501호','<dt>통신판매업</dt><dd>신고 면제</dd>','<dt>호스팅 제공자</dt><dd>Cloudflare, Inc.</dd>','tel:01021305797','mailto:contact@taekilso.com'])assert.ok(block.includes(value),file+': '+value);
   assert.ok(!/2004|생년월일|간이과세자|<img/.test(block),file+': unrelated certificate data');
-  const styleVersion = file === 'index.html' ? 'footer-layout-1' : '20261118-2';
+  const styleVersion = file === 'index.html' ? 'footer-flow-2' : '20261118-2';
   assert.equal(html.split('/business-info.css?v=' + styleVersion + '"').length - 1, 1, file);
   assert.ok(html.indexOf(block)<html.lastIndexOf('© 2026 택일소. All rights reserved.'),file+': business details before copyright');count++;
  }
