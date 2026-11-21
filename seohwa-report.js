@@ -253,7 +253,7 @@
     paymentNote.append(el('strong',won.format(reading.PRICE)+'원'),el('span','1회 결제 · 자동 갱신 없음'));
     const benefits=el('ul',null,'sr-benefits');
     for(const [title,description] of [
-      ...(reading.id==='dogyeom'?[['월별 재물운과 10년 흐름','기회와 지출 점검 상위 달, 상황별로 먼저 할 일까지 읽을 수 있어요.']]:[]),
+      ...(reading.id==='dogyeom'?[['월별 재물운과 10년 흐름','2027년 기회와 지출 주의 TOP 3, 열두 달 달력과 향후 10년 흐름을 읽어요.']]:[]),
       ['개인 사주 풀이 6장','무료 첫 장과 함께 사주표 읽기 안내 2장까지 내 기록에서 다시 읽을 수 있어요.'],
       [withName(reading)+' 채팅 상담 3회','리포트 구매 후, 마음에 남은 대목에서 바로 이어서 물어볼 수 있어요.']
     ]){
@@ -273,8 +273,13 @@
         el('p','이 장의 첫 문단을 공개했어요.','sr-excerpt-label'));
       samples.append(sample);
     }
-    contents.append(introGuide(reading,context,first),paper(first,0),samples,gate);
+    contents.append(introGuide(reading,context,first),paper(first,0),...(excerpts.length?[samples]:[]),gate);
     layout.append(toc(reading,first,true),contents);
+    if(reading.id==='dogyeom'){
+      const jump=button('전체 리포트 · 5,900원','sr-wealth-buy-jump',()=>pay.scrollIntoView({block:'center'}));
+      jump.dataset.checkoutAction='';
+      contents.prepend(jump);
+    }
     show([header(reading,choice,context.day,context.known),layout]);
   }
 
@@ -581,6 +586,14 @@
     const now={id:result.id,host,owner,reading};active=now;
     const layout=el('div',null,'sr-layout'), contents=el('div',null,'sr-pages');
     const balance=el('p',reading.name+' 상담 '+result.questionsLeft+'회 남음','sr-balance');
+    if(reading.id==='dogyeom'&&report.calendar?.ranking){
+      const {year,judgment,ranking}=report.calendar;
+      const summary=el('section',null,'sr-summary');
+      summary.append(el('h3','올해 내 재물운 한눈에 보기'),el('p',judgment.route.title),
+        el('p',year+'년 기회가 가장 강한 때는 '+ranking.opportunity[0]+'월이에요.'),
+        el('p','지출을 먼저 살펴볼 때는 '+ranking.expense[0]+'월이에요.'));
+      contents.append(summary);
+    }
     contents.append(balance,introGuide(reading,purchasedContext(reading,report),report.first));
     for(const [index,chapter] of [report.first,...report.body].entries()){
       const page=paper(chapter,index,result.questionsLeft>0?()=>followup(result,chapter,index-1,owner,reading):null,reading);
@@ -594,7 +607,7 @@
       if(index===5&&report.calendar?.outlook)page.querySelector('.sr-evidence')?.before(wealthOutlook(report.calendar.outlook));
       contents.append(page);
     }
-    layout.append(toc(reading,report.first,false),contents);
+    layout.append(toc({...reading,chapters:report.body.map(chapter=>chapter.title)},report.first,false),contents);
     show([header(reading,report.choice,report.day,report.known??report.profile?.hourValue!=='unknown'),layout],true);
   }
 
