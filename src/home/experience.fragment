@@ -3,6 +3,7 @@
 <div class="saju-insight-modal" id="sajuInsightModal" onclick="if(event.target===this) closeSajuInsight()">
   <div class="saju-insight-box">
     <button class="fortune-close" onclick="closeSajuInsight()" aria-label="닫기">×</button>
+    <div data-insight-form>
     <div class="section-kicker">FREE · SAJU INSIGHT</div>
     <h3 id="sajuInsightTitle">내 사주 핵심</h3>
     <p class="sub">생년월일만 입력하면 핵심 결과를 무료로 확인할 수 있어요.</p>
@@ -31,7 +32,20 @@
       윤달이에요
     </label>
     <button class="btn btn-primary form-submit" style="margin-top:16px" onclick="calculateSajuInsight()">무료 결과 보기</button>
-    <div id="sajuInsightResult"></div>
+    </div>
+    <section class="insight-preparation" data-insight-preparation aria-labelledby="insightPreparationTitle" hidden>
+      <div class="insight-preparation-portrait yeonwoo-video-frame">
+        <img src="assets/yeonwoo-reading.jpg" alt="" width="1122" height="1402" loading="lazy" decoding="async">
+        <video class="yeonwoo-story-video" data-free-progress-video muted loop playsinline preload="none" data-video-src="assets/yeonwoo-reading.mp4" aria-hidden="true"></video>
+      </div>
+      <div class="insight-preparation-copy">
+        <h3 id="insightPreparationTitle" tabindex="-1">무료 리포트를 준비하고 있어요</h3>
+        <p>입력한 생년월일을 바탕으로 일주와 오행을 확인해요.</p>
+        <progress max="100" value="0" aria-label="무료 리포트 준비 진행률"></progress>
+        <small>약 10초 후 풀이가 열려요.</small>
+      </div>
+    </section>
+    <div id="sajuInsightResult" tabindex="-1"></div>
     <a class="relationship-insight-link" href="#relationship-report">두 사람 관계 리포트 살펴보기</a>
   </div>
 </div>
@@ -109,10 +123,60 @@
 <script id="taekilso-research-upgrade-js">
 (function(){
   const original = window.openFortuneModal;
+  /* INSIGHT_PREVIEW_START */
+  const insightModal=document.getElementById('sajuInsightModal');
+  const insightForm=insightModal.querySelector('[data-insight-form]');
+  const preparation=insightModal.querySelector('[data-insight-preparation]');
+  const preparingBar=preparation.querySelector('progress');
+  const preparingFilm=preparation.querySelector('video');
+  const insightResult=document.getElementById('sajuInsightResult');
+  const prepareMs=10000;
+  let preparationTimer=null,preparationTick=null,preparationOwner=null;
+
+  function resetInsightPreparation(){
+    clearTimeout(preparationTimer);
+    clearInterval(preparationTick);
+    preparationTimer=preparationTick=preparationOwner=null;
+    preparation.hidden=true;
+    insightForm.hidden=false;
+    preparingFilm.pause();
+  }
+  function presentInsightReport(publish,restore){
+    if(restore){publish();return;}
+    const owner=window.accountStore?.snapshot();
+    const started=performance.now();
+    preparationOwner=owner;
+    insightResult.replaceChildren();
+    preparingBar.value=0;
+    preparation.hidden=false;
+    preparation.querySelector('h3').focus({preventScroll:true});
+    insightForm.hidden=true;
+    preparationTick=setInterval(()=>{
+      preparingBar.value=Math.min(100,(performance.now()-started)/prepareMs*100);
+    },150);
+    preparationTimer=setTimeout(()=>{
+      resetInsightPreparation();
+      if(!insightModal.classList.contains('show')||(owner&&!window.accountStore.current(owner)))return;
+      publish();
+      insightResult.focus({preventScroll:true});
+      insightResult.scrollIntoView({block:'start',behavior:'instant'});
+    },prepareMs);
+  }
+  window.addEventListener('taekilso:authChanged',()=>{
+    if(preparationOwner&&!window.accountStore.current(preparationOwner))closeSajuInsight();
+  });
+  window.addEventListener('popstate',()=>{if(preparationTimer!==null)closeSajuInsight();});
+  insightModal.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&preparationTimer!==null){event.preventDefault();closeSajuInsight();}
+  });
+  /* INSIGHT_PREVIEW_END */
   window.openSajuInsight = function(type){
     const modal=document.getElementById('sajuInsightModal');
     const title=document.getElementById('sajuInsightTitle');
     if(!modal||!title)return;
+    /* INSIGHT_PREVIEW_START */
+    resetInsightPreparation();
+    /* INSIGHT_PREVIEW_END */
     const titles={profile:'내 사주 핵심',year:'2026 올해의 흐름',love:'궁합 · 연애 흐름',money:'재물 · 직업 흐름',monthly:'운세 캘린더'};
     title.textContent=titles[type]||titles.profile;
     modal.dataset.type=type||'profile';
@@ -122,6 +186,10 @@
     applyLockedBirthTo('insight');
   };
   window.closeSajuInsight=function(){document.getElementById('sajuInsightModal').classList.remove('show')};
+  /* INSIGHT_PREVIEW_START */
+  const closeInsight=window.closeSajuInsight;
+  window.closeSajuInsight=function(){resetInsightPreparation();closeInsight();};
+  /* INSIGHT_PREVIEW_END */
   /* 구매한 리포트를 예쁘게 PDF로 저장할 수 있게 브라우저 인쇄 기능을 씁니다.
      인쇄 대화상자에서 "PDF로 저장"을 고르면 실제 파일로 남길 수 있어요. */
   window.printSajuInsight=function(title){
@@ -149,7 +217,10 @@
     for(let dd=1;dd<=31;dd++){const o=document.createElement('option');o.value=dd;o.textContent=dd+'일';d.appendChild(o)}
     y.value = m.value = d.value = '';
   };
-  window.calculateSajuInsight=function(){
+  window.calculateSajuInsight=function({restore=false}={}){
+    /* INSIGHT_PREVIEW_START */
+    if(preparationTimer!==null)return;
+    /* INSIGHT_PREVIEW_END */
     const y=+document.getElementById('insightYear').value,m=+document.getElementById('insightMonth').value,d=+document.getElementById('insightDay').value;
     if (!y || !m || !d) { showToast('생년월일을 모두 선택해주세요.'); return; }
     const calType = getCalType('insightCalType');
@@ -208,6 +279,9 @@
           ${insightConfig.blocks.map(([label,key])=>`<div class="sir-deep-block"><b>${label}</b><p>${insightConfig.deep[key]}</p></div>`).join('')}
           <button class="btn btn-primary no-print" style="width:100%; margin-top:16px;" onclick="printSajuInsight('${insightConfig.kicker}')">📄 이 리포트 PDF로 저장</button>
         </div>` : '');
+    /* INSIGHT_PREVIEW_START */
+    presentInsightReport(()=>{
+    /* INSIGHT_PREVIEW_END */
     document.getElementById('sajuInsightResult').innerHTML=`
       <div class="saju-insight-result">
         <div class="sir-head"><div><div class="fortune-kicker">${type.toUpperCase()} · FREE</div><div class="sir-title">${content[0]}</div></div><div class="sir-score">${score}<small style="font-size:10px;color:var(--muted)"> / 100</small></div></div>
@@ -222,6 +296,9 @@
     window.__freeReportSnapshot={version:'taekil-basic-1',birthDate:`${birth.getFullYear()}-${String(birth.getMonth()+1).padStart(2,'0')}-${String(birth.getDate()).padStart(2,'0')}`,referenceDate:`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`,day:ganjiHanja(idx),element:oh,relation:rel,score,strength:base.strength,watch:base.watch};
     window.dispatchEvent(new CustomEvent('taekilso:freeReportReady', {detail:{type,profile:{y,m,d,calType,isLeap},strength:base.strength,element:oh}}));
     /* REPORT_RESULT_EVENT_END */
+    /* INSIGHT_PREVIEW_START */
+    },restore);
+    /* INSIGHT_PREVIEW_END */
   };
 })();
 </script>

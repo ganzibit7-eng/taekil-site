@@ -25,37 +25,42 @@
       </button>
     </div>
 
-    <nav class="directory-sections" aria-label="홈에서 주제 찾기">
+    <nav class="directory-sections" aria-label="홈에서 리포트와 상담 찾기">
       <div class="directory-section-rail">
+        <button type="button" class="directory-mode-jump" data-directory-jump="directoryTopicsTitle">사주 리포트</button>
+        <button type="button" class="directory-mode-jump" data-directory-jump="directoryChatTitle">채팅 상담</button>
         <button type="button" data-directory-jump="directoryNewyearTitle">신년운세</button>
         <button type="button" data-directory-jump="directoryRelationshipsTitle">연애·궁합</button>
         <button type="button" data-directory-jump="directoryCareerTitle">일·재물</button>
         <button type="button" data-directory-jump="directoryStudyTitle">학업·성장</button>
         <button type="button" data-directory-jump="directoryLifeTitle">생활·관계</button>
         <button type="button" data-directory-jump="directoryDatesTitle">중요한 결정</button>
-        <button type="button" data-directory-jump="directoryFeaturedTitle">사주 리포트</button>
+        <button type="button" data-directory-jump="directoryFeaturedTitle">무료 사주</button>
       </div>
       <a class="directory-all-topics" href="#topics">전체 주제</a>
     </nav>
 
     <section class="directory-section" aria-labelledby="directoryTopicsTitle">
-      <h2 id="directoryTopicsTitle">고민별 사주·택일</h2>
-      <div class="directory-characters" role="group" aria-label="고민별 캐릭터 선택">
+      <div class="directory-mode-heading">
+        <h2 id="directoryTopicsTitle" tabindex="-1">사주 리포트</h2>
+        <p>내 사주에 맞춘 풀이를 장별로 읽어요.</p>
+      </div>
+      <div class="directory-characters" role="group" aria-label="고민별 사주 리포트">
         <a href="#topic-love" class="directory-character character-love" data-story-topic="love" data-consultation-topic="love" data-consultation-question="제 사주로 볼 때 연애와 관계에서 어떤 패턴이 반복되나요? 제가 먼저 바꿔볼 점을 알려주세요.">
           <img src="assets/portrait-love.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-character-copy"><span>서화</span><strong>연애 · 관계</strong><small>내 관계에서 반복되는 일</small></span>
+          <span class="directory-character-copy"><span>서화 · 리포트</span><strong>연애 · 관계</strong><small>내 관계에서 반복되는 일</small></span>
         </a>
         <a href="#topic-wealth" class="directory-character character-wealth" data-story-topic="wealth" data-consultation-topic="wealth" data-consultation-question="제 사주에서 돈을 벌 때의 강점과 돈을 관리할 때 주의할 점을 알려주세요.">
           <img src="assets/portrait-wealth.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-character-copy"><span>도겸</span><strong>재물운</strong><small>돈을 벌고 모으는 방식</small></span>
+          <span class="directory-character-copy"><span>도겸 · 리포트</span><strong>재물운</strong><small>돈을 벌고 모으는 방식</small></span>
         </a>
         <a href="#topic-reunion" class="directory-character" data-story-topic="reunion" data-consultation-topic="reunion" data-consultation-question="헤어진 사람에게 다시 연락할지 고민이에요. 제 사주에서 관계를 돌아보는 관점과 연락을 결정할 기준을 알려주세요.">
           <img src="assets/topic-reunion-illustrated.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-character-copy"><span>이준</span><strong>재회운</strong><small>다시 말을 걸기 전 살펴볼 점</small></span>
+          <span class="directory-character-copy"><span>이준 · 리포트</span><strong>재회운</strong><small>다시 말을 걸기 전 살펴볼 점</small></span>
         </a>
         <a href="#topic-career" class="directory-character character-career" data-story-topic="career" data-consultation-topic="career" data-consultation-question="이직을 고민 중이에요. 제 사주에서 어떤 업무 환경이 잘 맞는지 알려주세요.">
           <img src="assets/portrait-career.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-character-copy"><span>무진</span><strong>직업 · 이직</strong><small>내가 잘 맞는 일과 환경</small></span>
+          <span class="directory-character-copy"><span>무진 · 리포트</span><strong>직업 · 이직</strong><small>내가 잘 맞는 일과 환경</small></span>
         </a>
       </div>
       <p class="directory-report-note">첫 장 무료 · 구매 시 담당 상담 3회</p>
@@ -79,24 +84,32 @@
       </section>
     </div>
 
+    <section class="directory-section directory-chat-intro" aria-labelledby="directoryChatTitle">
+      <div class="directory-mode-heading">
+        <h2 id="directoryChatTitle" tabindex="-1">채팅 상담</h2>
+        <p>고민에 맞는 상담사를 골라 질문하고 답변을 이어서 받아요.</p>
+      </div>
+      <button type="button" class="directory-chat-start" data-home-consultation data-directory-chat-start onclick="handleHomeChatStart(this)">연우와 채팅 상담하기</button>
+    </section>
+
     <section class="directory-section" aria-labelledby="directoryRelationshipsTitle">
       <h2 id="directoryRelationshipsTitle" tabindex="-1">연애·궁합</h2>
       <div class="directory-cards">
         <a href="#topic-first-date" class="directory-card" data-story-topic="first-date" data-consultation-topic="first-date" data-consultation-question="새로운 인연을 만나고 싶어요. 제 사주에서 관계를 맺는 방식은 어떻게 읽히나요? 첫 만남에서 상대와 잘 맞는지 살펴볼 기준을 알려주세요.">
           <img src="assets/topic-first-meeting-illustrated.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>새로운 만남</strong><span>하린 상담</span></span>
+          <span class="directory-card-copy"><strong>새로운 만남</strong><span>하린 · 채팅 상담</span></span>
         </a>
         <a href="#wedding" class="directory-card" data-story-topic="wedding" data-consultation-topic="wedding" data-consultation-question="결혼을 준비하고 있어요. 제 사주를 바탕으로 결혼 전에 함께 나눌 이야기를 짚어주고, 예식 날짜를 정하기 전에 확인할 현실 조건도 알려주세요.">
           <img src="assets/portrait-wedding.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>결혼·택일</strong><span>소담 상담</span></span>
+          <span class="directory-card-copy"><strong>결혼·택일</strong><span>소담 · 채팅 상담</span></span>
         </a>
         <a href="#topic-marriage" class="directory-card" data-story-topic="marriage" data-consultation-topic="marriage" data-consultation-question="결혼을 앞두고 있어요. 제 사주에서 가까운 사람과 생활을 맞춰가는 방식은 어떻게 읽히나요? 결혼 전에 함께 이야기해 둘 주제와 질문을 알려주세요.">
           <img src="assets/topic-marriage-preparation-illustrated.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>결혼을 앞두고</strong><span>연서 상담</span></span>
+          <span class="directory-card-copy"><strong>결혼을 앞두고</strong><span>연서 · 채팅 상담</span></span>
         </a>
         <button type="button" class="directory-card" onclick="openSajuInsight('love')">
           <img src="char-wedding.jpg" width="640" height="1440" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>두 사람 궁합</strong><span>무료 미리보기</span></span>
+          <span class="directory-card-copy"><strong>두 사람 궁합</strong><span>무료 궁합 미리보기</span></span>
         </button>
       </div>
     </section>
@@ -106,19 +119,19 @@
       <div class="directory-cards">
         <a href="#topic-career-start" class="directory-card" data-story-topic="career-start" data-consultation-topic="career-start" data-consultation-question="취업을 준비하고 있는데 어떤 일을 먼저 알아볼지 고민이에요. 제 사주에서 잘 맞는 업무 방식과 환경을 설명하고, 직무 두세 가지를 비교할 기준을 알려주세요.">
           <img src="assets/topic-career-start-illustrated.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>취업·진로</strong><span>해온 상담</span></span>
+          <span class="directory-card-copy"><strong>취업·진로</strong><span>해온 · 채팅 상담</span></span>
         </a>
         <a href="#topic-side-job" class="directory-card" data-story-topic="side-job" data-consultation-topic="side-job" data-consultation-question="지금 일에 더해 창업이나 부업을 고민해요. 제 사주에서 혼자 일하거나 사람과 함께할 때 각각 어떤 강점이 읽히나요? 작게 시작해 확인할 기준을 알려주세요.">
           <img src="assets/topic-side-business-illustrated.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>창업·부업</strong><span>태율 상담</span></span>
+          <span class="directory-card-copy"><strong>창업·부업</strong><span>태율 · 채팅 상담</span></span>
         </a>
         <a href="#topic-saving" class="directory-card" data-story-topic="saving" data-consultation-topic="saving" data-consultation-question="돈이 새기 쉬운 부분을 알고 싶어요. 제 사주의 재물 관련 근거를 바탕으로 어떤 소비 상황에 흔들리기 쉬운지와, 제가 먼저 바꿔볼 습관을 설명해 주세요.">
           <img src="assets/topic-saving-illustrated.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>소비·저축</strong><span>다온 상담</span></span>
+          <span class="directory-card-copy"><strong>소비·저축</strong><span>다온 · 채팅 상담</span></span>
         </a>
         <a href="#topic-career-growth" class="directory-card" data-story-topic="career-growth" data-consultation-topic="career-growth" data-consultation-question="직장에서 더 큰 역할을 맡을지 고민돼요. 제 사주에서 책임을 다루는 방식과 강점을 보고, 맡기 전에 확인할 업무 범위와 협업 조건을 알려주세요.">
           <img src="assets/topic-promotion-illustrated.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>승진·역할 변화</strong><span>시현 상담</span></span>
+          <span class="directory-card-copy"><strong>승진·역할 변화</strong><span>시현 · 채팅 상담</span></span>
         </a>
       </div>
     </section>
@@ -128,19 +141,19 @@
       <div class="directory-cards">
         <a href="#topic-study-routine" class="directory-card" data-story-topic="study-routine" data-consultation-topic="study-routine" data-consultation-question="제 사주를 바탕으로 공부를 미룰 때 어떤 방식으로 첫 단계를 정하면 좋을지 알려주세요. 책상에 앉으면 쉬운 일부터 하게 돼요.">
           <img src="assets/topic-study-routine-portrait.webp" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>공부 습관</strong><span>여울 상담</span></span>
+          <span class="directory-card-copy"><strong>공부 습관</strong><span>여울 · 채팅 상담</span></span>
         </a>
         <a href="#topic-exam-planning" class="directory-card" data-story-topic="exam-planning" data-consultation-topic="exam-planning" data-consultation-question="자격증 시험 공부 계획이 자꾸 밀려요. 제 사주에서 꾸준히 준비할 때 맞는 순서를 짚고 무엇부터 줄이면 좋을지 알려주세요.">
           <img src="assets/topic-exam-planning-portrait.webp" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>시험·자격증</strong><span>서진 상담</span></span>
+          <span class="directory-card-copy"><strong>시험·자격증</strong><span>서진 · 채팅 상담</span></span>
         </a>
         <a href="#topic-major-choice" class="directory-card" data-story-topic="major-choice" data-consultation-topic="major-choice" data-consultation-question="진학을 준비하며 두 전공 사이에서 고민 중이에요. 제 사주에서 잘 맞는 공부 방식과 수업을 비교할 기준을 알려주세요.">
           <img src="assets/topic-major-choice-portrait.webp" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>전공·진학</strong><span>윤슬 상담</span></span>
+          <span class="directory-card-copy"><strong>전공·진학</strong><span>윤슬 · 채팅 상담</span></span>
         </a>
         <a href="#topic-new-learning" class="directory-card" data-story-topic="new-learning" data-consultation-topic="new-learning" data-consultation-question="새 기술을 학습 중인데 강의를 보기만 하고 혼자 하면 막혀요. 제 사주를 바탕으로 배운 것을 처음 직접 써볼 방법을 알려주세요.">
           <img src="assets/topic-new-learning-portrait.webp" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>새 기술 배우기</strong><span>지안 상담</span></span>
+          <span class="directory-card-copy"><strong>새 기술 배우기</strong><span>지안 · 채팅 상담</span></span>
         </a>
       </div>
     </section>
@@ -150,19 +163,19 @@
       <div class="directory-cards">
         <a href="#topic-first-home" class="directory-card" data-story-topic="first-home" data-consultation-topic="first-home" data-consultation-question="독립을 앞두고 생활비와 준비할 돈의 기준을 잡고 싶어요. 제 사주에서 돈을 나누어 쓰는 방식을 짚고 무엇부터 정하면 좋을지 알려주세요.">
           <img src="assets/topic-first-home-portrait.webp" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>독립·첫 살림</strong><span>모은 상담</span></span>
+          <span class="directory-card-copy"><strong>독립·첫 살림</strong><span>모은 · 채팅 상담</span></span>
         </a>
         <a href="#topic-family-boundaries" class="directory-card" data-story-topic="family-boundaries" data-consultation-topic="family-boundaries" data-consultation-question="가족 부탁을 거절하기 어려워요. 제 사주를 바탕으로 관계에서 지킬 선을 정하고, 가능한 범위만 말하는 문장을 같이 만들어 주세요.">
           <img src="assets/topic-family-boundaries-portrait.webp" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>가족과 거리</strong><span>이솔 상담</span></span>
+          <span class="directory-card-copy"><strong>가족과 거리</strong><span>이솔 · 채팅 상담</span></span>
         </a>
         <a href="#topic-work-rest" class="directory-card" data-story-topic="work-rest" data-consultation-topic="work-rest" data-consultation-question="퇴근해도 회사 업무 연락을 계속 보게 돼요. 제 사주에서 책임을 맡는 방식을 살피고 업무를 마무리할 기준을 알려주세요.">
           <img src="assets/topic-work-rest-portrait.webp" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>일과 쉼</strong><span>유현 상담</span></span>
+          <span class="directory-card-copy"><strong>일과 쉼</strong><span>유현 · 채팅 상담</span></span>
         </a>
         <a href="#topic-friendships" class="directory-card" data-story-topic="friendships" data-consultation-topic="friendships" data-consultation-question="친구 모임은 좋아하지만 다녀오면 유독 지쳐요. 제 사주를 바탕으로 관계에서 편한 거리와 부담을 줄일 방법을 알려주세요.">
           <img src="assets/topic-friendships-portrait.webp" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>친구·모임</strong><span>소율 상담</span></span>
+          <span class="directory-card-copy"><strong>친구·모임</strong><span>소율 · 채팅 상담</span></span>
         </a>
       </div>
     </section>
@@ -172,15 +185,15 @@
       <div class="directory-cards">
         <a href="#topic-move-planning" class="directory-card" data-story-topic="move-planning" data-consultation-topic="move-planning" data-consultation-question="이사를 준비하고 있어요. 제 사주에서 환경을 바꿀 때 지키면 편한 생활 기준이 뭔지, 지금 집과 새 집을 비교할 방법을 알려주세요.">
           <img src="assets/topic-move-planning-portrait.webp" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>이사 준비</strong><span>담원 상담</span></span>
+          <span class="directory-card-copy"><strong>이사 준비</strong><span>담원 · 채팅 상담</span></span>
         </a>
         <a href="#topic-opening-plan" class="directory-card" data-story-topic="opening-plan" data-consultation-topic="opening-plan" data-consultation-question="개업을 준비하고 있어요. 제 사주에서 일을 시작할 때 강점이 드러나는 방식을 짚고 첫 영업 전에 필요한 준비를 정리해 주세요.">
           <img src="assets/topic-opening-plan-portrait.webp" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>개업 계획</strong><span>기윤 상담</span></span>
+          <span class="directory-card-copy"><strong>개업 계획</strong><span>기윤 · 채팅 상담</span></span>
         </a>
         <a href="#topic-contract-prep" class="directory-card" data-story-topic="contract-prep" data-consultation-topic="contract-prep" data-consultation-question="업무 계약을 앞두고 어디까지 맡게 되는지 모르겠어요. 제 사주에서 역할을 감당하는 방식을 살피고 서명하기 전에 물어볼 첫 질문을 알려주세요.">
           <img src="assets/topic-contract-prep-portrait.webp" width="600" height="750" alt="" loading="lazy" decoding="async">
-          <span class="directory-card-copy"><strong>계약 전 점검</strong><span>정온 상담</span></span>
+          <span class="directory-card-copy"><strong>계약 전 점검</strong><span>정온 · 채팅 상담</span></span>
         </a>
         <a href="#date-tools" class="directory-card directory-tool-card">
           <img src="assets/topic-wedding-date-illustrated.jpg" width="600" height="750" alt="" loading="lazy" decoding="async">

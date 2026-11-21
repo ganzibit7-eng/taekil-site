@@ -15,6 +15,9 @@ const normalizeConsultation=source=>consultationChanges.reduce((text,[after,befo
 const normalizePaymentReturn=require('./payment-return-ui-contract.cjs');
 const stripCheckout=source=>source.replace(/^ +\/\* CHECKOUT_START \*\/[\s\S]*?^ +\/\* CHECKOUT_END \*\/\n/gm,'');
 const normalizeStandalone=require('./standalone-checkout-ui-contract.cjs');
+const normalizeInsightPreview=source=>source
+  .replace(/^ +\/\* INSIGHT_PREVIEW_START \*\/[\s\S]*?^ +\/\* INSIGHT_PREVIEW_END \*\/\n/gm,'')
+  .replace('window.calculateSajuInsight=function({restore=false}={})','window.calculateSajuInsight=function()');
 const normalizeReport=source=>normalizeAccounts(normalizeConsultation(stripCheckout(normalizePaymentReturn(require('./inquiry-ui-contract.cjs')(source.replace(/^ +\/\* (?:SEOHWA_SCOPE|BIRTH_TIME)_START \*\/[\s\S]*?^ +\/\* (?:SEOHWA_SCOPE|BIRTH_TIME)_END \*\/\n/gm,'').replaceAll("window.TaekilBirthTime?.range(p.hourValue)?.label || (p.hourValue==='unknown'?'시간 모름':String(p.hourValue).padStart(2,'0')+'시')","p.hourValue==='unknown'?'시간 모름':String(p.hourValue).padStart(2,'0')+'시'"))))))
 .replace(/^[ ]*\/\* STARTUP_READY \*\/[\s\S]*?\/\* END_STARTUP_READY \*\/\n/gm,'')
 .replaceAll('https://taekilso-api-jhqz3vlila-du.a.run.app','https://taekilso-backend-lemon.vercel.app') // Approved host migration only; API paths and handler logic remain invariant.
@@ -47,7 +50,7 @@ function historicalAttributes(attrs) {
 }
 // Exact approved changes to pricing and premium quota displays.
 const pricingChanges=JSON.parse(fs.readFileSync('pricing-ui-contract-changes.json','utf8'));
-const normalizedScripts=originalScripts.map(([a,b])=>[historicalAttributes(a),normalizeSeasonal(normalizeStandalone(b))]);
+const normalizedScripts=originalScripts.map(([a,b])=>[historicalAttributes(a),normalizeSeasonal(normalizeStandalone(normalizeInsightPreview(b)))]);
 for(const [after,before] of pricingChanges){
  const entries=normalizedScripts.filter(([,body])=>body.includes(after));
  assert.equal(entries.length,1,'Expected one approved pricing or quota change');

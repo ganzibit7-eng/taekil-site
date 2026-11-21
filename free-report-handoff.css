@@ -3,3 +3,36 @@
 .report-newyear-note{margin-top:28px;padding-top:22px;border-top:1px solid #c6aa762b}.report-newyear-note h4{font-family:var(--serif);font-weight:600;font-size:19px;line-height:1.5;margin:0 0 12px}.report-newyear-note p{font-size:15px}.report-newyear-note button{font:inherit;font-size:15px;line-height:1.6;color:#c6aa76;background:none;border:0;min-height:44px;text-align:left;padding:8px 0;cursor:pointer}
 
 .report-consultation h3{clear:both}.report-consultation-kicker{min-height:52px}.report-question-list button[aria-pressed="true"]{color:#c6aa76}#sajuInsightModal .sir-cta .btn,#sajuInsightModal .sir-lock .btn{background:transparent!important;color:#c6aa76!important;border:1px solid #c6aa7655!important;box-shadow:none!important}#sajuInsightModal .sir-lock{background:transparent;border:0;border-top:1px solid #c6aa762b;border-radius:0;padding:22px 0}
+.insight-preparation {
+  display:grid;
+  grid-template-columns:minmax(0,2fr) minmax(0,3fr);
+  clear:both;
+  margin:10px 0 14px;
+  border:1px solid #7a605f;
+  border-radius:12px;
+  overflow:hidden;
+  background:#30242d;
+}
+.insight-preparation[hidden] {display:none}
+.insight-preparation-portrait {min-height:218px;background:#382a35}
+.insight-preparation-portrait :is(img,video) {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:50% 27%;
+}
+.insight-preparation-copy {padding:22px 18px;align-self:center;min-width:0;word-break:keep-all}
+#sajuInsightModal .insight-preparation h3 {
+  color:#faeee0;
+  font:600 clamp(23px,4vw,30px)/1.4 var(--serif);
+}
+#sajuInsightModal .insight-preparation p {margin:8px 0 16px;color:#e4d7cd;font-size:15px}
+.insight-preparation progress {display:block;width:100%;height:7px;accent-color:#dfbe91}
+.insight-preparation small {display:block;margin-top:10px;color:#efceb4;font-size:13px}
+.saju-insight-box:has(.insight-preparation:not([hidden])) .fortune-close {min-width:44px;min-height:44px}
+@media(max-width:520px) {
+  .insight-preparation {grid-template-columns:minmax(0,1fr)}
+  .insight-preparation-portrait {min-height:0;aspect-ratio:16/9}
+}

@@ -16,7 +16,7 @@
  ].filter(({video})=>video?.previousElementSibling).map(media=>({
   ...media, image:media.video.previousElementSibling, defaultSource:media.video.dataset.videoSrc
  }));
- videos.push(...document.querySelectorAll('[data-home-directory-video], [data-year-progress-video], [data-wedding-preview-video], [data-story-preview-video]'));
+ videos.push(...document.querySelectorAll('[data-home-directory-video], [data-year-progress-video], [data-free-progress-video], [data-wedding-preview-video], [data-story-preview-video]'));
  const allowed=()=>!reduced.matches&&!connection?.saveData&&!document.hidden;
  const visible=v=>{const s=states.get(v),r=v.getBoundingClientRect();return s.visible&&r.width>0&&r.height>0&&r.bottom>0&&r.top<innerHeight;};
  const canPlay=v=>allowed()&&visible(v)&&v.dataset.videoPaused===undefined&&!(v.classList.contains('ai-chat-bgvideo')&&v.closest('.reading-focus'));
