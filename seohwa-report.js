@@ -409,7 +409,7 @@
           return false;
         }
         if(!current())return false;
-        const order=await request(reading,{operation:'prepare',comparison:{profile:data.profile,choice:data.choice},checkout:true,allowResume:true},owner);
+        const order=await request(reading,{operation:'prepare',comparison:{profile:data.profile,choice:data.choice},checkout:true,allowResume:true,expectedPrice:reading.PRICE},owner);
         if(!current())return false;
         if(order.id && ['paid','generating','ready'].includes(order.state)){await renderPurchased(order,data.host,owner,false,reading);return false;}
         if(order.state==='resume'){client.showResume(status,order,pendingKey(reading));return false;}
