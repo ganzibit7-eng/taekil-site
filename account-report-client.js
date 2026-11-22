@@ -44,7 +44,9 @@
     const link=document.createElement('a');
     link.href=url.href;
     link.className='btn';
-    link.textContent='결제 이어하기';
+    link.textContent=Number.isSafeInteger(data.price) && data.price > 0
+      ? '기존 ' + data.price.toLocaleString('ko-KR') + '원 주문 이어하기'
+      : '결제 이어하기';
     link.rel='noreferrer';
     link.addEventListener('click',event=>{
       if(!accountStore.current(owner) || !checkout.requireOpen()){event.preventDefault();return;}
