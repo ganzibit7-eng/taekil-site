@@ -54,6 +54,10 @@
 
 <style>
 <!-- include base.css -->
+body:not(:has(#view-home.visible)) .business-site-footer > :is(.business-info, .business-copyright),
+body.consultation-open .business-site-footer > :is(.business-info, .business-copyright) {
+  display: none;
+}
 </style>
 <!-- include theme-and-metadata.fragment -->
 <body>
