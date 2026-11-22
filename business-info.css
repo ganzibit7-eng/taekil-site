@@ -91,3 +91,9 @@ body footer .footer-inner.business-site-footer {
   .business-site-footer .business-info dl > .business-detail-wide {grid-template-columns:1fr;gap:3px}
   .business-site-footer .business-contact {flex-direction:column;align-items:flex-start}
 }
+
+/* The router handles other app views. Hide the card in report overlays and standalone guides too. */
+body:has(#sajuInsightModal.show, #seohwaReportDialog[open]) .business-site-footer .business-info,
+.business-footer .business-info {
+  display: none;
+}
