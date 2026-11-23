@@ -148,3 +148,11 @@
   .relationship-fields { gap:12px; }
   .relationship-content .btn { width:100%; }
 }
+
+.relationship-pillar-pair {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.relationship-pillar-pair>div {display:grid;gap:5px;padding:12px 14px;border:1px solid #60524e;border-radius:6px;background:#272224}
+.relationship-pillar-pair b {color:#d7bf97;font-size:13px}
+.relationship-pillar-pair strong {color:#f1e9db;font-size:18px}
+.relationship-pillar-pair p {margin:2px 0;font-size:14px;line-height:1.55}
+.relationship-pillar-comparison ul {padding-inline-start:18px;color:#e7dbca;word-break:keep-all}
+@media(max-width:370px){.relationship-pillar-pair{grid-template-columns:minmax(0,1fr)}}

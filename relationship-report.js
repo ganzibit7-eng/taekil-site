@@ -101,6 +101,24 @@
     return [button,status];
   }
 
+  function pillarComparison(report) {
+    const section=el('section','','relationship-pillar-comparison');
+    section.append(el('h4','두 사람의 풀이 기준'));
+    const pair=el('div','','relationship-pillar-pair');
+    report.people.forEach((person,index)=>{
+      const profile=el('div');
+      profile.append(el('b',index===0?'본인':'상대방'),el('strong',person.day+'('+person.hanja+')'),
+        el('p','의견을 꺼내는 방식 · '+person.stem+' 기운'),
+        el('p','생활의 속도를 맞추는 방식 · '+person.branch+' 기운'));
+      pair.append(profile);
+    });
+    section.append(pair);
+    const summary=el('ul');
+    for(const basis of report.evidence)summary.append(el('li',basis.title+' · '+basis.relation));
+    section.append(summary,el('p','두 분이 태어난 날의 위 글자(일간)와 아래 글자(일지)를 나누어 비교했어요.'));
+    return section;
+  }
+
   function reportCard(report) {
     const card = el('article','','relationship-reading');
     card.append(el('h3','두 사람 관계 리포트'),el('p',report.summary,'relationship-summary'));
@@ -113,7 +131,7 @@
       practiceTitle.focus({preventScroll:true});
       practiceTitle.scrollIntoView({block:'start',behavior:'instant'});
     });
-    card.append(jump,entries('잘 맞는 점',report.strengths),entries('자주 엇갈릴 수 있는 상황',report.friction));
+    card.append(pillarComparison(report),jump,entries('잘 맞는 점',report.strengths),entries('자주 엇갈릴 수 있는 상황',report.friction));
     if (report.chapters?.length) card.append(chapterGuide(report));
     practice.append(practiceTitle);
     report.conversations.forEach((conversation,index) => {

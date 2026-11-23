@@ -43,57 +43,82 @@
     report.candidates.forEach((candidate,index) => {
       if (candidate.points !== previous) rank = index + 1;
       previous = candidate.points;
+      const analysis=decision.dateReading(report.event,candidate);
       const row = node('li');
-      row.append(node('strong',rank + '위 · ' + dayLabel(candidate.day)),
-        node('span',candidate.points + '점','date-report-score'),
-        node('p',`${candidate.ganji}(${candidate.hanja}) · ${candidate.element} 기운 · 음력 ${candidate.lunarDay}일`));
-      const scores = node('ul','','date-report-breakdown');
-      for (const person of candidate.people) {
-        scores.append(node('li',`${person.label} · ${person.relation} (${person.weight>0?'+':''}${person.weight})`));
+      const head=node('div','','date-report-day-head');
+      head.append(node('strong',rank + '위 · ' + dayLabel(candidate.day)),
+        node('span',candidate.points + '점','date-report-score'));
+      const cues=node('ul','','date-report-cues');
+      for(const person of analysis.people) cues.append(node('li',person.label+' '+person.relation));
+      if(candidate.eventWeight) cues.append(node('li','일정 유형 가점'));
+      if(candidate.folkWeight) cues.append(node('li','손없는 날'));
+      const details=node('details','','date-report-day-basis');
+      details.append(node('summary','이 날짜의 풀이와 계산 근거'));
+      for(const person of analysis.people){
+        details.append(node('p',person.label+' · '+person.interpretation));
       }
-      scores.append(node('li','행사 기준 '+(candidate.eventWeight ? '+'+candidate.eventWeight : '가점 없음')),
-        node('li',candidate.folkWeight ? '손없는 날 +'+candidate.folkWeight : '손없는 날 가점 없음'));
-      row.append(scores);
-      if (candidate.people.some(person=>person.weight<0)) {
-        row.append(node('p','상극 항목이 있어요. 비슷한 점수의 후보가 있다면 이동이나 준비 여건이 더 안정적인 날도 살펴보세요.'));
-      }
+      details.append(node('p',analysis.eventNote), node('p',analysis.folkNote));
+      const original=node('ul','','date-report-breakdown');
+      const signed=value=>value>0?'+'+value:String(value);
+      for(const person of analysis.people) original.append(node('li',person.label+' 오행 '+signed(person.weight)));
+      original.append(node('li','일정 유형 '+signed(candidate.eventWeight)),node('li','민속 기준 '+signed(candidate.folkWeight)));
+      details.append(original);
+      if(analysis.action) details.append(node('p',analysis.action,'date-report-next-step'));
+      row.append(head,node('p',`${candidate.ganji}(${candidate.hanja}) · ${candidate.element} 기운 · 음력 ${candidate.lunarDay}일`),cues,
+        node('p',analysis.main,'date-report-day-reading'),details);
       dates.append(row);
     });
+    box.append(node('h4','후보일별 풀이'),dates);
     const checklist = node('ul','','date-report-checklist');
     for (const entry of report.checklist) checklist.append(node('li',entry));
-    box.append(dates,node('h4','날짜를 확정하기 전에'),checklist,
+    box.append(node('h4','날짜를 확정하기 전에'),checklist,
       node('p','두 사람을 선택하면 각자의 기운 점수를 평균해요. 여기에 행사·민속 가점과 작은 순위 보정을 더해 100점으로 표시해요. '+report.note,'date-report-method'));
     return box;
   }
 
   function decisionCard(report) {
     const box = node('section','','date-report-decision');
-    const comparison = decision.dateComparison(report.candidates);
-    if (!comparison) {
+    const [first,second]=report.candidates;
+    if (!second) {
       box.append(node('p',report.summary));
       return box;
     }
-    if (comparison.tied) {
-      box.append(node('h4','공동 1위 후보'),node('p',
-        comparison.tied.map(dayLabel).join(' · ')+'의 표시 점수가 같아요. 가능한 시간과 비용을 먼저 비교해 보세요.'));
-      return box;
+
+    box.append(node('h4','가장 높은 후보와 비교하기'),node('p',report.summary));
+    const controls=node('label','','date-report-compare-control');
+    const select=node('select');
+    for(const candidate of report.candidates.slice(1)){
+      const option=node('option',dayLabel(candidate.day));
+      option.value=candidate.day;
+      select.append(option);
     }
-    const {first,second,factors,baseDifference,difference} = comparison;
-    box.append(node('h4','1위와 2위가 갈린 이유'),node('p',
-      `${dayLabel(first.day)} ${first.points}점 · ${dayLabel(second.day)} ${second.points}점 · ${difference}점 차이`));
-    if (!factors.length) {
-      box.append(node('p','오행·행사·손없는 날의 반영값은 같아요. 표시 점수 차이는 순위 보정과 반올림에서 생겼으니 실제 일정이 더 맞는 날짜를 먼저 살펴보세요.'));
-      return box;
+    controls.append(node('span','비교할 후보일'),select);
+    if(report.candidates.length>2)box.append(controls);
+    const results=node('div','','date-report-compare-results');
+    results.setAttribute('aria-live','polite');
+    box.append(results);
+
+    function update() {
+      const alternative=report.candidates.find(candidate=>candidate.day===select.value) || second;
+      const {factors,baseDifference,difference}=decision.dateComparison([first,alternative]);
+      const score=node('p',`${dayLabel(first.day)} ${first.points}점 · ${dayLabel(alternative.day)} ${alternative.points}점`);
+      const reason=node('p',difference===0
+        ? '두 후보의 표시 점수가 같아요. 날짜를 확정하기 전에 실제 일정을 비교해 보세요.'
+        : !factors.length
+          ? `표시 점수 ${difference}점 차이예요. 오행·행사·손없는 날 반영값은 같고, 작은 순위 보정과 반올림에서 차이가 났어요.`
+          : `표시 점수 ${difference}점 차이예요. 두 날짜에 다르게 반영된 기준을 아래에서 확인해 보세요.`);
+      results.replaceChildren(score,reason);
+      if(!factors.length)return;
+      const list=node('ul','','date-report-factor-list');
+      const weight=value=>value>0?'+'+value:String(value);
+      for(const {label,firstWeight,secondWeight} of factors){
+        list.append(node('li',label+' · 기준 후보 '+weight(firstWeight)+' / 비교 후보 '+weight(secondWeight)));
+      }
+      results.append(list,node('p','항목별 반영값은 100점으로 환산하기 전 수치예요.','date-report-method'));
+      if(difference>0&&baseDifference<=0)results.append(node('p','세 기준의 합만 보면 기준 후보가 앞서지 않아요. 이 경우 표시 순위보다 실제 일정이 맞는 날을 먼저 살펴보세요.'));
     }
-    const list = node('ul','','date-report-factor-list');
-    const weight = value=>value > 0 ? '+'+value : String(value);
-    for (const {label,firstWeight,secondWeight} of factors) {
-      list.append(node('li',label+' · 1위 '+weight(firstWeight)+' / 2위 '+weight(secondWeight)));
-    }
-    box.append(list,node('p','오행·행사·손없는 날 가운데 반영값이 다른 항목만 표시했어요. 항목별 반영값은 100점으로 환산하기 전 수치예요.','date-report-method'));
-    if (baseDifference <= 0) box.append(node('p',baseDifference === 0
-      ? '세 기준을 합한 값은 같아요. 실제 일정에 더 맞는 날짜를 먼저 살펴보세요.'
-      : '세 기준의 합은 표시 순위와 달라요. 순위 보정이 포함된 점수이므로, 실제 일정에 더 맞는 날짜를 먼저 살펴보세요.'));
+    select.addEventListener('change',update);
+    update();
     return box;
   }
 
@@ -125,7 +150,7 @@
     const card = node('section','','date-report-offer');
     card.append(node('span','후보일 '+comparison.days.length+'개','payment-eyebrow'),
       node('h3','정밀 택일 1건권 · 3,900원'),
-      node('p','선택한 날짜 전체의 순위와 날짜별 점수 근거, 확정 전 체크리스트를 내 기록에 보관해요.'));
+      node('p','후보마다 본인·상대방의 오행 풀이, 순위가 갈린 이유와 일정 유형별 확인 사항을 확인해요. 내 기록에서 다시 열 수 있어요.'));
     const confirmation = node('ul','','date-report-selection');
     for (const day of comparison.days) confirmation.append(node('li',dayLabel(day)));
     card.append(confirmation);
