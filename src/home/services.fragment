@@ -356,12 +356,18 @@
 
 <!-- ============ MOVING ============ -->
 <section id="view-moving" class="view">
-  <header class="hero hero-sm">
-    <div class="hero-inner">
-      <div class="eyebrow">이사 날짜</div>
-      <h1 style="font-size:clamp(30px,5vw,54px);">새로운 공간에<br>들어서는 날</h1>
-      <p class="hero-copy">이사는 날짜에 따라 손없는 날을 챙기는 분들이 많은 대표적인 이벤트입니다. 입주 예정 기간을 넣으면 오행 궁합과 손없는 날 여부를 함께 대조해서 무난한 날을 골라드려요.</p>
-      <div class="hero-actions"><button class="btn btn-primary" onclick="goTo('tool','이사')">이사 날짜 찾기</button></div>
+  <header class="hero hero-sm moving-date-hero">
+    <div class="hero-inner moving-date-layout">
+      <div class="moving-date-intro">
+        <div class="eyebrow">이사 날짜</div>
+        <h1>새로운 공간에<br>들어서는 날</h1>
+        <p class="hero-copy">입주 가능한 기간이나 후보 날짜를 골라 주세요. 오행과 손없는 날 여부를 함께 살펴봐요.</p>
+        <div class="hero-actions"><button class="btn btn-primary" onclick="goTo('tool','이사')">이사 날짜 찾기</button></div>
+      </div>
+      <figure class="moving-date-scene yeonwoo-video-frame">
+        <img src="/assets/moving-date-courtyard.webp" width="960" height="540" loading="lazy" decoding="async" alt="">
+        <video class="yeonwoo-story-video" data-moving-scene-video data-video-src="/assets/moving-date-courtyard.mp4" aria-hidden="true" muted playsinline preload="none"></video>
+      </figure>
     </div>
   </header>
   <section class="block">

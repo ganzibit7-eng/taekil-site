@@ -320,7 +320,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
   <img src="/assets/newyear-hanok-dawn.webp" width="960" height="540" loading="lazy" decoding="async" alt="">
   <video class="yeonwoo-story-video" data-year-example-video data-video-src="/assets/newyear-hanok-dawn.mp4" aria-hidden="true" muted playsinline preload="none"></video>
 </figure>
-<link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=newyear-dawn-1"></script><script src="premium-motion.js" defer></script>
+<link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=moving-date-scene-1"></script><script src="premium-motion.js" defer></script>
 <script src="consultation-draft-core.js?v=featured-report-1"></script>
 <script src="consultation-stage.js?v=footer-flow-2"></script>
 <script src="consultation-history-filters.js?v=20261120-history-filters"></script>
@@ -347,7 +347,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="account-session.js?v=nov20-entry"></script>
 <script src="campaign-attribution-core.js?v=20261119-campaign-visits"></script><script src="campaign-attribution.js?v=home-paths-1"></script>
 <script src="preview-funnel.js?v=20261119-daily"></script>
-<link rel="stylesheet" href="date-comparison.css?v=report-paper-1">
+<link rel="stylesheet" href="date-comparison.css?v=moving-date-scene-1">
 <script src="account-report-client.js?v=report-library-1"></script>
 <script src="report-decision-core.js?v=paid-guide-1"></script>
 <script src="date-report.js?v=report-paper-1"></script>

@@ -1,3 +1,33 @@
+.moving-date-hero .hero-inner.moving-date-layout {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, .85fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(24px, 5vw, 66px);
+  width: min(1100px,100%);
+  max-width: none;
+  padding-inline: clamp(20px, 4vw, 46px);
+  text-align: left;
+}
+.moving-date-intro h1 { font-size: clamp(30px, 4.4vw, 54px); }
+#view-moving .moving-date-intro > * { animation: none; }
+.moving-date-intro .hero-copy { margin-inline: 0; max-width: 34ch; word-break: keep-all; }
+.moving-date-intro .hero-actions { justify-content: flex-start; }
+.moving-date-scene {
+  margin: 0;
+  aspect-ratio: 16 / 10;
+  border: 1px solid #78624e;
+  border-radius: 10px;
+  background: #322820;
+  box-shadow: 0 14px 36px #14101155;
+}
+.moving-date-scene :is(img,video) { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+@media (max-width: 680px) {
+  .moving-date-hero .hero-inner.moving-date-layout { grid-template-columns: minmax(0,1fr); gap: 22px; }
+  .moving-date-intro .hero-copy { max-width: none; }
+  .moving-date-scene { aspect-ratio: 16 / 9; }
+}
+
 .tool-date-mode {
   display: flex;
   flex-wrap: wrap;
