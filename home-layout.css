@@ -135,6 +135,87 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   border-top:1px solid var(--directory-line);
 }
 .directory-chat-intro + .directory-section {margin-top:clamp(22px,3vw,34px)}
+.directory-banner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px 14px;
+  margin-bottom: clamp(20px, 3vw, 32px);
+}
+.directory-banner > p {
+  margin: 0;
+  padding-left: 10px;
+  border-left: 2px solid var(--directory-accent);
+  color: var(--directory-accent);
+  font: 650 13px/1.5 var(--sans);
+  white-space: nowrap;
+}
+.directory-banner-rail {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 2px 2px 4px;
+  list-style: none;
+  overflow-x: auto;
+  scroll-padding-inline: 2px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: #8e7963 transparent;
+}
+.directory-banner-item {
+  display: flex;
+  flex: 0 0 calc((100% - 16px) / 3);
+  min-width: 0;
+  scroll-snap-align: start;
+}
+.directory-banner-rail[data-banner-fixed] > .directory-banner-item { flex: 1 1 0; }
+.directory-banner-card {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-content: center;
+  align-items: baseline;
+  gap: 2px 9px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 26px 8px 11px;
+  position: relative;
+  border: 1px solid #594840;
+  border-radius: 6px;
+  background: #292324;
+  color: #f0ebe1;
+  font: 500 13px/1.45 var(--sans);
+  text-decoration: none;
+}
+.directory-banner-card::after {
+  content: "";
+  position: absolute;
+  right: 13px;
+  top: calc(50% - 3px);
+  width: 6px;
+  height: 6px;
+  border-top: 1px solid var(--directory-accent);
+  border-right: 1px solid var(--directory-accent);
+  transform: rotate(45deg);
+}
+.directory-banner-topic { color: var(--directory-accent); font-weight: 650; white-space: nowrap; }
+.directory-banner-copy { min-width: 0; overflow-wrap: anywhere; word-break: keep-all; }
+.directory-banner-action { color: var(--directory-accent); font-weight: 600; }
+.directory-banner-card:focus-visible { outline: 2px solid var(--directory-accent); outline-offset: -2px; }
+@media (any-hover: hover) {
+  .directory-banner-card:hover { border-color: #b29270; background: #342929; }
+}
+@media (max-width: 900px) {
+  .directory-banner { grid-template-columns: minmax(0, 1fr); }
+  .directory-banner-item { flex-basis: calc((100% - 8px) / 2.15); }
+}
+@media (max-width: 600px) {
+  .directory-banner-item { flex-basis: min(88%, 315px); }
+  .directory-banner-rail[data-banner-fixed] { flex-direction: column; }
+  .directory-banner-rail[data-banner-fixed] > .directory-banner-item { flex: 0 0 auto; }
+}
+#directoryWeddingExampleTitle,
+.directory-preview-reading > h3[tabindex] { scroll-margin-top: 94px; }
 /* Only the calculation tools need a type label inside a consultation row. */
 .directory-card-mode[data-mode="tool"] {
   position: absolute;
@@ -147,7 +228,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   font: 600 12px/1.5 var(--sans);
   white-space: nowrap;
 }
-.directory-section :is(h2, h3[tabindex]) {
+.directory-section :is(h2, h3[tabindex]:not(:where(.directory-preview-reading h3))) {
   margin: 0 0 16px;
   color: #f0ebe1;
   font: 600 clamp(23px, 3vw, 31px)/1.45 var(--serif);

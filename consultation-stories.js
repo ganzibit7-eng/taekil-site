@@ -794,7 +794,11 @@
         readingObserver.observe(element);
       }
     }
-    const focusTitle = () => { if (route.classList.contains('visible')) title.focus({preventScroll:true}); };
+    const focusTitle = () => {
+      if (route.classList.contains('visible') && !route.contains(document.activeElement)) {
+        title.focus({preventScroll:true});
+      }
+    };
     new MutationObserver(focusTitle).observe(route, {attributes:true,attributeFilter:['class']});
     focusTitle();
   }

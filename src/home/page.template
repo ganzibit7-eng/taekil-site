@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="/home-layout.js?v=home-paths-1"></script>
-<link rel="stylesheet" href="/home-layout.css?v=editorial-2">
+<script src="/home-layout.js?v=reading-banner-1"></script>
+<link rel="stylesheet" href="/home-layout.css?v=reading-banner-1">
 <title>택일소 | 무료 사주 · 주제별 리포트 · AI 상담과 택일</title>
 <meta name="description" content="로그인 없이 내 오행과 기본 성향을 확인하세요. 연애·재물·재회·직업 리포트의 첫 장, 2027 신년운세와 고민별 상담사를 만나보세요.">
 <meta name="keywords" content="사주, 사주풀이, 무료사주, 사주궁합, 오늘의운세, 신년운세, 택일, 결혼택일, 이사택일, 개업택일, 손없는날, 만세력">
@@ -292,7 +292,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="seohwa-reading-core.js?v=4"></script>
 <script src="wealth-interactions.js?v=wealth8"></script>
 <script src="featured-report-core.js?v=wealth-price-2"></script>
-<script src="consultation-stories.js?v=featured-report-1"></script>
+<script src="consultation-stories.js?v=reading-banner-1"></script>
 <dialog id="seohwaReportDialog" class="seohwa-report-dialog" aria-label="서화의 연애 리포트">
   <div class="sr-toolbar">
     <span>서화의 연애 리포트</span>
