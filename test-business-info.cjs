@@ -1,10 +1,19 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),cp=require('node:child_process');
+const renderHome=require('./render-home.cjs');
 test('public business details contain valid contacts and use the home visibility stylesheet',()=>{
  const pages=cp.execFileSync('git',['ls-files','*.html'],{encoding:'utf8'}).trim().split('\n');let count=0;
  for(const file of ['index.html', ...pages]){
-  const html=fs.readFileSync(file,'utf8');if(!html.includes('</body>'))continue;
+  const html=file==='index.html'?renderHome():fs.readFileSync(file,'utf8');if(!html.includes('</body>'))continue;
   const block=html.match(/<!-- BUSINESS_INFO_START -->\s*([\s\S]*?)\s*<!-- BUSINESS_INFO_END -->/)?.[1];assert.ok(block,file);
-  for(const value of ['테일모라','김도윤','804-03-03583','첨단연신로 216, 109동 1501호','<dt>통신판매업</dt><dd>신고 면제</dd>','<dt>호스팅 제공자</dt><dd>Cloudflare, Inc.</dd>','tel:01021305797','mailto:contact@taekilso.com'])assert.ok(block.includes(value),file+': '+value);
+  for(const value of ['테일모라','김도윤','804-03-03583','첨단연신로 216, 109동 1501호','<dt>통신판매업</dt><dd>신고 면제</dd>','<dt>호스팅 제공자</dt><dd>Cloudflare, Inc.</dd>'])assert.ok(block.includes(value),file+': '+value);
+  if(file==='index.html'){
+   assert.ok(html.includes('<meta name="format-detection" content="telephone=no">'));
+   assert.match(block,/<dt>문의 전화<\/dt><dd>010-2130-5797<\/dd>/);
+   assert.match(block,/<dt>문의 이메일<\/dt><dd>contact@taekilso\.com<\/dd>/);
+  }else{
+   assert.ok(block.includes('tel:01021305797'),file);
+   assert.ok(block.includes('mailto:contact@taekilso.com'),file);
+  }
   assert.ok(!/2004|생년월일|간이과세자|<img/.test(block),file+': unrelated certificate data');
   assert.equal((html.match(/href="\/business-info\.css\?v=[\w-]+"/g)||[]).length,1,file);
   assert.ok(html.indexOf(block)<html.lastIndexOf('© 2026 택일소. All rights reserved.'),file+': business details before copyright');count++;
