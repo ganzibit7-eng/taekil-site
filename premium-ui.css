@@ -152,6 +152,22 @@ input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-ca
 .history-tabbar{background:none;border:0;border-bottom:1px solid #514b48;padding:0;border-radius:0;gap:16px}
 .history-tab,.history-tab.active{min-height:50px;background:none;border:0;border-bottom:2px solid transparent;border-radius:0;color:#c2bab2;font-size:16px;box-shadow:none}
 .history-tab.active{border-bottom-color:#C6AA76;color:#C6AA76}.history-panel-head small,.history-empty-box p,.ai-history-meta{font-size:15px;color:#c2bab2;line-height:1.6}
+.history-hub .history-tabbar{grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(2px,1.3vw,16px)}
+.history-hub .history-tab{font-size:clamp(12px,3.7vw,16px);padding:8px 2px;word-break:keep-all}
+.history-hub .history-tab:focus-visible{outline:2px solid #C6AA76;outline-offset:-3px}
+#historyReportsPanel .date-report-library{margin:0;padding:20px clamp(14px,3.2vw,26px);border:1px solid #514641;border-radius:12px;background:#262222}
+#historyReportsPanel .date-report-library+.date-report-library{margin-top:10px}
+.history-report-header{display:grid;grid-template-columns:minmax(0,1fr) max-content;align-items:center;gap:12px}
+#historyReportsPanel .history-report-header h2{margin:0 0 4px;font-size:clamp(18px,4vw,24px)}
+#historyReportsPanel .history-report-header p{margin:0;font-size:clamp(13px,3.4vw,15px)}
+#historyReportsPanel .history-report-header .btn{width:auto;margin:0;min-height:44px;padding:8px 12px;color:#efdebb;border:1px solid #76654e;background:#302724;font-size:clamp(12px,3vw,14px);word-break:keep-all}
+#historyReportsPanel .history-report-header .btn:hover{border-color:#bd9e72;background:#3c302a}
+#historyReportsPanel .history-report-header .btn:focus-visible{outline:2px solid #C6AA76;outline-offset:3px}
+#historyReportsPanel #seohwaReportList:empty{margin-top:0}
+.history-report-expiry{display:block;margin:4px 0 0;color:#c5b7ab;font-size:13px;line-height:1.5;font-weight:400}
+@media(max-width:390px){
+  #historyReportsPanel .history-report-header .btn{padding-inline:8px}
+}
 .ai-history-title{font-family:var(--serif);font-size:20px;font-weight:600;color:#F0EBE1}.ai-history-preview{font-size:16px;line-height:1.6;color:#c2bab2}
 .pf-name{font-size:24px}.pf-meta,.pf-expiry,.pf-danger-note{font-size:16px;color:#c2bab2;line-height:1.6}
 .pf-avatar{background:#362d34;color:#C6AA76;box-shadow:none;font-family:var(--serif)}

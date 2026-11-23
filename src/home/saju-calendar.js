@@ -418,34 +418,19 @@ function updateHistoryCounts() {
 }
 
 function switchHistoryTab(tab) {
-  currentHistoryTab = ['ai','search','vault'].includes(tab) ? tab : 'ai';
+  const titles = {ai:'Ai', reports:'Reports', search:'Search', vault:'Vault'};
+  currentHistoryTab = Object.hasOwn(titles, tab) ? tab : 'ai';
 
-  const searchPanel = document.getElementById('historySearchPanel');
-  const vaultPanel = document.getElementById('historyVaultPanel');
-  const aiPanel = document.getElementById('historyAiPanel');
-
-  const searchTab = document.getElementById('historyTabSearch');
-  const vaultTab = document.getElementById('historyTabVault');
-  const aiTab = document.getElementById('historyTabAi');
-
-  const searchCard = document.getElementById('historySummarySearch');
-  const vaultCard = document.getElementById('historySummaryVault');
-  const aiCard = document.getElementById('historySummaryAi');
-
-  const map = {
-    search: [searchPanel, searchTab, searchCard],
-    vault: [vaultPanel, vaultTab, vaultCard],
-    ai: [aiPanel, aiTab, aiCard]
-  };
-
-  Object.entries(map).forEach(([key, parts]) => {
+  Object.entries(titles).forEach(([key, title]) => {
     const active = key === currentHistoryTab;
-    if (parts[0]) parts[0].classList.toggle('active', active);
-    if (parts[1]) {
-      parts[1].classList.toggle('active', active);
-      parts[1].setAttribute('aria-selected', String(active));
+    document.getElementById('history'+title+'Panel')?.classList.toggle('active', active);
+    const control = document.getElementById('historyTab'+title);
+    if (control) {
+      control.classList.toggle('active', active);
+      control.setAttribute('aria-selected', String(active));
+      control.tabIndex = active ? 0 : -1;
     }
-    if (parts[2]) parts[2].classList.toggle('active', active);
+    document.getElementById('historySummary'+title)?.classList.toggle('active', active);
   });
 
   if (currentHistoryTab === 'vault') {
@@ -462,6 +447,22 @@ function switchHistoryTab(tab) {
   updateHistoryCounts();
 }
 
+document.querySelector('.history-tabbar').addEventListener('keydown', event => {
+  const tabs = Array.from(event.currentTarget.querySelectorAll('[role="tab"]'));
+  const current = tabs.indexOf(event.target);
+  if (current === -1 || event.altKey || event.ctrlKey || event.metaKey) return;
+  const positions = {
+    ArrowLeft:(current + tabs.length - 1) % tabs.length,
+    ArrowRight:(current + 1) % tabs.length,
+    Home:0,
+    End:tabs.length - 1
+  };
+  if (!Object.hasOwn(positions, event.key)) return;
+  event.preventDefault();
+  tabs[positions[event.key]].click();
+  tabs[positions[event.key]].focus();
+});
+
 function clearAllSearchHistory() {
   const entries = readHistoryStore();
   if (!entries.length) return;
@@ -472,7 +473,7 @@ function clearAllSearchHistory() {
   showToast('검색 기록을 모두 삭제했어요.');
 }
 
-function loadHistory() {
+function loadHistory(tab = currentHistoryTab) {
   const listEl = document.getElementById('historyList');
   const emptyEl = document.getElementById('historyEmpty');
   if (!listEl || !emptyEl) return;
@@ -521,8 +522,7 @@ function loadHistory() {
   renderSajuVault();
   updateHistoryCounts();
 
-  // 사용자가 마지막으로 보던 기록 탭을 유지합니다.
-  switchHistoryTab(currentHistoryTab);
+  switchHistoryTab(tab);
 }
 
 document.getElementById('submitBtn').addEventListener('click', async () => {

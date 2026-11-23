@@ -227,9 +227,21 @@
 
   function libraryItem(record,open = false) {
     const detail = node('details');
-    detail.append(node('summary',record.report.event+' · '+dayLabel(record.report.candidates[0].day)+' 외 '+
-      (record.report.candidates.length-1)+'개'+(record.adminPreview?' · 관리자용':'')),reportCard(record));
-    detail.addEventListener('toggle',()=>{if(detail.open&&!record.adminPreview)window.TaekilCampaign?.activity('read_date');});
+    const summary = node('summary',record.report.event+' · '+dayLabel(record.report.candidates[0].day)+' 외 '+
+      (record.report.candidates.length-1)+'개'+(record.adminPreview?' · 관리자용':''));
+    const expiry=client.libraryExpiry(record.expiresAtMs);
+    if(expiry)summary.append(expiry);
+    detail.append(summary);
+    detail.addEventListener('toggle',()=>{
+      if(!detail.open || !detail.isConnected)return;
+      if(record.expiresAtMs && record.expiresAtMs<=Date.now()){
+        detail.querySelector('.date-report-result')?.remove();
+        if(!detail.querySelector('.date-library-expired'))detail.append(node('p',client.expiryMessage,'date-library-expired'));
+        return;
+      }
+      if(!detail.querySelector('.date-report-result'))detail.append(reportCard(record));
+      if(!record.adminPreview)window.TaekilCampaign?.activity('read_date');
+    });
     detail.open = open;
     return detail;
   }
@@ -291,7 +303,7 @@
     libraryOwner = owner;
     requestId++;
     library.replaceChildren();
-    libraryStatus.textContent = '구매하거나 저장한 후보일 비교를 여기서 다시 읽을 수 있어요.';
+    libraryStatus.textContent = '저장한 후보일과 날짜별 비교';
     libraryButton.disabled = false;
     if (owner) finishCheckout();
   });
@@ -300,7 +312,7 @@
     if (!url.searchParams.has('dateReport') || !accountStore.owner()) return;
     url.searchParams.delete('dateReport');
     history.replaceState(null,'',url);
-    goTo('history');
+    openReportHistory();
     void loadLibrary();
     document.getElementById('dateReportLibraryTitle').scrollIntoView({block:'start',behavior:'instant'});
   }

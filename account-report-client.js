@@ -11,6 +11,17 @@
   const koreaDateTime = new Intl.DateTimeFormat('ko-KR',{
     dateStyle:'long',timeStyle:'short',timeZone:'Asia/Seoul'
   });
+  const koreaDate = new Intl.DateTimeFormat('ko-KR',{dateStyle:'long',timeZone:'Asia/Seoul'});
+  function libraryExpiry(expiresAtMs) {
+    if(!Number.isSafeInteger(expiresAtMs)||expiresAtMs<=0)return null;
+    const note=document.createElement('span');
+    note.className='history-report-expiry';
+    const time=document.createElement('time');
+    time.dateTime=new Date(expiresAtMs).toISOString();
+    time.textContent=koreaDate.format(expiresAtMs);
+    note.append('열람 기한 ',time);
+    return note;
+  }
   function expiryNote(expiresAtMs) {
     if(!Number.isSafeInteger(expiresAtMs)||expiresAtMs<=0)return null;
     const note=document.createElement('p');
@@ -78,5 +89,5 @@
     if(data.waiting==='deposit') return '가상계좌 입금을 기다리고 있어요. 입금 후 내 기록을 다시 확인해 주세요.';
     return '기존 주문의 결제 상태를 확인 중이에요. 내 기록에서 잠시 후 다시 확인해 주세요.';
   }
-  window.TaekilAccountReport = {request,pay,showResume,pendingMessage,retentionNotice,expiryMessage,expiryNote,adminLabel,canPreviewAsAdmin};
+  window.TaekilAccountReport = {request,pay,showResume,pendingMessage,retentionNotice,expiryMessage,expiryNote,libraryExpiry,adminLabel,canPreviewAsAdmin};
 })();

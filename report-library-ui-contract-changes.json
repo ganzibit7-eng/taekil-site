@@ -1,0 +1,22 @@
+[
+  [
+    "  if (route === 'history') {\n    loadHistory(navigationOptions?.historyTab);\n  }\n",
+    "  if (route === 'history') {\n    loadHistory();\n    updateHistoryCounts();\n  }\n"
+  ],
+  [
+    "function openReportHistory() {\n  goTo('history', undefined, {historyTab:'reports'});\n}\n",
+    ""
+  ],
+  [
+    "function switchHistoryTab(tab) {\n  const titles = {ai:'Ai', reports:'Reports', search:'Search', vault:'Vault'};\n  currentHistoryTab = Object.hasOwn(titles, tab) ? tab : 'ai';\n\n  Object.entries(titles).forEach(([key, title]) => {\n    const active = key === currentHistoryTab;\n    document.getElementById('history'+title+'Panel')?.classList.toggle('active', active);\n    const control = document.getElementById('historyTab'+title);\n    if (control) {\n      control.classList.toggle('active', active);\n      control.setAttribute('aria-selected', String(active));\n      control.tabIndex = active ? 0 : -1;\n    }\n    document.getElementById('historySummary'+title)?.classList.toggle('active', active);\n  });\n\n  if (currentHistoryTab === 'vault') {\n    renderSajuVault();\n    const authUser = firebaseReady && firebase.auth ? firebase.auth().currentUser : null;\n    if (authUser && !authUser.isAnonymous) syncSajuVaultFromCloud(authUser.uid);\n  }\n\n  if (currentHistoryTab === 'ai') {\n    renderAiConversationHistory();\n    syncAiConversationHistoryFromCloud();\n  }\n\n  updateHistoryCounts();\n}\n\ndocument.querySelector('.history-tabbar').addEventListener('keydown', event => {\n  const tabs = Array.from(event.currentTarget.querySelectorAll('[role=\"tab\"]'));\n  const current = tabs.indexOf(event.target);\n  if (current === -1 || event.altKey || event.ctrlKey || event.metaKey) return;\n  const positions = {\n    ArrowLeft:(current + tabs.length - 1) % tabs.length,\n    ArrowRight:(current + 1) % tabs.length,\n    Home:0,\n    End:tabs.length - 1\n  };\n  if (!Object.hasOwn(positions, event.key)) return;\n  event.preventDefault();\n  tabs[positions[event.key]].click();\n  tabs[positions[event.key]].focus();\n});\n\n",
+    "function switchHistoryTab(tab) {\n  currentHistoryTab = ['ai','search','vault'].includes(tab) ? tab : 'ai';\n\n  const searchPanel = document.getElementById('historySearchPanel');\n  const vaultPanel = document.getElementById('historyVaultPanel');\n  const aiPanel = document.getElementById('historyAiPanel');\n\n  const searchTab = document.getElementById('historyTabSearch');\n  const vaultTab = document.getElementById('historyTabVault');\n  const aiTab = document.getElementById('historyTabAi');\n\n  const searchCard = document.getElementById('historySummarySearch');\n  const vaultCard = document.getElementById('historySummaryVault');\n  const aiCard = document.getElementById('historySummaryAi');\n\n  const map = {\n    search: [searchPanel, searchTab, searchCard],\n    vault: [vaultPanel, vaultTab, vaultCard],\n    ai: [aiPanel, aiTab, aiCard]\n  };\n\n  Object.entries(map).forEach(([key, parts]) => {\n    const active = key === currentHistoryTab;\n    if (parts[0]) parts[0].classList.toggle('active', active);\n    if (parts[1]) {\n      parts[1].classList.toggle('active', active);\n      parts[1].setAttribute('aria-selected', String(active));\n    }\n    if (parts[2]) parts[2].classList.toggle('active', active);\n  });\n\n  if (currentHistoryTab === 'vault') {\n    renderSajuVault();\n    const authUser = firebaseReady && firebase.auth ? firebase.auth().currentUser : null;\n    if (authUser && !authUser.isAnonymous) syncSajuVaultFromCloud(authUser.uid);\n  }\n\n  if (currentHistoryTab === 'ai') {\n    renderAiConversationHistory();\n    syncAiConversationHistoryFromCloud();\n  }\n\n  updateHistoryCounts();\n}\n\n"
+  ],
+  [
+    "function loadHistory(tab = currentHistoryTab) {",
+    "function loadHistory() {"
+  ],
+  [
+    "\n  renderSajuVault();\n  updateHistoryCounts();\n\n  switchHistoryTab(tab);\n}\n\n",
+    "\n  renderSajuVault();\n  updateHistoryCounts();\n\n  // 사용자가 마지막으로 보던 기록 탭을 유지합니다.\n  switchHistoryTab(currentHistoryTab);\n}\n\n"
+  ]
+]
