@@ -3,6 +3,11 @@
   const checkout = window.TaekilCheckout;
   const retentionNotice = '결제 승인일부터 1년간 열람·보관';
   const expiryMessage = '리포트의 1년 보관 기간이 끝났어요.';
+  const adminLabel = '관리자용 전체 리포트 열기';
+  function canPreviewAsAdmin() {
+    return typeof isAdmin==='function'&&isAdmin()&&firebaseAuthUser?.emailVerified===true&&
+      firebaseAuthUser.providerData?.some(provider=>provider.providerId==='google.com')===true;
+  }
   const koreaDateTime = new Intl.DateTimeFormat('ko-KR',{
     dateStyle:'long',timeStyle:'short',timeZone:'Asia/Seoul'
   });
@@ -73,5 +78,5 @@
     if(data.waiting==='deposit') return '가상계좌 입금을 기다리고 있어요. 입금 후 내 기록을 다시 확인해 주세요.';
     return '기존 주문의 결제 상태를 확인 중이에요. 내 기록에서 잠시 후 다시 확인해 주세요.';
   }
-  window.TaekilAccountReport = {request,pay,showResume,pendingMessage,retentionNotice,expiryMessage,expiryNote};
+  window.TaekilAccountReport = {request,pay,showResume,pendingMessage,retentionNotice,expiryMessage,expiryNote,adminLabel,canPreviewAsAdmin};
 })();

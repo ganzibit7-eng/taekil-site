@@ -269,7 +269,7 @@
     const coverText=el('div',null,'annual-report-cover-text');
     const reportTitle=el('h1','2027 신년운세');
     reportTitle.tabIndex=-1;
-    coverText.append(el('p','택일소 · 연우','annual-report-label'),reportTitle,
+    coverText.append(el('p',data.adminPreview?'택일소 · 연우 · 관리자용':'택일소 · 연우','annual-report-label'),reportTitle,
       el('strong',`${data.profile.name} 님의 한 해`));
     const birth=window.TaekilReportGuide.birthDate(data.profile);
     if(birth)coverText.append(birth);
@@ -405,7 +405,12 @@
       message('신년 리포트를 작성하고 있습니다.');showProgress(data.startedAt);
       timer=setTimeout(()=>{if(active)load();},5000);return;
     }
-    stopProgress();message(data.status==='failed'?'리포트를 마치지 못했어요. 같은 이용권으로 다시 작성할 수 있으며 추가 결제는 필요하지 않습니다.':'이용권을 확인했습니다. 아래에서 사주를 확인하고 작성 버튼을 눌러 주세요.');selectProfile();
+    stopProgress();
+    message(data.status==='failed'?(data.adminPreview?'리포트를 마치지 못했어요. 다시 작성할 수 있어요.':
+      '리포트를 마치지 못했어요. 같은 이용권으로 다시 작성할 수 있으며 추가 결제는 필요하지 않습니다.')
+      :data.adminPreview?'관리자 계정을 확인했어요. 출생 정보를 선택하면 결제 없이 작성할 수 있어요.'
+        :'이용권을 확인했습니다. 아래에서 사주를 확인하고 작성 버튼을 눌러 주세요.');
+    selectProfile();
   }
   async function load(){
     const token=++version;if(typeof waitForAuthSettled==='function')await waitForAuthSettled(4000).catch(()=>{});if(token!==version||!active)return;

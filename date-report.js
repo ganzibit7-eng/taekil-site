@@ -150,11 +150,12 @@
   }
 
   function offer(comparison) {
+    const adminPreview=client.canPreviewAsAdmin();
     const card = node('section','','date-report-offer');
     card.append(node('span','후보일 '+comparison.days.length+'개','payment-eyebrow'),
-      node('h3','정밀 택일 1건권 · 3,900원'),
+      node('h3',adminPreview?'정밀 택일 · 관리자용':'정밀 택일 1건권 · 3,900원'),
       node('p','후보마다 본인·상대방의 오행 풀이, 순위가 갈린 이유와 일정 유형별 확인 사항을 확인해요.'),
-      node('p',client.retentionNotice,'report-expiry-note'));
+      node('p',adminPreview?'결제 없이 정밀 비교를 열 수 있어요.':client.retentionNotice,'report-expiry-note'));
     const confirmation = node('ul','','date-report-selection');
     for (const day of comparison.days) confirmation.append(node('li',dayLabel(day)));
     card.append(confirmation);
@@ -163,7 +164,7 @@
     const paused = node('p','신규 결제를 잠시 중단했어요. 정밀 택일이 포함된 기존 이용권 보유자는 아래에서 정밀 비교를 열 수 있어요.');
     paused.setAttribute('data-checkout-paused','');
 
-    async function submit(purchase) {
+    async function submit(purchase,asAdmin=false) {
       if (!card.isConnected || !card.closest('#view-tool.visible')) return false;
       const token = accountStore.snapshot();
       if (!token.owner) {
@@ -171,13 +172,15 @@
         status.textContent = '로그인한 뒤 아래 버튼을 다시 눌러 주세요.';
         return false;
       }
-      const data = await request({operation:'prepare',comparison,checkout:purchase,allowResume:true},token);
+      const data = await request(asAdmin?{operation:'admin-open',comparison}:
+        {operation:'prepare',comparison,checkout:purchase,allowResume:true},token);
       if (!accountStore.current(token) || !card.isConnected || !card.closest('#view-tool.visible')) return false;
       if (data.state === 'ready') {
-        window.TaekilCampaign?.activity('read_date');
+        if(!data.adminPreview)window.TaekilCampaign?.activity('read_date');
         card.replaceChildren(reportCard(data),node('p','내 기록에 저장했어요.'));
         return false;
       }
+      if(asAdmin)throw Error('관리자 리포트를 열지 못했어요.');
       if (data.state === 'paused') {
         status.textContent = '신규 구매가 중단 중이에요. 무료 결과는 위에서 계속 볼 수 있어요.';
         return false;
@@ -199,9 +202,10 @@
         metricTopic:'date',returnFlag:'dateReport',memo:'선택한 후보일 2~5개 정밀 비교 리포트 1건'});
     }
 
-    const included = action('기존 이용권으로 열기',async () => {
+    const included = action(adminPreview?client.adminLabel:'기존 이용권으로 열기',async () => {
+      if(included.disabled)return;
       included.disabled = true;
-      try { await submit(false); }
+      try { await submit(false,adminPreview); }
       catch(error) { status.textContent = error.message; }
       finally { included.disabled = false; }
     });
@@ -214,14 +218,18 @@
     },'btn btn-primary');
     buy.setAttribute('data-checkout-action','');
     window.TaekilCampaign?.activity('preview_date');
-    card.append(paused,checkout.statusNote(),included,buy,status,exampleDisclosure());
+    if(!adminPreview)card.append(paused,checkout.statusNote());
+    card.append(included);
+    if(!adminPreview)card.append(buy);
+    card.append(status,exampleDisclosure());
     return card;
   }
 
   function libraryItem(record,open = false) {
     const detail = node('details');
-    detail.append(node('summary',record.report.event+' · '+dayLabel(record.report.candidates[0].day)+' 외 '+(record.report.candidates.length-1)+'개'),reportCard(record));
-    detail.addEventListener('toggle',()=>{if(detail.open)window.TaekilCampaign?.activity('read_date');});
+    detail.append(node('summary',record.report.event+' · '+dayLabel(record.report.candidates[0].day)+' 외 '+
+      (record.report.candidates.length-1)+'개'+(record.adminPreview?' · 관리자용':'')),reportCard(record));
+    detail.addEventListener('toggle',()=>{if(detail.open&&!record.adminPreview)window.TaekilCampaign?.activity('read_date');});
     detail.open = open;
     return detail;
   }

@@ -266,8 +266,10 @@
     const layout=el('div',null,'sr-layout'), contents=el('div',null,'sr-pages'), gate=el('section',null,'sr-gate');
     const status=el('p',null,'sr-status');
     status.setAttribute('role','status');
-    const pay=button(won.format(reading.PRICE)+'원에 전체 리포트 열기','sr-primary',()=>buy(data,status));
-    pay.dataset.checkoutAction='';
+    const adminPreview=client.canPreviewAsAdmin();
+    const pay=button(adminPreview?client.adminLabel:won.format(reading.PRICE)+'원에 전체 리포트 열기','sr-primary',
+      ()=>adminPreview?openAsAdmin(data,status,pay):buy(data,status));
+    if(!adminPreview)pay.dataset.checkoutAction='';
     const paused=el('p','현재 전체 리포트 구매를 잠시 중단했어요.','sr-payment-note');
     paused.dataset.checkoutPaused='';
     const paymentNote=el('p',null,'sr-payment-note report-offer-price');
@@ -283,7 +285,10 @@
       benefit.append(el('strong',title),el('span',description));
       benefits.append(benefit);
     }
-    gate.append(el('h3','전체 리포트와 '+reading.name+' 상담'),benefits,paymentNote,pay,status,paused,checkout.statusNote());
+    gate.append(el('h3','전체 리포트와 '+reading.name+' 상담'),benefits);
+    if(!adminPreview)gate.append(paymentNote);
+    gate.append(pay,status);
+    if(!adminPreview)gate.append(paused,checkout.statusNote());
     const samples=el('section',null,'sr-samples');
     samples.setAttribute('aria-labelledby','sr-sample-title');
     const label=el('h3','이어지는 장 미리보기');
@@ -370,6 +375,21 @@
       bar.value=Math.min(previewWaitMs,performance.now()-start);
     },150);
     previewTimer=setTimeout(()=>finishPreview(data),previewWaitMs);
+  }
+  async function openAsAdmin(data,status,trigger) {
+    if(trigger.disabled)return;
+    const owner=accountStore.snapshot();
+    const current=()=>active===data&&accountStore.current(owner)&&dialog.open;
+    trigger.disabled=true;
+    setStatus(status,'관리자 계정과 저장된 리포트를 확인하고 있어요.');
+    try{
+      const result=await request(data.reading,{operation:'admin-open',
+        comparison:{profile:data.profile,choice:data.choice}},owner);
+      if(!current())return;
+      if(!result.adminPreview||!['paid','generating','ready'].includes(result.state))throw Error('관리자 리포트를 열지 못했어요.');
+      await renderPurchased(result,data.host,owner,true,data.reading);
+    }catch(error){if(current())setStatus(status,error.message);}
+    finally{trigger.disabled=false;}
   }
   async function buy(data,status) {
     const {reading}=data;
@@ -971,7 +991,7 @@
   }
 
   function drawPurchased(result,host,owner,reading) {
-    window.TaekilCampaign?.activity('read_'+reading.topic);
+    if(!result.adminPreview)window.TaekilCampaign?.activity('read_'+reading.topic);
     const {report}=result;
     displayTitle(reading);
     const now={id:result.id,host,owner,reading};active=now;
@@ -1119,6 +1139,7 @@
     layout.append(toc({...reading,chapters:report.body.map(chapter=>chapter.title)},report.first,false),contents);
     const cover=header(reading,report.choice,report.day,report.known??report.profile?.hourValue!=='unknown',
       paidWealth?report.calendar.year:topic?true:undefined,report.profile);
+    if(result.adminPreview)cover.querySelector('.sr-kicker').textContent+=' · 관리자용';
     const expiry=client.expiryNote(result.expiresAtMs);
     if(expiry)cover.querySelector('.sr-cover-nav').before(expiry);
     show([cover,...front,layout],!paidWealth&&!topic);
@@ -1134,7 +1155,7 @@
     const panel=el('section',null,'sr-generation');
     const content=el('div',null,'sr-generation-copy');
     const heading=el('h2','리포트를 준비하고 있어요');
-    const message=el('p','결제를 확인했어요.','sr-status');
+    const message=el('p',result.adminPreview?'관리자 계정을 확인했어요.':'결제를 확인했어요.','sr-status');
     message.setAttribute('role','status');
     const meter=el('div',null,'sr-generation-meter');
     meter.hidden=true;
@@ -1241,7 +1262,7 @@
         dialog.showModal();
         hiddenForConsent=false;
         if(!agreed){
-          offerRetry('AI 이용에 동의하면 전체 리포트를 만들 수 있어요. 결제한 리포트는 내 기록에서 다시 열 수 있어요.');
+          offerRetry('AI 이용에 동의하면 전체 리포트를 만들 수 있어요. 저장한 리포트는 내 기록에서 다시 열 수 있어요.');
           action.textContent='동의하고 작성 시작하기';
           return;
         }
@@ -1291,7 +1312,7 @@
       if(result.state==='expired'){setStatus(status,client.expiryMessage);return;}
       if(!['paid','ready','generating'].includes(result.state)) throw Error('현재 열 수 있는 리포트가 아니에요. 결제 상태를 확인해 주세요.');
       if(accountStore.getItem(pendingKey(reading))===id)accountStore.removeItem(pendingKey(reading));
-      setStatus(status,'결제한 리포트를 열었어요.');
+      setStatus(status,result.adminPreview?'관리자 리포트를 열었어요.':'결제한 리포트를 열었어요.');
       await renderPurchased(result,by('seohwaLibrary'),owner,false,reading);
     }catch(error){if(accountStore.current(owner))setStatus(status,error.message);}
   }
@@ -1308,7 +1329,8 @@
       const rows=reports.map(record=>{
         const date=new Intl.DateTimeFormat('ko-KR',{dateStyle:'medium',timeZone:'Asia/Seoul'}).format(record.createdAtMs);
         const reading=catalog.forId(record.consultantId);
-        return button(reading.name+' · '+reading.stories[record.choice].label+' · '+date,'sr-library-button',()=>reopen(record.id,owner,libraryStatus,reading));
+        return button(reading.name+' · '+reading.stories[record.choice].label+' · '+date+(record.adminPreview?' · 관리자용':''),
+          'sr-library-button',()=>reopen(record.id,owner,libraryStatus,reading));
       });
       for(const reading of catalog.all){
         const pending=accountStore.getItem(pendingKey(reading));
