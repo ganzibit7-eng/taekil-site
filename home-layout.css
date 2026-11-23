@@ -496,6 +496,14 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   transform: rotate(45deg);
 }
 .directory-feature-copy { display: grid; gap: 5px; min-width: 0; }
+.directory-feature-kind {
+  color: var(--directory-accent);
+  font: 600 12px/1.35 var(--sans);
+}
+#homeDirectory .directory-paid-tool { border-color: #695547; background: #2a2324; }
+@media (any-hover: hover) {
+  #homeDirectory .directory-paid-tool:hover { border-color: #c6aa76; background: #34282a; }
+}
 .directory-feature-copy strong {
   font: 600 clamp(18px, 2.2vw, 25px)/1.4 var(--serif);
   letter-spacing: -.035em;

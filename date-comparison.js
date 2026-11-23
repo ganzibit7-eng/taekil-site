@@ -158,6 +158,11 @@
   });
   document.querySelectorAll('[data-open-date-comparison]').forEach(link => link.addEventListener('click', () => {
     setMode('exact');
+    if (link.hasAttribute('data-direct-date-comparison')) {
+      modeGroup.scrollIntoView({ block: 'center', behavior: 'instant' });
+      modeGroup.querySelector('[data-date-mode="exact"]')?.focus({ preventScroll: true });
+      return;
+    }
     title.focus({ preventScroll: true });
   }));
   new MutationObserver(() => {
