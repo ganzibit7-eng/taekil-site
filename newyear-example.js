@@ -18,12 +18,20 @@
   const details = make('details');
   const summary = make('summary', '7월 실제 풀이 읽기');
   const body = make('div', null, 'newyear-example-body');
-  details.append(summary, body);
-  section.append(
+  const heading = make('header', null, 'newyear-example-heading');
+  const intro = make('div');
+  intro.append(
     make('h2', '신년 리포트 한 달 미리보기'),
-    make('p', '1990년 1월 1일 양력 · 출생시간·성별 미상인 가상 사주로 받은 실제 리포트 일부예요.', 'newyear-example-intro'),
-    details
+    make('p', '1990년 1월 1일 양력 · 출생시간·성별 미상인 가상 사주로 받은 실제 리포트 일부예요.', 'newyear-example-intro')
   );
+  heading.append(intro);
+  const dawn = document.getElementById('newyearExampleDawn');
+  if (dawn) {
+    heading.append(dawn);
+    dawn.hidden = false;
+  }
+  details.append(summary, body);
+  section.append(heading, details);
   view.querySelector('.newyear-value').before(section);
   document.addEventListener('click', event => {
     const link = event.target.closest('[data-newyear-preview]');

@@ -67,8 +67,6 @@ body footer .footer-inner.business-site-footer {
 .business-site-footer .business-service { color: #beb4af; }
 .business-site-footer .business-info dd { color: #eee7dc; }
 .business-site-footer .business-service { display: inline-block; margin: 0 0 0 4px; }
-.business-site-footer .business-contact { display: flex; flex-wrap: wrap; gap: 2px 16px; }
-.business-site-footer .business-contact a { color: inherit; }
 .business-site-footer .business-copyright {
   margin: 0;
   color: #beb4af;
@@ -88,8 +86,7 @@ body footer .footer-inner.business-site-footer {
 
 @media (max-width: 440px) {
   .business-site-footer .business-footer-header {align-items:flex-start;flex-direction:column;gap:6px}
-  .business-site-footer .business-info dl > .business-detail-wide {grid-template-columns:1fr;gap:3px}
-  .business-site-footer .business-contact {flex-direction:column;align-items:flex-start}
+  .business-site-footer .business-info dl > .business-detail-wide:not(.business-contact-row) {grid-template-columns:1fr;gap:3px}
 }
 
 /* The router handles other app views. Hide the card in report overlays and standalone guides too. */
