@@ -141,7 +141,7 @@
     return page;
   }
 
-  function header(reading,choice,day,known,paidYear) {
+  function header(reading,choice,day,known,paidYear,profile) {
     const head=el('header',null,'sr-cover');
     const image=el('img');
     image.src='/'+window.TaekilConsultationPersonas.get(reading.id).portrait; image.alt='';
@@ -154,6 +154,8 @@
     if(paidYear)metadata.shift();
     title.append(el('p',paidYear?reading.title:'무료 첫 장','sr-kicker'),heading,
       el('p',metadata.join(' · ')));
+    const birth=window.TaekilReportGuide.birthDate(profile);
+    if(birth)title.append(birth);
     const navigation=el('div',null,'sr-cover-nav');
     navigation.append(button(paidYear?(reading.id==='dogyeom'?'올해 총평 읽기':'본편 바로 읽기'):'내 풀이 바로 보기','sr-personal-jump',()=>jumpToChapter(paidYear?1:0)));
     if(paidYear)navigation.append(button('목차 보기','sr-cover-toc',()=>{
@@ -1115,7 +1117,8 @@
       }
     }
     layout.append(toc({...reading,chapters:report.body.map(chapter=>chapter.title)},report.first,false),contents);
-    show([header(reading,report.choice,report.day,report.known??report.profile?.hourValue!=='unknown',paidWealth?report.calendar.year:topic?true:undefined),...front,layout],!paidWealth&&!topic);
+    show([header(reading,report.choice,report.day,report.known??report.profile?.hourValue!=='unknown',
+      paidWealth?report.calendar.year:topic?true:undefined,report.profile),...front,layout],!paidWealth&&!topic);
   }
 
   async function renderPurchased(result,host,owner,autoGenerate,reading) {

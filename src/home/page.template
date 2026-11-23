@@ -320,10 +320,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="consultation-experience.js?v=annual-reading-1"></script>
 
 <script src="navigation-stability.js?v=20261111-2"></script>
-<link rel="stylesheet" href="report-pillar-guide.css?v=paper-1">
-<script src="report-pillar-guide.js?v=paper-1"></script>
+<link rel="stylesheet" href="report-pillar-guide.css?v=paid-birth-date-1">
+<script src="report-pillar-guide.js?v=paid-birth-date-1"></script>
 <link rel="stylesheet" href="newyear-consultation.css?v=paper-1">
-<script src="newyear-consultation.js?v=home-paths-1"></script><script src="newyear-example.js?v=home-paths-1"></script>
+<script src="newyear-consultation.js?v=paid-birth-date-1"></script><script src="newyear-example.js?v=home-paths-1"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=free-progress-1">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
 <script src="free-report-handoff.js?v=home-paths-1"></script>
@@ -351,6 +351,6 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="topic-monthly-reading.js?v=4"></script>
 <script src="relationship-report-periods.js?v=4"></script>
 <script src="topic-report-content.js?v=2"></script>
-<script src="seohwa-report.js?v=wealth-price-2"></script>
+<script src="seohwa-report.js?v=paid-birth-date-1"></script>
 </body>
 </html>

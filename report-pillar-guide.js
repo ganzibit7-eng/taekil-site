@@ -56,5 +56,24 @@
     }
     return list;
   }
-  window.TaekilReportGuide={chart,chapter,comparison,explainer,readGanZhi};
+
+  function birthDate(profile){
+    if(!profile)return null;
+    // The saved annual report uses an ISO date already converted to the solar calendar.
+    const solarDate=typeof profile.date==='string'&&profile.date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    const [year,month,day]=(solarDate?solarDate.slice(1):[profile.y,profile.m,profile.d]).map(Number);
+    if(![year,month,day].every(Number.isInteger)||year<1||year>9999||month<1||month>12||day<1||day>31)return null;
+    const lunar=!solarDate&&profile.calType==='lunar';
+    const calendar=lunar?(profile.isLeap?'음력 윤달':'음력'):'양력';
+    const value=el(lunar?'span':'time',year+'년 '+month+'월 '+day+'일');
+    if(!lunar)value.dateTime=String(year).padStart(4,'0')+'-'+String(month).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+    const row=el('div',null,'report-birth-date');
+    const caption=el('span','생년월일','report-birth-label');
+    const date=el('span',null,'report-birth-value');
+    date.append(value,el('span',calendar,'report-birth-calendar'));
+    row.append(caption,date);
+    return row;
+  }
+
+  window.TaekilReportGuide={chart,chapter,comparison,explainer,readGanZhi,birthDate};
 })();

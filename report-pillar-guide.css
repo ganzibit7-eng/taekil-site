@@ -100,3 +100,22 @@
   .report-guide-pillars {gap:5px}
   .report-guide-pillars > div {padding-inline:2px}
 }
+.report-birth-date {
+  display:flex;
+  width:fit-content;
+  align-items:baseline;
+  flex-wrap:wrap;
+  gap:3px 10px;
+  max-width:100%;
+  margin-top:12px;
+  padding:7px 11px;
+  border:1px solid #bfa18469;
+  border-radius:6px;
+  background:#2d2426ed;
+  color:#fff2df;
+  font:600 14px/1.45 var(--sans);
+  font-variant-numeric:tabular-nums;
+}
+.report-birth-label {color:#dec5a6;font-size:12px}
+.report-birth-value {display:inline-flex;align-items:baseline;flex-wrap:wrap;gap:2px 7px}
+.report-birth-calendar {color:#dfcdbb;font-size:12px}
