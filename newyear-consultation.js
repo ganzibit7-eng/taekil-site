@@ -270,8 +270,10 @@
     const reportTitle=el('h1','2027 신년운세');
     reportTitle.tabIndex=-1;
     coverText.append(el('p','택일소 · 연우','annual-report-label'),reportTitle,
-      el('strong',`${data.profile.name} 님의 한 해`),
-      el('p',`${data.profile.date} · ${window.TaekilBirthTime.label(data.profile.hourValue)}`,'newyear-report-owner'));
+      el('strong',`${data.profile.name} 님의 한 해`));
+    const birth=window.TaekilReportGuide.birthDate(data.profile);
+    if(birth)coverText.append(birth);
+    coverText.append(el('p',window.TaekilBirthTime.label(data.profile.hourValue),'newyear-report-owner'));
     cover.append(portrait,coverText);
     const introduction=readingGuide(data);
     const overview=section('한 해의 큰 흐름',r.overview);
