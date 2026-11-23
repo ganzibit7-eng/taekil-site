@@ -68,7 +68,13 @@ body footer .footer-inner.business-site-footer {
 .business-site-footer .business-info dd { color: #eee7dc; }
 .business-site-footer .business-service { display: inline-block; margin: 0 0 0 4px; }
 .business-site-footer .business-contact { display: flex; flex-wrap: wrap; gap: 2px 16px; }
-.business-site-footer .business-contact a { color: #ead6b4; }
+.business-site-footer .business-contact a {
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: #e5dfda;
+  color: #111;
+}
+.business-site-footer .business-contact a:hover { background: #f3efec; }
 .business-site-footer .business-copyright {
   margin: 0;
   color: #beb4af;

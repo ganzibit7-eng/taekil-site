@@ -191,7 +191,7 @@
 <section class="payment-before" aria-labelledby="payment-before-title"><h2 id="payment-before-title">결제 전에 확인해 주세요</h2><dl><div><dt>결제와 이용 시작</dt><dd>로그인한 계정으로 구매합니다. 페이앱 결제창에서 상품과 금액을 확인하고, 결제 확인 후 이용권이 반영됩니다.</dd></div><div><dt>질문권과 신년운세</dt><dd>질문권은 일반 AI 상담에서 정상 답변을 받으면 한 회씩 차감돼요. 남은 횟수는 내 프로필에서 확인할 수 있어요. 신년운세는 본인 계정에서 다시 읽는 리포트 상품이에요.</dd></div><div><dt>결제 확인·환불 문의</dt><dd>결제 후 이용권이 보이지 않거나 환불이 필요하면 내 프로필의 문의 기능을 이용해 주세요. 환불은 서비스 제공·사용 여부와 이용약관에 따라 처리합니다. <button class="payment-text-link" onclick="goTo('legal')">이용약관 확인 →</button></dd></div></dl></section>
 <section class="payment-faq" aria-label="이용권 자주 묻는 질문"><details><summary>정밀 택일은 어디서 볼 수 있나요?</summary><p>택일 화면에서 정밀 택일 리포트를 확인할 수 있어요. 기존 프리미엄의 택일 혜택은 구매 당시 이용기간 동안 적용됩니다.</p></details><details><summary>서화·도겸·이준·무진과 어떻게 상담하나요?</summary><p>각 리포트를 구매하면 해당 상담사에게 3회 질문할 수 있어요. 가입 무료 질문과 일반 질문권, 프리미엄 질문은 연우 등 일반 AI 상담에 사용해요.</p></details><details><summary>신년운세 리포트는 다시 볼 수 있나요?</summary><p>새로 구매한 유료 리포트는 결제 승인일부터 1년 동안 구매한 계정에서 다시 읽을 수 있어요. 이전 구매 건은 구매 당시 조건을 따릅니다.</p></details><details><summary>처음부터 유료 이용권이 필요한가요?</summary><p>먼저 계정당 총 3개 무료 질문으로 연우의 답변을 확인하세요. 무료 택일에서도 최대 30일 후보와 추천 날짜 TOP 5, 일진·오행·손없는 날, 기본 캘린더와 공유를 이용할 수 있습니다.</p></details></section>
 <article class="date-report-plan"><span class="payment-eyebrow">중요한 날짜를 정할 때</span><h3>정밀 택일 1건권 <strong>3,900원</strong></h3><p>결혼·이사·개업·계약 후보일 2~5개를 골라 비교해요. 날짜마다 본인의 오행 풀이, 일정 유형과 손없는 날 반영 여부, 확정 전에 확인할 점을 담아요. 상대 사주를 넣으면 두 분에게 어떻게 다르게 반영됐는지도 볼 수 있어요.</p><p class="report-offer-price"><span>후보일 한 묶음 · 결제 승인일부터 1년간 열람·보관</span></p><a class="btn" href="#tool" data-open-date-comparison onclick="goTo('tool','결혼식');return false;">후보일 무료로 비교하기</a><div data-date-report-example></div></article>
-<article class="date-report-plan"><span class="payment-eyebrow">두 사람이 함께 읽는 풀이</span><h3>두 사람 관계 리포트</h3><p>두 사람의 일간·일지 비교를 바탕으로 잘 맞는 점과 엇갈리기 쉬운 장면을 읽어요. 상황별 대화 예시와 4주 실천 방법을 내 기록에서 다시 확인할 수 있어요.</p><p class="report-offer-price"><strong>5,900원</strong><span>리포트 1건 · 결제 승인일부터 1년간 열람·보관</span></p><a class="btn" href="#relationship-report">관계 리포트 살펴보기</a></article>
+<article class="date-report-plan"><span class="payment-eyebrow">두 사람이 함께 읽는 풀이</span><h3>두 사람 관계 리포트</h3><p>두 사람의 일간·일지 비교를 바탕으로 잘 맞는 점과 엇갈리기 쉬운 장면을 읽어요. 상황별 대화 예시와 4주 실천 방법을 내 기록에서 다시 확인할 수 있어요.</p><p class="report-offer-price"><strong>3,900원</strong><span>리포트 1건 · 결제 승인일부터 1년간 열람·보관</span></p><a class="btn" href="#relationship-report">관계 리포트 살펴보기</a></article>
 <article class="date-report-plan">
 <h3>주제별 사주 리포트</h3>
 <p>생년월일로 만든 첫 장을 무료로 읽을 수 있어요. 각 상품은 5,900원에 전체 6장과 담당 상담사 채팅 3회를 제공해요.</p>
@@ -210,7 +210,7 @@
       <p class="payment-eyebrow">두 사람 관계 리포트</p>
       <h1>잘 맞는 순간을 알고,<br>어긋난 대화를 다시 잇는 법</h1>
       <p>두 사람의 사주를 나란히 놓고, 연락과 약속처럼 일상에서 반복되는 상황을 살펴봐요. 바로 써볼 말과 이번 주에 함께 해볼 약속까지 담았습니다.</p>
-      <p class="report-offer-price"><strong>5,900원</strong><span>리포트 1건 · 결제 승인일부터 1년간 열람·보관</span></p>
+      <p class="report-offer-price"><strong>3,900원</strong><span>리포트 1건 · 결제 승인일부터 1년간 열람·보관</span></p>
       <p class="relationship-sale-status" data-checkout-paused>신규 결제를 잠시 중단했어요. 아래에서 전체 예시를 읽을 수 있어요.</p><div class="checkout-connection"><span role="status">구매 가능 여부를 확인하고 있어요.</span><span role="status">구매 가능 여부를 확인하지 못했어요.</span><button type="button" onclick="TaekilCheckout.retry()">다시 확인</button></div>
     </div>
     <img src="/char-wedding.jpg" width="640" height="1440" alt="" class="relationship-hero-photo" loading="lazy" decoding="async">
@@ -252,7 +252,7 @@
       <div data-relationship-payment-copy>
         <p>결제를 완료하면 이 두 사람의 리포트가 내 기록에 저장돼요.</p>
         <p data-checkout-paused>신규 결제를 잠시 중단했어요. 위에서 실제 구성 예시를 읽을 수 있어요.</p><div class="checkout-connection"><span role="status">구매 가능 여부를 확인하고 있어요.</span><span role="status">구매 가능 여부를 확인하지 못했어요.</span><button type="button" onclick="TaekilCheckout.retry()">다시 확인</button></div>
-        <button type="button" class="btn btn-primary" id="buyRelationshipReport" data-checkout-action>5,900원 · 관계 리포트 구매</button>
+        <button type="button" class="btn btn-primary" id="buyRelationshipReport" data-checkout-action>3,900원 · 관계 리포트 구매</button>
         <p class="report-expiry-note">결제 승인일부터 1년간 열람·보관</p>
       </div>
       <p id="relationshipPurchaseStatus" role="status"></p>

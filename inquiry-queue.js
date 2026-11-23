@@ -121,5 +121,62 @@ function mountInquiryQueue({wrap, pendingCount, db, current, toast}) {
     }
   }
   wrap.querySelector('.inquiry-refresh').onclick = () => load(true);
+  wrap.openPendingInquiries = () => {
+    selected = 'pending';
+    visible = 20;
+    return load(true);
+  };
   load();
+}
+
+if (typeof window !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    const notice = document.getElementById('adminPendingInquiryNotice');
+    const topbar = document.querySelector('.topbar');
+    if (!notice || !topbar) return;
+    topbar.append(notice);
+    const count = notice.querySelector('strong');
+    let owner = null;
+    let unsubscribe = null;
+    function show(pending) {
+      count.textContent = pending > 0 ? pending.toLocaleString('ko-KR')+'건' : '';
+      notice.hidden = pending < 1;
+    }
+    function authorizedOwner() {
+      if (!db || !isAdmin() || !firebaseAuthUser?.emailVerified) return null;
+      const account = window.accountStore?.owner();
+      return account === firebaseAuthUser.uid ? account : null;
+    }
+    function sync() {
+      const current = authorizedOwner();
+      if (current === owner && unsubscribe) return;
+      unsubscribe?.();
+      unsubscribe = null;
+      owner = current;
+      show(0);
+      if (!owner) return;
+      unsubscribe = db.collection('inquiries').where('status','==','대기').onSnapshot({includeMetadataChanges:true}, snap => {
+        if (authorizedOwner() !== current || owner !== current || snap.metadata.fromCache || snap.metadata.hasPendingWrites) return;
+        show(snap.size);
+      }, () => {
+        if (owner !== current) return;
+        unsubscribe = null;
+        show(0);
+      });
+    }
+    notice.querySelector('button').addEventListener('click', () => {
+      if (!authorizedOwner()) return;
+      if (document.getElementById('view-admin').classList.contains('visible')) {
+        document.getElementById('adminInquiryList').openPendingInquiries?.();
+      } else {
+        goTo('admin');
+      }
+      openAndGoAdminFold('adminFoldSupport');
+      document.querySelector('#adminFoldSupport .admin-fold-toggle').focus({preventScroll:true});
+    });
+    window.addEventListener('taekilso:authChanged',sync);
+    window.addEventListener('online',sync);
+    window.addEventListener('pageshow',sync);
+    sync();
+  }, {once:true});
 }
