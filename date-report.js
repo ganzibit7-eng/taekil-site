@@ -33,10 +33,13 @@
 
   const request = (payload, token) => client.request(endpoint, payload, token);
 
-  function reportCard({report}) {
+  function reportCard({report,expiresAtMs}) {
     const box = node('article','','date-report-result');
     const title = node('h3',report.event + ' 후보일 정밀 비교');
-    box.append(title,decisionCard(report));
+    box.append(title);
+    const expiry=client.expiryNote(expiresAtMs);
+    if(expiry)box.append(expiry);
+    box.append(decisionCard(report));
     const dates = node('ol','','date-report-ranked');
     let rank = 0;
     let previous;
@@ -150,7 +153,8 @@
     const card = node('section','','date-report-offer');
     card.append(node('span','후보일 '+comparison.days.length+'개','payment-eyebrow'),
       node('h3','정밀 택일 1건권 · 3,900원'),
-      node('p','후보마다 본인·상대방의 오행 풀이, 순위가 갈린 이유와 일정 유형별 확인 사항을 확인해요. 내 기록에서 다시 열 수 있어요.'));
+      node('p','후보마다 본인·상대방의 오행 풀이, 순위가 갈린 이유와 일정 유형별 확인 사항을 확인해요.'),
+      node('p',client.retentionNotice,'report-expiry-note'));
     const confirmation = node('ul','','date-report-selection');
     for (const day of comparison.days) confirmation.append(node('li',dayLabel(day)));
     card.append(confirmation);
@@ -252,7 +256,8 @@
         if(record.state==='resume'){client.showResume(libraryStatus,record,pendingKey);return;}
         libraryStatus.textContent = record.state === 'pending'
           ? client.pendingMessage(record)
-          : record.state === 'ready' ? '정밀 택일 리포트를 내 기록에 저장했어요.' : '이전 결제는 취소되었거나 환불됐어요.';
+          : record.state === 'ready' ? '정밀 택일 리포트를 내 기록에 저장했어요.'
+            : record.state === 'expired' ? client.expiryMessage : '이전 결제는 취소되었거나 환불됐어요.';
         if (record.state !== 'pending') accountStore.removeItem(pendingKey);
       } else {
         libraryStatus.textContent = reports.length ? '최근 저장 순서로 표시해요.' : '저장한 정밀 택일 리포트가 아직 없어요.';

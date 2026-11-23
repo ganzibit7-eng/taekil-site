@@ -119,9 +119,12 @@
     return section;
   }
 
-  function reportCard(report) {
+  function reportCard(report,expiresAtMs) {
     const card = el('article','','relationship-reading');
-    card.append(el('h3','두 사람 관계 리포트'),el('p',report.summary,'relationship-summary'));
+    card.append(el('h3','두 사람 관계 리포트'));
+    const expiry=client.expiryNote(expiresAtMs);
+    if(expiry)card.append(expiry);
+    card.append(el('p',report.summary,'relationship-summary'));
     const practice = el('section');
     const practiceTitle=el('h4','실제로 써볼 대화');
     practiceTitle.tabIndex=-1;
@@ -250,7 +253,7 @@
         const data=await client.request(endpoint,{operation:'prepare',comparison:selected,checkout:true,allowResume:true},token);
         if (!accountStore.current(token) || comparison !== selected || !view.classList.contains('visible')) return false;
         if (data.state==='ready') {
-          output.replaceChildren(reportCard(data.report));
+          output.replaceChildren(reportCard(data.report,data.expiresAtMs));
           output.scrollIntoView({block:'start',behavior:'instant'});
           purchaseStatus.textContent='내 기록에 저장된 리포트를 열었어요.';
         } else if (data.state==='resume') {
@@ -269,7 +272,7 @@
     }
   });
 
-  function libraryItem({id,report,days,createdAtMs},open = false) {
+  function libraryItem({id,report,days,createdAtMs,expiresAtMs},open = false) {
     const row=el('details');
     const date=new Intl.DateTimeFormat('ko-KR',{dateStyle:'medium',timeZone:'Asia/Seoul'}).format(createdAtMs);
     const labels=days || report.people.map(person=>person.day);
@@ -284,11 +287,12 @@
       row.querySelector('[role="status"]')?.remove();
       row.append(status);
       try {
-        const result=report ? {state:'ready',report} : await client.request(endpoint,{operation:'open',id},token);
+        const result=report ? {state:'ready',report,expiresAtMs} : await client.request(endpoint,{operation:'open',id},token);
         if(!row.isConnected || !accountStore.current(token)) return;
+        if(result.state==='expired'){status.textContent=client.expiryMessage;return;}
         if(result.state!=='ready') throw new Error('현재 열람할 수 없는 리포트예요. 목록을 다시 확인해 주세요.');
         window.TaekilCampaign?.activity('read_relationship');
-        status.replaceWith(reportCard(result.report));
+        status.replaceWith(reportCard(result.report,result.expiresAtMs));
         row.removeEventListener('toggle',renderWhenOpened);
       } catch(error) {
         if(accountStore.current(token)) status.textContent=error.message+' 접었다가 다시 열면 재시도해요.';
@@ -330,7 +334,8 @@
           if (record.state==='ready') library.prepend(libraryItem(record,true));
           if(record.state==='resume'){client.showResume(libraryStatus,record,pendingKey);return;}
           libraryStatus.textContent=record.state==='pending'?client.pendingMessage(record)
-            :record.state==='ready'?'관계 리포트를 내 기록에 저장했어요.':'이전 결제는 취소되었거나 환불됐어요.';
+            :record.state==='ready'?'관계 리포트를 내 기록에 저장했어요.'
+              :record.state==='expired'?client.expiryMessage:'이전 결제는 취소되었거나 환불됐어요.';
           if (record.state!=='pending') accountStore.removeItem(pendingKey);
         }
       }

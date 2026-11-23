@@ -89,7 +89,7 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 }
 .sr-cover h2 {max-width:21ch;color:#fff8ee;font-size:clamp(25px,4.4vw,46px)}
 .sr-kicker {color:var(--sr-gold);font-weight:700;font-size:14px;margin:0 0 7px}
-.sr-cover-text>p:last-of-type {color:#f2dad4;margin:10px 0 0;font-size:14px;line-height:1.5}
+.sr-cover-metadata {color:#f2dad4;margin:10px 0 0;font-size:14px;line-height:1.5}
 .sr-personal-jump {
   min-height:44px;margin-top:15px;padding:7px 13px;border:1px solid #bc9b73;
   border-radius:7px;background:#e4c49b;color:#30202c;font:650 14px/1.5 var(--sans);
@@ -403,7 +403,7 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
   background:linear-gradient(90deg,#272321 43%,#272321ed 53%,#27232138 86%);
 }
 .seohwa-report-dialog[data-advisor] .sr-cover h2 {max-width:15ch}
-.seohwa-report-dialog[data-advisor] .sr-cover-text>p:last-of-type {color:#efddd0}
+.seohwa-report-dialog[data-advisor] .sr-cover-metadata {color:#efddd0}
 .seohwa-report-dialog[data-advisor] :is(.sr-paper,.sr-summary,.sr-wealth-ranking) {
   --report-paper:var(--wealth-paper);
   --report-ink:var(--wealth-ink);

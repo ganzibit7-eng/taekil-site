@@ -1,6 +1,21 @@
 (() => {
   'use strict';
   const checkout = window.TaekilCheckout;
+  const retentionNotice = '결제 승인일부터 1년간 열람·보관';
+  const expiryMessage = '리포트의 1년 보관 기간이 끝났어요.';
+  const koreaDateTime = new Intl.DateTimeFormat('ko-KR',{
+    dateStyle:'long',timeStyle:'short',timeZone:'Asia/Seoul'
+  });
+  function expiryNote(expiresAtMs) {
+    if(!Number.isSafeInteger(expiresAtMs)||expiresAtMs<=0)return null;
+    const note=document.createElement('p');
+    note.className='report-expiry-note';
+    const time=document.createElement('time');
+    time.dateTime=new Date(expiresAtMs).toISOString();
+    time.textContent=koreaDateTime.format(expiresAtMs);
+    note.append('열람 기한 ',time,' (한국시간)');
+    return note;
+  }
 
   async function request(endpoint, payload, token, timeout = 15000) {
     const headers = await getAiRequestHeaders();
@@ -58,5 +73,5 @@
     if(data.waiting==='deposit') return '가상계좌 입금을 기다리고 있어요. 입금 후 내 기록을 다시 확인해 주세요.';
     return '기존 주문의 결제 상태를 확인 중이에요. 내 기록에서 잠시 후 다시 확인해 주세요.';
   }
-  window.TaekilAccountReport = {request,pay,showResume,pendingMessage};
+  window.TaekilAccountReport = {request,pay,showResume,pendingMessage,retentionNotice,expiryMessage,expiryNote};
 })();
