@@ -702,6 +702,44 @@
     return controls;
   }
 
+  function addWealthReportFilm(intro, actions, entry, legend) {
+    const trigger = make('button', '12초로 보는 재물운 리포트', 'consultation-story-jump wealth-film-trigger');
+    trigger.type = 'button';
+    trigger.setAttribute('aria-haspopup', 'dialog');
+    const dialog = make('dialog', '', 'wealth-film-dialog');
+    const heading = make('h2', '도겸 재물운 리포트');
+    heading.id = 'wealthFilmTitle';
+    dialog.setAttribute('aria-labelledby', heading.id);
+    const close = make('button', '닫기', 'wealth-film-close');
+    close.type = 'button';
+    close.addEventListener('click', () => dialog.close());
+    const header = make('header');
+    header.append(heading, close);
+    const video = make('video');
+    video.controls = true;
+    video.playsInline = true;
+    video.preload = 'none';
+    const caption = make('p', '가상 사주로 계산한 리포트 예시예요. 재물 기회와 지출을 살펴볼 달을 월별로 비교해요.');
+    caption.id = 'wealthFilmCaption';
+    video.setAttribute('aria-describedby', caption.id);
+    const footer = make('footer');
+    const next = addJump(footer, '내 재물운 첫 장 보기', entry, legend);
+    next.addEventListener('click', () => dialog.close(), {capture:true});
+    dialog.append(header, video, caption, footer);
+    trigger.addEventListener('click', () => {
+      if (!video.hasAttribute('src')) {
+        const vertical = matchMedia('(max-width: 600px)').matches;
+        video.toggleAttribute('data-vertical', vertical);
+        video.src = vertical ? '/assets/dogyeom-report-film-vertical.mp4' : '/assets/dogyeom-report-film.mp4';
+      }
+      dialog.showModal();
+      video.play().catch(() => {});
+    });
+    dialog.addEventListener('close', () => video.pause());
+    actions.append(trigger);
+    intro.append(dialog);
+  }
+
   document.querySelector('#homeIntroOverlay .home-conversion-bubble')?.after(makeShareControl('yeonwoo'));
   document.querySelector('.newyear-heading [data-year-account-jump]')?.after(makeShareControl('newyear', '리포트 링크 복사'));
   const yeonwooStage = document.getElementById('homeIntroOverlay')?.closest('.ai-chat-stage');
@@ -776,6 +814,7 @@
     dock.append(dockInner);
     const legend = addChoices(entry, feature, key, question, start, context);
     addJump(actions, '내 상황 먼저 고르기', entry, legend);
+    if (key === 'wealth') addWealthReportFilm(intro, actions, entry, legend);
     if (isWedding) {
       const comparison = document.getElementById('weddingStoryComparison');
       if (comparison) {
