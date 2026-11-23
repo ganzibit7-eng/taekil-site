@@ -4,3 +4,4 @@
 
 - 로컬 미리보기와 테스트 전에는 `node render-home.cjs`로 루트의 `index.html`을 생성합니다. 이 파일은 수정하거나 커밋하지 않습니다.
 - 운영용 파일은 비어 있는 `dist`에서 `node build-public.cjs`로 만듭니다. 이 명령은 원본에서 홈을 직접 조립하므로 로컬 미리보기 파일이 없어도 됩니다.
+- 홈 후기 배너에 게시할 문구는 `src/home/approved-reading-reviews.json`에 `topic`과 `quote`로 추가합니다. 지원 주제는 `wedding`, `reunion`, `saving`입니다. 홈페이지 공개에 동의한 이용자의 익명 인용문만 넣고, 고객 정보와 동의 기록은 이 파일에 저장하지 않습니다. 빈 목록이면 기존 풀이 예시를 보여줍니다.

@@ -106,6 +106,20 @@ test('the public career preview identifies the same specialist as its action', (
   assert.match(html, /id="uiDemoTitle"/);
 });
 
+test('the home banner links to labeled examples directly above the chat section', () => {
+  const html = readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  const reviews = JSON.parse(readFileSync(path.join(__dirname, 'src/home/approved-reading-reviews.json'), 'utf8'));
+  const banner = html.match(/<aside class="directory-banner"[\s\S]+?<\/aside>/)?.[0];
+  assert.ok(banner);
+  assert.match(html, /<\/aside>\s*<header class="directory-chat-intro">/);
+  assert.ok(banner.includes('id="directoryBannerTitle">' + (reviews.length ? '이용자 후기' : '풀이 예시')));
+  assert.equal(banner.includes('data-banner-fixed'), reviews.length > 0 && reviews.length < 3);
+  for (const topic of reviews.length ? reviews.map(review => review.topic) : ['wedding', 'reunion', 'saving']) {
+    const anchor = topic === 'wedding' ? 'wedding' : 'directoryPreviewTitle';
+    assert.ok(banner.includes('href="#' + anchor + '" data-banner-topic="' + topic + '"'));
+  }
+});
+
 test('home and story previews quote current recorded answers for all specialist topics', () => {
   const html = readFileSync(path.join(__dirname, 'index.html'), 'utf8');
   const { examples } = JSON.parse(readFileSync(path.join(__dirname, 'content/home-consultation-previews.json'), 'utf8'));

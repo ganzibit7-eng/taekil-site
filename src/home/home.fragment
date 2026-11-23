@@ -66,6 +66,7 @@
     </section>
 
     <section class="directory-section directory-chat-mode" aria-labelledby="directoryChatTitle">
+      <!-- directory-reading-banner -->
       <header class="directory-chat-intro">
         <div class="directory-mode-heading">
           <h2 id="directoryChatTitle" tabindex="-1">채팅 상담</h2>
@@ -207,12 +208,12 @@
               <button class="directory-preview-action" type="button" data-consultation-example="career">무진의 직업·이직 리포트 보기</button>
             </div>
             <div class="directory-preview-reading" id="directoryPreviewReunion" data-preview-panel="reunion" hidden>
-              <h3>헤어진 사람에게 다시 연락할지 고민이에요. 제 사주에서 관계를 돌아보는 관점과 연락을 결정할 기준을 알려주세요.</h3>
+              <h3 tabindex="-1">헤어진 사람에게 다시 연락할지 고민이에요. 제 사주에서 관계를 돌아보는 관점과 연락을 결정할 기준을 알려주세요.</h3>
               <!-- reading-sample reunion -->
               <button class="directory-preview-action" type="button" data-consultation-example="reunion">이준의 재회운 리포트 보기</button>
             </div>
             <div class="directory-preview-reading" id="directoryPreviewSaving" data-preview-panel="saving" hidden>
-              <h3>야근 뒤 배달을 시킬 때 배달비를 아끼려다 음식을 더 담아요. 제 사주를 바탕으로 주문 직전에 써볼 소비 기준을 알려주세요.</h3>
+              <h3 tabindex="-1">야근 뒤 배달을 시킬 때 배달비를 아끼려다 음식을 더 담아요. 제 사주를 바탕으로 주문 직전에 써볼 소비 기준을 알려주세요.</h3>
               <!-- reading-sample saving -->
               <button class="directory-preview-action" type="button" data-home-consultation data-consultation-example="saving">다온에게 소비 습관 상담하기</button>
             </div>

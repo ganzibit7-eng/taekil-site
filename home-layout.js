@@ -86,6 +86,36 @@
         for (const button of exampleChoices) button.setAttribute('aria-pressed', String(button === choice));
       });
     }
+    for (const link of document.querySelectorAll('#homeDirectory [data-banner-topic]')) {
+      link.addEventListener('click', event => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        const topic = link.dataset.bannerTopic;
+        let heading;
+        if (topic === 'wedding') {
+          const title = document.getElementById('directoryWeddingExampleTitle');
+          if (!title || typeof goTo !== 'function') return;
+          event.preventDefault();
+          goTo('wedding');
+          heading = title;
+        } else {
+          const choice = exampleChoices.find(button => button.dataset.previewChoice === topic);
+          const panel = choice && document.getElementById(choice.getAttribute('aria-controls'));
+          const title = panel?.querySelector('h3');
+          if (!title) return;
+          event.preventDefault();
+          choice.closest('details').open = true;
+          choice.click();
+          heading = title;
+        }
+        const behavior = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth';
+        // The story's route observer first focuses its introductory heading.
+        requestAnimationFrame(() => {
+          if (!heading.closest('.view.visible')) return;
+          heading.focus({ preventScroll: true });
+          heading.scrollIntoView({ block: 'start', behavior });
+        });
+      });
+    }
     const recent = document.getElementById('directoryRecent');
     if (recent && recent.querySelector && window.accountStore) {
       const store = window.accountStore;
