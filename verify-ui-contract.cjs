@@ -54,10 +54,11 @@ function historicalAttributes(attrs) {
 }
 // Exact approved changes to pricing and premium quota displays.
 const pricingChanges=JSON.parse(fs.readFileSync('pricing-ui-contract-changes.json','utf8'));
+const reportLibraryChanges=JSON.parse(fs.readFileSync('report-library-ui-contract-changes.json','utf8'));
 const normalizedScripts=originalScripts.map(([a,b])=>[historicalAttributes(a),normalizeSeasonal(normalizeStandalone(normalizeInsightPreview(b.replace("    <div class=\"checkout-connection\"><span role=\"status\">구매 가능 여부를 확인하고 있어요.</span><span role=\"status\">구매 가능 여부를 확인하지 못했어요.</span><button type=\"button\" onclick=\"TaekilCheckout.retry()\">다시 확인</button></div>\n",''))))]);
-for(const [after,before] of pricingChanges){
+for(const [after,before] of [...pricingChanges,...reportLibraryChanges]){
  const entries=normalizedScripts.filter(([,body])=>body.includes(after));
- assert.equal(entries.length,1,'Expected one approved pricing or quota change: '+after.slice(0,160));
+ assert.equal(entries.length,1,'Expected one recorded UI change: '+after.slice(0,160));
  assert.equal(entries[0][1].split(after).length,2,'Approved change must match only once');
  entries[0][1]=entries[0][1].replace(after,()=>before);
 }

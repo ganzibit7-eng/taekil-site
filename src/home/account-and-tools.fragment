@@ -257,8 +257,8 @@
   <header class="hero hero-sm">
     <div class="hero-inner">
       <div class="eyebrow">내 기록</div>
-      <h1 style="font-size:clamp(28px,4.6vw,46px);">찾아본 날짜와<br>저장한 사주를 한곳에</h1>
-      <p class="hero-copy">상담사와 나눈 대화를 다시 열고, 택일 검색 기록과 저장한 사주를 한곳에서 관리할 수 있어요.</p>
+      <h1 style="font-size:clamp(28px,4.6vw,46px);">상담과 리포트 보관함</h1>
+      <p class="hero-copy">구매한 리포트와 지난 상담을 다시 열고, 저장한 사주와 날짜를 관리할 수 있어요.</p>
     </div>
   </header>
 
@@ -286,12 +286,13 @@
       </div>
 
       <div class="history-tabbar" role="tablist" aria-label="기록 종류">
-        <button id="historyTabAi" class="history-tab active" role="tab" aria-selected="true" onclick="switchHistoryTab('ai')">AI 상담</button>
-        <button id="historyTabSearch" class="history-tab" role="tab" aria-selected="false" onclick="switchHistoryTab('search')">검색 기록</button>
-        <button id="historyTabVault" class="history-tab" role="tab" aria-selected="false" onclick="switchHistoryTab('vault')">사주 보관함</button>
+        <button id="historyTabAi" class="history-tab active" role="tab" aria-selected="true" aria-controls="historyAiPanel" onclick="switchHistoryTab('ai')">AI 상담</button>
+        <button id="historyTabReports" class="history-tab" role="tab" aria-selected="false" aria-controls="historyReportsPanel" onclick="switchHistoryTab('reports')">구매한 리포트</button>
+        <button id="historyTabSearch" class="history-tab" role="tab" aria-selected="false" aria-controls="historySearchPanel" onclick="switchHistoryTab('search')">검색 기록</button>
+        <button id="historyTabVault" class="history-tab" role="tab" aria-selected="false" aria-controls="historyVaultPanel" onclick="switchHistoryTab('vault')">사주 보관함</button>
       </div>
 
-      <div id="historySearchPanel" class="history-panel">
+      <div id="historySearchPanel" class="history-panel" role="tabpanel" aria-labelledby="historyTabSearch">
         <div class="history-panel-head">
           <div>
             <b>택일 검색 기록</b>
@@ -307,7 +308,7 @@
         </div>
       </div>
 
-      <div id="historyVaultPanel" class="history-panel">
+      <div id="historyVaultPanel" class="history-panel" role="tabpanel" aria-labelledby="historyTabVault">
         <div class="saju-vault-card history-vault-card">
           <div class="saju-vault-head">
             <div>
@@ -334,7 +335,7 @@
         </div>
       </div>
 
-      <div id="historyAiPanel" class="history-panel active">
+      <div id="historyAiPanel" class="history-panel active" role="tabpanel" aria-labelledby="historyTabAi">
         <div class="history-panel-head">
           <div>
             <b>AI 상담 기록</b>
@@ -365,24 +366,47 @@
         </div>
       </div>
 
-      <section class="date-report-library" aria-labelledby="dateReportLibraryTitle">
-        <h2 id="dateReportLibraryTitle">정밀 택일 리포트</h2>
-        <p id="dateReportLibraryStatus" role="status">구매하거나 저장한 후보일 비교를 여기서 다시 읽을 수 있어요.</p>
-        <button type="button" id="dateReportLoadLibrary" class="btn">저장한 택일 리포트 보기</button>
-        <div id="dateReportList"></div>
-      </section>
-      <section class="date-report-library" aria-labelledby="relationshipLibraryTitle">
-        <h2 id="relationshipLibraryTitle">두 사람 관계 리포트</h2>
-        <p id="relationshipLibraryStatus" role="status">구매한 관계 리포트를 여기서 다시 읽을 수 있어요.</p>
-        <button type="button" id="relationshipLoadLibrary" class="btn">저장한 관계 리포트 보기</button>
-        <div id="relationshipLibraryList" class="relationship-library-list"></div>
-      </section>
-      <section class="date-report-library" id="seohwaLibrary" aria-labelledby="seohwaLibraryTitle">
-        <h2 id="seohwaLibraryTitle">나의 사주 리포트</h2>
-        <p id="seohwaLibraryStatus" role="status">구매한 리포트를 여기서 다시 읽을 수 있어요.</p>
-        <button type="button" id="loadSeohwaReports" class="btn">구매한 리포트 보기</button>
-        <div id="seohwaReportList"></div>
-      </section>
+      <div id="historyReportsPanel" class="history-panel" role="tabpanel" aria-labelledby="historyTabReports">
+        <section class="date-report-library" id="seohwaLibrary" aria-labelledby="seohwaLibraryTitle">
+          <div class="history-report-header">
+            <div>
+              <h2 id="seohwaLibraryTitle">나의 사주 리포트</h2>
+              <p id="seohwaLibraryStatus" role="status">서화 · 도겸 · 이준 · 무진</p>
+            </div>
+            <button type="button" id="loadSeohwaReports" class="btn">사주 리포트 보기</button>
+          </div>
+          <div id="seohwaReportList"></div>
+        </section>
+        <section class="date-report-library" aria-labelledby="savedAnnualReportTitle">
+          <div class="history-report-header">
+            <div>
+              <h2 id="savedAnnualReportTitle">2027 신년운세</h2>
+              <p>연우가 풀어주는 열두 달의 흐름</p>
+            </div>
+            <button type="button" class="btn" data-year-account-entry>신년 리포트 보기</button>
+          </div>
+        </section>
+        <section class="date-report-library" aria-labelledby="relationshipLibraryTitle">
+          <div class="history-report-header">
+            <div>
+              <h2 id="relationshipLibraryTitle">두 사람 관계 리포트</h2>
+              <p id="relationshipLibraryStatus" role="status">잘 맞는 점과 서로 엇갈리는 상황</p>
+            </div>
+            <button type="button" id="relationshipLoadLibrary" class="btn">관계 리포트 보기</button>
+          </div>
+          <div id="relationshipLibraryList" class="relationship-library-list"></div>
+        </section>
+        <section class="date-report-library" aria-labelledby="dateReportLibraryTitle">
+          <div class="history-report-header">
+            <div>
+              <h2 id="dateReportLibraryTitle">정밀 택일 리포트</h2>
+              <p id="dateReportLibraryStatus" role="status">저장한 후보일과 날짜별 비교</p>
+            </div>
+            <button type="button" id="dateReportLoadLibrary" class="btn">택일 리포트 보기</button>
+          </div>
+          <div id="dateReportList"></div>
+        </section>
+      </div>
     </div>
   </section>
 </section>
@@ -416,8 +440,9 @@
       <section class="pf-panel" aria-labelledby="profileLibraryHeading">
         <h2 id="profileLibraryHeading">내 리포트와 기록</h2>
         <div class="pf-menu">
-          <button type="button" class="pf-menu-item" data-open-newyear>2027 신년운세</button>
-          <button type="button" class="pf-menu-item" onclick="goTo('history')">상담·리포트·사주 보관함</button>
+          <button type="button" class="pf-menu-item" onclick="openReportHistory()">구매한 리포트</button>
+          <button type="button" class="pf-menu-item" data-year-account-entry>2027 신년운세</button>
+          <button type="button" class="pf-menu-item" onclick="goTo('history')">상담·사주 보관함</button>
           <button type="button" class="pf-menu-item" onclick="goTo('support')">고객센터 · 1:1 문의</button>
           <div id="adminEntryWrap" style="display:none;">
             <button type="button" class="pf-menu-item" onclick="goTo('admin')">관리자 대시보드</button>

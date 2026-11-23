@@ -304,7 +304,10 @@
     const row=el('details');
     const date=new Intl.DateTimeFormat('ko-KR',{dateStyle:'medium',timeZone:'Asia/Seoul'}).format(createdAtMs);
     const labels=days || report.people.map(person=>person.day);
-    row.append(el('summary',date+' · '+labels.join(' · ')+(adminPreview?' · 관리자용':'')));
+    const summary=el('summary',date+' · '+labels.join(' · ')+(adminPreview?' · 관리자용':''));
+    const expiry=client.libraryExpiry(expiresAtMs);
+    if(expiry)summary.append(expiry);
+    row.append(summary);
     const token=accountStore.snapshot();
     let busy=false;
     row.addEventListener('toggle',async function renderWhenOpened(){
@@ -379,7 +382,7 @@
     if (!accountStore.owner() || !url.searchParams.has('relationshipReport')) return;
     url.searchParams.delete('relationshipReport');
     history.replaceState(null,'',url);
-    goTo('history');
+    openReportHistory();
     void loadLibrary();
     field('relationshipLibraryTitle').scrollIntoView({block:'start',behavior:'instant'});
   }

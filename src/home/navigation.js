@@ -174,13 +174,15 @@ function goTo(route, presetEvent, navigationOptions) {
     if (anchor) anchor.style.display = 'block'; // 홈 카드 등에서 특정 목적을 지정하고 들어온 경우 바로 폼을 보여줍니다.
   }
   if (route === 'history') {
-    loadHistory();
-    updateHistoryCounts();
+    loadHistory(navigationOptions?.historyTab);
   }
   if (route === 'home' && typeof fillAiChatDateSelects === 'function') { fillAiChatDateSelects(); updateHomeGuestHint(); }
   if (route === 'profile') renderProfile();
   if (route === 'admin') renderAdmin();
   if (route === 'support') renderSupportList();
+}
+function openReportHistory() {
+  goTo('history', undefined, {historyTab:'reports'});
 }
 function safeRoute(route) {
   return document.getElementById('view-' + route) ? route : 'home';

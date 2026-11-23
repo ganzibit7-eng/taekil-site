@@ -1303,7 +1303,8 @@
   }
 
   async function reopen(id,owner,status,reading) {
-    const visible=()=>accountStore.current(owner)&&by('view-history').classList.contains('visible');
+    const visible=()=>accountStore.current(owner)&&by('view-history').classList.contains('visible')&&
+      by('historyReportsPanel').classList.contains('active');
     try{
       const result=await request(reading,{operation:'open',id,allowResume:true},owner);
       if(!visible())return;
@@ -1329,8 +1330,11 @@
       const rows=reports.map(record=>{
         const date=new Intl.DateTimeFormat('ko-KR',{dateStyle:'medium',timeZone:'Asia/Seoul'}).format(record.createdAtMs);
         const reading=catalog.forId(record.consultantId);
-        return button(reading.name+' · '+reading.stories[record.choice].label+' · '+date+(record.adminPreview?' · 관리자용':''),
+        const row=button(reading.name+' · '+reading.stories[record.choice].label+' · '+date+(record.adminPreview?' · 관리자용':''),
           'sr-library-button',()=>reopen(record.id,owner,libraryStatus,reading));
+        const expiry=client.libraryExpiry(record.expiresAtMs);
+        if(expiry)row.append(expiry);
+        return row;
       });
       for(const reading of catalog.all){
         const pending=accountStore.getItem(pendingKey(reading));
@@ -1470,7 +1474,7 @@
     note.dataset.reportChatAccess='';
     const links=el('div',null,'sr-chat-access');
     links.append(button('리포트 첫 장 보기','sr-secondary',()=>goTo('topic-'+reading.topic)),
-      button('구매한 리포트 보기','sr-secondary',()=>goTo('history')));
+      button('구매한 리포트 보기','sr-secondary',openReportHistory));
     note.append(links);
   }
   function recordScope() {

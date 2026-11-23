@@ -439,9 +439,13 @@
     }
   }
   refresh.addEventListener('click',load);
-  view.querySelector('[data-year-account-jump]').addEventListener('click',()=>{
+  function jumpToAccount(){
     account.focus({preventScroll:true});
     account.scrollIntoView({block:'start',behavior:'instant'});
+  }
+  view.querySelector('[data-year-account-jump]').addEventListener('click',jumpToAccount);
+  document.querySelectorAll('[data-year-account-entry]').forEach(entry=>{
+    entry.addEventListener('click',()=>{openYear();jumpToAccount();});
   });
   document.querySelectorAll('[data-open-newyear]').forEach(b=>b.addEventListener('click',openYear));
   const observe=new MutationObserver(()=>{const next=view.classList.contains('visible');if(next!==active){active=next;if(active)load();else{++version;clearTimeout(timer);stopProgress();}}});observe.observe(view,{attributes:true,attributeFilter:['class']});
