@@ -41,22 +41,35 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 .sr-toolbar #closeSeohwaReport {flex:none}
 .seohwa-report-dialog[data-advisor] .sr-toc {scroll-margin-top:10px}
 .seohwa-report-dialog .report-personal-motif {margin-top:8px}
-.sr-paper .sr-asset-reading {
-  margin-top:24px;
-  padding:clamp(14px,3.5vw,26px);
-  box-shadow:none;
+.sr-asset-reading {
+  margin-block:18px;
+  padding:clamp(16px,4vw,34px);
   background:#faf3ea;
 }
-.sr-asset-reading h3 {font-size:clamp(20px,3.6vw,27px)}
+.sr-asset-reading h3 {margin:0 0 8px;color:var(--report-title);font:650 clamp(24px,4vw,32px)/1.4 var(--serif)}
+.sr-asset-reading h4 {margin:0 0 9px;color:#405d4d;font-size:17px}
+.sr-asset-group[data-kind="avoid"] h4 {color:#87453e}
+.sr-asset-group {margin:20px 0}
+.sr-asset-quick {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:10px}
+.sr-asset-card {min-width:0;padding:13px 14px;border:1px solid #c9d0c2;border-radius:7px;background:#f8f7ef}
+.sr-asset-group[data-kind="avoid"] .sr-asset-card {border-color:#dac3b7;background:#fcf2ec}
+.sr-asset-card h5 {margin:0 0 7px;color:#42352f;font-size:16px;font-weight:700}
+.sr-asset-card p {margin:7px 0;font-size:14px;line-height:1.7}
+.sr-asset-card p.sr-asset-trait {color:#70564e;font-size:13px}
+.sr-asset-card .sr-asset-month {display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:3px 8px;color:#3d5b49;border-bottom:1px solid #d6cdbf;padding-bottom:4px;font-size:13px}
+.sr-asset-group[data-kind="avoid"] .sr-asset-month {color:#87453e}
+.sr-asset-month strong {font-size:18px}
+.sr-asset-card details {margin-top:8px;padding:4px 0 0}
+.sr-asset-card details p {font-size:13px}
 .sr-asset-reading p.sr-asset-priority {font-weight:700;color:#583f31}
-.sr-asset-reading p.sr-asset-basis {font-size:13px;color:#6c5545}
-.sr-asset-reading dl {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:16px 0}
+.sr-asset-reading p.sr-asset-basis {margin:8px 0;font-size:13px;color:#6c5545}
+.sr-asset-comparison {margin:14px 0}
+.sr-asset-comparison summary {min-height:44px;padding:9px 0;color:#654638;font-weight:650;cursor:pointer}
+.sr-asset-comparison dl {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:6px 0 16px}
 .sr-asset-reading dl>div {padding:12px;border:1px solid #d5c3b3;border-radius:6px}
 .sr-asset-reading dt {font-weight:700;color:#654638}
 .sr-asset-reading dd {margin:4px 0 0;line-height:1.7}
-.sr-asset-reading aside {padding:12px 14px;border-left:3px solid #9d6650;background:#f2e4d8}
-.sr-asset-reading aside p {margin:6px 0}
-@media(max-width:660px){.sr-asset-reading dl {grid-template-columns:minmax(0,1fr)}}
+@media(max-width:660px){.sr-asset-quick,.sr-asset-comparison dl {grid-template-columns:minmax(0,1fr)}}
 .sr-toolbar {
   position:sticky;
   inset-block-start:0;

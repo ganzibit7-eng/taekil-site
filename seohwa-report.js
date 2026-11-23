@@ -252,7 +252,7 @@
     }
     list.append(rows);
     if(comparisonHeading){
-      list.append(button('세 가지 선택 비교','sr-jump sr-choice-shortcut',()=>{
+      list.append(button(reading.id==='dogyeom'?'나의 재테크 비교':'세 가지 선택 비교','sr-jump sr-choice-shortcut',()=>{
         comparisonHeading.focus({preventScroll:true});
         comparisonHeading.scrollIntoView({block:'start',behavior:'instant'});
       }));
@@ -1059,25 +1059,55 @@
     return panel;
   }
 
+  function assetTiming(card,isCaution){
+    const item=el('article',null,'sr-asset-card');
+    const timing=card.timing;
+    const label=el('p',null,'sr-asset-month');
+    label.append(el('span',isCaution?'특히 신중할 때':'조건을 살펴보기 좋은 때'),el('strong',timing.month+'월'));
+    item.append(el('h5',card.label),label);
+    if(card.natalMeaning)item.append(el('p','내 사주에서 읽은 점 · '+card.natalMeaning,'sr-asset-trait'));
+    item.append(el('p',timing.month+'월에는 '+timing.meaning+'을 살펴봐요.'),el('p',card.action));
+    const details=el('details',null,'sr-evidence');
+    details.append(el('summary','사주 근거와 절기 구간'),el('p','원국 · '+card.natalFact),el('p','월운 · '+timing.fact));
+    if(timing.from&&timing.untilExclusive)details.append(el('p',timing.from+'부터 '+timing.untilExclusive+' 직전까지'));
+    item.append(details,button(timing.month+'월 풀이 보기','sr-choice-month-link',()=>{
+      const month=body.querySelector('[aria-controls="wealthMonthDetail"][data-month="'+timing.month+'"]');
+      if(!month)return;
+      month.click();
+      const detail=by('wealthMonthDetail').querySelector('h6');
+      if(detail){detail.tabIndex=-1;detail.focus({preventScroll:true});}
+      by('wealthMonthDetail').scrollIntoView({block:'start',behavior:'instant'});
+    }));
+    return item;
+  }
   function assetReading(guide){
     const section=el('section',null,'sr-asset-reading report-sheet');
-    section.append(el('p','재물을 굴리는 방식','report-folio'),el('h3','주식·부동산·가상자산'),
-      el('p',guide.priority,'sr-asset-priority'),el('p','원국에서 읽은 단서 · '+guide.basis,'sr-asset-basis'));
+    const heading=el('h3','나의 재테크 비교');
+    heading.tabIndex=-1;
+    section.append(el('p',guide.year?'재물을 굴리는 방식 · '+guide.year+'년':'재물을 굴리는 방식','report-folio'),heading,
+      el('p','원국에서 읽은 단서 · '+guide.basis,'sr-asset-basis'));
+    for(const [key,title] of [['consider','먼저 살펴볼 방식'],['avoid','특히 피할 행동']]){
+      const cards=guide[key]||[];
+      if(!cards.length)continue;
+      const group=el('section',null,'sr-asset-group');
+      group.dataset.kind=key;
+      const row=el('div',null,'sr-asset-quick');
+      for(const card of cards)row.append(assetTiming(card,key==='avoid'));
+      group.append(el('h4',title+' '+cards.length+'가지'),row);
+      section.append(group);
+    }
+    if(guide.priority)section.append(el('p',guide.priority,'sr-asset-priority'));
+    const comparison=el('details',null,'sr-asset-comparison');
+    comparison.append(el('summary','재테크 방식 '+guide.assets.length+'가지 비교'));
     const list=el('dl');
     for(const asset of guide.assets){
       const item=el('div');
       item.append(el('dt',asset.label),el('dd',asset.reading));
       list.append(item);
     }
-    section.append(list);
-    if(guide.risk){
-      const caution=el('aside');
-      caution.append(el('strong','특히 신중할 구간 · '+guide.risk.title),el('p',guide.risk.reading),
-        el('p','월운 근거 · '+guide.risk.basis,'sr-asset-basis'));
-      section.append(caution);
-    }
-    section.append(el('p','전통 명리학으로 읽은 운용 성향이에요. 투자 결정에는 실제 자금 사정과 자산 정보를 함께 살펴보세요.','sr-asset-basis'));
-    return section;
+    comparison.append(list);
+    section.append(comparison,el('p','이 시기는 내 판단 습관과 자금 조건을 돌아보는 전통 명리 풀이예요. 실제 투자에는 생활비와 손실 감당 범위를 먼저 살펴봐요.','sr-asset-basis'));
+    return {panel:section,heading};
   }
 
   function drawPurchased(result,host,owner,reading) {
@@ -1142,7 +1172,12 @@
         if(!report.calendar.pillars.month||!report.calendar.pillars.year)natal.append(el('p','출생 시각에 따라 달라지는 기둥은 제외했어요.'));
         summary.append(natal);
       }
-      front.push(summary,wealthRanking(report.calendar));
+      front.push(summary);
+      if(report.calendar.assetGuide){
+        choiceSection=assetReading(report.calendar.assetGuide);
+        front.push(choiceSection.panel);
+      }
+      front.push(wealthRanking(report.calendar));
     }
     front.splice(1,0,natalChart);
     contents.append(balance);
@@ -1175,7 +1210,10 @@
         page.querySelector('.sr-evidence')?.before(jump);
       }
       if(index===2&&report.calendar)page.querySelector('.sr-evidence')?.before(calendarArticle(report.calendar));
-      if(index===4&&paidWealth&&report.calendar.assetGuide)page.append(assetReading(report.calendar.assetGuide));
+      if(index===4&&paidWealth&&choiceSection)page.append(button('나의 재테크 비교 다시 보기','sr-ask',()=>{
+        choiceSection.heading.focus({preventScroll:true});
+        choiceSection.heading.scrollIntoView({block:'start',behavior:'instant'});
+      }));
       if(index===5&&report.calendar?.outlook)page.querySelector('.sr-evidence')?.before(wealthOutlook(report.calendar.outlook,report.calendar));
       if(index===5&&paidWealth&&report.calendar.outlook){
         const c=report.calendar,year=c.outlook.years[0],cycles=c.daewoon?.cycles||[];
