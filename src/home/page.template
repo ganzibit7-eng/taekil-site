@@ -289,13 +289,13 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 
 <link rel="stylesheet" href="consultation-stage.css?v=chat-layers-1121">
 <script src="consultation-personas.js?v=20261118-chat-films"></script>
-<link rel="stylesheet" href="consultation-stories.css?v=dogyeom-film-1">
+<link rel="stylesheet" href="consultation-stories.css?v=dogyeom-film-2">
 <script src="consultation-additional-stories.js?v=20261118-questions"></script>
 <!-- story-reading-templates -->
 <script src="seohwa-reading-core.js?v=4"></script>
 <script src="wealth-interactions.js?v=wealth8"></script>
 <script src="featured-report-core.js?v=wealth-price-2"></script>
-<script src="consultation-stories.js?v=dogyeom-film-1"></script>
+<script src="consultation-stories.js?v=dogyeom-film-2"></script>
 <dialog id="seohwaReportDialog" class="seohwa-report-dialog" aria-label="서화의 연애 리포트">
   <div class="sr-toolbar">
     <span>서화의 연애 리포트</span>

@@ -722,7 +722,7 @@
     const caption = make('p', '가상 사주로 계산한 리포트 예시예요. 재물 기회와 지출을 살펴볼 달을 월별로 비교해요.');
     caption.id = 'wealthFilmCaption';
     video.setAttribute('aria-describedby', caption.id);
-    const footer = make('footer');
+    const footer = make('div', '', 'wealth-film-actions');
     const next = addJump(footer, '내 재물운 첫 장 보기', entry, legend);
     next.addEventListener('click', () => dialog.close(), {capture:true});
     dialog.append(header, video, caption, footer);
