@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="format-detection" content="telephone=no">
 <script src="/home-layout.js?v=reading-banner-1"></script>
 <link rel="stylesheet" href="/home-layout.css?v=paid-tools-1">
 <title>택일소 | 무료 사주 · 주제별 리포트 · AI 상담과 택일</title>
@@ -315,7 +316,11 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <video data-advisor="mujin" data-story-preview-video data-video-src="/assets/consultant-mujin-chapter-film.mp4" aria-hidden="true" muted loop playsinline preload="none" hidden></video>
   </div>
 </dialog>
-<link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=free-progress-1"></script><script src="premium-motion.js" defer></script>
+<figure id="newyearExampleDawn" class="newyear-example-dawn yeonwoo-video-frame" hidden>
+  <img src="/assets/newyear-hanok-dawn.webp" width="960" height="540" loading="lazy" decoding="async" alt="">
+  <video class="yeonwoo-story-video" data-year-example-video data-video-src="/assets/newyear-hanok-dawn.mp4" aria-hidden="true" muted playsinline preload="none"></video>
+</figure>
+<link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=newyear-dawn-1"></script><script src="premium-motion.js" defer></script>
 <script src="consultation-draft-core.js?v=featured-report-1"></script>
 <script src="consultation-stage.js?v=footer-flow-2"></script>
 <script src="consultation-history-filters.js?v=20261120-history-filters"></script>
@@ -326,8 +331,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="navigation-stability.js?v=20261111-2"></script>
 <link rel="stylesheet" href="report-pillar-guide.css?v=report-paper-1">
 <script src="report-pillar-guide.js?v=report-paper-1"></script>
-<link rel="stylesheet" href="newyear-consultation.css?v=paper-1">
-<script src="newyear-consultation.js?v=report-paper-1"></script><script src="newyear-example.js?v=home-paths-1"></script>
+<link rel="stylesheet" href="newyear-consultation.css?v=newyear-dawn-1">
+<script src="newyear-consultation.js?v=report-paper-1"></script><script src="newyear-example.js?v=newyear-dawn-1"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=free-progress-1">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
 <script src="free-report-handoff.js?v=home-paths-1"></script>

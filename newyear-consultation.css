@@ -89,8 +89,27 @@
 }
 .newyear-example-index strong { color: #cfb785; font-weight: 500; }
 .newyear-example-body .directory-preview-action { margin-top: 14px; }
+.newyear-example-heading {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+  align-items: center;
+  gap: clamp(16px,4vw,36px);
+  margin-bottom: 14px;
+}
+.newyear-example-heading h2 { margin: 0 0 10px; word-break: keep-all; }
+.newyear-example-heading .newyear-example-intro { margin: 0; font-size: 15px; }
+.newyear-example-dawn {
+  margin: 0;
+  aspect-ratio: 16 / 9;
+  border: 1px solid #665344;
+  border-radius: 9px;
+  background: #31281f;
+}
+.newyear-example-dawn img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.newyear-example-dawn video { object-position: center; }
 @media(max-width:600px) {
   #view-newyear .newyear-example { margin: 16px 0 26px; padding: 20px 0; }
+  .newyear-example-heading { grid-template-columns: minmax(0,1fr); gap: 14px; margin-bottom: 6px; }
 }
 .newyear-focus-list {display:grid;gap:10px;margin:12px 0;padding-inline-start:22px}
 .newyear-focus-list li {padding:8px 0;border-bottom:1px solid #9c80674d;word-break:keep-all}
