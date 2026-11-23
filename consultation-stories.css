@@ -145,7 +145,7 @@
   aspect-ratio: 9 / 16;
 }
 .consultation-story-intro .wealth-film-dialog p { margin: 10px 0 14px; color: #dacdc4; font: 400 14px/1.6 var(--sans); }
-.wealth-film-dialog footer { display: flex; justify-content: flex-end; }
+.wealth-film-actions { display: flex; justify-content: flex-end; }
 :is(.consultation-story-jump,.consultation-story-answer-link) {
   display: inline-flex;
   align-items: center;
