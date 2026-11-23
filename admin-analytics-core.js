@@ -20,6 +20,31 @@
     return millis(o.createdAtMs)||millis(o.createdAt);
   }
   function keys(end,days){const t=Date.parse(end+'T00:00:00+09:00');return Array.from({length:days},(_,i)=>dateKey(t-(days-1-i)*86400000));}
+  function mergeOrderSnapshots(snapshots,limit){
+    const documents=new Map();
+    for(const {docs} of snapshots){
+      for(const doc of docs.slice(0,limit))documents.set(doc.id,doc);
+    }
+    return {docs:[...documents.values()],capped:snapshots.some(({docs})=>docs.length>limit)};
+  }
+  function trafficBreakdown(rows){
+    const categories=[
+      ['검색','search',[['Google','google'],['네이버','naver'],['기타 검색','otherSearch']]],
+      ['SNS','sns',[['Threads','threads'],['Instagram','instagram'],['Facebook','facebook'],['카카오','kakao'],['기타 SNS','otherSns']]],
+      ['직접 방문','direct',[]],
+      ['기타','other',[]]
+    ];
+    const totalOf=key=>rows.reduce((total,row)=>total+number(row[key]),0);
+    const groups=categories.map(([name,key])=>({name,value:totalOf(key)}));
+    const channels=categories.flatMap(([name,key,sources])=>{
+      const count=totalOf(key);
+      if(!sources.length)return [{name,value:count}];
+      const named=sources.map(([label,field])=>({name:label,value:totalOf(field)}));
+      const remaining=count-named.reduce((total,source)=>total+source.value,0);
+      return remaining>0?[...named,{name:name+' · 세부 정보 없음',value:remaining}]:named;
+    }).filter(row=>row.value>0);
+    return {groups,channels,total:totalOf('total')||groups.reduce((total,row)=>total+row.value,0)};
+  }
   function aggregate(data,start,end){
     const inRange=k=>k>=start&&k<=end;
     const sum=(rows,key)=>rows.filter(r=>inRange(r.date||r.id)).reduce((n,r)=>n+number(r[key]),0);
@@ -34,7 +59,9 @@
     const revenue=paid.reduce((n,o)=>n+number(o.amount),0);
     const productRows=Object.keys(products).map(id=>({id,name:products[id],count:paid.filter(o=>o.product===id).length,revenue:paid.filter(o=>o.product===id).reduce((n,o)=>n+number(o.amount),0)}));
     const unknown=paid.filter(o=>!products[o.product]);if(unknown.length)productRows.push({id:'other',name:'기타 상품',count:unknown.length,revenue:unknown.reduce((n,o)=>n+number(o.amount),0)});
-    const traffic=['search','sns','direct','other'].map((key,i)=>({name:['검색','SNS','직접','기타'][i],value:sum(data.traffic,key)}));
+    const {groups:traffic,channels:trafficChannels,total:trafficTotal}=trafficBreakdown(data.traffic.filter(row=>inRange(row.date||row.id)));
+    const transactions=paid.map(o=>({product:products[o.product]||'기타 상품',amount:number(o.amount),time:orderTime(o),
+      status:o.entitlementReviewRequired===true?'승인 · 지급 확인 필요':'승인 완료'})).sort((a,b)=>b.time-a.time);
     const events=['fortuneResults','aiCtaClicks','signups','firstAiAnswers','freeLimitExhausted','purchases'].map((key,i)=>({name:['오늘 운세 결과','연우 CTA 클릭','신규 가입 이벤트','첫 AI 답변','무료 3회 소진','결제 완료 이벤트'][i],value:sum(data.funnel,key)}));
     const reportFields=['freeReportViews','freeReportCompleted','reportCtaClicks','reportQuestionClicks','reportSignupStarts','reportSignups','reportFirstQuestions'];
     const reportEvents=reportFields.map((key,i)=>({name:['무료 기본 결과 확인','결과 하단 도달','연우 CTA 선택','추천 질문 선택','리포트에서 로그인 시작','리포트 유입 신규 가입','이어진 첫 상담 성공'][i],value:sum(data.funnel,key)}));
@@ -52,9 +79,9 @@
     });
     const cards=Object.entries({"love": "서화의 연애·관계 리포트", "wealth": "도겸의 재물운 리포트", "career": "무진의 직업·이직 리포트", "wedding": "소담의 결혼·택일 상담", "first-date": "하린의 새로운 만남 상담", "reunion": "이준의 재회운 리포트", "marriage": "연서의 결혼을 앞두고 상담", "career-start": "해온의 취업·진로 상담", "side-job": "태율의 창업·부업 상담", "saving": "다온의 소비·저축 상담", "career-growth": "시현의 승진·역할 변화 상담", "study-routine": "여울의 공부 습관 상담", "exam-planning": "서진의 시험·자격증 상담", "major-choice": "윤슬의 전공·진학 상담", "new-learning": "지안의 새 기술 배우기 상담", "first-home": "모은의 독립·첫 살림 상담", "family-boundaries": "이솔의 가족과 거리 상담", "work-rest": "유현의 일과 쉼 상담", "friendships": "소율의 친구·모임 상담", "move-planning": "담원의 이사 준비 상담", "opening-plan": "기윤의 개업 계획 상담", "contract-prep": "정온의 계약 전 점검 상담", "yeonwoo": "연우의 AI 사주 상담", "newyear": "2027 신년 리포트"}).map(([key,name])=>({name,value:sum(data.funnel,'card_'+key)})).filter(x=>x.value);
     const basic={start:sum(data.funnel,'homeBasicStart'),result:sum(data.funnel,'basicResult'),login:sum(data.funnel,'loginStart')};
-    return {basic,cards,productActivity,visits:sum(data.visits,'count'),signups:sum(data.funnel,'signups'),paid:paid.length,revenue,aov:paid.length?Math.round(revenue/paid.length):null,products:productRows,campaigns,traffic,events,reportEvents,reportInstrumented,dailyActivities,series,seo:[...seoMap.values()].sort((a,b)=>b.purchases-a.purchases||b.visits-a.visits)};
+    return {basic,cards,productActivity,visits:sum(data.visits,'count'),signups:sum(data.funnel,'signups'),paid:paid.length,revenue,aov:paid.length?Math.round(revenue/paid.length):null,products:productRows,transactions,campaigns,traffic,trafficChannels,trafficTotal,events,reportEvents,reportInstrumented,dailyActivities,series,seo:[...seoMap.values()].sort((a,b)=>b.purchases-a.purchases||b.visits-a.visits)};
   }
   function change(current,previous){return previous>0?Math.round((current-previous)/previous*1000)/10:null;}
   function baseline(counters){const count=number(counters.purchases),revenue=number(counters.revenue);return count>=13&&revenue>=33200?{count:count-13,revenue:revenue-33200}:null;}
-  return {products,number,settledPaid,dateKey,millis,orderTime,keys,aggregate,change,baseline};
+  return {products,number,settledPaid,dateKey,millis,orderTime,keys,aggregate,change,baseline,mergeOrderSnapshots,trafficBreakdown};
 });

@@ -52,3 +52,34 @@ console.log('PASS: server-approved payment time, delayed approvals and invalid c
 const example=A.aggregate({...data,funnel:[{date:'2026-11-10',card_wealth:5,preview_wealth:3,buy_wealth:2,read_wealth:4}],orders:[{status:'paid',product:'taekilso_dogyeom_story_report',amount:8900,paidAtMs:ms('2026-11-10T01:00:00Z')}]},'2026-11-10','2026-11-10');
 const wealth=example.productActivity.find(row=>row.name.includes('도겸'));
 assert.deepEqual([wealth.cards,wealth.previews,wealth.buy,wealth.orders,wealth.read],[5,3,2,1,4]);
+
+const baseline=require('./admin-payment-baseline.js');
+const today='2026-11-23';
+const todayTime=ms('2026-11-23T11:35:49+09:00');
+const order={status:'paid',pay_state:4,product:'taekilso_date_report',amount:3900,
+  paidAtMs:todayTime,createdAtMs:todayTime-12000,uid:'private-account',attribution:{campaign:'private-link'}};
+assert.equal(baseline.isProductionOrder(order),true);
+assert.equal(baseline.isProductionOrder({...order,isTest:true}),false);
+assert.equal(baseline.isProductionOrder({...order,createdAtMs:baseline.cutoff-1}),false);
+assert.equal(baseline.isProductionOrder({createdAt:{toMillis:()=>todayTime}}),true);
+const orderDoc={id:'paid',data:()=>order};
+const oldDoc={id:'legacy',data:()=>({status:'paid',createdAt:{toMillis:()=>created}})};
+const merged=A.mergeOrderSnapshots([{docs:[oldDoc]},{docs:[orderDoc]},{docs:[orderDoc]}],1000);
+assert.deepEqual(merged,{docs:[oldDoc,orderDoc],capped:false});
+assert.deepEqual(A.mergeOrderSnapshots([{docs:[orderDoc,oldDoc]}],1),{docs:[orderDoc],capped:true});
+const withDetails=A.aggregate({...data,orders:[
+  ...merged.docs.map(doc=>doc.data()),
+  {...order,status:'refunded',refundedAmount:3900},
+  {...order,status:'pending'}
+],traffic:[
+  {date:today,total:15,search:8,naver:8,direct:7},
+  {date:'2026-11-22',total:3,google:3,search:3}
+]},today,today);
+assert.deepEqual([withDetails.paid,withDetails.revenue],[1,3900]);
+assert.deepEqual(withDetails.transactions,[{product:'정밀 택일',amount:3900,time:todayTime,status:'승인 완료'}]);
+assert.equal(withDetails.trafficTotal,15);
+assert.deepEqual(withDetails.trafficChannels,[{name:'네이버',value:8},{name:'직접 방문',value:7}]);
+assert.deepEqual(A.trafficBreakdown([{search:9,google:4,sns:3}]).channels,[
+  {name:'Google',value:4},{name:'검색 · 세부 정보 없음',value:5},{name:'SNS · 세부 정보 없음',value:3}
+]);
+console.log('PASS: recent report orders with numeric timestamps are included once, and transaction and traffic breakdowns contain no account identifiers.');
