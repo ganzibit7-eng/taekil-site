@@ -153,7 +153,7 @@
     const metadata=[reading.stories[choice].label,day&&day+' 일주',known===false&&'출생시간 미상'].filter(Boolean);
     if(paidYear)metadata.shift();
     title.append(el('p',paidYear?reading.title:'무료 첫 장','sr-kicker'),heading,
-      el('p',metadata.join(' · ')));
+      el('p',metadata.join(' · '),'sr-cover-metadata'));
     const birth=window.TaekilReportGuide.birthDate(profile);
     if(birth)title.append(birth);
     const navigation=el('div',null,'sr-cover-nav');
@@ -272,12 +272,12 @@
     paused.dataset.checkoutPaused='';
     const paymentNote=el('p',null,'sr-payment-note report-offer-price');
     paymentNote.dataset.checkoutAction='';
-    paymentNote.append(el('strong',won.format(reading.PRICE)+'원'),el('span','1회 결제 · 자동 갱신 없음'));
+    paymentNote.append(el('strong',won.format(reading.PRICE)+'원'),el('span',client.retentionNotice+' · 자동 갱신 없음'));
     const benefits=el('ul',null,'sr-benefits');
     for(const [title,description] of [
       ...(reading.id==='dogyeom'?[['월별 재물운과 10년 흐름','2027년 기회와 지출 주의 TOP 3, 열두 달 달력과 향후 10년 흐름을 읽어요.']]:[]),
       ['개인 사주 풀이 6장',reading.id==='dogyeom'?'열어본 리포트는 내 기록에서 다시 읽을 수 있어요.':'무료 첫 장과 함께 사주표 읽기 안내 2장까지 내 기록에서 다시 읽을 수 있어요.'],
-      [withName(reading)+' 채팅 상담 3회','리포트 구매 후, 마음에 남은 대목에서 바로 이어서 물어볼 수 있어요.']
+      [withName(reading)+' 채팅 상담 3회','리포트 열람 기간 동안 마음에 남은 대목을 이어서 물어볼 수 있어요.']
     ]){
       const benefit=el('li');
       benefit.append(el('strong',title),el('span',description));
@@ -1117,8 +1117,11 @@
       }
     }
     layout.append(toc({...reading,chapters:report.body.map(chapter=>chapter.title)},report.first,false),contents);
-    show([header(reading,report.choice,report.day,report.known??report.profile?.hourValue!=='unknown',
-      paidWealth?report.calendar.year:topic?true:undefined,report.profile),...front,layout],!paidWealth&&!topic);
+    const cover=header(reading,report.choice,report.day,report.known??report.profile?.hourValue!=='unknown',
+      paidWealth?report.calendar.year:topic?true:undefined,report.profile);
+    const expiry=client.expiryNote(result.expiresAtMs);
+    if(expiry)cover.querySelector('.sr-cover-nav').before(expiry);
+    show([cover,...front,layout],!paidWealth&&!topic);
   }
 
   async function renderPurchased(result,host,owner,autoGenerate,reading) {
@@ -1285,6 +1288,7 @@
       if(!visible())return;
       if(result.state==='resume'){client.showResume(status,result,pendingKey(reading));return;}
       if(result.state==='pending'){setStatus(status,client.pendingMessage(result));return;}
+      if(result.state==='expired'){setStatus(status,client.expiryMessage);return;}
       if(!['paid','ready','generating'].includes(result.state)) throw Error('현재 열 수 있는 리포트가 아니에요. 결제 상태를 확인해 주세요.');
       if(accountStore.getItem(pendingKey(reading))===id)accountStore.removeItem(pendingKey(reading));
       setStatus(status,'결제한 리포트를 열었어요.');
@@ -1358,6 +1362,10 @@
         }
         if(['cancelled','refunded','partially_refunded','superseded'].includes(result.state)){
           setStatus(returnStatus,'이 주문으로 열람할 수 있는 리포트가 없어요. 페이앱의 결제 내역을 확인해 주세요.');
+          return;
+        }
+        if(result.state==='expired'){
+          setStatus(returnStatus,client.expiryMessage);
           return;
         }
         if(result.state!=='pending'&&result.state!=='resume')throw new Error('결제 상태를 확인하지 못했어요.');

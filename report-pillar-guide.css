@@ -119,3 +119,11 @@
 .report-birth-label {color:#dec5a6;font-size:12px}
 .report-birth-value {display:inline-flex;align-items:baseline;flex-wrap:wrap;gap:2px 7px}
 .report-birth-calendar {color:#dfcdbb;font-size:12px}
+.report-expiry-note {
+  margin:9px 0;
+  font-size:13px;
+  line-height:1.55;
+  font-weight:550;
+  color:#e4cba8;
+  overflow-wrap:anywhere;
+}

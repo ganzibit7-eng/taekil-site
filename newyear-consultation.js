@@ -274,6 +274,8 @@
     const birth=window.TaekilReportGuide.birthDate(data.profile);
     if(birth)coverText.append(birth);
     coverText.append(el('p',window.TaekilBirthTime.label(data.profile.hourValue),'newyear-report-owner'));
+    const expiry=window.TaekilAccountReport.expiryNote(data.expiresAtMs);
+    if(expiry)coverText.append(expiry);
     cover.append(portrait,coverText);
     const introduction=readingGuide(data);
     const overview=section('한 해의 큰 흐름',r.overview);
@@ -386,11 +388,12 @@
     if(!data.access){
       stopProgress();view.classList.remove('has-report');content.style.minHeight='';
       if(loggedIn()&&(data.paymentCheckRequired||(typeof isPremium==='function'&&isPremium()))){message('이용권 연결 상태를 확인해 주세요. 추가 결제부터 하실 필요는 없습니다.');content.replaceChildren(el('h2','구매하셨다면, 이용권을 다시 확인해 주세요.'),el('p','결제 직후에는 승인 기록이 계정에 연결되는 데 잠시 걸릴 수 있어요. 구매한 계정으로 로그인되어 있는지 확인해 주세요.','newyear-muted'),button('이용권 연결 다시 확인',load,true),button('문의하기',()=>goTo('support')));return;}
-      message(data.paymentState==='cancelled'?'이 주문은 취소 또는 환불됐어요.':'내 2027 신년운세 리포트');
+      message(data.paymentState==='cancelled'?'이 주문은 취소 또는 환불됐어요.'
+        :data.paymentState==='expired'?window.TaekilAccountReport.expiryMessage:'내 2027 신년운세 리포트');
       content.replaceChildren(
         purchaseButton(loggedIn() ? '6,900원 · 신년운세 구매' : '로그인하고 신년운세 구매', true),
         pausedNotice(),
-        el('p', '한 번 결제하면 이 계정에서 열두 달 전체 풀이를 다시 읽을 수 있어요.', 'newyear-muted')
+        el('p', window.TaekilAccountReport.retentionNotice+'할 수 있어요.', 'newyear-muted')
       );
       if (!loggedIn()) {
         const signIn = button('로그인하고 내 리포트 확인하기', openAuthModal);
