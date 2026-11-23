@@ -2,7 +2,7 @@
 /* Legacy exclusive mode assumed an #app wrapper, but the actual view is in main. */
 body.admin-exclusive-mode>main:not(#app):not(script):not(style),body.admin-exclusive-mode>.topbar:not(#app){display:block!important}
 body.admin-exclusive-mode #view-admin .reveal{opacity:1;transform:none}
-#view-admin:has(#adminContent[style*="none"]) .admin-fold,#view-admin:has(#adminContent[style*="none"]) #adminTrafficSourceCard{display:none!important}
+#view-admin:has(#adminContent[style*="none"]) :is(.admin-fold,#adminTrafficSourceCard,#trafficSourceDetails){display:none!important}
 body.admin-exclusive-mode #view-admin>.block>.container{max-width:1200px!important;width:calc(100% - 64px)}
 body.admin-exclusive-mode #view-admin .hero{padding:48px 20px 28px;min-height:0}
 body.admin-exclusive-mode #view-admin .hero h1{font-size:34px!important}
@@ -43,10 +43,15 @@ body.admin-exclusive-mode #view-admin #adminTrafficSourceCard{display:block;widt
 #view-admin .admin-fold-title b{font:600 22px/1.5 var(--serif);letter-spacing:-.025em;color:#F0EBE1}
 #view-admin #trafficSourceTotal{display:inline-block;margin-left:8px;font:500 15px/1.5 var(--sans);letter-spacing:0;color:#C6AA76;font-variant-numeric:tabular-nums;white-space:nowrap}
 #view-admin .admin-fold-chevron{flex:0 0 20px;text-align:center;font:400 19px/1 var(--sans);color:#c2bab2}
-#view-admin #trafficSourceSummary{display:none;margin-top:18px;color:#c2bab2;font:400 15px/1.8 var(--sans);word-break:keep-all}
-#view-admin #adminTrafficSourceCard[aria-expanded="true"] #trafficSourceSummary{display:block}
-#view-admin #trafficSourceDetails{margin-top:16px;padding-top:14px;border-top:1px solid #514b48}
-#view-admin #trafficSourceDetails>div{padding:10px 0!important;font:400 15px/1.7 var(--sans)!important;color:#c2bab2!important;font-variant-numeric:tabular-nums}
+#view-admin #trafficSourceSummary{margin:0;color:#c2bab2;font:400 15px/1.8 var(--sans);word-break:keep-all}
+#view-admin #trafficSourceDetails{padding:12px clamp(14px,3vw,20px) 24px;background:#292625}
+#view-admin #trafficSourceChannels{margin:10px 0 0;color:#f0ebe1;font:400 15px/1.7 var(--sans);font-variant-numeric:tabular-nums}
+#view-admin #trafficSourceChannels:empty{display:none}
+#view-admin #trafficSourceChannels>div{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid #514b48}
+#view-admin #trafficSourceChannels dd{margin:0;white-space:nowrap}
+#view-admin #adminTrafficSourceCard[aria-expanded="true"] #trafficSourceChevron{transform:rotate(180deg)}
+#aaPaymentTitle{scroll-margin-top:105px}
+#aaPaymentDetails .aa-table-wrap table{min-width:350px}
 #view-admin .admin-fold-toggle:hover,#view-admin #adminTrafficSourceCard:hover{background:rgba(198,170,118,.035)}
 #view-admin #adminTrafficSourceCard:focus-visible{outline:2px solid #C6AA76;outline-offset:-3px}
 @media(max-width:640px){body.admin-exclusive-mode #view-admin .admin-fold-toggle,body.admin-exclusive-mode #view-admin #adminTrafficSourceCard{min-height:92px!important;padding:20px 14px!important}#view-admin .admin-fold-title b{font-size:21px}#view-admin #trafficSourceTotal{font-size:14px;margin-left:6px}#view-admin #trafficSourceSummary,#view-admin #trafficSourceDetails>div{font-size:16px!important}}

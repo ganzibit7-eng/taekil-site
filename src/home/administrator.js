@@ -594,11 +594,17 @@ function renderAdmin() {
   // 새로고침 없이 바로 업데이트되도록 한 번 조회하는 대신 계속 지켜보는(onSnapshot)
   // 방식으로 바꿨습니다. 화면을 다시 열 때마다 이전 감시를 정리하고 새로 시작합니다.
   if (adminStatsUnsub) adminStatsUnsub();
+  let paymentSignature = null;
   adminStatsUnsub = db.collection('stats').doc('counters').onSnapshot((snap) => {
     if (!adminCurrent()) return;
     pendingAdminSections.delete('adminStatsStatus');
     adminSectionStatus('adminStatsStatus', '운영 통계 · 실시간 반영');
     const d = snap.exists ? snap.data() : {};
+    const signature = JSON.stringify([d.purchases,d.revenue,d.purchasesByProduct]);
+    if (paymentSignature !== null && paymentSignature !== signature) {
+      window.dispatchEvent(new Event('taekilso:paymentSummaryChanged'));
+    }
+    paymentSignature = signature;
     document.getElementById('statVisits').textContent = d.visits || 0;
     // 총 가입자수는 아래 users 실제 문서 조회 결과로 표시합니다. stats.signups는 레거시 참고값만 유지합니다.
     document.getElementById('statPurchases').textContent = d.purchases || 0;
@@ -643,6 +649,7 @@ function renderAdmin() {
     adminDailyVisitsMidnightTimer = setTimeout(() => {
       // 한국시간 00:00가 지나면 새 날짜 문서로 자동 전환합니다.
       watchTodayVisitsKst();
+      watchTodayTrafficSourcesKst();
     }, msUntilNextKstMidnight() + 1200);
   }
 
@@ -717,44 +724,39 @@ function renderAdmin() {
 
 
   let adminTrafficSourceUnsub=null;
-  function trafficPct(n,total){ return total ? Math.round((Number(n||0)/total)*100) : 0; }
-  function renderAdminTrafficSources(d){
-    d=d||{};
-    const total=Number(d.total||0);
-    const search=Number(d.search||0), sns=Number(d.sns||0), direct=Number(d.direct||0), other=Number(d.other||0);
+  function renderAdminTrafficSources(data,message){
     const totalEl=document.getElementById('trafficSourceTotal');
     const summary=document.getElementById('trafficSourceSummary');
-    const details=document.getElementById('trafficSourceDetails');
-    if(totalEl) totalEl.textContent=total.toLocaleString('ko-KR')+'명';
-    if(summary) summary.textContent=`검색 ${search} · SNS ${sns} · 직접 ${direct} · 기타 ${other}`;
-    if(details){
-      const rows=[
-        ['Google',Number(d.google||0)],['네이버',Number(d.naver||0)],['기타 검색',Number(d.otherSearch||0)],
-        ['Threads',Number(d.threads||0)],['Instagram',Number(d.instagram||0)],['Facebook',Number(d.facebook||0)],
-        ['카카오',Number(d.kakao||0)],['기타 SNS',Number(d.otherSns||0)],['직접 방문',direct],['기타',other]
-      ].filter(x=>x[1]>0);
-      details.innerHTML=rows.length ? rows.map(([name,n])=>
-        `<div style="display:flex;justify-content:space-between;gap:12px;padding:5px 0;font-size:11px;color:var(--muted-2);"><span>${name}</span><span><b style="color:var(--white);">${n}</b>명 · ${trafficPct(n,total)}%</span></div>`
-      ).join('') : '<div style="font-size:11px;color:var(--muted-2);">아직 오늘 유입 데이터가 없어요.</div>';
+    const list=document.getElementById('trafficSourceChannels');
+    list.replaceChildren();
+    if(message){
+      totalEl.textContent='—';
+      summary.textContent=message;
+      return;
     }
-  }
-  function toggleAdminTrafficSources(){
-    const details=document.getElementById('trafficSourceDetails');
-    const card=document.getElementById('adminTrafficSourceCard');
-    const chevron=document.getElementById('trafficSourceChevron');
-    if(!details) return;
-    const open=details.style.display==='none';
-    details.style.display=open?'block':'none';
-    if(card) card.setAttribute('aria-expanded',open?'true':'false');
-    if(chevron) chevron.style.transform=open?'rotate(180deg)':'rotate(0deg)';
+    const {groups,channels,total}=window.TaekilAnalytics.trafficBreakdown([data]);
+    totalEl.textContent=total.toLocaleString('ko-KR')+'건';
+    summary.textContent=total?groups.map(row=>row.name+' '+row.value.toLocaleString('ko-KR')).join(' · '):'아직 오늘 집계된 유입이 없어요.';
+    for(const channel of channels){
+      const row=document.createElement('div');
+      const term=document.createElement('dt');
+      const count=document.createElement('dd');
+      term.textContent=channel.name;
+      count.textContent=channel.value.toLocaleString('ko-KR')+'건';
+      row.append(term,count);
+      list.append(row);
+    }
   }
   function watchTodayTrafficSourcesKst(){
     if(adminTrafficSourceUnsub){adminTrafficSourceUnsub();adminTrafficSourceUnsub=null;}
     const key=getKstDateKey();
     adminTrafficSourceUnsub=db.collection('dailyTrafficSources').doc(key).onSnapshot(snap=>{
-      renderAdminTrafficSources(snap.exists?(snap.data()||{}):{});
-    },err=>console.warn('오늘 유입 경로 조회 실패',err));
+      if(adminCurrent())renderAdminTrafficSources(snap.exists?(snap.data()||{}):{});
+    },()=>{
+      if(adminCurrent())renderAdminTrafficSources(null,'유입 기록을 불러오지 못했어요. 관리자 화면을 다시 열어 주세요.');
+    });
   }
+  renderAdminTrafficSources(null,'유입 기록을 불러오고 있어요.');
   watchTodayTrafficSourcesKst();
   const refreshLegacyFunnel = () => { if (accountStore.current(adminToken) && isAdmin()) renderTodayFunnel(lastTodayFunnelData); };
   window.addEventListener('taekilso:todayVisitsUpdated', refreshLegacyFunnel);
