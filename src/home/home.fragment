@@ -62,6 +62,14 @@
             <img src="assets/yeonwoo-reading.jpg" width="1122" height="1402" alt="" loading="lazy" decoding="async">
           </button>
         </section>
+        <a class="directory-feature directory-paid-tool" href="#tool" data-open-date-comparison data-direct-date-comparison onclick="goTo('tool','결혼식');return false;">
+          <span class="directory-feature-copy"><span class="directory-feature-kind">유료 리포트</span><strong>정밀 택일</strong><small>결혼·이사·개업·계약 후보일 2~5개 비교</small></span>
+          <img src="assets/sodam-date-comparison.jpg" width="540" height="720" alt="" loading="lazy" decoding="async">
+        </a>
+        <a class="directory-feature directory-paid-tool" href="#relationship-report">
+          <span class="directory-feature-copy"><span class="directory-feature-kind">유료 리포트</span><strong>두 사람 관계 리포트</strong><small>잘 맞는 점과 엇갈리는 순간, 써볼 대화</small></span>
+          <img src="assets/consultant-yeonseo-chapter-film.webp" width="960" height="540" alt="" loading="lazy" decoding="async">
+        </a>
       </div>
     </section>
 

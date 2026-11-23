@@ -120,6 +120,16 @@ test('the home banner links to labeled examples directly above the chat section'
   }
 });
 
+test('the directory displays direct links to paid date and relationship tools before chat', () => {
+  const html = readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  const cards = [...html.matchAll(/<a class="directory-feature directory-paid-tool" href="([^"]+)"([^>]*)>([\s\S]+?)<\/a>/g)];
+  assert.deepEqual(cards.map(card=>card[1]),['#tool','#relationship-report']);
+  assert.match(cards[0][2], /data-open-date-comparison data-direct-date-comparison/);
+  assert.match(cards[0][3], /<strong>정밀 택일<\/strong>/);
+  assert.match(cards[1][3], /<strong>두 사람 관계 리포트<\/strong>/);
+  assert.ok(cards.every(card=>card.index<html.indexOf('id="directoryChatTitle"')&&!card[3].includes('원</')));
+});
+
 test('home and story previews quote current recorded answers for all specialist topics', () => {
   const html = readFileSync(path.join(__dirname, 'index.html'), 'utf8');
   const { examples } = JSON.parse(readFileSync(path.join(__dirname, 'content/home-consultation-previews.json'), 'utf8'));

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="/home-layout.js?v=reading-banner-1"></script>
-<link rel="stylesheet" href="/home-layout.css?v=reading-banner-1">
+<link rel="stylesheet" href="/home-layout.css?v=paid-tools-1">
 <title>택일소 | 무료 사주 · 주제별 리포트 · AI 상담과 택일</title>
 <meta name="description" content="로그인 없이 내 오행과 기본 성향을 확인하세요. 연애·재물·재회·직업 리포트의 첫 장, 2027 신년운세와 고민별 상담사를 만나보세요.">
 <meta name="keywords" content="사주, 사주풀이, 무료사주, 사주궁합, 오늘의운세, 신년운세, 택일, 결혼택일, 이사택일, 개업택일, 손없는날, 만세력">
@@ -342,7 +342,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="account-report-client.js?v=retention-1"></script>
 <script src="report-decision-core.js?v=paid-guide-1"></script>
 <script src="date-report.js?v=retention-1"></script>
-<script src="date-comparison.js?v=20261120-direct"></script>
+<script src="date-comparison.js?v=paid-tools-1"></script>
 <link rel="stylesheet" href="date-entry.css?v=surfaces-1120">
 <script src="date-entry.js?v=nov20-resume"></script>
 <link rel="stylesheet" href="relationship-report.css?v=paid-guide-1">
