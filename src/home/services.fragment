@@ -249,10 +249,12 @@
     <section id="relationshipReview" class="relationship-review" hidden aria-labelledby="relationshipReviewTitle">
       <h2 id="relationshipReviewTitle" tabindex="-1">두 사람의 일주</h2>
       <p id="relationshipPillars"></p>
-      <p>결제를 완료하면 이 두 사람의 리포트가 내 기록에 저장돼요.</p>
-      <p data-checkout-paused>신규 결제를 잠시 중단했어요. 위에서 실제 구성 예시를 읽을 수 있어요.</p><div class="checkout-connection"><span role="status">구매 가능 여부를 확인하고 있어요.</span><span role="status">구매 가능 여부를 확인하지 못했어요.</span><button type="button" onclick="TaekilCheckout.retry()">다시 확인</button></div>
-      <button type="button" class="btn btn-primary" id="buyRelationshipReport" data-checkout-action>5,900원 · 관계 리포트 구매</button>
-      <p class="report-expiry-note">결제 승인일부터 1년간 열람·보관</p>
+      <div data-relationship-payment-copy>
+        <p>결제를 완료하면 이 두 사람의 리포트가 내 기록에 저장돼요.</p>
+        <p data-checkout-paused>신규 결제를 잠시 중단했어요. 위에서 실제 구성 예시를 읽을 수 있어요.</p><div class="checkout-connection"><span role="status">구매 가능 여부를 확인하고 있어요.</span><span role="status">구매 가능 여부를 확인하지 못했어요.</span><button type="button" onclick="TaekilCheckout.retry()">다시 확인</button></div>
+        <button type="button" class="btn btn-primary" id="buyRelationshipReport" data-checkout-action>5,900원 · 관계 리포트 구매</button>
+        <p class="report-expiry-note">결제 승인일부터 1년간 열람·보관</p>
+      </div>
       <p id="relationshipPurchaseStatus" role="status"></p>
     </section>
     <div id="relationshipReportOutput"></div>

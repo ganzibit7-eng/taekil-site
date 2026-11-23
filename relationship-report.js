@@ -16,6 +16,10 @@
   const library = field('relationshipLibraryList');
   const libraryStatus = field('relationshipLibraryStatus');
   const libraryButton = field('relationshipLoadLibrary');
+  const buyButton = field('buyRelationshipReport');
+  const paymentCopy = buyButton.closest('[data-relationship-payment-copy]');
+  const adminButton = el('button',client.adminLabel,'btn btn-primary');
+  adminButton.type='button';
   const people = ['Mine','Partner'].map(role => ({
     birth:field('relationship'+role+'Date'),
     calendar:field('relationship'+role+'Calendar'),
@@ -198,6 +202,8 @@
   function resetPreview() {
     comparison=null;
     review.hidden=true;
+    adminButton.remove();
+    paymentCopy.hidden=false;
     output.replaceChildren();
     purchaseStatus.textContent='';
     formError.textContent='';
@@ -232,12 +238,36 @@
     comparison={first,second};
     window.TaekilCampaign?.activity('preview_relationship');
     field('relationshipPillars').textContent=`본인 ${ganjiFull(first)} · 상대방 ${ganjiFull(second)}`;
+    const adminPreview=client.canPreviewAsAdmin();
+    paymentCopy.hidden=adminPreview;
+    if(adminPreview)paymentCopy.after(adminButton);
+    else adminButton.remove();
     review.hidden=false;
     field('relationshipReviewTitle').focus({preventScroll:true});
     review.scrollIntoView({block:'nearest',behavior:'instant'});
   });
 
-  field('buyRelationshipReport').addEventListener('click',async () => {
+  function displaySaved(data) {
+    output.replaceChildren(reportCard(data.report,data.expiresAtMs));
+    output.scrollIntoView({block:'start',behavior:'instant'});
+    purchaseStatus.textContent='내 기록에 저장된 리포트를 열었어요.';
+  }
+
+  adminButton.addEventListener('click',async()=>{
+    const selected=comparison, token=accountStore.snapshot();
+    const current=()=>selected===comparison&&view.classList.contains('visible')&&accountStore.current(token);
+    if(!selected||!token.owner||!current()||adminButton.disabled)return;
+    adminButton.disabled=true;
+    try{
+      const data=await client.request(endpoint,{operation:'admin-open',comparison:selected},token);
+      if(!current())return;
+      if(!data.adminPreview||data.state!=='ready')throw Error('관리자 리포트를 열지 못했어요.');
+      displaySaved(data);
+    }catch(error){if(current())purchaseStatus.textContent=error.message;}
+    finally{adminButton.disabled=false;}
+  });
+
+  buyButton.addEventListener('click',async () => {
     window.TaekilCampaign?.activity('buy_relationship');
     const token=accountStore.snapshot();
     const selected=comparison;
@@ -253,9 +283,7 @@
         const data=await client.request(endpoint,{operation:'prepare',comparison:selected,checkout:true,allowResume:true},token);
         if (!accountStore.current(token) || comparison !== selected || !view.classList.contains('visible')) return false;
         if (data.state==='ready') {
-          output.replaceChildren(reportCard(data.report,data.expiresAtMs));
-          output.scrollIntoView({block:'start',behavior:'instant'});
-          purchaseStatus.textContent='내 기록에 저장된 리포트를 열었어요.';
+          displaySaved(data);
         } else if (data.state==='resume') {
           client.showResume(purchaseStatus,data,pendingKey);
         } else if (data.state==='pending') {
@@ -272,11 +300,11 @@
     }
   });
 
-  function libraryItem({id,report,days,createdAtMs,expiresAtMs},open = false) {
+  function libraryItem({id,report,days,createdAtMs,expiresAtMs,adminPreview},open = false) {
     const row=el('details');
     const date=new Intl.DateTimeFormat('ko-KR',{dateStyle:'medium',timeZone:'Asia/Seoul'}).format(createdAtMs);
     const labels=days || report.people.map(person=>person.day);
-    row.append(el('summary',date+' · '+labels.join(' · ')));
+    row.append(el('summary',date+' · '+labels.join(' · ')+(adminPreview?' · 관리자용':'')));
     const token=accountStore.snapshot();
     let busy=false;
     row.addEventListener('toggle',async function renderWhenOpened(){
@@ -287,11 +315,11 @@
       row.querySelector('[role="status"]')?.remove();
       row.append(status);
       try {
-        const result=report ? {state:'ready',report,expiresAtMs} : await client.request(endpoint,{operation:'open',id},token);
+        const result=report ? {state:'ready',report,expiresAtMs,adminPreview} : await client.request(endpoint,{operation:'open',id},token);
         if(!row.isConnected || !accountStore.current(token)) return;
         if(result.state==='expired'){status.textContent=client.expiryMessage;return;}
         if(result.state!=='ready') throw new Error('현재 열람할 수 없는 리포트예요. 목록을 다시 확인해 주세요.');
-        window.TaekilCampaign?.activity('read_relationship');
+        if(!result.adminPreview)window.TaekilCampaign?.activity('read_relationship');
         status.replaceWith(reportCard(result.report,result.expiresAtMs));
         row.removeEventListener('toggle',renderWhenOpened);
       } catch(error) {
