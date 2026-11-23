@@ -2,6 +2,7 @@
   'use strict';
   const field = id => document.getElementById(id);
   const endpoint = 'https://taekilso-api-jhqz3vlila-du.a.run.app/api/relationship-report';
+  const price = 3900;
   const checkout = window.TaekilCheckout;
   const client = window.TaekilAccountReport;
   const decision = window.TaekilReportDecision;
@@ -280,7 +281,7 @@
     try {
       await checkout.run(async () => {
         if (!await checkout.loadSdk() || comparison !== selected || !view.classList.contains('visible')) return false;
-        const data=await client.request(endpoint,{operation:'prepare',comparison:selected,checkout:true,allowResume:true},token);
+        const data=await client.request(endpoint,{operation:'prepare',comparison:selected,checkout:true,allowResume:true,expectedPrice:price},token);
         if (!accountStore.current(token) || comparison !== selected || !view.classList.contains('visible')) return false;
         if (data.state==='ready') {
           displaySaved(data);
@@ -292,7 +293,7 @@
         } else if (data.state==='paused') {
           purchaseStatus.textContent='신규 결제를 잠시 중단했어요.';
         }
-        return client.pay(data,{price:5900,name:'두 사람 관계 리포트',pendingKey,
+        return client.pay(data,{price,name:'두 사람 관계 리포트',pendingKey,
           metricTopic:'relationship',returnFlag:'relationshipReport',memo:'두 사람의 일주 비교 리포트 1건'});
       });
     } catch (error) {

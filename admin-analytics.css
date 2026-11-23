@@ -62,6 +62,12 @@ body.admin-exclusive-mode #view-admin #adminTrafficSourceCard{display:block;widt
 #view-admin .admin-data-status .aa-btn{font-size:14px;padding:8px 12px}
 #view-admin .admin-fold{scroll-margin-top:100px}
 .aa-preview-panel .aa-table-wrap tbody th { word-break: keep-all; overflow-wrap: normal; }
+.admin-inquiry-notice[hidden]{display:none}
+.admin-inquiry-notice{margin-top:8px}
+.admin-inquiry-notice button{display:flex;justify-content:center;align-items:center;gap:8px;width:100%;min-height:38px;margin:0;padding:5px 10px;border:1px solid #665750;border-radius:7px;background:#382d2c;color:#f3e9df;font:500 14px/1.5 var(--sans);cursor:pointer}
+.admin-inquiry-notice strong{color:#f1d6a6;font-variant-numeric:tabular-nums}
+.admin-inquiry-notice button:hover{background:#473733}
+.admin-inquiry-notice button:focus-visible{outline:2px solid #ebcea3;outline-offset:2px}
 @media(max-width:380px) {
   .aa-preview-panel .aa-table-wrap :is(th,td) { padding-inline: 5px; }
 }
