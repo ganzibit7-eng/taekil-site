@@ -493,7 +493,8 @@
     const {opportunity,expense}=calendar.ranking;
     const opportunities=new Set(opportunity),expenses=new Set(expense);
     const highlight=opportunity[0]||1;
-    const title=el('h3',calendar.year+'년 월별 재물운');
+    const title=el('h3');
+    title.append(el('span',String(calendar.year),'sr-wealth-year-digits'),document.createTextNode('년 월별 재물운'));
     title.id='wealthCalendarHeading';
     title.tabIndex=-1;
     const method=el('details',null,'sr-evidence');
@@ -501,9 +502,25 @@
       el('p','기회 점수는 사주에 나타난 수입·보상과 돈을 남기는 흐름을 더하고, 지출 점검 신호를 덜어 계산해요. 지출 점검 점수는 따로 매겨요. 두 점수 모두 이 사람의 열두 달을 비교하는 명리 해석 지표예요. 실제로 돈이 들어올 확률이나 투자 수익률과는 달라요.'),
       el('p','수입 신호에는 월간 재성 +7, 지지 주기운의 재성 +4, 식상과 재성의 동반 +5를 반영해요. 원국 재성과 월간 식상이 연결되거나 원국의 주된 재물 성향과 같은 월간 재성이 오면 각각 +3, 원국 월지·일지와 충이 있으면 −2예요. 보유 신호는 월간·지지 정재 +8·+4, 월간 식신·정관 +3·+2, 충 또는 월간 비겁 −3이에요. 주의 신호는 월간 겁재·비견·편관 +6·+4·+3, 지지 비겁 +3, 충 +4, 재성과 비겁의 동반 +3이에요.'),
       el('p','같은 점수는 같은 순위로 표시하고, 상위 세 달을 뽑을 때 점수가 같으면 앞선 달부터 보여드려요.'));
-    const chart=el('div',null,'sr-wealth-chart');
+    const chart=el('div',null,'sr-wealth-chart sr-wealth-graph');
     chart.setAttribute('role','group');
     chart.setAttribute('aria-label','월별 재물 기회와 지출 주의 지표');
+    const scale=el('div',null,'sr-wealth-scale');
+    scale.setAttribute('aria-hidden','true');
+    for(const value of ['100','75','50','25','0'])scale.append(el('span',value));
+    const plot=el('div',null,'sr-wealth-plot');
+    const svgNamespace='http://www.w3.org/2000/svg';
+    const series=document.createElementNS(svgNamespace,'svg');
+    series.classList.add('sr-wealth-series');
+    series.setAttribute('viewBox','0 0 1200 100');
+    series.setAttribute('preserveAspectRatio','none');
+    series.setAttribute('aria-hidden','true');
+    const line=document.createElementNS(svgNamespace,'polyline');
+    line.setAttribute('points',calendar.rows.map((row,index)=>((index+.5)*100)+','+(100-row.score)).join(' '));
+    line.setAttribute('vector-effect','non-scaling-stroke');
+    series.append(line);
+    plot.append(series);
+    chart.append(scale,plot);
     const buttons=calendar.rows.map(row=>{
       const bar=el('button',null,'sr-wealth-bar');
       bar.type='button';
@@ -512,14 +529,14 @@
         opportunities.has(row.month)?'opportunity':expenses.has(row.month)?'expense':'normal';
       bar.setAttribute('aria-label',row.month+'월, 기회 '+row.score+'점, 지출 주의 '+row.expenseScore+'점');
       bar.setAttribute('aria-controls','wealthMonthDetail');
-      const track=el('span',null,'sr-wealth-track'), fill=el('span',null,'sr-wealth-fill');
-      fill.style.height=row.score+'%';
+      const track=el('span',null,'sr-wealth-track'), marker=el('span',null,'sr-wealth-marker');
+      marker.style.bottom=row.score+'%';
       track.setAttribute('aria-hidden','true');
-      bar.append(track,el('span',row.month+'월'));
+      bar.append(track,el('span',String(row.month)));
       const caution=el('span',null,'sr-wealth-risk-fill');
       caution.style.height=row.expenseScore+'%';
-      track.append(fill,caution);
-      chart.append(bar);
+      track.append(caution,marker);
+      plot.append(bar);
       bar.addEventListener('click',()=>selectMonth(row.month));
       return bar;
     });
@@ -552,6 +569,7 @@
     const detail=el('div',null,'sr-wealth-month-detail');
     detail.id='wealthMonthDetail';
     detail.setAttribute('aria-live','polite');
+    const selectedScore=el('p',null,'sr-wealth-selected');
     const roleLabel=el('label','상황에 맞춰 보기','sr-wealth-role');
     const role=el('select');
     for(const [value,label] of [['employee','직장·월급'],['business','사업·부업'],['investor','투자자금 관리']]){
@@ -567,6 +585,8 @@
       selected=byMonth.get(month);
       monthSelect.value=String(month);
       buttons.forEach(bar=>bar.setAttribute('aria-pressed',String(Number(bar.dataset.month)===month)));
+      selectedScore.replaceChildren(el('strong',month+'월'),el('span','기회 '+selected.score+'점','sr-selected-opportunity'),
+        el('span','지출 점검 '+selected.expenseScore+'점','sr-selected-expense'));
       const basis=el('details',null,'sr-evidence');
       basis.append(el('summary','이 달을 읽은 사주 근거'),
         el('p',selected.ganZhi+' 월운 · '+selected.basis),
@@ -600,10 +620,11 @@
       }
     });
     const legend=el('div',null,'sr-wealth-legend');
-    legend.append(el('span','재물 기회','sr-legend-opportunity'),el('span','지출 주의','sr-legend-expense'));
+    legend.append(el('span','재물 기회','sr-legend-opportunity'),el('span','지출 점검','sr-legend-expense'));
     const extra=el('details',null,'sr-evidence sr-wealth-tools');
     extra.append(el('summary','상황별 참고와 점수 계산 기준'),roleLabel,action,method);
-    section.append(title,legend,chart,leaders,monthLabel,detail,extra);
+    section.classList.add('sr-wealth-monthly');
+    section.append(title,legend,chart,selectedScore,leaders,monthLabel,detail,extra);
     if(navigator.clipboard?.writeText)section.append(share,shareStatus);
     return section;
   }

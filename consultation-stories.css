@@ -104,6 +104,48 @@
   max-width: 360px;
   margin-top: 16px;
 }
+.wealth-film-trigger {
+  grid-column: 1 / -1;
+}
+.wealth-film-dialog {
+  box-sizing: border-box;
+  width: min(720px, calc(100% - 24px));
+  max-height: calc(100dvh - 24px);
+  padding: clamp(12px,3vw,22px);
+  border: 1px solid #6c5c3f;
+  border-radius: 12px;
+  background: #262225;
+  color: #f0ebe1;
+  overflow: auto;
+}
+.wealth-film-dialog::backdrop { background: rgba(15,12,13,.84); }
+.wealth-film-dialog header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.wealth-film-dialog h2 { margin: 0; font: 600 clamp(18px,4vw,26px)/1.4 var(--serif); }
+.wealth-film-close {
+  min-height: 44px;
+  padding-inline: 12px;
+  border: 1px solid #6c5c3f;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.wealth-film-dialog video { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 6px; background: #191615; }
+.wealth-film-dialog video[data-vertical] {
+  width: auto;
+  max-width: 100%;
+  max-height: min(58dvh, 495px);
+  margin-inline: auto;
+  aspect-ratio: 9 / 16;
+}
+.consultation-story-intro .wealth-film-dialog p { margin: 10px 0 14px; color: #dacdc4; font: 400 14px/1.6 var(--sans); }
+.wealth-film-dialog footer { display: flex; justify-content: flex-end; }
 :is(.consultation-story-jump,.consultation-story-answer-link) {
   display: inline-flex;
   align-items: center;
