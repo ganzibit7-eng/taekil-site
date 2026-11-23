@@ -351,10 +351,11 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="date-entry.js?v=nov20-resume"></script>
 <link rel="stylesheet" href="relationship-report.css?v=report-paper-1">
 <script src="relationship-report.js?v=report-paper-1"></script>
-<link rel="stylesheet" href="seohwa-report.css?v=report-paper-1">
+<link rel="stylesheet" href="seohwa-report.css?v=report-choices-1">
 <script src="topic-monthly-reading.js?v=4"></script>
 <script src="relationship-report-periods.js?v=4"></script>
 <script src="topic-report-content.js?v=2"></script>
-<script src="seohwa-report.js?v=report-paper-1"></script>
+<script src="topic-report-choices.js?v=1"></script>
+<script src="seohwa-report.js?v=report-choices-1"></script>
 </body>
 </html>
