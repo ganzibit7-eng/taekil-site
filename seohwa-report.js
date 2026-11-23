@@ -230,7 +230,7 @@
     return icon;
   }
 
-  function toc(reading,first,locked) {
+  function toc(reading,first,locked,comparisonHeading) {
     const list=el('nav',null,'sr-toc');
     list.setAttribute('aria-label','리포트 목차');
     if(!locked)list.id='wealthReportToc';
@@ -251,6 +251,12 @@
       rows.append(row);
     }
     list.append(rows);
+    if(comparisonHeading){
+      list.append(button('세 가지 선택 비교','sr-jump sr-choice-shortcut',()=>{
+        comparisonHeading.focus({preventScroll:true});
+        comparisonHeading.scrollIntoView({block:'start',behavior:'instant'});
+      }));
+    }
     return list;
   }
   function show(nodes,preserve=false) {
@@ -756,6 +762,65 @@
     ijun:[['올해 인연의 변화',0],['지난 인연과 새 인연',2],['선택을 돌아볼 시기',3]],
     mujin:[['올해 직업운의 변화',0],['강점이 드러나는 일터',2],['역할이 바뀌는 흐름',3]]
   };
+  function openReportMonth(month){
+    const bar=body.querySelector('[data-period-month="'+month+'"]');
+    if(!bar)return;
+    bar.click();
+    bar.focus({preventScroll:true});
+    bar.scrollIntoView({block:'center',behavior:'instant'});
+  }
+  function reportChoices(comparison,hasCalendar){
+    const panel=el('section',null,'report-sheet sr-choice-panel');
+    const heading=el('h3',comparison.title);
+    heading.tabIndex=-1;
+    panel.append(el('p',comparison.year?'선택지 비교 · '+comparison.year+'년':'선택지 비교','report-folio'),heading);
+    if(comparison.first){
+      const lead=el('p',null,'sr-choice-lead');
+      lead.append(el('span','먼저 살펴볼 선택'),el('strong',comparison.first));
+      panel.append(lead);
+    }else{
+      panel.append(el('p','한 가지를 먼저 권할 만큼 단서가 뚜렷하지 않아요. 내 상황과 가까운 선택부터 비교해요.','sr-choice-note'));
+    }
+    const cards=el('div',null,'sr-choice-cards');
+    for(const choice of comparison.choices){
+      const card=el('article',null,'sr-choice-card');
+      if(choice.title===comparison.first)card.classList.add('sr-choice-first');
+      card.append(el('h4',choice.title),el('p',choice.fit));
+      if(choice.natal)card.append(el('p','내 사주에서 읽은 점 · '+choice.natal.meaning,'sr-choice-trait'));
+      const details=el('details',null,'sr-choice-evidence');
+      details.append(el('summary','원국·월운 근거 보기'));
+      if(choice.natal)details.append(el('p','원국 · '+choice.natal.fact));
+      for(const [kind,label,copy,timing] of [
+        ['good','살펴보기 좋은 때',choice.goodText,choice.good],
+        ['caution','신중히 볼 때',choice.cautionText,choice.caution]
+      ]){
+        const box=el('div',null,'sr-choice-timing');
+        box.dataset.timing=kind;
+        const title=el('p',label,'sr-choice-timing-label');
+        box.append(title);
+        if(timing){
+          const date=el('strong',timing.month+'월');
+          const range=window.TaekilTopicMonthly?.periodLabels(timing.row);
+          title.append(date);
+          if(range)box.append(el('small',range.calendar));
+          box.append(el('p',timing.reason+'을 읽어요. '+copy));
+          if(hasCalendar){
+            const link=button(timing.month+'월 풀이','sr-choice-month-link',()=>openReportMonth(timing.month));
+            box.append(link);
+          }
+          details.append(el('p',timing.month+'월 · '+timing.facts.join(' / ')));
+        }else{
+          box.append(el('p','이 선택에서 두드러지는 월운 단서가 약해요.'));
+        }
+        card.append(box);
+      }
+      if(details.children.length>1)card.append(details);
+      cards.append(card);
+    }
+    panel.append(cards);
+    if(comparison.note)panel.append(el('p',comparison.note,'sr-choice-note'));
+    return {panel,heading};
+  }
   function reportOverview(report,reading,periods){
     const theme=topicPresentation[reading.id];
     const overview=el('section',null,'sr-summary sr-topic-summary');
@@ -776,10 +841,7 @@
         const months=el('dd',null,'sr-ranked-months');
         box.append(el('dt',label+' · TOP 3'),months);
         for(const [index,row] of rows.entries()){
-          const go=button(row.month+'월','sr-ranked-month',()=>{
-            const bar=overview.parentElement?.querySelector('[data-period-month="'+row.month+'"]');
-            if(bar){bar.click();bar.focus({preventScroll:true});bar.scrollIntoView({block:'center',behavior:'instant'});}
-          });
+          const go=button(row.month+'월','sr-ranked-month',()=>openReportMonth(row.month));
           go.setAttribute('aria-label',label+' '+(index+1)+'번째 · '+row.month+'월 풀이');
           months.append(go);
         }
@@ -1031,16 +1093,21 @@
     const natal=purchasedContext(reading,report);
     const guide=introGuide(reading,natal,report.first);
     const natalChart=guide.firstElementChild;
-    let periods,pillars;
+    let periods,pillars,choiceSection;
     if(topic){
-      if(reading.id==='seohwa'||report.topicVersion>=2){
-        const context=natal;
-        pillars=context.pillars;
-        try{
-          periods=window.TaekilRelationshipPeriods?.calc(window.Solar,window.LunarUtil,context.pillars,profileBirthDay(report.profile),report.profile,reading.id,{legacyRanking:!(report.topicVersion>=3),rankVersion:report.topicVersion>=4?8:7});
-        }catch(error){console.warn('SEOHWA_PERIODS_UNAVAILABLE',error.name);}
-      }
+      const supportsCalendar=reading.id==='seohwa'||report.topicVersion>=2;
+      pillars=natal.pillars;
+      let comparison;
+      try{
+        const calculated=window.TaekilRelationshipPeriods?.calc(window.Solar,window.LunarUtil,pillars,profileBirthDay(report.profile),report.profile,reading.id,{legacyRanking:!(report.topicVersion>=3),rankVersion:report.topicVersion>=4?8:7});
+        if(supportsCalendar)periods=calculated;
+        if(calculated){
+          const chart=topicContent.natal(pillars,window.LunarUtil);
+          comparison=window.TaekilReportChoices?.compare(reading.id,calculated.calendar,chart);
+        }
+      }catch(error){console.warn('SEOHWA_PERIODS_UNAVAILABLE',error.name);}
       front.push(reportOverview(report,reading,periods));
+      if(comparison){choiceSection=reportChoices(comparison,!!periods);front.push(choiceSection.panel);}
       if(periods)front.push(relationshipMonths(periods,reading,pillars));
     }
     if(paidWealth){
@@ -1171,7 +1238,7 @@
     if(!paidWealth&&!topic)contents.append(guide.lastElementChild);
     const motif=window.TaekilReportGuide.dailyMotif({pair:natal.pillars?.day,theme:reading.topic});
     if(motif)contents.append(motif);
-    layout.append(toc({...reading,chapters:report.body.map(chapter=>chapter.title)},report.first,false),contents);
+    layout.append(toc({...reading,chapters:report.body.map(chapter=>chapter.title)},report.first,false,choiceSection?.heading),contents);
     const cover=header(reading,report.choice,report.day,report.known??report.profile?.hourValue!=='unknown',
       paidWealth?report.calendar.year:topic?true:undefined,report.profile);
     if(result.adminPreview)cover.querySelector('.sr-kicker').textContent+=' · 관리자용';
