@@ -156,3 +156,13 @@
 .relationship-pillar-pair p {margin:2px 0;font-size:14px;line-height:1.55}
 .relationship-pillar-comparison ul {padding-inline-start:18px;color:#e7dbca;word-break:keep-all}
 @media(max-width:370px){.relationship-pillar-pair{grid-template-columns:minmax(0,1fr)}}
+.relationship-reading.report-reading-shell :is(h3,h4,h5) {color:#553745}
+.relationship-reading.report-reading-shell :is(p,dd,ul) {color:#423537}
+.relationship-reading.report-reading-shell :is(dt,summary,blockquote b,.relationship-copy,.relationship-copy-status) {color:#704c44}
+.relationship-reading.report-reading-shell :is(section,.relationship-chapter,.relationship-agreement) {border-color:#d7c2b5}
+.relationship-reading.report-reading-shell :is(.relationship-dialogue,.relationship-pillar-pair>div) {background:#f3e8df;border-color:#d1bbaa}
+.relationship-reading.report-reading-shell :is(.relationship-pillar-pair b,.relationship-pillar-pair strong,.relationship-next-step strong,.relationship-agreement strong) {color:#654c46}
+.relationship-reading.report-reading-shell .relationship-summary {padding:12px 14px;border-left:3px solid #9b6a66;background:#f4e7e5;margin:12px 0}
+.relationship-reading.report-reading-shell .report-document-index {margin-top:12px}
+.relationship-reading.report-reading-shell .report-document-index summary {padding-block:10px}
+.relationship-reading.report-reading-shell .report-personal-motif .report-folio {color:#71504d}

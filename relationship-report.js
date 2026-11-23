@@ -125,8 +125,8 @@
   }
 
   function reportCard(report,expiresAtMs) {
-    const card = el('article','','relationship-reading');
-    card.append(el('h3','두 사람 관계 리포트'));
+    const card = el('article','','relationship-reading report-sheet report-reading-shell');
+    card.append(el('p','택일소 · 관계','report-folio'),el('h3','두 사람 관계 리포트'));
     const expiry=client.expiryNote(expiresAtMs);
     if(expiry)card.append(expiry);
     card.append(el('p',report.summary,'relationship-summary'));
@@ -178,7 +178,11 @@
       el('p',report.note,'relationship-method'));
     card.append(practice);
     if (report.routine?.length) card.append(entries('4주 동안 함께 해볼 일',report.routine));
+    const motif=window.TaekilReportGuide.dailyMotif({pair:report.people[0].hanja,theme:'relationship',heading:'h4'});
+    if(motif)card.append(motif);
     card.append(evidence);
+    const index=window.TaekilReportGuide.documentIndex([...card.querySelectorAll(':scope > section > h4')]);
+    card.querySelector('.relationship-summary').after(index);
     return card;
   }
 

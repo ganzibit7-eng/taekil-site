@@ -299,6 +299,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <dialog id="seohwaReportDialog" class="seohwa-report-dialog" aria-label="서화의 연애 리포트">
   <div class="sr-toolbar">
     <span>서화의 연애 리포트</span>
+    <button type="button" id="jumpSeohwaReportToc" hidden>목차</button>
     <button type="button" id="closeSeohwaReport">닫기</button>
     <progress id="seohwaReportProgress" aria-label="읽은 분량" value="0" max="1"></progress>
   </div>
@@ -323,10 +324,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="consultation-experience.js?v=annual-reading-1"></script>
 
 <script src="navigation-stability.js?v=20261111-2"></script>
-<link rel="stylesheet" href="report-pillar-guide.css?v=retention-1">
-<script src="report-pillar-guide.js?v=paid-birth-date-1"></script>
+<link rel="stylesheet" href="report-pillar-guide.css?v=report-paper-1">
+<script src="report-pillar-guide.js?v=report-paper-1"></script>
 <link rel="stylesheet" href="newyear-consultation.css?v=paper-1">
-<script src="newyear-consultation.js?v=report-library-1"></script><script src="newyear-example.js?v=home-paths-1"></script>
+<script src="newyear-consultation.js?v=report-paper-1"></script><script src="newyear-example.js?v=home-paths-1"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=free-progress-1">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
 <script src="free-report-handoff.js?v=home-paths-1"></script>
@@ -341,19 +342,19 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="account-session.js?v=nov20-entry"></script>
 <script src="campaign-attribution-core.js?v=20261119-campaign-visits"></script><script src="campaign-attribution.js?v=home-paths-1"></script>
 <script src="preview-funnel.js?v=20261119-daily"></script>
-<link rel="stylesheet" href="date-comparison.css?v=paid-guide-1">
+<link rel="stylesheet" href="date-comparison.css?v=report-paper-1">
 <script src="account-report-client.js?v=report-library-1"></script>
 <script src="report-decision-core.js?v=paid-guide-1"></script>
-<script src="date-report.js?v=report-library-1"></script>
+<script src="date-report.js?v=report-paper-1"></script>
 <script src="date-comparison.js?v=paid-tools-1"></script>
 <link rel="stylesheet" href="date-entry.css?v=surfaces-1120">
 <script src="date-entry.js?v=nov20-resume"></script>
-<link rel="stylesheet" href="relationship-report.css?v=paid-guide-1">
-<script src="relationship-report.js?v=price-3900-1"></script>
-<link rel="stylesheet" href="seohwa-report.css?v=retention-1">
+<link rel="stylesheet" href="relationship-report.css?v=report-paper-1">
+<script src="relationship-report.js?v=report-paper-1"></script>
+<link rel="stylesheet" href="seohwa-report.css?v=report-paper-1">
 <script src="topic-monthly-reading.js?v=4"></script>
 <script src="relationship-report-periods.js?v=4"></script>
 <script src="topic-report-content.js?v=2"></script>
-<script src="seohwa-report.js?v=report-library-1"></script>
+<script src="seohwa-report.js?v=report-paper-1"></script>
 </body>
 </html>
