@@ -135,3 +135,11 @@
 .paid-report-topics a { color:#e5cda3; font-weight:600; }
 .paid-report-topics span { color:#cfc4b8; font-size:14px; line-height:1.65; word-break:keep-all; }
 @media(max-width:520px) { .paid-report-topics {grid-template-columns:minmax(0,1fr);} }
+.date-report-result.report-reading-shell :is(h3,h4) {color:#624630}
+.date-report-result.report-reading-shell :is(p,strong,ul,summary) {color:#41352f}
+.date-report-result.report-reading-shell :is(.report-folio,.report-expiry-note,.date-report-score) {color:#775333}
+.date-report-result.report-reading-shell :is(.date-report-decision,.date-report-cues li) {background:#f2e7d9;border-color:#ccb398}
+.date-report-result.report-reading-shell .date-report-ranked>li {border-color:#d4c0ad}
+.date-report-result.report-reading-shell .date-report-compare-control {color:#574335}
+.date-report-result.report-reading-shell .date-report-compare-control select {background:#fcf7f0;color:#41352f;border-color:#987e66;color-scheme:light}
+.date-report-result.report-reading-shell .report-personal-motif {margin-top:16px}

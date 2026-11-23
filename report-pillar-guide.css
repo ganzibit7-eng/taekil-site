@@ -127,3 +127,83 @@
   color:#e4cba8;
   overflow-wrap:anywhere;
 }
+
+[data-element="목"] {--element-ink:#244b3d;--element-wash:#dfeae1;--element-bar:#557c65}
+[data-element="화"] {--element-ink:#803b38;--element-wash:#f5e0d9;--element-bar:#a95e55}
+[data-element="토"] {--element-ink:#765024;--element-wash:#f1e6cf;--element-bar:#a8844e}
+[data-element="금"] {--element-ink:#4e545d;--element-wash:#e5e6e8;--element-bar:#7d858c}
+[data-element="수"] {--element-ink:#354d6f;--element-wash:#dde7f1;--element-bar:#577595}
+.report-guide-pillars .report-element-tile {
+  display:grid;
+  gap:2px;
+  padding:7px 1px;
+  border-radius:5px;
+  background:var(--element-wash);
+  color:var(--element-ink);
+  font-size:clamp(10px,2.6vw,13px);
+}
+.report-guide-pillars .report-element-tile strong {font-size:clamp(19px,4.5vw,26px)}
+.report-element-distribution {
+  margin:20px 0;
+  padding:14px clamp(10px,3vw,18px);
+  border:1px solid var(--report-fine-rule);
+  border-radius:7px;
+  background:#fcf7f0;
+}
+.report-element-distribution>p {margin:4px 0 10px;color:#665657;font-size:13px}
+.report-element-distribution dl {display:grid;gap:7px;margin:0}
+.report-element-distribution dl>div {display:grid;grid-template-columns:1.2em minmax(0,1fr);align-items:center;gap:8px}
+.report-element-distribution dd {
+  grid-template-columns:minmax(0,1fr) 6.5em;
+  align-items:center;
+  min-height:0;
+  gap:8px;
+  margin:0;
+  color:#4e4444;
+  font-size:13px;
+  text-align:right;
+  font-variant-numeric:tabular-nums;
+}
+.report-element-track,.report-element-track>span {display:block;height:6px;border-radius:8px}
+.report-element-track {background:#e9e0d7}
+.report-element-track>span {background:var(--element-bar)}
+
+.report-document-index {
+  padding:8px clamp(12px,4vw,22px);
+  border:1px solid #cbb9ab;
+  border-radius:8px;
+  background:#f6efe7;
+  color:#3e3334;
+}
+.report-document-index summary {min-height:44px;padding-block:10px;font-weight:700;cursor:pointer}
+.report-document-index ol {display:grid;list-style:none;margin:0;padding:0}
+.report-document-index li {border-top:1px solid #daccc1}
+.report-document-index button {
+  display:grid;
+  grid-template-columns:2.5em minmax(0,1fr);
+  align-items:baseline;
+  width:100%;
+  min-height:44px;
+  padding:10px 0;
+  border:0;
+  background:none;
+  color:inherit;
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+  word-break:keep-all;
+}
+.report-document-index button>span:first-child {color:#765949;font-size:.84em;font-variant-numeric:tabular-nums}
+.report-document-index button:hover {text-decoration:underline;text-underline-offset:4px}
+.report-document-index :is(button,summary):focus-visible {outline:2px solid #785a48;outline-offset:2px}
+
+.report-personal-motif :is(h2,h3,h4) {margin:0 0 12px;color:var(--report-title);font:650 clamp(20px,4vw,30px)/1.45 var(--serif)}
+.report-personal-motif p:not(.report-folio) {margin:0;color:var(--report-ink);font:400 15px/1.75 var(--sans)}
+.report-personal-motif .report-guide-comparison {grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.report-personal-motif dt {font-size:13px;color:#695551}
+.report-personal-motif dd {margin:4px 0 0;color:#3e3334;font-size:15px;word-break:keep-all}
+.report-personal-motif p.report-motif-note {font-size:13px;color:#695551}
+.report-reading-shell.report-sheet {padding:clamp(14px,4vw,32px)}
+.report-reading-shell .report-expiry-note {color:#70584a}
+.report-reading-shell :is(h3,h4)[tabindex="-1"] {scroll-margin-top:100px}
+.report-reading-shell .report-personal-motif {padding:clamp(14px,3.5vw,25px);box-shadow:none}

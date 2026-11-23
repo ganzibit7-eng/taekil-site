@@ -108,6 +108,8 @@
     body.replaceChildren();
   }
   by('closeSeohwaReport').addEventListener('click',close);
+  const tocControl=by('jumpSeohwaReportToc');
+  tocControl.addEventListener('click',jumpToContents);
   dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
   dialog.addEventListener('scroll',()=>{
     progress.value=dialog.scrollTop/Math.max(1,dialog.scrollHeight-dialog.clientHeight);
@@ -158,14 +160,15 @@
     if(birth)title.append(birth);
     const navigation=el('div',null,'sr-cover-nav');
     navigation.append(button(paidYear?(reading.id==='dogyeom'?'올해 총평 읽기':'본편 바로 읽기'):'내 풀이 바로 보기','sr-personal-jump',()=>jumpToChapter(paidYear?1:0)));
-    if(paidYear)navigation.append(button('목차 보기','sr-cover-toc',()=>{
-      const list=by('wealthReportToc');
-      list.querySelector('button').focus({preventScroll:true});
-      list.scrollIntoView({block:'start',behavior:'instant'});
-    }));
+    if(paidYear)navigation.append(button('목차 보기','sr-cover-toc',jumpToContents));
     title.append(navigation);
     head.append(title);
     return head;
+  }
+  function jumpToContents(){
+    const list=body.querySelector('.sr-toc');
+    list?.querySelector('button')?.focus({preventScroll:true});
+    list?.scrollIntoView({block:'start',behavior:'instant'});
   }
   function jumpToChapter(index){
     const heading=by('seohwa-report-chapter-'+index)?.querySelector('h3');
@@ -203,6 +206,7 @@
   }
   function purchasedContext(reading,report){
     const known=report.known??(report.profile?.hourValue?report.profile.hourValue!=='unknown':undefined);
+    if(report.pillars?.day&&(!report.day||report.pillars.day===report.day))return {known,pillars:report.pillars};
     try{
       const birth=profileBirthDay(report.profile);
       if(birth&&window.Solar&&window.LunarUtil){
@@ -237,11 +241,11 @@
       if(locked&&index>0){
         const chapter=el('div');
         const wealthGuide=['2026년과 비교해 재물의 흐름이 달라지는 이유','열두 달의 기회·주의 지표와 원국의 관계','기회가 강한 세 시기와 절기 구간','신중하게 볼 세 시기와 그 이유','앞으로 10년의 흐름과 대운·세운 근거'];
-        chapter.append(el('strong',title),el('small',reading.id==='dogyeom'?wealthGuide[index-1]:(topicContent?.topics[reading.id]?.guide||reading.guide)[index-1]));
+        chapter.append(el('strong',String(index+1).padStart(2,'0')+' · '+title),el('small',reading.id==='dogyeom'?wealthGuide[index-1]:(topicContent?.topics[reading.id]?.guide||reading.guide)[index-1]));
         row.className='sr-locked-row';
         row.append(lockIcon(),chapter);
       }else{
-        row.append(button(title,'sr-jump',()=>jumpToChapter(index)));
+        row.append(button(String(index+1).padStart(2,'0')+' · '+title,'sr-jump',()=>jumpToChapter(index)));
         if(locked)row.append(el('small','무료로 읽을 수 있어요'));
       }
       rows.append(row);
@@ -252,6 +256,7 @@
   function show(nodes,preserve=false) {
     const scroll=preserve?dialog.scrollTop:0;
     body.replaceChildren(...nodes);
+    tocControl.hidden=!body.querySelector('.sr-toc');
     if(!dialog.open)dialog.showModal();
     dialog.scrollTop=scroll;
     progress.value=dialog.scrollTop/Math.max(1,dialog.scrollHeight-dialog.clientHeight);
@@ -302,11 +307,13 @@
     }
     const cover=header(reading,choice,context.day,context.known);
     const chapter=paper(first,0,null,reading);
+    const initialGuide=introGuide(reading,context,first);
+    const chart=initialGuide.firstElementChild;
     const guide=el('details',null,'sr-evidence sr-wealth-origin');
-    guide.append(el('summary','내 사주 원국과 핵심 근거 보기'),introGuide(reading,context,first));
+    guide.append(el('summary','이 주제를 사주로 읽는 법'),initialGuide.lastElementChild);
     chapter.append(guide);
     const tocTopic=topicContent?.topics[reading.id];
-    contents.append(chapter,toc(tocTopic?{...reading,chapters:tocTopic.chapters}:reading,first,true),...(excerpts.length?[samples]:[]),gate);
+    contents.append(chart,chapter,toc(tocTopic?{...reading,chapters:tocTopic.chapters}:reading,first,true),...(excerpts.length?[samples]:[]),gate);
     const quick=el('div',null,'sr-wealth-quick');
     const jump=button('전체 리포트 · '+won.format(reading.PRICE)+'원','sr-primary',()=>{
       pay.focus({preventScroll:true});
@@ -990,6 +997,27 @@
     return panel;
   }
 
+  function assetReading(guide){
+    const section=el('section',null,'sr-asset-reading report-sheet');
+    section.append(el('p','재물을 굴리는 방식','report-folio'),el('h3','주식·부동산·가상자산'),
+      el('p',guide.priority,'sr-asset-priority'),el('p','원국에서 읽은 단서 · '+guide.basis,'sr-asset-basis'));
+    const list=el('dl');
+    for(const asset of guide.assets){
+      const item=el('div');
+      item.append(el('dt',asset.label),el('dd',asset.reading));
+      list.append(item);
+    }
+    section.append(list);
+    if(guide.risk){
+      const caution=el('aside');
+      caution.append(el('strong','특히 신중할 구간 · '+guide.risk.title),el('p',guide.risk.reading),
+        el('p','월운 근거 · '+guide.risk.basis,'sr-asset-basis'));
+      section.append(caution);
+    }
+    section.append(el('p','전통 명리학으로 읽은 운용 성향이에요. 투자 결정에는 실제 자금 사정과 자산 정보를 함께 살펴보세요.','sr-asset-basis'));
+    return section;
+  }
+
   function drawPurchased(result,host,owner,reading) {
     if(!result.adminPreview)window.TaekilCampaign?.activity('read_'+reading.topic);
     const {report}=result;
@@ -1000,10 +1028,13 @@
     const paidWealth=reading.id==='dogyeom'&&report.calendar?.ranking;
     const front=[];
     const topic=topicPresentation[reading.id];
+    const natal=purchasedContext(reading,report);
+    const guide=introGuide(reading,natal,report.first);
+    const natalChart=guide.firstElementChild;
     let periods,pillars;
     if(topic){
       if(reading.id==='seohwa'||report.topicVersion>=2){
-        const context=purchasedContext(reading,report);
+        const context=natal;
         pillars=context.pillars;
         try{
           periods=window.TaekilRelationshipPeriods?.calc(window.Solar,window.LunarUtil,context.pillars,profileBirthDay(report.profile),report.profile,reading.id,{legacyRanking:!(report.topicVersion>=3),rankVersion:report.topicVersion>=4?8:7});
@@ -1046,8 +1077,8 @@
       }
       front.push(summary,wealthRanking(report.calendar));
     }
+    front.splice(1,0,natalChart);
     contents.append(balance);
-    if(!paidWealth&&!topic)contents.append(introGuide(reading,purchasedContext(reading,report),report.first));
     for(const [index,chapter] of [report.first,...report.body].entries()){
       const page=paper(chapter,index,result.questionsLeft>0?()=>followup(result,chapter,index-1,owner,reading):null,reading);
       if(index===0&&!paidWealth&&report.calendar?.judgment){
@@ -1077,6 +1108,7 @@
         page.querySelector('.sr-evidence')?.before(jump);
       }
       if(index===2&&report.calendar)page.querySelector('.sr-evidence')?.before(calendarArticle(report.calendar));
+      if(index===4&&paidWealth&&report.calendar.assetGuide)page.append(assetReading(report.calendar.assetGuide));
       if(index===5&&report.calendar?.outlook)page.querySelector('.sr-evidence')?.before(wealthOutlook(report.calendar.outlook,report.calendar));
       if(index===5&&paidWealth&&report.calendar.outlook){
         const c=report.calendar,year=c.outlook.years[0],cycles=c.daewoon?.cycles||[];
@@ -1117,7 +1149,7 @@
       }
       if((paidWealth||topic)&&index===0){
         const first=el('details',null,'sr-paid-details');
-        if(topic)page.append(introGuide(reading,purchasedContext(reading,report),report.first));
+        page.append(guide.lastElementChild);
         first.append(el('summary','무료 첫 장 다시 보기'),page);
         contents.append(first);
       }else{
@@ -1136,6 +1168,9 @@
         contents.append(page);
       }
     }
+    if(!paidWealth&&!topic)contents.append(guide.lastElementChild);
+    const motif=window.TaekilReportGuide.dailyMotif({pair:natal.pillars?.day,theme:reading.topic});
+    if(motif)contents.append(motif);
     layout.append(toc({...reading,chapters:report.body.map(chapter=>chapter.title)},report.first,false),contents);
     const cover=header(reading,report.choice,report.day,report.known??report.profile?.hourValue!=='unknown',
       paidWealth?report.calendar.year:topic?true:undefined,report.profile);

@@ -36,6 +36,27 @@
   --report-accent-line:#9db9bc;
 }
 body:has(.seohwa-report-dialog[open]) {overflow:hidden}
+#jumpSeohwaReportToc[hidden] {display:none}
+.sr-toolbar #jumpSeohwaReportToc {margin-inline-start:auto;flex:none}
+.sr-toolbar #closeSeohwaReport {flex:none}
+.seohwa-report-dialog[data-advisor] .sr-toc {scroll-margin-top:10px}
+.seohwa-report-dialog .report-personal-motif {margin-top:8px}
+.sr-paper .sr-asset-reading {
+  margin-top:24px;
+  padding:clamp(14px,3.5vw,26px);
+  box-shadow:none;
+  background:#faf3ea;
+}
+.sr-asset-reading h3 {font-size:clamp(20px,3.6vw,27px)}
+.sr-asset-reading p.sr-asset-priority {font-weight:700;color:#583f31}
+.sr-asset-reading p.sr-asset-basis {font-size:13px;color:#6c5545}
+.sr-asset-reading dl {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:16px 0}
+.sr-asset-reading dl>div {padding:12px;border:1px solid #d5c3b3;border-radius:6px}
+.sr-asset-reading dt {font-weight:700;color:#654638}
+.sr-asset-reading dd {margin:4px 0 0;line-height:1.7}
+.sr-asset-reading aside {padding:12px 14px;border-left:3px solid #9d6650;background:#f2e4d8}
+.sr-asset-reading aside p {margin:6px 0}
+@media(max-width:660px){.sr-asset-reading dl {grid-template-columns:minmax(0,1fr)}}
 .sr-toolbar {
   position:sticky;
   inset-block-start:0;

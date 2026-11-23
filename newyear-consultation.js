@@ -304,7 +304,8 @@
     const opportunities=section('기회를 살리는 방법',r.opportunities);
     const cautions=section('조금 더 신중할 때',r.cautions);
     const closing=section('연우가 전하는 말',r.closing);
-    const sections=[overview,foundation,areas,months,...(guide?[guide.focus,guide.decade]:[]),opportunities,cautions,closing];
+    const motif=window.TaekilReportGuide.dailyMotif({pair:data.calculation.pillars?.day,theme:'newyear',heading:'h2'});
+    const sections=[overview,foundation,areas,months,...(guide?[guide.focus,guide.decade]:[]),opportunities,cautions,...(motif?[motif]:[]),closing];
     const links=[['내 풀이 바로 보기',overview],['분야별 풀이',areas],['월별 풀이',months]];
     if(guide)links.push(['주요 시기',guide.focus],['10년 흐름',guide.decade]);
     for (const [label, target] of links) {
@@ -316,7 +317,15 @@
       jump.addEventListener('click',()=>focusReportHeading(heading));
       contents.append(jump);
     }
-    content.append(cover,contents,introduction,...sections);
+    const index=window.TaekilReportGuide.documentIndex([
+      ...introduction.querySelectorAll('h2'),...sections.map(section=>section.querySelector('h2'))
+    ]);
+    sections.forEach((section,position)=>{
+      if(section!==motif&&section.classList.contains('report-sheet')){
+        section.prepend(el('p',String(position+1).padStart(2,'0')+'장','report-folio'));
+      }
+    });
+    content.append(cover,contents,index,introduction,...sections);
     const monthIndex=el('nav',null,'newyear-month-index');
     monthIndex.setAttribute('aria-label','월별 풀이 바로가기');
     months.append(monthIndex);

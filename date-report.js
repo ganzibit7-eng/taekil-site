@@ -34,9 +34,9 @@
   const request = (payload, token) => client.request(endpoint, payload, token);
 
   function reportCard({report,expiresAtMs}) {
-    const box = node('article','','date-report-result');
+    const box = node('article','','date-report-result report-sheet report-reading-shell');
     const title = node('h3',report.event + ' 후보일 정밀 비교');
-    box.append(title);
+    box.append(node('p','택일소 · 정밀 택일','report-folio'),title);
     const expiry=client.expiryNote(expiresAtMs);
     if(expiry)box.append(expiry);
     box.append(decisionCard(report));
@@ -76,6 +76,11 @@
     for (const entry of report.checklist) checklist.append(node('li',entry));
     box.append(node('h4','날짜를 확정하기 전에'),checklist,
       node('p','두 사람을 선택하면 각자의 기운 점수를 평균해요. 여기에 행사·민속 가점과 작은 순위 보정을 더해 100점으로 표시해요. '+report.note,'date-report-method'));
+    const top=report.candidates[0];
+    const motif=window.TaekilReportGuide.dailyMotif({element:top?.element,source:top&&dayLabel(top.day)+' 후보일',theme:'date',heading:'h4'});
+    if(motif)box.append(motif);
+    const index=window.TaekilReportGuide.documentIndex([...box.querySelectorAll(':scope > h4, :scope > section > h4')]);
+    title.after(index);
     return box;
   }
 
