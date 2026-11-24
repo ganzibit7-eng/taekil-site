@@ -101,6 +101,11 @@ const anchors=html=>[...html.matchAll(/<a\b[^>]*\bhref="([^"]*)"/gi)].map(m=>m[1
 for(const file of detailFiles){
  let original=cp.execFileSync('git',['show',baselineRef+':'+file],{encoding:'utf8'}).replace(/\r\n/g,'\n');
  if(file==='404.html')original=original.replace('href="/taekil-site/"','href="/"');
+ if(['compatibility','wealth','moving-date','opening-date','wedding-date'].includes(file.split('/')[0])){
+   original=original.replaceAll('href="/#view-home"','href="/consultation/yeonwoo/"');
+   if(file==='wealth/index.html')original=original.replaceAll('href="https://taekilso.com/#wealth"','href="/consultation/wealth/"');
+   if(file==='compatibility/index.html')original=original.replaceAll('href="https://taekilso.com/#compatibility"','href="/#relationship-report"');
+ }
  // The approved static business footer adds public identity/contact details only.
  // Strip that separately verified block when comparing the original article.
  let updated=fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n').replace(/<!-- BUSINESS_INFO_START -->\n[\s\S]*?\n<!-- BUSINESS_INFO_END -->\n/g,'');

@@ -42,6 +42,12 @@
           <button type="button" aria-pressed="true" data-date-mode="range">기간으로 찾기</button>
           <button type="button" aria-pressed="false" data-date-mode="exact">두 날짜 비교</button>
         </div>
+        <div class="event-opts" id="eventPicker" role="group" aria-label="비교할 일정 종류">
+          <button type="button" class="event-opt active" data-val="결혼식" aria-pressed="true">결혼식</button>
+          <button type="button" class="event-opt" data-val="이사" aria-pressed="false">이사</button>
+          <button type="button" class="event-opt" data-val="개업" aria-pressed="false">개업</button>
+          <button type="button" class="event-opt" data-val="계약체결" aria-pressed="false">계약체결</button>
+        </div>
         <div class="tool-exact-dates" hidden>
           <h2 tabindex="-1" id="toolExactTitle">후보 날짜 비교</h2>
           <p>후보일 두 개는 양력 날짜로 고르고, 아래에 생년월일을 입력해 주세요.</p>
@@ -54,18 +60,11 @@
           <p class="date-report-input-note">최대 5개까지 입력할 수 있어요. 처음 두 날짜는 무료로 비교해요.</p>
         </div>
 
-        <div class="event-opts" id="eventPicker" style="display:none;">
-          <div class="event-opt active" data-val="결혼식">결혼식</div>
-          <div class="event-opt" data-val="이사">이사</div>
-          <div class="event-opt" data-val="개업">개업</div>
-          <div class="event-opt" data-val="계약체결">계약체결</div>
-        </div>
-
         <div class="field full" style="margin-bottom:8px;">
           <label>달력 기준</label>
           <div class="cal-type-toggle" id="birthCalType">
-            <span class="ct-btn active" data-type="solar">양력</span>
-            <span class="ct-btn" data-type="lunar">음력</span>
+            <button type="button" class="ct-btn active" data-type="solar" aria-pressed="true">양력</button>
+            <button type="button" class="ct-btn" data-type="lunar" aria-pressed="false">음력</button>
           </div>
         </div>
         <label class="couple-row" id="birthLockWrap" style="margin-bottom:14px;">
@@ -75,6 +74,7 @@
 
         <div class="field full" style="margin-top:16px;">
           <label>생년월일</label>
+          <p class="privacy-input-note">태어난 날의 기운을 기준으로 후보 날짜를 비교해요.</p>
           <p class="privacy-input-note">만 14세 미만 아동 정보는 입력하지 마세요.</p>
           <div class="ymd-row">
             <select id="birthYear" class="ymd-select" aria-label="본인 출생연도"></select>
@@ -82,10 +82,7 @@
             <select id="birthDay" class="ymd-select" aria-label="본인 출생일"></select>
           </div>
         </div>
-        <div class="field full">
-          <label>태어난 시(모르면 비워두세요)</label>
-          <input type="time" id="birthTime">
-        </div>
+        <input type="hidden" id="birthTime">
         <input type="hidden" id="birthDate">
         <label class="couple-row" id="birthLeapWrap" style="display:none;">
           <span class="switch"><input type="checkbox" id="birthLeap"><span class="switch-track"><span class="switch-thumb"></span></span></span>
@@ -113,15 +110,12 @@
               <select id="partnerDay" class="ymd-select" aria-label="상대방 출생일"></select>
             </div>
           </div>
-          <div class="field full">
-            <label>상대방 태어난 시(선택)</label>
-            <input type="time" id="partnerBirthTime">
-          </div>
+          <input type="hidden" id="partnerBirthTime">
           <input type="hidden" id="partnerBirthDate">
         </div>
         <div class="cal-type-toggle" id="partnerCalType" style="display:none; margin-bottom:14px;">
-          <span class="ct-btn active" data-type="solar">양력</span>
-          <span class="ct-btn" data-type="lunar">음력</span>
+          <button type="button" class="ct-btn active" data-type="solar" aria-pressed="true">양력</button>
+          <button type="button" class="ct-btn" data-type="lunar" aria-pressed="false">음력</button>
         </div>
         <label class="couple-row" id="partnerLeapWrap" style="display:none;">
           <span class="switch"><input type="checkbox" id="partnerLeap"><span class="switch-track"><span class="switch-thumb"></span></span></span>
@@ -491,7 +485,7 @@
   </header>
   <section class="block" style="padding-top:10px;">
     <div class="container" style="max-width:700px;">
-      <a href="mailto:contact@taekilso.com" class="support-email-link"><span>이메일 문의</span><strong>contact@taekilso.com</strong></a><p class="support-email-note">메일 주소를 눌러 이메일 앱에서 문의하실 수 있어요.</p>
+      <!--email_off--><a href="mailto:contact@taekilso.com" class="support-email-link"><span>이메일 문의</span><strong>contact@taekilso.com</strong></a><!--/email_off--><p class="support-email-note">메일 주소를 눌러 이메일 앱에서 문의하실 수 있어요.</p>
       <div class="tool-shell">
         <h2>새 문의 작성</h2>
         <p class="lead">로그인 후 이용할 수 있어요. 작성한 문의와 답변은 이 목록에서 확인할 수 있어요.</p>
@@ -499,7 +493,7 @@
           <label>자주 있는 결제 문의 (누르면 아래 제목·내용이 자동으로 채워져요)</label>
           <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;">
             <button type="button" class="btn" style="padding:8px 16px; min-height:auto; font-size:12.5px;" onclick="fillCommonInquiry('paymentFailed')">💳 결제가 안 됐어요</button>
-            <button type="button" class="btn" style="padding:8px 16px; min-height:auto; font-size:12.5px;" onclick="fillCommonInquiry('premiumNotOpen')">🔒 결제했는데 프리미엄이 안 열려요</button>
+            <button type="button" class="btn" style="padding:8px 16px; min-height:auto; font-size:12.5px;" onclick="fillCommonInquiry('premiumNotOpen')">결제한 상품을 이용할 수 없어요</button>
             <button type="button" class="btn" style="padding:8px 16px; min-height:auto; font-size:12.5px;" onclick="requestRefund()">↩️ 환불하고 싶어요</button>
           </div>
         </div>
@@ -868,7 +862,7 @@
     <div><dt>통신판매업</dt><dd>신고 면제</dd></div>
     <div class="business-detail-wide"><dt>사업장 주소</dt><dd>전남광주통합특별시 북구 첨단연신로 216, 109동 1501호</dd></div>
     <div class="business-detail-wide business-contact-row"><dt>문의 전화</dt><dd>010-2130-5797</dd></div>
-    <div class="business-detail-wide business-contact-row"><dt>문의 이메일</dt><dd>contact@taekilso.com</dd></div>
+    <!--email_off--><div class="business-detail-wide business-contact-row"><dt>문의 이메일</dt><dd>contact@taekilso.com</dd></div><!--/email_off-->
     <div><dt>호스팅 제공자</dt><dd>Cloudflare, Inc.</dd></div>
   </dl>
 </section>

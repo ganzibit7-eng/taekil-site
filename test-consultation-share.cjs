@@ -50,6 +50,8 @@ test('a saved share address restores its story and explicit legacy hashes still 
     ['/consultation/reunion','topic-reunion'],
     ['/consultation/reunion/#history','history'],
     ['/#topic-reunion','topic-reunion'],
+    ['/#wealth','topic-wealth'],
+    ['/#compatibility','relationship-report'],
     ['/','home']
   ]) {
     const context = {document, location:new URL(path,origin)};

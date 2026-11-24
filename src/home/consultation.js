@@ -1838,17 +1838,10 @@ async function sendAiChatMessage() {
 function fillFortuneDateSelects(){
   const y=document.getElementById('fortuneYear'),m=document.getElementById('fortuneMonth'),d=document.getElementById('fortuneDay');
   if(!y||!m||!d||y.options.length) return;
-  const now=new Date();
-  for(let yy=1940;yy<=new Date().getFullYear();yy++){
-    const o=document.createElement('option');o.value=yy;o.textContent=yy+'년';y.appendChild(o);
-  }
-  for(let mm=1;mm<=12;mm++){
-    const o=document.createElement('option');o.value=mm;o.textContent=mm+'월';m.appendChild(o);
-  }
-  for(let dd=1;dd<=31;dd++){
-    const o=document.createElement('option');o.value=dd;o.textContent=dd+'일';d.appendChild(o);
-  }
-  y.value=1990;m.value=1;d.value=1;
+  fillYmdSelects(y.id, m.id, d.id, {isLunarFn: () => getCalType('fortuneCalType') === 'lunar'});
+  y.value=1990;m.value=1;
+  m.dispatchEvent(new Event('change'));
+  d.value=1;
 }
 function openFortuneModal(){
   fillFortuneDateSelects();

@@ -6,7 +6,7 @@
     </header>
     <nav class="topic-index-shortcuts" aria-label="주제 바로가기"></nav>
     <div class="topic-index-groups">
-      <section class="topic-index-group" data-topic-group='[data-story-topic="love"],[aria-labelledby="directoryRelationshipsTitle"] .directory-card'>
+      <section class="topic-index-group" data-topic-group='[data-story-topic="love"],[data-story-topic="reunion"],[aria-labelledby="directoryRelationshipsTitle"] .directory-card'>
         <h2 tabindex="-1">연애·궁합</h2>
         <ul></ul>
       </section>
@@ -26,12 +26,12 @@
         <h2 tabindex="-1">중요한 결정</h2>
         <ul></ul>
       </section>
-      <section class="topic-index-group" data-topic-group=".directory-year-preview">
+      <section class="topic-index-group" data-topic-group=".directory-feature-year,.directory-year-preview">
         <h2 tabindex="-1">신년운세</h2>
         <ul></ul>
       </section>
-      <section class="topic-index-group" data-topic-group='[aria-labelledby="directoryFeaturedTitle"] .directory-feature'>
-        <h2 tabindex="-1">사주 리포트</h2>
+      <section class="topic-index-group" data-topic-group='[data-open-basic-report],.directory-paid-tool,[data-directory-chat-start]'>
+        <h2 tabindex="-1">사주·택일 서비스</h2>
         <ul></ul>
       </section>
     </div>

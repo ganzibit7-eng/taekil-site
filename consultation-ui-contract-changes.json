@@ -1,5 +1,65 @@
 [
   [
+    "  const y=document.getElementById('fortuneYear'),m=document.getElementById('fortuneMonth'),d=document.getElementById('fortuneDay');\n  if(!y||!m||!d||y.options.length) return;\n  fillYmdSelects(y.id, m.id, d.id, {isLunarFn: () => getCalType('fortuneCalType') === 'lunar'});\n  y.value=1990;m.value=1;\n  m.dispatchEvent(new Event('change'));\n  d.value=1;\n}\nfunction openFortuneModal(){",
+    "  const y=document.getElementById('fortuneYear'),m=document.getElementById('fortuneMonth'),d=document.getElementById('fortuneDay');\n  if(!y||!m||!d||y.options.length) return;\n  const now=new Date();\n  for(let yy=1940;yy<=new Date().getFullYear();yy++){\n    const o=document.createElement('option');o.value=yy;o.textContent=yy+'년';y.appendChild(o);\n  }\n  for(let mm=1;mm<=12;mm++){\n    const o=document.createElement('option');o.value=mm;o.textContent=mm+'월';m.appendChild(o);\n  }\n  for(let dd=1;dd<=31;dd++){\n    const o=document.createElement('option');o.value=dd;o.textContent=dd+'일';d.appendChild(o);\n  }\n  y.value=1990;m.value=1;d.value=1;\n}\nfunction openFortuneModal(){"
+  ],
+  [
+    "    const y=document.getElementById('insightYear'),m=document.getElementById('insightMonth'),d=document.getElementById('insightDay');\n    if(!y||!m||!d||y.options.length)return;\n    fillYmdSelects(y.id, m.id, d.id, {isLunarFn: () => getCalType('insightCalType') === 'lunar'});\n  };",
+    "    const y=document.getElementById('insightYear'),m=document.getElementById('insightMonth'),d=document.getElementById('insightDay');\n    if(!y||!m||!d||y.options.length)return;\n    for (const [select, label] of [[y,'출생 연도'], [m,'월'], [d,'일']]) {\n      const placeholder = document.createElement('option');\n      placeholder.value = '';\n      placeholder.textContent = label;\n      select.appendChild(placeholder);\n    }\n    const now=new Date();\n    for(let yy=1940;yy<=now.getFullYear();yy++){const o=document.createElement('option');o.value=yy;o.textContent=yy+'년';y.appendChild(o)}\n    for(let mm=1;mm<=12;mm++){const o=document.createElement('option');o.value=mm;o.textContent=mm+'월';m.appendChild(o)}\n    for(let dd=1;dd<=31;dd++){const o=document.createElement('option');o.value=dd;o.textContent=dd+'일';d.appendChild(o)}\n    y.value = m.value = d.value = '';\n  };"
+  ],
+  [
+    "\n  if (route === 'tool' && presetEvent) {\n    selectToolEvent(presetEvent);\n  }\n  if (route === 'history') {",
+    "\n  if (route === 'tool' && presetEvent) {\n    document.querySelectorAll('.event-opt').forEach(o => {\n      o.classList.toggle('active', o.dataset.val === presetEvent);\n    });\n    const label = document.getElementById('toolSelectedLabel');\n    if (label) label.innerHTML = `<strong style=\"color:var(--gold-hi)\">${presetEvent}</strong> 날짜를 찾아드릴게요. 생년월일과 가능한 기간을 알려주세요.`;\n    const anchor = document.getElementById('toolFormAnchor');\n    if (anchor) anchor.style.display = 'block'; // 홈 카드 등에서 특정 목적을 지정하고 들어온 경우 바로 폼을 보여줍니다.\n  }\n  if (route === 'history') {"
+  ],
+  [
+    "\n/* ---------- KEYBOARD ACCESSIBILITY ---------- */\ndocument.querySelectorAll('.event-card, .saju-event-card, .event-opt, .faq-item summary').forEach(el => {\n  if (el.tagName !== 'SUMMARY' && el.tagName !== 'BUTTON') {\n    el.setAttribute('tabindex', '0');\n    el.setAttribute('role', 'button');",
+    "\n/* ---------- KEYBOARD ACCESSIBILITY ---------- */\ndocument.querySelectorAll('.event-card, .event-opt, .faq-item summary').forEach(el => {\n  if (el.tagName !== 'SUMMARY') {\n    el.setAttribute('tabindex', '0');\n    el.setAttribute('role', 'button');"
+  ],
+  [
+    "document.getElementById('eventPicker').addEventListener('click', (e) => {\n  const opt = e.target.closest('.event-opt');\n  if (opt) selectToolEvent(opt.dataset.val);\n});\n\nfunction selectToolEvent(eventVal) {\n  const options = [...document.querySelectorAll('#eventPicker .event-opt')];\n  const selected = options.find(option => option.dataset.val === eventVal);\n  if (!selected) return;\n  const changed = !selected.classList.contains('active');\n  options.forEach(option => {\n    option.classList.toggle('active', option === selected);\n    option.setAttribute('aria-pressed', String(option === selected));\n  });\n  const label = document.getElementById('toolSelectedLabel');\n  const name = document.createElement('strong');\n  name.style.color = 'var(--gold-hi)';\n  name.textContent = eventVal;\n  label.replaceChildren(name, ' 날짜를 찾아드릴게요. 생년월일과 가능한 기간을 알려주세요.');\n  const anchor = document.getElementById('toolFormAnchor');\n  anchor.style.display = 'block';\n  if (changed) {\n    document.getElementById('results').style.display = 'none';\n    anchor.dispatchEvent(new Event('taekilso:toolEventChanged'));\n  }\n}\n\nfunction selectEventAndFocus(eventVal) {\n  if (!document.getElementById('view-tool').classList.contains('visible')) goTo('tool');\n  selectToolEvent(eventVal);\n  const anchor = document.getElementById('toolFormAnchor');\n  document.querySelector('.tool-date-mode [aria-pressed=\"true\"]')?.focus({preventScroll:true});\n  setTimeout(() => {\n    if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });",
+    "document.getElementById('eventPicker').addEventListener('click', (e) => {\n  const opt = e.target.closest('.event-opt');\n  if (!opt) return;\n  document.querySelectorAll('.event-opt').forEach(o => o.classList.remove('active'));\n  opt.classList.add('active');\n});\n\n/* 상단 4개 카드(결혼식/이사/개업/계약체결)를 누르면, 아래 폼에서 해당 목적을 선택된 상태로\n   만들고 폼까지 부드럽게 스크롤합니다. */\n/* 상단 카드(결혼식/이사/개업/계약체결)를 누르면, 숨겨진 선택값을 그 목적으로 바꾸고\n   (보이는 알약 버튼 중복 없이) 바로 아래 입력 폼으로 이동합니다. */\nfunction selectEventAndFocus(eventVal) {\n  if (!document.getElementById('view-tool').classList.contains('visible')) goTo('tool');\n  document.querySelectorAll('#eventPicker .event-opt').forEach(o => {\n    o.classList.toggle('active', o.dataset.val === eventVal);\n  });\n  const label = document.getElementById('toolSelectedLabel');\n  if (label) label.innerHTML = `<strong style=\"color:var(--gold-hi)\">${eventVal}</strong> 날짜를 찾아드릴게요. 생년월일과 가능한 기간을 알려주세요.`;\n  const anchor = document.getElementById('toolFormAnchor');\n  if (anchor) anchor.style.display = 'block'; // 카드를 눌러야만 날짜 입력 폼이 나타납니다.\n  setTimeout(() => {\n    if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });"
+  ],
+  [
+    "  document.getElementById('coupleFields').style.display = e.target.checked ? 'block' : 'none';\n  document.getElementById('partnerCalType').style.display = e.target.checked ? 'flex' : 'none';\n  document.getElementById('partnerLeapWrap').style.display =\n    e.target.checked && getCalType('partnerCalType') === 'lunar' ? 'flex' : 'none';\n});\n",
+    "  document.getElementById('coupleFields').style.display = e.target.checked ? 'block' : 'none';\n  document.getElementById('partnerCalType').style.display = e.target.checked ? 'flex' : 'none';\n});\n"
+  ],
+  [
+    "});\n/* ---------- 양력/음력 토글 ---------- */\nfunction setupCalTypeToggle(toggleId) {\n  const toggle = document.getElementById(toggleId);\n  toggle.addEventListener('click', (e) => {\n    const btn = e.target.closest('.ct-btn');\n    if (!btn) return;\n    setCalType(toggleId, btn.dataset.type);\n    document.getElementById(toggleId.replace('CalType', 'Month')).dispatchEvent(new Event('change', {bubbles:true}));\n  });\n}",
+    "});\n/* ---------- 양력/음력 토글 ---------- */\nfunction setupCalTypeToggle(toggleId, leapWrapId) {\n  const toggle = document.getElementById(toggleId);\n  toggle.addEventListener('click', (e) => {\n    const btn = e.target.closest('.ct-btn');\n    if (!btn) return;\n    toggle.querySelectorAll('.ct-btn').forEach(b => b.classList.remove('active'));\n    btn.classList.add('active');\n    document.getElementById(leapWrapId).style.display = btn.dataset.type === 'lunar' ? 'flex' : 'none';\n    if (toggleId === 'birthCalType') updateSajuPreview();\n  });\n}"
+  ],
+  [
+    "// 아직 브라우저가 거기까지 읽지 않은 상태라 null이 나올 수 있어서, 문서 전체가\n// 완전히 다 읽힌 뒤(DOMContentLoaded)에 실행되도록 확실하게 미룹니다.\nsetupCalTypeToggle('birthCalType');\nsetupCalTypeToggle('partnerCalType');\nfunction setupLateCalTypeToggles() {\n  setupCalTypeToggle('fortuneCalType');\n  setupCalTypeToggle('insightCalType');\n}\nif (document.readyState === 'loading') {",
+    "// 아직 브라우저가 거기까지 읽지 않은 상태라 null이 나올 수 있어서, 문서 전체가\n// 완전히 다 읽힌 뒤(DOMContentLoaded)에 실행되도록 확실하게 미룹니다.\nsetupCalTypeToggle('birthCalType', 'birthLeapWrap');\nsetupCalTypeToggle('partnerCalType', 'partnerLeapWrap');\napplyLockedBirthTo('birth');\nfunction setupLateCalTypeToggles() {\n  setupCalTypeToggle('fortuneCalType', 'fortuneLeapWrap');\n  setupCalTypeToggle('insightCalType', 'insightLeapWrap');\n}\nif (document.readyState === 'loading') {"
+  ],
+  [
+    "/* ---------- 생년월일 고정(잠금) ---------- */\nconst BIRTH_LOCK_KEY = 'taekilso_locked_birth';\napplyLockedBirthTo('birth');\n\nfunction getLockedBirth() {",
+    "/* ---------- 생년월일 고정(잠금) ---------- */\nconst BIRTH_LOCK_KEY = 'taekilso_locked_birth';\n\nfunction getLockedBirth() {"
+  ],
+  [
+    "  const toggle = document.getElementById(toggleId);\n  if (!toggle) return;\n  toggle.querySelectorAll('.ct-btn').forEach(button => {\n    button.classList.toggle('active', button.dataset.type === type);\n    button.setAttribute('aria-pressed', String(button.dataset.type === type));\n  });\n  const leapWrapId = toggleId.replace('CalType', 'LeapWrap');\n  const leapWrap = document.getElementById(leapWrapId);",
+    "  const toggle = document.getElementById(toggleId);\n  if (!toggle) return;\n  toggle.querySelectorAll('.ct-btn').forEach(b => b.classList.toggle('active', b.dataset.type === type));\n  const leapWrapId = toggleId.replace('CalType', 'LeapWrap');\n  const leapWrap = document.getElementById(leapWrapId);"
+  ],
+  [
+    "  if (locked) {\n    setCalType(prefix + 'CalType', locked.calType);\n    const leapChk = document.getElementById(prefix + 'Leap');\n    if (leapChk) leapChk.checked = !!locked.isLeap;\n    yearSel.value = locked.year;\n    monthSel.value = locked.month;",
+    "  if (locked) {\n    setCalType(prefix + 'CalType', locked.calType);\n    yearSel.value = locked.year;\n    monthSel.value = locked.month;"
+  ],
+  [
+    "    daySel.value = locked.day;\n    daySel.dispatchEvent(new Event('change'));\n    if (lockChk) lockChk.checked = true;\n    setInputsDisabled(prefix, true);",
+    "    daySel.value = locked.day;\n    daySel.dispatchEvent(new Event('change'));\n    const leapChk = document.getElementById(prefix + 'Leap');\n    if (leapChk) leapChk.checked = !!locked.isLeap;\n    if (lockChk) lockChk.checked = true;\n    setInputsDisabled(prefix, true);"
+  ],
+  [
+    "  if (leapChk) leapChk.disabled = disabled;\n  const toggle = document.getElementById(prefix + 'CalType');\n  toggle?.querySelectorAll('button').forEach(button => { button.disabled = disabled; });\n  if (toggle) toggle.style.pointerEvents = disabled ? 'none' : '';\n  if (toggle) toggle.style.opacity = disabled ? '.55' : '';",
+    "  if (leapChk) leapChk.disabled = disabled;\n  const toggle = document.getElementById(prefix + 'CalType');\n  if (toggle) toggle.style.pointerEvents = disabled ? 'none' : '';\n  if (toggle) toggle.style.opacity = disabled ? '.55' : '';"
+  ],
+  [
+    "    accountStore.removeItem(BIRTH_LOCK_KEY);\n    setInputsDisabled(prefix, false);\n    ['birth', 'fortune', 'insight'].filter(p => p !== prefix).forEach(applyLockedBirthTo);\n    showToast('고정을 풀었어요. 다른 생년월일을 입력할 수 있어요.');\n  }",
+    "    accountStore.removeItem(BIRTH_LOCK_KEY);\n    setInputsDisabled(prefix, false);\n    showToast('고정을 풀었어요. 다른 생년월일을 입력할 수 있어요.');\n  }"
+  ],
+  [
+    "function safeRoute(route) {\n  if (route === 'wealth') return 'topic-wealth';\n  if (route === 'compatibility') return 'relationship-report';",
+    "function safeRoute(route) {"
+  ],
+  [
     "    const {sharePath, shareRoute} = document.documentElement.dataset;\n    const sameShare = sharePath && route === shareRoute;\n    if (sharePath) u.pathname = sameShare ? sharePath : '/';\n    u.hash = sameShare || route === 'home' ? '' : route;",
     "    u.hash = route === 'home' ? '' : route;"
   ],
@@ -11,14 +71,39 @@
     "// Direct links may need view handlers declared later in the document.\ndocument.addEventListener('DOMContentLoaded', () => {\n  goTo(safeRoute(location.hash ? location.hash.slice(1) : 'home'), undefined, {skipHistory:true});\n  /* STARTUP_READY */\n  window.TaekilStartup?.routed();\n  /* END_STARTUP_READY */\n}, {once:true});\n",
     "// setTimeout(0)으로 미뤄서, 아직 선언되지 않은 이후 코드(firebaseReady 등)를\n// 이 시점에서 참조하다가 스크립트 전체 실행이 멈추는 일이 없도록 합니다.\n// (예: #admin, #tool 같은 해시 주소로 바로 접속하거나 새로고침하는 경우)\nsetTimeout(() => {\n  goTo(safeRoute(location.hash ? location.hash.slice(1) : 'home'), undefined, {skipHistory:true});\n  /* STARTUP_READY */\n  window.TaekilStartup?.routed();\n  /* END_STARTUP_READY */\n}, 0);\n"
   ],
-  ["  html = html.replace(/^[ \\t]*\\*\\*([^*\\r\\n]+)\\*\\*[ \\t]*$/gm,'<div class=\"ai-chat-heading\">$1</div>');\n",""],
-  ["    .map(m => {\n      const evidence = m.role === 'assistant' && window.TaekilExperienceCore?.normalizeEvidence(m.evidence);\n      return { role:m.role, content:String(m.content || '').slice(0,4000), ...(evidence?.length ? {evidence} : {}) };\n    });","    .map(m => ({ role:m.role, content:String(m.content || '').slice(0,4000) }));"],
-  ["appendAiChatMessage(m.role, m.content, {scroll:'none',evidence:m.evidence})","appendAiChatMessage(m.role, m.content, {scroll:'none'})",2],
-  ["window.TaekilExperience?.saveControl(div,text,opts?.evidence);}\n  if (role === 'assistant' && opts?.evidence?.length) {\n    window.dispatchEvent(new CustomEvent('taekilso:consultationEvidence',{detail:{element:div,evidence:opts.evidence}}));\n  }","window.TaekilExperience?.saveControl(div,text);}"],
-  ["history: window.__aiChatHistory.slice(-12).map(({role,content})=>({role,content})),","history: window.__aiChatHistory.slice(-12),"],
-  ["    /* QUALITY_RESPONSE_START */\n    const evidence = window.TaekilExperienceCore?.normalizeEvidence(data.evidence) || [];\n    /* QUALITY_RESPONSE_END */\n    const answerEl = appendAiChatMessage('assistant', data.reply, { scroll: 'start', evidence });","    const answerEl = appendAiChatMessage('assistant', data.reply, { scroll: 'start' });\n    /* QUALITY_RESPONSE_START */\n    window.dispatchEvent(new CustomEvent('taekilso:consultationEvidence',{detail:{element:answerEl,evidence:data.evidence}}));\n    /* QUALITY_RESPONSE_END */"],
-  ["{ role: 'assistant', content: data.reply, ...(evidence.length ? {evidence} : {}) }","{ role: 'assistant', content: data.reply }"],
-  ["window.TaekilExperience?.saveControl(answerEl,data.reply,evidence);","window.TaekilExperience?.saveControl(answerEl,data.reply);"],
+  [
+    "  html = html.replace(/^[ \\t]*\\*\\*([^*\\r\\n]+)\\*\\*[ \\t]*$/gm,'<div class=\"ai-chat-heading\">$1</div>');\n",
+    ""
+  ],
+  [
+    "    .map(m => {\n      const evidence = m.role === 'assistant' && window.TaekilExperienceCore?.normalizeEvidence(m.evidence);\n      return { role:m.role, content:String(m.content || '').slice(0,4000), ...(evidence?.length ? {evidence} : {}) };\n    });",
+    "    .map(m => ({ role:m.role, content:String(m.content || '').slice(0,4000) }));"
+  ],
+  [
+    "appendAiChatMessage(m.role, m.content, {scroll:'none',evidence:m.evidence})",
+    "appendAiChatMessage(m.role, m.content, {scroll:'none'})",
+    2
+  ],
+  [
+    "window.TaekilExperience?.saveControl(div,text,opts?.evidence);}\n  if (role === 'assistant' && opts?.evidence?.length) {\n    window.dispatchEvent(new CustomEvent('taekilso:consultationEvidence',{detail:{element:div,evidence:opts.evidence}}));\n  }",
+    "window.TaekilExperience?.saveControl(div,text);}"
+  ],
+  [
+    "history: window.__aiChatHistory.slice(-12).map(({role,content})=>({role,content})),",
+    "history: window.__aiChatHistory.slice(-12),"
+  ],
+  [
+    "    /* QUALITY_RESPONSE_START */\n    const evidence = window.TaekilExperienceCore?.normalizeEvidence(data.evidence) || [];\n    /* QUALITY_RESPONSE_END */\n    const answerEl = appendAiChatMessage('assistant', data.reply, { scroll: 'start', evidence });",
+    "    const answerEl = appendAiChatMessage('assistant', data.reply, { scroll: 'start' });\n    /* QUALITY_RESPONSE_START */\n    window.dispatchEvent(new CustomEvent('taekilso:consultationEvidence',{detail:{element:answerEl,evidence:data.evidence}}));\n    /* QUALITY_RESPONSE_END */"
+  ],
+  [
+    "{ role: 'assistant', content: data.reply, ...(evidence.length ? {evidence} : {}) }",
+    "{ role: 'assistant', content: data.reply }"
+  ],
+  [
+    "window.TaekilExperience?.saveControl(answerEl,data.reply,evidence);",
+    "window.TaekilExperience?.saveControl(answerEl,data.reply);"
+  ],
   [
     "    consultantId: window.TaekilConsultationPersonas?.get(window.__aiConsultantId).id || 'yeonwoo',\n",
     ""

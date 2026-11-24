@@ -38,9 +38,22 @@
         if (card.localName === 'a') {
           target.href = card.getAttribute('href');
           if (card.hasAttribute('data-newyear-preview')) target.setAttribute('data-newyear-preview', '');
+          if (card.hasAttribute('data-open-date-comparison')) {
+            target.addEventListener('click', event => {
+              if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+              event.preventDefault();
+              card.click();
+            });
+          }
         } else {
           target.type = 'button';
-          target.addEventListener('click', () => card.click());
+          target.addEventListener('click', () => {
+            if (card.hasAttribute('data-directory-chat-start')) {
+              if (!window.TaekilPrivacy?.confirmAge()) return;
+              goTo('home');
+            }
+            card.click();
+          });
         }
         target.append(label);
         const description = copy?.querySelector('small');
