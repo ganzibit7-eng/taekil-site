@@ -14,17 +14,17 @@
     <div class="field full" style="margin-bottom:8px;">
       <label>달력 기준</label>
       <div class="cal-type-toggle" id="insightCalType">
-        <span class="ct-btn active" data-type="solar">양력</span>
-        <span class="ct-btn" data-type="lunar">음력</span>
+        <button type="button" class="ct-btn active" data-type="solar" aria-pressed="true">양력</button>
+        <button type="button" class="ct-btn" data-type="lunar" aria-pressed="false">음력</button>
       </div>
     </div>
     <div class="field">
       <label>생년월일</label>
       <p class="privacy-input-note">만 14세 미만 아동 정보는 입력하지 마세요.</p>
       <div class="ymd-row">
-        <select id="insightYear" class="ymd-select"></select>
-        <select id="insightMonth" class="ymd-select"></select>
-        <select id="insightDay" class="ymd-select"></select>
+        <select id="insightYear" class="ymd-select" aria-label="출생 연도"></select>
+        <select id="insightMonth" class="ymd-select" aria-label="출생 월"></select>
+        <select id="insightDay" class="ymd-select" aria-label="출생 일"></select>
       </div>
     </div>
     <label class="couple-row" id="insightLeapWrap" style="display:none;">
@@ -205,17 +205,7 @@
   window.fillInsightDateSelects=function(){
     const y=document.getElementById('insightYear'),m=document.getElementById('insightMonth'),d=document.getElementById('insightDay');
     if(!y||!m||!d||y.options.length)return;
-    for (const [select, label] of [[y,'출생 연도'], [m,'월'], [d,'일']]) {
-      const placeholder = document.createElement('option');
-      placeholder.value = '';
-      placeholder.textContent = label;
-      select.appendChild(placeholder);
-    }
-    const now=new Date();
-    for(let yy=1940;yy<=now.getFullYear();yy++){const o=document.createElement('option');o.value=yy;o.textContent=yy+'년';y.appendChild(o)}
-    for(let mm=1;mm<=12;mm++){const o=document.createElement('option');o.value=mm;o.textContent=mm+'월';m.appendChild(o)}
-    for(let dd=1;dd<=31;dd++){const o=document.createElement('option');o.value=dd;o.textContent=dd+'일';d.appendChild(o)}
-    y.value = m.value = d.value = '';
+    fillYmdSelects(y.id, m.id, d.id, {isLunarFn: () => getCalType('insightCalType') === 'lunar'});
   };
   window.calculateSajuInsight=function({restore=false}={}){
     /* INSIGHT_PREVIEW_START */

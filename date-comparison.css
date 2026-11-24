@@ -54,6 +54,8 @@
   outline: 2px solid #dfc69c;
   outline-offset: 3px;
 }
+#view-tool:not([data-comparison-mode="exact"]) #eventPicker { display: none; }
+#view-tool[data-comparison-mode="exact"] #eventPicker { margin-bottom: 20px; }
 #view-tool[data-comparison-mode="exact"] > :is(.hero,.hero + .block),
 #view-tool[data-comparison-mode="exact"] :is(#toolSelectedLabel,.tool-range-dates,#submitBtn,#loadingLine,#results),
 .tool-exact-dates[hidden],

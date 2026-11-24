@@ -128,24 +128,36 @@ function shareResult(t, eventType) {
 
 document.getElementById('eventPicker').addEventListener('click', (e) => {
   const opt = e.target.closest('.event-opt');
-  if (!opt) return;
-  document.querySelectorAll('.event-opt').forEach(o => o.classList.remove('active'));
-  opt.classList.add('active');
+  if (opt) selectToolEvent(opt.dataset.val);
 });
 
-/* 상단 4개 카드(결혼식/이사/개업/계약체결)를 누르면, 아래 폼에서 해당 목적을 선택된 상태로
-   만들고 폼까지 부드럽게 스크롤합니다. */
-/* 상단 카드(결혼식/이사/개업/계약체결)를 누르면, 숨겨진 선택값을 그 목적으로 바꾸고
-   (보이는 알약 버튼 중복 없이) 바로 아래 입력 폼으로 이동합니다. */
-function selectEventAndFocus(eventVal) {
-  if (!document.getElementById('view-tool').classList.contains('visible')) goTo('tool');
-  document.querySelectorAll('#eventPicker .event-opt').forEach(o => {
-    o.classList.toggle('active', o.dataset.val === eventVal);
+function selectToolEvent(eventVal) {
+  const options = [...document.querySelectorAll('#eventPicker .event-opt')];
+  const selected = options.find(option => option.dataset.val === eventVal);
+  if (!selected) return;
+  const changed = !selected.classList.contains('active');
+  options.forEach(option => {
+    option.classList.toggle('active', option === selected);
+    option.setAttribute('aria-pressed', String(option === selected));
   });
   const label = document.getElementById('toolSelectedLabel');
-  if (label) label.innerHTML = `<strong style="color:var(--gold-hi)">${eventVal}</strong> 날짜를 찾아드릴게요. 생년월일과 가능한 기간을 알려주세요.`;
+  const name = document.createElement('strong');
+  name.style.color = 'var(--gold-hi)';
+  name.textContent = eventVal;
+  label.replaceChildren(name, ' 날짜를 찾아드릴게요. 생년월일과 가능한 기간을 알려주세요.');
   const anchor = document.getElementById('toolFormAnchor');
-  if (anchor) anchor.style.display = 'block'; // 카드를 눌러야만 날짜 입력 폼이 나타납니다.
+  anchor.style.display = 'block';
+  if (changed) {
+    document.getElementById('results').style.display = 'none';
+    anchor.dispatchEvent(new Event('taekilso:toolEventChanged'));
+  }
+}
+
+function selectEventAndFocus(eventVal) {
+  if (!document.getElementById('view-tool').classList.contains('visible')) goTo('tool');
+  selectToolEvent(eventVal);
+  const anchor = document.getElementById('toolFormAnchor');
+  document.querySelector('.tool-date-mode [aria-pressed="true"]')?.focus({preventScroll:true});
   setTimeout(() => {
     if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 50);
@@ -154,6 +166,8 @@ function selectEventAndFocus(eventVal) {
 document.getElementById('coupleToggle').addEventListener('change', (e) => {
   document.getElementById('coupleFields').style.display = e.target.checked ? 'block' : 'none';
   document.getElementById('partnerCalType').style.display = e.target.checked ? 'flex' : 'none';
+  document.getElementById('partnerLeapWrap').style.display =
+    e.target.checked && getCalType('partnerCalType') === 'lunar' ? 'flex' : 'none';
 });
 
 /* ---------- 년/월/일 드롭다운 (고령층 접근성) ---------- */
@@ -209,27 +223,24 @@ fillYmdSelects('partnerYear', 'partnerMonth', 'partnerDay', {
   onChange: () => syncHiddenDate('partnerYear', 'partnerMonth', 'partnerDay', 'partnerBirthDate')
 });
 /* ---------- 양력/음력 토글 ---------- */
-function setupCalTypeToggle(toggleId, leapWrapId) {
+function setupCalTypeToggle(toggleId) {
   const toggle = document.getElementById(toggleId);
   toggle.addEventListener('click', (e) => {
     const btn = e.target.closest('.ct-btn');
     if (!btn) return;
-    toggle.querySelectorAll('.ct-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById(leapWrapId).style.display = btn.dataset.type === 'lunar' ? 'flex' : 'none';
-    if (toggleId === 'birthCalType') updateSajuPreview();
+    setCalType(toggleId, btn.dataset.type);
+    document.getElementById(toggleId.replace('CalType', 'Month')).dispatchEvent(new Event('change', {bubbles:true}));
   });
 }
 // fortuneCalType/insightCalType는 각각 "오늘의 운세"/"내 사주 핵심" 모달 안에 있는데,
 // 그 모달들의 HTML은 문서 훨씬 뒷부분에 있습니다. 지금 이 지점에서 바로 찾으면
 // 아직 브라우저가 거기까지 읽지 않은 상태라 null이 나올 수 있어서, 문서 전체가
 // 완전히 다 읽힌 뒤(DOMContentLoaded)에 실행되도록 확실하게 미룹니다.
-setupCalTypeToggle('birthCalType', 'birthLeapWrap');
-setupCalTypeToggle('partnerCalType', 'partnerLeapWrap');
-applyLockedBirthTo('birth');
+setupCalTypeToggle('birthCalType');
+setupCalTypeToggle('partnerCalType');
 function setupLateCalTypeToggles() {
-  setupCalTypeToggle('fortuneCalType', 'fortuneLeapWrap');
-  setupCalTypeToggle('insightCalType', 'insightLeapWrap');
+  setupCalTypeToggle('fortuneCalType');
+  setupCalTypeToggle('insightCalType');
 }
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', setupLateCalTypeToggles);
@@ -240,6 +251,7 @@ if (document.readyState === 'loading') {
 
 /* ---------- 생년월일 고정(잠금) ---------- */
 const BIRTH_LOCK_KEY = 'taekilso_locked_birth';
+applyLockedBirthTo('birth');
 
 function getLockedBirth() {
   try { return JSON.parse(accountStore.getItem(BIRTH_LOCK_KEY) || 'null'); }
@@ -249,7 +261,10 @@ function getLockedBirth() {
 function setCalType(toggleId, type) {
   const toggle = document.getElementById(toggleId);
   if (!toggle) return;
-  toggle.querySelectorAll('.ct-btn').forEach(b => b.classList.toggle('active', b.dataset.type === type));
+  toggle.querySelectorAll('.ct-btn').forEach(button => {
+    button.classList.toggle('active', button.dataset.type === type);
+    button.setAttribute('aria-pressed', String(button.dataset.type === type));
+  });
   const leapWrapId = toggleId.replace('CalType', 'LeapWrap');
   const leapWrap = document.getElementById(leapWrapId);
   if (leapWrap) leapWrap.style.display = type === 'lunar' ? 'flex' : 'none';
@@ -266,14 +281,14 @@ function applyLockedBirthTo(prefix) {
 
   if (locked) {
     setCalType(prefix + 'CalType', locked.calType);
+    const leapChk = document.getElementById(prefix + 'Leap');
+    if (leapChk) leapChk.checked = !!locked.isLeap;
     yearSel.value = locked.year;
     monthSel.value = locked.month;
     // 일(day) 옵션은 연/월이 바뀐 뒤 다시 채워지므로, change 이벤트로 옵션 목록을 먼저 갱신합니다.
     yearSel.dispatchEvent(new Event('change'));
     daySel.value = locked.day;
     daySel.dispatchEvent(new Event('change'));
-    const leapChk = document.getElementById(prefix + 'Leap');
-    if (leapChk) leapChk.checked = !!locked.isLeap;
     if (lockChk) lockChk.checked = true;
     setInputsDisabled(prefix, true);
   } else if (lockChk) {
@@ -290,6 +305,7 @@ function setInputsDisabled(prefix, disabled) {
   const leapChk = document.getElementById(prefix + 'Leap');
   if (leapChk) leapChk.disabled = disabled;
   const toggle = document.getElementById(prefix + 'CalType');
+  toggle?.querySelectorAll('button').forEach(button => { button.disabled = disabled; });
   if (toggle) toggle.style.pointerEvents = disabled ? 'none' : '';
   if (toggle) toggle.style.opacity = disabled ? '.55' : '';
 }
@@ -317,6 +333,7 @@ function onBirthLockToggle(prefix) {
   } else {
     accountStore.removeItem(BIRTH_LOCK_KEY);
     setInputsDisabled(prefix, false);
+    ['birth', 'fortune', 'insight'].filter(p => p !== prefix).forEach(applyLockedBirthTo);
     showToast('고정을 풀었어요. 다른 생년월일을 입력할 수 있어요.');
   }
   if (prefix === 'birth') { syncHiddenDate('birthYear', 'birthMonth', 'birthDay', 'birthDate'); updateSajuPreview(); }

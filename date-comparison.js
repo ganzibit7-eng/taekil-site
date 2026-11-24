@@ -147,15 +147,16 @@
     setMode(button.dataset.dateMode);
     modeGroup.scrollIntoView({ block: 'nearest', behavior: 'instant' });
   }));
-  form.addEventListener('input', () => {
+  form.addEventListener('taekilso:toolEventChanged', () => {
+    if (view.dataset.comparisonMode === 'exact') setMode('exact');
+  });
+  function invalidateEditedDates(event) {
+    if (!event.target.matches('input, select') || event.target.closest('.tool-exact-output, #results')) return;
     if (view.dataset.comparisonMode === 'exact') resetComparison();
-  });
-  form.addEventListener('change', () => {
-    if (view.dataset.comparisonMode === 'exact') resetComparison();
-  });
-  form.addEventListener('click', event => {
-    if (view.dataset.comparisonMode === 'exact' && event.target.closest('.ct-btn')) resetComparison();
-  });
+    else field('results').style.display = 'none';
+  }
+  form.addEventListener('input', invalidateEditedDates);
+  form.addEventListener('change', invalidateEditedDates);
   document.querySelectorAll('[data-open-date-comparison]').forEach(link => link.addEventListener('click', () => {
     setMode('exact');
     if (link.hasAttribute('data-direct-date-comparison')) {

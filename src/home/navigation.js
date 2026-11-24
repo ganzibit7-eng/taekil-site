@@ -165,13 +165,7 @@ function goTo(route, presetEvent, navigationOptions) {
   }
 
   if (route === 'tool' && presetEvent) {
-    document.querySelectorAll('.event-opt').forEach(o => {
-      o.classList.toggle('active', o.dataset.val === presetEvent);
-    });
-    const label = document.getElementById('toolSelectedLabel');
-    if (label) label.innerHTML = `<strong style="color:var(--gold-hi)">${presetEvent}</strong> 날짜를 찾아드릴게요. 생년월일과 가능한 기간을 알려주세요.`;
-    const anchor = document.getElementById('toolFormAnchor');
-    if (anchor) anchor.style.display = 'block'; // 홈 카드 등에서 특정 목적을 지정하고 들어온 경우 바로 폼을 보여줍니다.
+    selectToolEvent(presetEvent);
   }
   if (route === 'history') {
     loadHistory(navigationOptions?.historyTab);
@@ -185,6 +179,8 @@ function openReportHistory() {
   goTo('history', undefined, {historyTab:'reports'});
 }
 function safeRoute(route) {
+  if (route === 'wealth') return 'topic-wealth';
+  if (route === 'compatibility') return 'relationship-report';
   return document.getElementById('view-' + route) ? route : 'home';
 }
 function routeAtLocation() {
@@ -229,8 +225,8 @@ document.querySelectorAll('.feature, .event-card, .step, .price-card').forEach((
 });
 
 /* ---------- KEYBOARD ACCESSIBILITY ---------- */
-document.querySelectorAll('.event-card, .event-opt, .faq-item summary').forEach(el => {
-  if (el.tagName !== 'SUMMARY') {
+document.querySelectorAll('.event-card, .saju-event-card, .event-opt, .faq-item summary').forEach(el => {
+  if (el.tagName !== 'SUMMARY' && el.tagName !== 'BUTTON') {
     el.setAttribute('tabindex', '0');
     el.setAttribute('role', 'button');
     el.addEventListener('keydown', (e) => {

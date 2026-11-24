@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="format-detection" content="telephone=no">
-<script src="/home-layout.js?v=reading-banner-1"></script>
+<script src="/home-layout.js?v=topic-index-2"></script>
 <link rel="stylesheet" href="/home-layout.css?v=paid-tools-1">
 <title>택일소 | 무료 사주 · 주제별 리포트 · AI 상담과 택일</title>
 <meta name="description" content="로그인 없이 내 오행과 기본 성향을 확인하세요. 연애·재물·재회·직업 리포트의 첫 장, 2027 신년운세와 고민별 상담사를 만나보세요.">
@@ -195,8 +195,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
     <div class="field full" style="margin-bottom:8px;">
       <label>달력 기준</label>
       <div class="cal-type-toggle" id="fortuneCalType">
-        <span class="ct-btn active" data-type="solar">양력</span>
-        <span class="ct-btn" data-type="lunar">음력</span>
+        <button type="button" class="ct-btn active" data-type="solar" aria-pressed="true">양력</button>
+        <button type="button" class="ct-btn" data-type="lunar" aria-pressed="false">음력</button>
       </div>
     </div>
 
@@ -204,9 +204,9 @@ const ADMIN_EMAIL = "green092432@gmail.com";
       <label>생년월일</label>
       <p class="privacy-input-note">만 14세 미만 아동 정보는 입력하지 마세요.</p>
       <div class="ymd-row">
-        <select id="fortuneYear" class="ymd-select"></select>
-        <select id="fortuneMonth" class="ymd-select"></select>
-        <select id="fortuneDay" class="ymd-select"></select>
+        <select id="fortuneYear" class="ymd-select" aria-label="출생 연도"></select>
+        <select id="fortuneMonth" class="ymd-select" aria-label="출생 월"></select>
+        <select id="fortuneDay" class="ymd-select" aria-label="출생 일"></select>
       </div>
     </div>
     <label class="couple-row" id="fortuneLeapWrap" style="display:none;">
@@ -322,7 +322,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 </figure>
 <link rel="stylesheet" href="yeonwoo-video.css?v=20261111-1"><script src="yeonwoo-video.js?v=moving-date-scene-1"></script><script src="premium-motion.js" defer></script>
 <script src="consultation-draft-core.js?v=featured-report-1"></script>
-<script src="consultation-stage.js?v=footer-flow-2"></script>
+<script src="consultation-stage.js?v=story-return-1"></script>
 <script src="consultation-history-filters.js?v=20261120-history-filters"></script>
 <link rel="stylesheet" href="consultation-experience.css?v=annual-reading-1">
 <script src="consultation-experience-core.js?v=20261117-saved-evidence"></script>
@@ -340,18 +340,18 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="navigation-refinement.js?v=20261110-1"></script>
 <script src="profile-picker-controls.js?v=20261118-confirmed-delete"></script>
 <link rel="stylesheet" href="consultation-quality.css?v=entry-1120">
-<script src="support-channels.js?v=20261111-refund"></script>
+<script src="support-channels.js?v=20261124-inquiry"></script>
 <script src="consultation-quality.js?v=20261117-saved-evidence"></script>
 <link rel="stylesheet" href="site-menu.css?v=drawer-navigation-1"><script src="site-menu.js?v=drawer-navigation-1"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=ink-1120">
 <script src="account-session.js?v=nov20-entry"></script>
 <script src="campaign-attribution-core.js?v=20261119-campaign-visits"></script><script src="campaign-attribution.js?v=home-paths-1"></script>
 <script src="preview-funnel.js?v=20261119-daily"></script>
-<link rel="stylesheet" href="date-comparison.css?v=moving-date-scene-1">
+<link rel="stylesheet" href="date-comparison.css?v=date-purpose-2">
 <script src="account-report-client.js?v=report-library-1"></script>
 <script src="report-decision-core.js?v=paid-guide-1"></script>
 <script src="date-report.js?v=report-paper-1"></script>
-<script src="date-comparison.js?v=paid-tools-1"></script>
+<script src="date-comparison.js?v=date-purpose-2"></script>
 <link rel="stylesheet" href="date-entry.css?v=surfaces-1120">
 <script src="date-entry.js?v=nov20-resume"></script>
 <link rel="stylesheet" href="relationship-report.css?v=continuous-reader-1">

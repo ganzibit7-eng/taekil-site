@@ -267,28 +267,19 @@ function fillCommonInquiry(kind) {
   const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
   if (!loggedIn) { showToast('로그인 후 이용할 수 있어요.'); openAuthModal(); return; }
 
-  const orderId = accountStore.getItem('taekilso_last_order_id') || '(기록 없음)';
-  const purchasedAtMs = Number(accountStore.getItem('taekilso_last_purchase_at')) || 0;
-  const purchasedAtStr = purchasedAtMs ? new Date(purchasedAtMs).toLocaleString('ko-KR') : '(기록 없음)';
-  const premiumNow = isPremium() ? '프리미엄 이용 중' : '프리미엄 아님';
-
+  const purchaseFields = '상품명: \n결제일과 금액: \n주문번호(알고 있다면): ';
   const templates = {
     paymentFailed: {
       title: '결제가 안 됐어요',
-      message: '프리미엄 결제를 진행했는데 결제가 정상적으로 되지 않았어요.\n\n' +
-        '언제 시도하셨는지, 어떤 화면/메시지가 떴는지 알려주시면 빠르게 확인할 수 있어요:\n(자세한 상황을 여기에 적어주세요)\n\n' +
-        '── 자동 기록 ──\n' +
-        `현재 계정 상태: ${premiumNow}\n` +
-        `마지막 주문번호: ${orderId}`
+      message: '결제를 시도한 상품: \n시도한 날짜와 시간: \n화면에 표시된 메시지: '
     },
     premiumNotOpen: {
-      title: '결제했는데 프리미엄이 안 열려요',
-      message: '결제는 완료됐는데 프리미엄 기능이 아직 열리지 않았어요.\n\n' +
-        '결제하신 카드/은행에서 실제로 출금됐는지도 함께 확인 부탁드려요.\n\n' +
-        '── 자동 기록 ──\n' +
-        `현재 계정 상태: ${premiumNow}\n` +
-        `마지막 주문번호: ${orderId}\n` +
-        `결제(활성화) 시각: ${purchasedAtStr}`
+      title: '결제한 상품을 이용할 수 없어요',
+      message: purchaseFields + '\n확인이 필요한 내용(예: 리포트 열람, 질문권 잔여 횟수): '
+    },
+    refund: {
+      title: '상품 결제 환불 문의',
+      message: purchaseFields + '\n환불 사유: '
     }
   };
   const t = templates[kind];
@@ -303,8 +294,13 @@ async function requestRefund() {
   const accountToken = accountStore.snapshot();
   const loggedIn = getKakaoUser() || (firebaseReady && firebaseAuthReady && firebaseAuthUser);
   if (!loggedIn) { showToast('로그인 후 이용할 수 있어요.'); openAuthModal(); return; }
-  if (!isPremium()) { showToast('프리미엄 결제 내역이 없어요.'); return; }
+  goTo('support');
+  document.dispatchEvent(new CustomEvent('taekilso:openWebInquiry'));
+  fillCommonInquiry('refund');
+  if (!isPremium()) return;
 
+  const messageEl = document.getElementById('supportMessage');
+  const draft = messageEl.value;
   const until = getPremiumUntil();
   const purchasedAtMs = Number(accountStore.getItem('taekilso_last_purchase_at')) || (until ? until - PREMIUM_DURATION_MS : 0);
   const orderId = accountStore.getItem('taekilso_last_order_id') || '(기록 없음)';
@@ -324,24 +320,13 @@ async function requestRefund() {
     }
   }
 
-  if (!accountStore.current(accountToken)) return;
-  goTo('support');
-  document.dispatchEvent(new CustomEvent('taekilso:openWebInquiry'));
-  setTimeout(() => {
-    if (!accountStore.current(accountToken)) return;
-    document.getElementById('supportType').value = 'dispute';
-    document.getElementById('supportTitle').value = '프리미엄 결제 환불 요청';
-    document.getElementById('supportMessage').value =
-      '프리미엄(8,900원) 결제에 대한 환불을 요청합니다.\n\n' +
-      '환불 사유: \n(자세한 사유를 여기에 적어주세요)\n\n' +
-      '── 문의 확인을 위한 참고 정보 ──\n' +
-      `주문번호: ${orderId}\n` +
-      `결제(활성화) 시각: ${purchasedAtStr}\n` +
-      `이용 만료 예정일: ${until ? new Date(until).toLocaleString('ko-KR') : '(기록 없음)'}\n` +
-      `기록된 프리미엄 기능 이용 횟수: ${usedCount == null ? '확인 필요' : usedCount + '회'}\n실제 결제와 상담·리포트 이용 내역은 접수 후 확인해 주세요.`;
-    document.getElementById('supportMessage').focus({ preventScroll: true });
-    showToast('환불 사유를 작성한 뒤 문의 등록을 눌러 주세요.');
-  }, 100);
+  if (!accountStore.current(accountToken) || messageEl.value !== draft ||
+      document.getElementById('supportTitle').value !== '상품 결제 환불 문의') return;
+  messageEl.value += '\n\n── 기존 프리미엄 이용권을 문의하실 때의 참고 정보 ──\n' +
+    `기기에 기록된 최근 주문번호: ${orderId}\n` +
+    `이용 시작 시각: ${purchasedAtStr}\n` +
+    `이용 만료 예정일: ${until ? new Date(until).toLocaleString('ko-KR') : '(기록 없음)'}\n` +
+    `기록된 프리미엄 기능 이용 횟수: ${usedCount == null ? '확인 필요' : usedCount + '회'}`;
 }
 
 async function confirmDeleteAccount() {

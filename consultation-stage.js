@@ -549,6 +549,7 @@
     if (event.target.closest('#homeStartChatBtn,.brand-story-start,[data-directory-chat-start]')) requestedEntry = { topic: '' };
   }, true);
   function startTopic(button, key, storyQuestion, report=false) {
+    if (!window.TaekilPrivacy?.confirmAge()) return;
     requestedEntry = { topic: key, storyQuestion, report };
     if (storyQuestion && document.getElementById('aiChatPanel').style.display === 'flex') {
       document.getElementById('consultationExit').click();
