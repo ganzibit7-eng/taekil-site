@@ -330,23 +330,21 @@
     monthIndex.setAttribute('aria-label','월별 풀이 바로가기');
     months.append(monthIndex);
     for(const m of r.months){
-      const d=el('details'),summary=el('summary');
-      summary.append(el('span',String(m.month).padStart(2,'0')+'월'),el('strong',m.theme));
-      d.id='annual-report-month-'+m.month;
+      const month=el('section',null,'annual-report-month');
+      month.id='annual-report-month-'+m.month;
+      month.dataset.reportMonth=String(m.month);
+      const heading=el('h3',null,'annual-report-month-title');
+      heading.tabIndex=-1;
+      heading.append(el('span',String(m.month).padStart(2,'0')+'월'),el('strong',m.theme));
       const reading=el('div',null,'annual-report-month-body');
-      d.append(summary,reading);
+      month.append(heading,reading);
       appendReading(reading,m.reading);
       reading.append(el('p',m.action,'newyear-action'));
       appendCalculationNote(reading,m.calculationNote);
-      months.append(d);
-      const shortcut=button(m.month+'월',()=>{
-        d.open=true;
-        summary.focus({preventScroll:true});
-        summary.scrollIntoView({block:'start',behavior:'instant'});
-      });
-      shortcut.setAttribute('aria-controls',d.id);
-      shortcut.setAttribute('aria-expanded','false');
-      d.addEventListener('toggle',()=>shortcut.setAttribute('aria-expanded',String(d.open)));
+      months.append(month);
+      const shortcut=button(m.month+'월',()=>focusReportHeading(heading));
+      shortcut.setAttribute('aria-controls',month.id);
+      shortcut.dataset.newyearMonth=String(m.month);
       monthIndex.append(shortcut);
     }
     const calculation=el('details',null,'newyear-calculation');calculation.append(el('summary','계산 기준과 해석 범위'));

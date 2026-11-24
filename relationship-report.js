@@ -53,11 +53,10 @@
   function chapterGuide(report) {
     const section=el('section','','relationship-chapters');
     section.append(el('h4','상황별로 읽는 두 사람의 관계'),
-      el('p','열두 장면 중 두 사람에게 가까운 것부터 펼쳐보세요. 두 사람이 태어난 날의 비교를 바탕으로 각 상황에서 확인할 점을 담았어요.'));
-    report.chapters.forEach((chapter,index)=>{
-      const panel=el('details','','relationship-chapter');
-      panel.open=index===0;
-      panel.append(el('summary',chapter.title),el('p',chapter.scene),el('p',chapter.reading));
+      el('p','두 사람이 태어난 날을 비교해 열두 장면에서 서로를 이해하는 법을 담았어요.'));
+    for(const chapter of report.chapters){
+      const panel=el('section','','relationship-chapter');
+      panel.append(el('h5',chapter.title),el('p',chapter.scene),el('p',chapter.reading));
       const dialogue=el('div','','relationship-dialogue');
       let opening;
       for (const [speaker,line] of [['본인',chapter.first],['상대방',chapter.second]]) {
@@ -79,7 +78,7 @@
         panel.append(reason);
       }
       section.append(panel);
-    });
+    }
     return section;
   }
 

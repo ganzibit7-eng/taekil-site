@@ -39,7 +39,6 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 #jumpSeohwaReportToc[hidden] {display:none}
 .sr-toolbar #jumpSeohwaReportToc {margin-inline-start:auto;flex:none}
 .sr-toolbar #closeSeohwaReport {flex:none}
-.seohwa-report-dialog[data-advisor] .sr-toc {scroll-margin-top:10px}
 .seohwa-report-dialog .report-personal-motif {margin-top:8px}
 .sr-asset-reading {
   margin-block:18px;
@@ -129,11 +128,26 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
   border-radius:7px;background:#e4c49b;color:#30202c;font:650 14px/1.5 var(--sans);
 }
 .sr-personal-jump:focus-visible {outline:2px solid #ffe5be;outline-offset:3px}
-.sr-layout {display:grid;grid-template-columns:195px minmax(0,1fr);gap:clamp(16px,3vw,34px);margin-top:clamp(15px,3vw,30px);align-items:start}
-.sr-toc {position:sticky;inset-block-start:81px;border-block:1px solid var(--sr-line);padding:12px 0;color:#e8d3c9}
+.sr-toc {
+  position:absolute;
+  inset-block-start:calc(100% + 7px);
+  inset-inline-end:clamp(8px,4vw,34px);
+  width:min(350px,calc(100% - 16px));
+  box-sizing:border-box;
+  max-height:min(66dvh,510px);
+  overflow:auto;
+  overscroll-behavior:contain;
+  padding:15px 17px;
+  border:1px solid var(--sr-line);
+  border-radius:10px;
+  background:var(--sr-surface);
+  box-shadow:0 12px 28px #120d12a6;
+  color:#e8d3c9;
+}
+.sr-toc[hidden] {display:none}
 .sr-toc h3 {font-size:15px;margin:0 0 5px;color:var(--sr-cream)}
 .sr-toc ol {padding:0;margin:0;list-style:none}
-.sr-toc li {word-break:keep-all;padding:8px 0;line-height:1.5}
+.sr-toc li {word-break:keep-all;overflow-wrap:anywhere;padding:4px 0;line-height:1.5}
 .sr-toc li+li {border-top:1px solid #503747}
 .sr-toc li strong {font-size:14px;font-weight:650}
 .sr-toc li small {display:block;color:#ceb6be;font-size:12px;margin-top:3px}
@@ -142,6 +156,9 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 .sr-jump {width:100%;text-align:left;padding:1px 0;color:var(--sr-cream);font-size:14px}
 .sr-jump:hover {text-decoration:underline;text-underline-offset:4px}
 .sr-pages {display:grid;gap:22px;min-width:0}
+.sr-reader {max-width:720px;margin:clamp(15px,3vw,30px) auto 0}
+.sr-reader-paid {display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(12px,3vw,22px)}
+.sr-book {min-width:0}
 .sr-paper h3 {font-size:clamp(22px,3.5vw,34px);color:var(--report-title);line-height:1.35}
 .sr-paper p:where(:not(.report-folio)) {margin:15px 0;line-height:1.85}
 .sr-paper p.sr-highlight {
@@ -253,14 +270,6 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
   .sr-cover {min-height:224px}
   .sr-cover img {width:80%;object-position:50% 21%}
   .sr-cover::after {background:linear-gradient(0deg,#2c1e2df5 8%,#33233286 57%,transparent),linear-gradient(90deg,#382438b5,transparent 80%)}
-  .sr-layout {display:flex;flex-direction:column}
-  .sr-toc {position:static;width:100%}
-  .sr-pages {width:100%}
-  .sr-layout:has(.sr-payment-note) .sr-pages {display:contents}
-  .sr-layout:has(.sr-payment-note) .sr-report-guide {order:-3;width:100%}
-  .sr-layout:has(.sr-payment-note) .sr-paper {order:-2}
-  .sr-layout:has(.sr-payment-note) .sr-samples {order:-1}
-  .sr-layout:has(.sr-payment-note) .sr-gate {order:1}
   .sr-generation {grid-template-columns:minmax(0,1fr);grid-template-areas:'scene' 'copy'}
   .sr-generation-visual {min-height:0;aspect-ratio:16/9}
   .sr-generation-visual::after {background:linear-gradient(0deg,#31232aa6,transparent 35%)}
@@ -408,7 +417,6 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 
 .sr-wealth-buy-jump{position:sticky;top:.5rem;z-index:2;display:block;margin:0 0 .75rem auto;padding:.6rem 1rem;border:1px solid #b89a62;border-radius:2rem;background:#332a26;color:#fff0d0;font:inherit}.sr-summary{padding:1rem 1.25rem;border-inline-start:3px solid #b89a62;background:#eee4d1;color:#392e24}.sr-summary p{margin:.45rem 0}
 
-.sr-pages .sr-summary :is(h3,p){color:#392e24}.sr-paid-details>summary{cursor:pointer;padding:.8rem 0;color:inherit;font-weight:600}.sr-paid-details>article{margin-top:.75rem}
 
 /* Premium report palette and reading layout */
 .seohwa-report-dialog.seohwa-report-dialog[data-advisor] {
@@ -462,7 +470,7 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 .seohwa-report-dialog[data-advisor] .sr-paper .report-folio {color:var(--wealth-gold);font-size:12px;letter-spacing:.12em}
 .seohwa-report-dialog[data-advisor] .sr-paper h3 {font-size:clamp(24px,3.4vw,34px)}
 .seohwa-report-dialog[data-advisor] .sr-paper p:not(.report-folio) {line-height:1.75}
-.seohwa-report-dialog[data-advisor] .sr-paper :is(.sr-evidence,.sr-paid-details)>summary {font-weight:650}
+.seohwa-report-dialog[data-advisor] .sr-paper .sr-evidence>summary {font-weight:650}
 .seohwa-report-dialog[data-advisor] .sr-paper .sr-ask {
   margin-top:24px;
   padding:8px 14px;
@@ -471,15 +479,24 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
   color:#4c351f;
   font-weight:650;
 }
-.seohwa-report-dialog[data-advisor] .sr-layout {margin-top:28px}
+.seohwa-report-dialog[data-advisor] .sr-book {
+  background:var(--wealth-paper);
+  border:1px solid var(--wealth-rule);
+  border-radius:8px;
+}
+.seohwa-report-dialog[data-advisor] .sr-book > .sr-paper {
+  max-width:none;
+  margin:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  padding-block:clamp(21px,5vw,46px);
+}
+.seohwa-report-dialog[data-advisor] .sr-book > .sr-paper + .sr-paper {border-top:1px solid var(--wealth-rule)}
 .seohwa-report-dialog[data-advisor] .sr-pages {gap:26px}
-.seohwa-report-dialog[data-advisor] .sr-toc {padding:14px 0}
 .seohwa-report-dialog[data-advisor] .sr-toc li+li {border-color:var(--sr-line)}
 .seohwa-report-dialog[data-advisor] .sr-toc small {color:#dfcfc0}
 .seohwa-report-dialog[data-advisor] .sr-balance {font-size:14px;color:var(--sr-gold)}
-.seohwa-report-dialog[data-advisor] .sr-wealth-preview {display:block;max-width:720px;margin-inline:auto}
-.seohwa-report-dialog[data-advisor] .sr-wealth-preview .sr-pages {display:grid}
-.seohwa-report-dialog[data-advisor] .sr-wealth-preview .sr-toc {position:static}
 .seohwa-report-dialog[data-advisor] .sr-wealth-origin .sr-report-guide {margin-block:10px;gap:12px}
 .seohwa-report-dialog[data-advisor] .sr-wealth-preview .sr-gate {background:#262321;border-color:#7c664f}
 .seohwa-report-dialog[data-advisor] .sr-wealth-preview .sr-benefits {gap:0;grid-template-columns:1fr}
@@ -654,8 +671,6 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
   .seohwa-report-dialog[data-advisor] .sr-cover h2 {max-width:11ch}
   .seohwa-report-dialog[data-advisor] .sr-wealth-chart {grid-template-columns:repeat(6,minmax(0,1fr))}
   .seohwa-report-dialog[data-advisor] .sr-wealth-track {height:66px}
-  .seohwa-report-dialog[data-advisor] .sr-layout {display:flex;flex-direction:column}
-  .seohwa-report-dialog[data-advisor] .sr-wealth-preview {display:block}
   .seohwa-report-dialog[data-advisor] .sr-wealth-quick {
     display:block;
     position:sticky;

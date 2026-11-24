@@ -60,17 +60,43 @@
   if(!store.owner())return;const captured=token(),key='year:'+core.hash(JSON.stringify([data.profile,data.report.overview]));
   const sections=[...content.querySelectorAll(':scope > .newyear-report-section,:scope > .newyear-areas,:scope > .newyear-months')];
   const nav=content.querySelector('.newyear-report-contents');
-  const jump=i=>{const h=sections[i]?.querySelector('h2');if(h){current=i;interacted=true;save();h.tabIndex=-1;h.focus({preventScroll:true});h.scrollIntoView({block:'start',behavior:'instant'});}};
+  const monthsSection=content.querySelector('.newyear-months');
+  const monthIndex=sections.indexOf(monthsSection);
+  const months=[...monthsSection.querySelectorAll('.annual-report-month')];
+  const jump=(i,month)=>{
+   const match=i===monthIndex?months.find(item=>Number(item.dataset.reportMonth)===month):null;
+   const h=match?.querySelector('h3')||sections[i]?.querySelector('h2');
+   if(!h)return;
+   current=i;currentMonth=match?month:null;interacted=true;save();
+   h.tabIndex=-1;h.focus({preventScroll:true});h.scrollIntoView({block:'start',behavior:'instant'});
+  };
   if(data.access)sections.forEach(s=>{const title=s.querySelector('h2').textContent;s.append(btn('이 부분을 연우에게 물어보기',()=>ask('신년 리포트의 「'+title+'」 내용을 제 상황에 어떻게 적용하면 좋을까요?'),'reading-report-ask'));});
-  const previous=read().positions?.[key];if(Number.isInteger(previous?.section)&&sections[previous.section])nav.prepend(btn('읽던 부분 이어보기',()=>{for(const [i,d]of [...content.querySelectorAll('.newyear-months details')].entries())d.open=(previous.open||[]).includes(i);jump(previous.section);},'annual-report-resume'));
+  const previous=read().positions?.[key];if(Number.isInteger(previous?.section)&&sections[previous.section])nav.prepend(btn('읽던 부분 이어보기',()=>jump(previous.section,previous.month),'annual-report-resume'));
   const note=el('details',null,'reading-report-note');note.append(el('summary','올해의 실천 메모'));editNote(note,key,'내가 선택한 계획');content.append(note,el('p',data.access?'메모와 읽던 위치는 이 기기에 저장됩니다. 이어 묻기는 질문을 입력창에 준비하며, 전송할 때 현재 상담 이용 한도가 적용됩니다.':'메모와 읽던 위치는 이 기기에 저장됩니다.','reading-muted'));
-  let current=previous?.section||0,interacted=false;
+  let current=previous?.section||0,currentMonth=previous?.month??null,interacted=false;
   window.__readingReportEvents?.abort();const events=new AbortController();window.__readingReportEvents=events;
   for(const event of ['wheel','touchstart','keydown','pointerdown'])content.addEventListener(event,()=>{interacted=true;},{signal:events.signal,passive:true});
-  const save=()=>{if(!store.current(captured))return;const value=read();value.positions={...value.positions,[key]:{section:current,open:[...content.querySelectorAll('.newyear-months details')].flatMap((d,i)=>d.open?[i]:[])}};write(value);};
-  nav.addEventListener('click',event=>{const index=event.target.closest('[data-newyear-jump]')?.dataset.newyearJump;if(index!==undefined){current=Number(index);interacted=true;save();}},{signal:events.signal});
-  window.__readingReportObserver?.disconnect();const observer=new IntersectionObserver(entries=>{if(!document.getElementById('view-newyear').classList.contains('visible')||!interacted)return;for(const e of entries)if(e.isIntersecting){current=sections.indexOf(e.target);save();}},{rootMargin:'-15% 0px -65% 0px'});sections.forEach(s=>observer.observe(s));window.__readingReportObserver=observer;
-  content.querySelectorAll('.newyear-months details').forEach(d=>d.addEventListener('toggle',save));
+  const save=()=>{if(!store.current(captured))return;const value=read();value.positions={...value.positions,[key]:{section:current,month:currentMonth}};write(value);};
+  content.addEventListener('click',event=>{
+   const control=event.target.closest('[data-newyear-jump],[data-newyear-month]');
+   if(!control)return;
+   const {newyearMonth,newyearJump}=control.dataset;
+   current=newyearMonth?monthIndex:Number(newyearJump);
+   currentMonth=newyearMonth?Number(newyearMonth):null;
+   interacted=true;save();
+  },{signal:events.signal});
+  window.__readingReportObserver?.disconnect();
+  const observer=new IntersectionObserver(entries=>{
+   if(!document.getElementById('view-newyear').classList.contains('visible')||!interacted)return;
+   const visible=entries.filter(entry=>entry.isIntersecting);
+   const entry=visible.find(item=>item.target.dataset.reportMonth)||visible.at(-1);
+   if(!entry)return;
+   currentMonth=Number(entry.target.dataset.reportMonth)||null;
+   current=currentMonth?monthIndex:sections.indexOf(entry.target);
+   save();
+  },{rootMargin:'-15% 0px -65% 0px'});
+  [...sections,...months].forEach(section=>observer.observe(section));
+  window.__readingReportObserver=observer;
  }
  function removeConversation(id){const data=read();data.saved=(data.saved||[]).filter(x=>x.conversation!==id);if(data.notes)delete data.notes['chat:'+id];write(data);renderLibrary();}
  window.TaekilExperience={decorate,saveControl,failure,clearFailure,report,removeConversation};
