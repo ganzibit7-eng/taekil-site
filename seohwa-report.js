@@ -8,6 +8,9 @@
   const restoreKey='taekilso_resume_seohwa_report_v1';
   const by=id=>document.getElementById(id);
   const dialog=by('seohwaReportDialog'), body=by('seohwaReportBody');
+  const toolbar=dialog.querySelector('.sr-toolbar');
+  const tocControl=by('jumpSeohwaReportToc');
+  let contentsMenu=null;
   const writingVisual=by('seohwaWritingVisual');
   let writingFilm=writingVisual.querySelector('video');
   const progress=by('seohwaReportProgress');
@@ -59,7 +62,7 @@
   }
   function displayTitle(reading){
     dialog.setAttribute('aria-label',reading.title);
-    dialog.querySelector('.sr-toolbar span').textContent=reading.title;
+    toolbar.querySelector('span').textContent=reading.title;
     dialog.dataset.advisor=reading.id;
   }
   function checkoutPath(reading,orderId){
@@ -103,14 +106,25 @@
   function close() {
     clearGenerationTimers();
     pauseWritingFilm();
+    setContentsMenu(null);
     if(dialog.open)dialog.close();
     active=null;
     body.replaceChildren();
   }
   by('closeSeohwaReport').addEventListener('click',close);
-  const tocControl=by('jumpSeohwaReportToc');
-  tocControl.addEventListener('click',jumpToContents);
-  dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
+  tocControl.addEventListener('click',()=>setContentsOpen(contentsMenu?.hidden));
+  dialog.addEventListener('cancel',event=>{
+    event.preventDefault();
+    if(contentsMenu&&!contentsMenu.hidden){
+      setContentsOpen(false);
+      tocControl.focus({preventScroll:true});
+    }else close();
+  });
+  dialog.addEventListener('click',event=>{
+    if(contentsMenu&&!contentsMenu.hidden&&!toolbar.contains(event.target)&&!event.target.closest('.sr-cover-toc')){
+      setContentsOpen(false);
+    }
+  });
   dialog.addEventListener('scroll',()=>{
     progress.value=dialog.scrollTop/Math.max(1,dialog.scrollHeight-dialog.clientHeight);
   },{passive:true});
@@ -160,20 +174,30 @@
     if(birth)title.append(birth);
     const navigation=el('div',null,'sr-cover-nav');
     navigation.append(button(paidYear?(reading.id==='dogyeom'?'올해 총평 읽기':'본편 바로 읽기'):'내 풀이 바로 보기','sr-personal-jump',()=>jumpToChapter(paidYear?1:0)));
-    if(paidYear)navigation.append(button('목차 보기','sr-cover-toc',jumpToContents));
+    navigation.append(button('목차 보기','sr-cover-toc',()=>setContentsOpen(true)));
     title.append(navigation);
     head.append(title);
     return head;
   }
-  function jumpToContents(){
-    const list=body.querySelector('.sr-toc');
-    list?.querySelector('button')?.focus({preventScroll:true});
-    list?.scrollIntoView({block:'start',behavior:'instant'});
+  function setContentsMenu(menu){
+    contentsMenu?.remove();
+    contentsMenu=menu;
+    tocControl.hidden=!menu;
+    tocControl.setAttribute('aria-expanded','false');
+    if(menu){
+      menu.hidden=true;
+      toolbar.append(menu);
+    }
+  }
+  function setContentsOpen(open){
+    if(!contentsMenu)return;
+    contentsMenu.hidden=!open;
+    tocControl.setAttribute('aria-expanded',String(!!open));
+    if(open)contentsMenu.querySelector('button')?.focus({preventScroll:true});
   }
   function jumpToChapter(index){
+    setContentsOpen(false);
     const heading=by('seohwa-report-chapter-'+index)?.querySelector('h3');
-    const parent=heading?.closest('details');
-    if(parent)parent.open=true;
     heading?.focus({preventScroll:true});
     heading?.scrollIntoView({block:'start',behavior:'instant'});
   }
@@ -233,7 +257,7 @@
   function toc(reading,first,locked,comparisonHeading) {
     const list=el('nav',null,'sr-toc');
     list.setAttribute('aria-label','리포트 목차');
-    if(!locked)list.id='wealthReportToc';
+    list.id='wealthReportToc';
     list.append(el('h3','리포트 목차'));
     const rows=el('ol');
     for(const [index,title] of [first.title,...reading.chapters].entries()){
@@ -253,16 +277,17 @@
     list.append(rows);
     if(comparisonHeading){
       list.append(button(reading.id==='dogyeom'?'나의 재테크 비교':'세 가지 선택 비교','sr-jump sr-choice-shortcut',()=>{
+        setContentsOpen(false);
         comparisonHeading.focus({preventScroll:true});
         comparisonHeading.scrollIntoView({block:'start',behavior:'instant'});
       }));
     }
     return list;
   }
-  function show(nodes,preserve=false) {
+  function show(nodes,{preserve=false,menu=null}={}) {
     const scroll=preserve?dialog.scrollTop:0;
     body.replaceChildren(...nodes);
-    tocControl.hidden=!body.querySelector('.sr-toc');
+    setContentsMenu(menu);
     if(!dialog.open)dialog.showModal();
     dialog.scrollTop=scroll;
     progress.value=dialog.scrollTop/Math.max(1,dialog.scrollHeight-dialog.clientHeight);
@@ -274,7 +299,7 @@
   function drawPreview(data) {
     const {first,context,choice,excerpts,reading}=data;
     displayTitle(reading);
-    const layout=el('div',null,'sr-layout'), contents=el('div',null,'sr-pages'), gate=el('section',null,'sr-gate');
+    const layout=el('div',null,'sr-wealth-preview sr-reader'), contents=el('div',null,'sr-pages'), gate=el('section',null,'sr-gate');
     const status=el('p',null,'sr-status');
     status.setAttribute('role','status');
     const adminPreview=client.canPreviewAsAdmin();
@@ -319,7 +344,7 @@
     guide.append(el('summary','이 주제를 사주로 읽는 법'),initialGuide.lastElementChild);
     chapter.append(guide);
     const tocTopic=topicContent?.topics[reading.id];
-    contents.append(chart,chapter,toc(tocTopic?{...reading,chapters:tocTopic.chapters}:reading,first,true),...(excerpts.length?[samples]:[]),gate);
+    contents.append(chart,chapter,...(excerpts.length?[samples]:[]),gate);
     const quick=el('div',null,'sr-wealth-quick');
     const jump=button('전체 리포트 · '+won.format(reading.PRICE)+'원','sr-primary',()=>{
       pay.focus({preventScroll:true});
@@ -327,9 +352,8 @@
     });
     jump.dataset.checkoutAction='';
     quick.append(jump);
-    layout.classList.add('sr-wealth-preview');
     layout.append(contents);
-    show([cover,layout,quick]);
+    show([cover,layout,quick],{menu:toc(tocTopic?{...reading,chapters:tocTopic.chapters}:reading,first,true)});
   }
 
   function openPreview({profile,choice,auth,topic='love'}) {
@@ -1136,7 +1160,7 @@
     const {report}=result;
     displayTitle(reading);
     const now={id:result.id,host,owner,reading};active=now;
-    const layout=el('div',null,'sr-layout'), contents=el('div',null,'sr-pages');
+    const contents=el('div',null,'sr-reader sr-reader-paid'), book=el('div',null,'sr-book');
     const balance=el('p',reading.name+' 상담 '+result.questionsLeft+'회 남음','sr-balance');
     const paidWealth=reading.id==='dogyeom'&&report.calendar?.ranking;
     const front=[];
@@ -1144,7 +1168,7 @@
     const natal=purchasedContext(reading,report);
     const guide=introGuide(reading,natal,report.first);
     const natalChart=guide.firstElementChild;
-    let periods,pillars,choiceSection;
+    let periods,pillars,choiceSection,monthlyReading;
     if(topic){
       const supportsCalendar=reading.id==='seohwa'||report.topicVersion>=2;
       pillars=natal.pillars;
@@ -1158,8 +1182,8 @@
         }
       }catch(error){console.warn('SEOHWA_PERIODS_UNAVAILABLE',error.name);}
       front.push(reportOverview(report,reading,periods));
-      if(comparison){choiceSection=reportChoices(comparison,!!periods);front.push(choiceSection.panel);}
-      if(periods)front.push(relationshipMonths(periods,reading,pillars));
+      if(comparison)choiceSection=reportChoices(comparison,!!periods);
+      if(periods)monthlyReading=relationshipMonths(periods,reading,pillars);
     }
     if(paidWealth){
       const {year,judgment,ranking,rows,outlook,daewoon}=report.calendar;
@@ -1194,16 +1218,15 @@
         summary.append(natal);
       }
       front.push(summary);
-      if(report.calendar.assetGuide){
-        choiceSection=assetReading(report.calendar.assetGuide);
-        front.push(choiceSection.panel);
-      }
-      front.push(wealthRanking(report.calendar));
+      if(report.calendar.assetGuide)choiceSection=assetReading(report.calendar.assetGuide);
+      monthlyReading=wealthRanking(report.calendar);
     }
     front.splice(1,0,natalChart);
-    contents.append(balance);
+    contents.append(...front,balance,book);
     for(const [index,chapter] of [report.first,...report.body].entries()){
       const page=paper(chapter,index,result.questionsLeft>0?()=>followup(result,chapter,index-1,owner,reading):null,reading);
+      const evidence=page.querySelector('.sr-evidence');
+      const addReading=node=>evidence?evidence.before(node):page.append(node);
       if(index===0&&!paidWealth&&report.calendar?.judgment){
         const highlight=page.querySelector('.sr-highlight');
         const judgment=wealthJudgment(report.calendar.judgment);
@@ -1220,22 +1243,15 @@
           const best=c.rows.slice(start,start+6).reduce((a,b)=>a.score>=b.score?a:b);
           summary.append(el('p',(start?'하반기':'상반기')+'에서 기회 지표가 가장 높은 '+best.month+'월 · '+best.ganZhi+' · '+best.basis));
         }
-        page.querySelector('.sr-evidence')?.before(summary);
+        addReading(summary);
       }
-      if(index===2&&paidWealth){
-        const jump=button('월별 그래프에서 내 흐름 보기','sr-ask',()=>{
-          const heading=by('wealthCalendarHeading');
-          heading.focus({preventScroll:true});
-          heading.scrollIntoView({block:'start',behavior:'instant'});
-        });
-        page.querySelector('.sr-evidence')?.before(jump);
+      if(index===2){
+        if(monthlyReading)addReading(monthlyReading);
+        if(report.calendar)addReading(calendarArticle(report.calendar));
       }
-      if(index===2&&report.calendar)page.querySelector('.sr-evidence')?.before(calendarArticle(report.calendar));
-      if(index===4&&paidWealth&&choiceSection)page.append(button('나의 재테크 비교 다시 보기','sr-ask',()=>{
-        choiceSection.heading.focus({preventScroll:true});
-        choiceSection.heading.scrollIntoView({block:'start',behavior:'instant'});
-      }));
-      if(index===5&&report.calendar?.outlook)page.querySelector('.sr-evidence')?.before(wealthOutlook(report.calendar.outlook,report.calendar));
+      if(paidWealth&&(index===3||index===4))addReading(wealthTimeline(report.calendar,index===3?'opportunity':'expense'));
+      if(choiceSection&&index===(paidWealth?4:3))addReading(choiceSection.panel);
+      if(index===5&&report.calendar?.outlook)addReading(wealthOutlook(report.calendar.outlook,report.calendar));
       if(index===5&&paidWealth&&report.calendar.outlook){
         const c=report.calendar,year=c.outlook.years[0],cycles=c.daewoon?.cycles||[];
         const active=cycles.find(v=>v.ganZhi===year.cycles?.[0]?.ganZhi),next=active&&cycles[cycles.indexOf(active)+1];
@@ -1252,16 +1268,8 @@
         }
         recap.append(el('h4','내 재물운에서 기억할 다섯 가지'),list);page.append(recap);
       }
-      if(periods&&index===2){
-        const calendarLink=button('월별 인연 흐름 보기','sr-ask',()=>{
-          const heading=by('relationshipMonthsHeading');
-          heading.focus({preventScroll:true});
-          heading.scrollIntoView({block:'start',behavior:'instant'});
-        });
-        page.querySelector('.sr-evidence')?.before(calendarLink);
-      }
-      if(periods&&index===(report.topicVersion>=2?4:3))page.querySelector('.sr-evidence')?.before(relationshipTimeline(periods,reading));
-      if(periods&&index===5)page.querySelector('.sr-evidence')?.before(relationshipYears(periods,reading));
+      if(periods&&index===(report.topicVersion>=2?4:3))addReading(relationshipTimeline(periods,reading));
+      if(periods&&index===5)addReading(relationshipYears(periods,reading));
       if(topic&&index===5){
         const recap=el('section',null,'sr-topic-recap');
         const list=el('ol');
@@ -1273,37 +1281,24 @@
         recap.append(el('h4',topic.recap),list);
         page.append(recap);
       }
-      if((paidWealth||topic)&&index===0){
-        const first=el('details',null,'sr-paid-details');
-        page.append(guide.lastElementChild);
-        first.append(el('summary','무료 첫 장 다시 보기'),page);
-        contents.append(first);
-      }else{
-        if(paidWealth||topic){
-          const more=el('details',null,'sr-paid-details');
-          more.append(el('summary','상세 풀이 읽기'));
-          for(const paragraph of page.querySelectorAll(':scope > p:not(.sr-page-label):not(.sr-highlight)'))more.append(paragraph);
-          page.querySelector('.sr-highlight').after(more);
-          if(paidWealth&&(index===3||index===4)){
-            const timeline=wealthTimeline(report.calendar,index===3?'opportunity':'expense');
-            page.querySelector('.sr-evidence')?.before(timeline);
-          }
-        }
-        const ask=page.querySelector('.sr-ask');
-        if((paidWealth||topic)&&ask)page.append(ask);
-        contents.append(page);
+      if(index===0){
+        const explanation=el('details',null,'sr-evidence sr-wealth-origin');
+        explanation.append(el('summary','이 주제를 사주로 읽는 법'),guide.lastElementChild);
+        page.append(explanation);
       }
+      const ask=page.querySelector(':scope > .sr-ask');
+      if(ask)page.append(ask);
+      book.append(page);
     }
-    if(!paidWealth&&!topic)contents.append(guide.lastElementChild);
     const motif=window.TaekilReportGuide.dailyMotif({pair:natal.pillars?.day,theme:reading.topic});
     if(motif)contents.append(motif);
-    layout.append(toc({...reading,chapters:report.body.map(chapter=>chapter.title)},report.first,false,choiceSection?.heading),contents);
+    const menu=toc({...reading,chapters:report.body.map(chapter=>chapter.title)},report.first,false,choiceSection?.heading);
     const cover=header(reading,report.choice,report.day,report.known??report.profile?.hourValue!=='unknown',
       paidWealth?report.calendar.year:topic?true:undefined,report.profile);
     if(result.adminPreview)cover.querySelector('.sr-kicker').textContent+=' · 관리자용';
     const expiry=client.expiryNote(result.expiresAtMs);
     if(expiry)cover.querySelector('.sr-cover-nav').before(expiry);
-    show([cover,...front,layout],!paidWealth&&!topic);
+    show([cover,contents],{menu,preserve:!paidWealth&&!topic});
   }
 
   async function renderPurchased(result,host,owner,autoGenerate,reading) {
