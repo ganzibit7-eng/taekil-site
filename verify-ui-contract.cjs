@@ -113,7 +113,29 @@ for(const file of detailFiles){
    updated=updated.replace(blocks[0],'');
  }
  assert(updated.includes('href="/premium-detail.css"'),file+': shared detail theme missing');
- assert.deepEqual(scripts(updated),scripts(original),file+': existing script changed');
+ const seasonalGuide = ['2027-fortune/index.html','2027-money-fortune/index.html'].includes(file);
+ const originalScripts = scripts(original);
+ const updatedScripts = scripts(updated);
+ if(seasonalGuide){
+   assert.equal(updatedScripts[0][0],' type="application/ld+json"');
+   const oldData=JSON.parse(originalScripts[0][1]);
+   const newData=JSON.parse(updatedScripts[0][1]);
+   const oldArticle=oldData['@graph']?.[0] || oldData;
+   const newArticle=newData['@graph']?.[0] || newData;
+   assert.equal(newArticle['@type'],'Article');
+   assert.equal(newArticle.description,updated.match(/<meta name="description" content="([^"]+)"/)[1]);
+   assert.match(newArticle.headline,/2027년/);
+   if(file==='2027-money-fortune/index.html'){
+     assert(updated.includes('<p>'+newArticle.description+'</p>'),file+': article introduction');
+     updated=updated.replace('<p>'+newArticle.description+'</p>','<p>'+oldArticle.description+'</p>');
+   }
+   newArticle.description=oldArticle.description;
+   newArticle.headline=oldArticle.headline;
+   assert.deepEqual(newData,oldData,file+': article schema changed beyond editorial copy');
+   assert.deepEqual(updatedScripts.slice(1),originalScripts.slice(1),file+': existing script changed');
+ }else{
+   assert.deepEqual(updatedScripts,originalScripts,file+': existing script changed');
+ }
  assert.deepEqual(anchors(updated),anchors(original),file+': navigation changed');
  const body=html=>stripBrand(html.slice(html.search(/<body\b/i))).replace(' class="premium-article"','').replace(/\bpremium-article\s*/,'');
  assert.equal(body(updated),body(original),file+': article content or FAQ markup changed');

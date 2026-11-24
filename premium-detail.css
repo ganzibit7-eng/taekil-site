@@ -72,3 +72,17 @@ html{scroll-behavior:auto!important;overflow-anchor:none}
 .guide-reading h2 {margin-top:0;font-size:clamp(20px,4vw,26px)}
 .guide-reading nav {display:flex;align-items:center;flex-wrap:wrap;gap:4px 20px}
 .guide-reading a {display:inline-flex;align-items:center;min-height:44px;color:#e7ca96;text-decoration:underline;text-underline-offset:4px}
+.guide-reading .guide-reading-primary {
+  padding: 0 14px;
+  border-radius: 7px;
+  background: #e7ca96;
+  color: #2a221b;
+  font-weight: 750;
+  text-decoration: none;
+}
+.guide-reading dl {margin: 18px 0;}
+.guide-reading dt {margin-top: 12px; color: #f0d4a3; font-weight: 700;}
+.guide-reading dd {margin: 0; color: #ded6ca;}
+.guide-reading figure {max-width: 500px; margin: 20px 0 0;}
+.guide-reading img {display: block; width: 100%; height: auto; border-radius: 7px;}
+.guide-reading figcaption {margin-top: 8px; color: #d5cab9; font-size: .875rem; line-height: 1.6;}
