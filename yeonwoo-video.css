@@ -7,3 +7,45 @@
 
 /* Share the existing responsive video geometry for a reliable static fallback. */
 .home-first-block .yeonwoo-stage-poster{display:block!important;opacity:1!important;pointer-events:none}
+
+/* The arrival belongs to the public Yeonwoo welcome and her intake screen. */
+html[data-home-layout="consultation"] body:not(.consultation-open) .home-first-block .ai-chat-stage > .ai-chat-entry-media {
+  display:block!important;
+  object-position:center;
+}
+html[data-home-layout="consultation"] body:not(.consultation-open) .home-first-block .ai-chat-stage > .ai-chat-bgvideo:not(.ai-chat-entry-media) {
+  display:none!important;
+}
+.home-film-control:not([hidden]) {
+  position:absolute;
+  right:6px;
+  bottom:6px;
+  z-index:1;
+  display:grid;
+  place-items:center;
+  width:44px;
+  height:44px;
+  border:0;
+  border-radius:50%;
+  color:#fff6e8;
+  background:radial-gradient(circle,#261e1bd9 0 52%,transparent 54%);
+  cursor:pointer;
+}
+.home-film-control span {
+  width:0;
+  height:0;
+  margin-left:2px;
+  border-block:5px solid transparent;
+  border-left:8px solid currentColor;
+}
+.home-film-control[data-playing="true"] span {
+  box-sizing:border-box;
+  width:8px;
+  height:10px;
+  margin:0;
+  border:0;
+  border-inline:3px solid currentColor;
+}
+@media(prefers-reduced-motion:reduce) {
+  [data-home-directory-video][data-manual-motion].yeonwoo-playing {opacity:1!important}
+}

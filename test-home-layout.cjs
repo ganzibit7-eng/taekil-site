@@ -82,7 +82,9 @@ test('the directory links straight to the annual report while the Yeonwoo landin
   const directory = html.slice(directoryStart, adStart);
   const hero = directory.slice(0, directory.indexOf('</section>'));
   assert.match(hero, /id="directoryHeroTitle"/);
-  assert.doesNotMatch(hero, /<button\b|data-browse-advisors/);
+  assert.doesNotMatch(hero, /data-browse-advisors/);
+  assert.equal((hero.match(/<button\b/g)||[]).length,1);
+  assert.match(hero,/data-home-film-control/);
   assert.match(directory, /class="directory-feature" data-open-basic-report/);
   assert.doesNotMatch(hero, /연우의 AI 사주 상담|연애와 일, 돈과 관계|연우와 상담 시작하기|처음 가입하면 질문 3개 무료/);
   const season = directory.match(/<section class="directory-section" aria-labelledby="directoryNewyearTitle">([\s\S]+?)<\/section>/)?.[1];
