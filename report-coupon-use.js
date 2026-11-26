@@ -16,6 +16,7 @@
     input.autocomplete = 'off';
     input.spellcheck = false;
     input.maxLength = 100;
+    window.TaekilReportCoupons.enableGiftPaste(input);
     input.placeholder = '받은 쿠폰 번호를 입력해 주세요';
     entry.append(input);
     const register = element('button', '내 계정에 등록', 'btn');

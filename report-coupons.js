@@ -10,6 +10,47 @@
     taekilso_date_report: ['정밀 택일 리포트', '#tool']
   };
   const states = {issued:'미등록', redeemed:'등록 완료', revoked:'회수', expired:'기한 만료'};
+  const giftDetails = {
+    taekilso_seohwa_story_report:'연애할 때 마음을 표현하는 방식과 관계의 월별 흐름을 읽어요. 서화와의 채팅 상담 3회가 포함돼요.',
+    taekilso_dogyeom_story_report:'돈이 들어오는 흐름과 손에 남기기 좋은 시기를 월별로 살펴봐요. 도겸과의 채팅 상담 3회가 포함돼요.',
+    taekilso_ijun_story_report:'다시 연락할 때 살펴볼 점과 두 사람 사이의 거리를 내 사주로 읽어요. 이준과의 채팅 상담 3회가 포함돼요.',
+    taekilso_mujin_story_report:'내게 맞는 일의 조건과 이직을 고민할 시기를 살펴봐요. 무진과의 채팅 상담 3회가 포함돼요.',
+    taekilso_newyear_2027_report:'내 사주로 2027년의 큰 흐름과 열두 달의 운세를 읽는 신년 리포트예요.',
+    taekilso_relationship_report:'두 사람의 일주를 비교해 잘 맞는 점, 자주 엇갈리는 상황과 써볼 만한 대화 방법을 읽어요.',
+    taekilso_date_report:'이사·결혼 등 중요한 일정의 후보일 2~5개를 비교해 날짜별 순위와 풀이 근거를 확인해요.'
+  };
+  const deadlineFormat = new Intl.DateTimeFormat('ko-KR',{
+    timeZone:'Asia/Seoul', year:'numeric', month:'long', day:'numeric',
+    hour:'2-digit', minute:'2-digit', second:'2-digit', hourCycle:'h23'
+  });
+  function deadline(value) {
+    return value == null ? '등록 기한 없음' : deadlineFormat.format(value) + '까지 (한국시간)';
+  }
+  function giftText(coupon, number) {
+    return [
+      '[택일소 리포트 선물권]', products[coupon.product][0]+' 1편', giftDetails[coupon.product], '',
+      '쿠폰 번호: '+number, '등록 기한: '+deadline(coupon.expiresAtMs), '이용 기간: 쿠폰을 등록한 날부터 1년', '',
+      '등록하기', 'https://taekilso.com/#profile', '',
+      '등록 방법', '1. 위 링크로 내 프로필을 열고 로그인해 주세요.',
+      '2. ‘리포트 쿠폰 등록’에 이 메시지 또는 쿠폰 번호를 붙여넣고 등록해 주세요.',
+      '3. ‘사용 가능한 리포트’에서 ‘리포트 시작’을 눌러 안내에 따라 정보를 입력한 뒤, ‘리포트 쿠폰 사용’을 선택해 주세요.', '',
+      '먼저 등록한 한 계정에서 한 번 사용할 수 있어요.'
+    ].join('\n');
+  }
+  function enableGiftPaste(input) {
+    input.addEventListener('paste', event => {
+      const value = event.clipboardData?.getData('text/plain') || '';
+      const rows = value.split(/\r?\n/).filter(row => /^\s*쿠폰 번호\s*[:：]/.test(row));
+      if (rows.length !== 1) return;
+      const number = rows[0].replace(/^\s*쿠폰 번호\s*[:：]\s*/, '').trim();
+      try {
+        const raw = normalize(number);
+        event.preventDefault();
+        input.value = raw.match(/.{4}/g).join('-');
+        input.dispatchEvent(new Event('input',{bubbles:true}));
+      } catch (_) { /* Keep normal paste and validation for unrecognized messages. */ }
+    });
+  }
   const byId = id => document.getElementById(id);
   const store = window.accountStore;
   const day = new Intl.DateTimeFormat('ko-KR', {year:'numeric', month:'long', day:'numeric', timeZone:'Asia/Seoul'});
@@ -89,7 +130,7 @@
     goTo('profile');
     byId('couponNumber').focus();
   }
-  window.TaekilReportCoupons = Object.freeze({available, redeem, invalidate, focusRedeem});
+  window.TaekilReportCoupons = Object.freeze({available, redeem, invalidate, focusRedeem, enableGiftPaste});
 
   function node(tag, label, className) {
     const el = document.createElement(tag);
@@ -171,6 +212,10 @@
   }
   function clearIssued() {
     byId('couponIssuedNumber').value = '';
+    byId('couponGiftText').value = '';
+    byId('couponGiftPreview').open = false;
+    byId('couponGiftTitle').textContent = '';
+    byId('couponGiftDeadline').textContent = '';
     byId('couponIssued').hidden = true;
   }
   function adminCurrent(token) {
@@ -249,7 +294,11 @@
       issueIntent = null;
       uncertainCouponId = null;
       if (!adminCurrent(token)) return;
-      byId('couponIssuedNumber').value = normalize(code).match(/.{4}/g).join('-');
+      const number = normalize(code).match(/.{4}/g).join('-');
+      byId('couponIssuedNumber').value = number;
+      byId('couponGiftTitle').textContent = products[coupon.product][0]+' 선물권';
+      byId('couponGiftDeadline').textContent = '등록 기한 · '+deadline(coupon.expiresAtMs);
+      byId('couponGiftText').value = giftText(coupon,number);
       byId('couponIssued').dataset.id = coupon.couponId;
       byId('couponIssued').hidden = false;
       message('couponAdminStatus', products[product][0] + ' 쿠폰 1장을 발급했어요.');
@@ -267,18 +316,19 @@
       if (store.current(token)) setBusy(form,false);
     }
   }
-  async function copyNumber() {
+  async function copyIssued(fullGift) {
     const token = store.snapshot();
-    const field = byId('couponIssuedNumber');
+    const field = byId(fullGift ? 'couponGiftText' : 'couponIssuedNumber');
     if (!adminCurrent(token) || byId('couponIssued').hidden || !field.value) return;
     try {
       await navigator.clipboard.writeText(field.value);
-      if (adminCurrent(token)) message('couponAdminStatus','쿠폰 번호를 복사했어요.');
+      if (adminCurrent(token)) message('couponAdminStatus',fullGift ? '선물 안내를 복사했어요. 받는 분과의 대화에 붙여넣어 주세요.' : '쿠폰 번호를 복사했어요.');
     } catch (_) {
       if (!adminCurrent(token)) return;
+      if (fullGift) byId('couponGiftPreview').open = true;
       field.focus();
       field.select();
-      message('couponAdminStatus','선택한 번호를 길게 누르거나 복사 단축키를 사용해 주세요.');
+      message('couponAdminStatus','문구를 선택했어요. 길게 눌러 복사하거나 복사 단축키를 사용해 주세요.');
     }
   }
   function syncViews() {
@@ -317,7 +367,9 @@
     for (const [code,[label]] of Object.entries(products)) byId('couponProduct').add(new Option(label,code));
     byId('couponRedeemForm').addEventListener('submit',submitRedeem);
     byId('couponIssueForm').addEventListener('submit',issue);
-    byId('couponCopy').addEventListener('click',copyNumber);
+    enableGiftPaste(byId('couponNumber'));
+    byId('couponCopyGift').addEventListener('click',()=>copyIssued(true));
+    byId('couponCopy').addEventListener('click',()=>copyIssued(false));
     byId('couponDone').addEventListener('click',clearIssued);
     byId('couponRefresh').addEventListener('click',() => showAdminList(store.snapshot()));
     const observer = new MutationObserver(syncViews);
