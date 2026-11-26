@@ -959,18 +959,4 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 :root[data-checkout-unknown] .checkout-connection span:first-child {display:none}
 
 html[data-initial-directory] #view-home,html[data-initial-directory] #view-home .home-directory {display:block}
-html[data-initial-directory] :is(.topbar,footer) {max-width:1224px}
-
-/* Align the logo and menu to the directory's reading grid. */
-html[data-home-layout="directory"] body:not(.consultation-open):has(#view-home.visible) .topbar,
-html[data-initial-directory] .topbar {
-  width: min(1184px, calc(100% - 40px));
-  max-width: none;
-  padding-inline: 0;
-}
-html[data-home-layout="directory"] body:not(.consultation-open):has(#view-home.visible) .topbar > .container,
-html[data-initial-directory] .topbar > .container { width: 100%; }
-@media screen, (max-width: 660px) {
-  html[data-home-layout="directory"] body:not(.consultation-open):has(#view-home.visible) .topbar,
-  html[data-initial-directory] .topbar { width: calc(100% - 28px); }
-}
+html[data-initial-directory] footer {max-width:1224px}
