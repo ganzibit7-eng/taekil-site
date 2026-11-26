@@ -9,7 +9,8 @@
     store.invalidate();inquiryRequest++;
     const submit=document.getElementById('supportSubmit');if(submit)submit.disabled=false;
     window.__cleanupLegacyAdminViews?.();
-    if(typeof adminPermState!=='undefined')adminPermState={uid:'',label:'',mode:'grant',type:'premium',count:1};
+    document.getElementById('adminWithdrawalDialog')?.close();
+    if(typeof adminPermState!=='undefined')adminPermState={uid:'',label:'',mode:'grant',type:'credits',count:1};
     if(typeof closeAdminPermissionModal==='function')closeAdminPermissionModal();
     store.clearGuest(['taekilso_locked_birth','taekilso_history','taekilso_my_inquiries','taekilso_ai_conversations_v1','taekilso_ai_active_session_v1','taekilso_saju_vault','taekilso_pending_paid_ai_question_v1','taekilso_pending_today_fortune_question_v1']);
     window.__aiConversationId=null;window.__aiChatHistory=[];window.__aiChatSubjects=[];window.__aiChatProfile=null;window.__aiChatSaju='';window.__freeReportSnapshot=null;window.__newyearChatContext=false;window.__pendingCategoryQuestion=null;window.__pendingPaidAiQuestion='';
@@ -21,7 +22,7 @@
     document.getElementById('aiShareModal')?.classList.remove('show');
     for(const id of ['results','supportStatus']){const el=document.getElementById(id);if(el)el.style.display='none';}
     for(const id of clearIds){const el=document.getElementById(id);if(el)el.replaceChildren();}
-    for(const id of ['aiChatInput','supportTitle','supportMessage']){const el=document.getElementById(id);if(el)el.value='';}
+    for(const id of ['aiChatInput','supportTitle','supportMessage','adminUserSearch','adminBanIdentity','adminMemberFilter']){const el=document.getElementById(id);if(el)el.value='';}
     for(const id of ['aiChatPanel','aiChatSetup','supportDetail']){const el=document.getElementById(id);if(el)el.style.display='none';}
     const intro=document.getElementById('homeIntroOverlay');if(intro)intro.style.display='';
     document.getElementById('aiChatSendBtn')?.removeAttribute('disabled');
@@ -54,11 +55,11 @@
   };
   const originalLogout=window.logout;
   window.logout=function(){window.TaekilDateEntry?.clearDrafts();store.beginSignOut();clearPrivateView();return originalLogout.apply(this,arguments);};
-  window.clearDeletedAccountCache=function(uid){
+  window.clearDeletedAccountCache=function(uid,{storedOnly=false}={}){
     if(!uid)return;
     store.removeOwner(['taekilso_reading_library_v1','taekilso_locked_birth','taekilso_history','taekilso_my_inquiries','taekilso_ai_conversations_v1','taekilso_ai_active_session_v1','taekilso_pending_paid_ai_question_v1','taekilso_pending_today_fortune_question_v1','taekilso_pending_date_report','taekilso_pending_relationship_report','taekilso_last_order_id','taekilso_last_purchase_at'],uid);
     try{localStorage.removeItem('taekilso_saju_vault_'+uid);}catch(_){}
-    if(uid===store.owner())clearPrivateView();
+    if(!storedOnly&&uid===store.owner())clearPrivateView();
   };
   // An ownerless legacy draft must never be silently uploaded as a new account's inquiry.
   window.flushLocalOnlyInquiries=async function(){};

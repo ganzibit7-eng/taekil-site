@@ -6,14 +6,51 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function identityHash(value) {
+      return hashing.sha256(value).toHexString().lower();
+    }
+
+    function cooldownEnded(key) {
+      return key == null
+        || key.data.get('rejoinAllowedAtMs', key.data.get('untilMs', 0)) <= request.time.toMillis();
+    }
+
+    function identityAllowed(key) {
+      // All ban writers remove their own lookup on release. Older withdrawals
+      // may have only one of the two cooldown lookups.
+      return !exists(/databases/$(database)/documents/memberBanKeys/$(key))
+        && cooldownEnded(get(/databases/$(database)/documents/rejoinBlockKeys/$(key)))
+        && cooldownEnded(get(/databases/$(database)/documents/memberRejoinKeys/$(key)));
+    }
+
+    function providerAllowed() {
+      let claims = request.auth.token;
+      let google = claims.get('firebase', {}).get('identities', {}).get('google.com', []);
+      // Google's subject survives recreation with a new Firebase UID. Kakao
+      // uses a stable kakao_<id> UID. Fall back to a verified email if needed.
+      return google.size() > 0 ? identityAllowed(identityHash('provider:google.com:' + google[0]))
+        : (claims.get('email_verified', false) != true || claims.get('email', '') == ''
+          || identityAllowed(identityHash('email:' + claims.email.lower())));
+    }
+
+    function memberAllowed() {
+      let uidKey = identityHash('uid:' + request.auth.uid);
+      let sessionKey = 'SESSION-' + uidKey;
+      let session = get(/databases/$(database)/documents/rejoinBlockKeys/$(sessionKey));
+      return (session == null
+          || request.auth.token.get('auth_time', 0) > session.data.revokedAuthTimeThrough)
+        && identityAllowed(uidKey) && providerAllowed();
+    }
+
     function isAdmin() {
       return signedIn()
         && request.auth.token.email == 'green092432@gmail.com'
-        && request.auth.token.email_verified == true;
+        && request.auth.token.email_verified == true
+        && memberAllowed();
     }
 
     function isOwner(uid) {
-      return signedIn() && request.auth.uid == uid;
+      return signedIn() && request.auth.uid == uid && memberAllowed();
     }
 
     match /dailyCampaignVisits/{entryId} {
@@ -90,9 +127,8 @@ service cloud.firestore {
 
     match /paymentOrders/{orderId} {
       allow create: if
-        signedIn()
+        isOwner(request.resource.data.uid)
         && get(/databases/$(database)/documents/siteSettings/checkout).data.enabled == true
-        && request.resource.data.uid == request.auth.uid
         && request.resource.data.keys().hasOnly([
           'uid', 'amount', 'product', 'status', 'createdAt'
         ])
@@ -109,21 +145,20 @@ service cloud.firestore {
         );
 
       allow read: if isAdmin()
-        || (signedIn() && resource.data.uid == request.auth.uid);
+        || isOwner(resource.data.uid);
 
       allow update, delete: if false;
     }
 
     match /inquiries/{inquiryId} {
       allow get: if isAdmin()
-        || (signedIn() && resource.data.ownerUid == request.auth.uid);
+        || isOwner(resource.data.ownerUid);
 
       allow list: if isAdmin()
-        || (signedIn() && resource.data.ownerUid == request.auth.uid);
+        || isOwner(resource.data.ownerUid);
 
       allow create: if
-        signedIn()
-        && request.resource.data.ownerUid == request.auth.uid
+        isOwner(request.resource.data.ownerUid)
         && request.resource.data.firebaseUid == request.auth.uid
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.keys().hasOnly([
@@ -146,8 +181,7 @@ service cloud.firestore {
         isAdmin()
         ||
         (
-          signedIn()
-          && resource.data.ownerUid == request.auth.uid
+          isOwner(resource.data.ownerUid)
           && resource.data.status != '답변완료'
           && resource.data.get('legalHold', false) != true
           && !(resource.data.get('source', '') in ['dispute-kakao', 'dispute-firebase'])

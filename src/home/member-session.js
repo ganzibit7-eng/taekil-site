@@ -30,12 +30,12 @@ async function checkMemberAccess(user, options = {}) {
 
 async function checkAccountRestrictions(user, options = {}) {
   const strict = !!options.strict;
-  if (!user || user.isAnonymous || !MEMBER_ACCESS_STATUS_URL) return true;
-  if (String(user.email || '').trim().toLowerCase() === String(ADMIN_EMAIL || '').trim().toLowerCase()) return true;
+  if (!user || user.isAnonymous) return true;
+  if (!MEMBER_ACCESS_STATUS_URL) return false;
 
   const uid = String(user.uid || '');
   const cached = memberAccessCache.get(uid);
-  if (cached && Date.now() - cached.at < 2 * 60 * 1000) return cached.allowed;
+  if (cached?.user === user && Date.now() - cached.at < 2 * 60 * 1000) return true;
 
   async function requestAccessStatus(forceRefreshToken = false) {
     const token = await user.getIdToken(!!forceRefreshToken);
@@ -70,12 +70,14 @@ async function checkAccountRestrictions(user, options = {}) {
 
     const res = result.res;
     const data = result.data;
+    if (firebase.auth().currentUser !== user) return false;
 
     if (
       res.status === 403 &&
       (data.error === 'ACCOUNT_BANNED' || data.error === 'ACCOUNT_REJOIN_COOLDOWN')
     ) {
-      memberAccessCache.set(uid, { allowed:false, at:Date.now() });
+      memberAccessCache.delete(uid);
+      window.clearDeletedAccountCache?.(uid);
       clearLocalKakaoSessionForBan();
       try { await firebase.auth().signOut(); } catch(e) {}
       firebaseAuthUser = null;
@@ -91,8 +93,8 @@ async function checkAccountRestrictions(user, options = {}) {
       return false;
     }
 
-    if (res.ok) {
-      memberAccessCache.set(uid, { allowed:true, at:Date.now() });
+    if (res.ok && data.allowed === true && data.uid === uid) {
+      memberAccessCache.set(uid, { user, at:Date.now() });
       return true;
     }
 
@@ -108,10 +110,11 @@ async function checkAccountRestrictions(user, options = {}) {
       return false;
     }
 
-    return true;
+    return false;
 
   } catch (err) {
     console.warn('회원 이용상태 확인 오류', err);
+    if (firebase.auth().currentUser !== user) return false;
 
     if (strict) {
       showToast('회원 이용상태 서버에 연결하지 못했어요. 잠시 후 다시 시도해주세요.');
@@ -120,7 +123,7 @@ async function checkAccountRestrictions(user, options = {}) {
       return false;
     }
 
-    return true;
+    return false;
   }
 }
 
@@ -150,6 +153,7 @@ try {
       })
       .then(() => {
         firebase.auth().onAuthStateChanged(async (user) => {
+          memberAccessCache.clear();
           window.TaekilAccountAge.observe(user?.uid || null);
           firebaseAuthUser = user || null;
           firebaseAuthReady = true;
@@ -212,7 +216,7 @@ function showAuthError(message) {
 }
 
 function isAdmin() {
-  return !!(firebaseReady && firebaseAuthReady && firebaseAuthUser && firebaseAuthUser.email === ADMIN_EMAIL);
+  return !!(firebaseReady && firebaseAuthReady && firebaseAuthUser?.emailVerified === true && firebaseAuthUser.email === ADMIN_EMAIL);
 }
 
 /* ---------- 방문/가입/구매 집계 (Firestore) ---------- */

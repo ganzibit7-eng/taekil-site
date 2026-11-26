@@ -141,79 +141,6 @@ async function adminAdjustQuestionCreditsFallback(uid, mode, count){
   };
 }
 
-function askAdminDeletePassword(label){
-  return new Promise((resolve) => {
-    const old = document.getElementById('adminDeletePasswordBackdrop');
-    if (old) old.remove();
-
-    const backdrop = document.createElement('div');
-    backdrop.id = 'adminDeletePasswordBackdrop';
-    backdrop.style.cssText = [
-      'position:fixed','inset:0','z-index:99999',
-      'background:rgba(0,0,0,.72)','display:flex',
-      'align-items:center','justify-content:center','padding:20px'
-    ].join(';');
-
-    const box = document.createElement('div');
-    box.style.cssText = [
-      'width:min(420px,100%)','background:#171512',
-      'border:1px solid rgba(255,255,255,.12)','border-radius:18px',
-      'padding:22px','box-shadow:0 24px 80px rgba(0,0,0,.45)'
-    ].join(';');
-
-    box.innerHTML = `
-      <div style="font-size:18px;color:var(--gold-hi);margin-bottom:8px;">강제탈퇴 최종 확인</div>
-      <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px;">
-        ${escapeHtml(label || '선택한 회원')} 회원을 삭제하려면 관리자 비밀번호를 입력해주세요.
-      </div>
-      <input id="adminDeletePasswordInput" type="password" autocomplete="current-password"
-        placeholder="관리자 비밀번호"
-        style="width:100%;box-sizing:border-box;padding:13px 14px;border-radius:12px;
-        border:1px solid rgba(255,255,255,.14);background:#0f0e0c;color:#fff;outline:none;">
-      <div id="adminDeletePasswordError"
-        style="min-height:18px;margin-top:8px;font-size:12px;color:#e38b8b;"></div>
-      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;">
-        <button id="adminDeletePasswordCancel" class="btn" type="button">취소</button>
-        <button id="adminDeletePasswordOk" class="btn btn-primary" type="button">확인</button>
-      </div>
-    `;
-
-    backdrop.appendChild(box);
-    document.body.appendChild(backdrop);
-
-    const input = box.querySelector('#adminDeletePasswordInput');
-    const cancel = box.querySelector('#adminDeletePasswordCancel');
-    const ok = box.querySelector('#adminDeletePasswordOk');
-    const error = box.querySelector('#adminDeletePasswordError');
-
-    const finish = (value) => {
-      backdrop.remove();
-      resolve(value);
-    };
-
-    cancel.onclick = () => finish(null);
-    backdrop.addEventListener('click', (e) => {
-      if (e.target === backdrop) finish(null);
-    });
-
-    ok.onclick = () => {
-      const value = String(input.value || '');
-      if (!value) {
-        error.textContent = '비밀번호를 입력해주세요.';
-        input.focus();
-        return;
-      }
-      finish(value);
-    };
-
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') ok.click();
-      if (e.key === 'Escape') cancel.click();
-    });
-
-    setTimeout(() => input.focus(), 0);
-  });
-}
 
 
 function scrollHomeSection(target){
@@ -249,49 +176,82 @@ async function callAdminMemberSecurity(action, payload = {}) {
   return data;
 }
 
-async function forceDeleteMember(uid, label){
-  if (!uid) return;
+function forceDeleteMember(uid, label, restriction) {
   const me = firebase.auth().currentUser;
-  if (me && me.uid === uid) {
-    showToast('현재 로그인한 관리자 본인 계정은 강제탈퇴할 수 없어요.');
+  if (!uid || !me || !isAdmin()) return;
+  if (uid === me.uid) {
+    showToast('관리자 본인 계정은 탈퇴 처리할 수 없어요.');
     return;
   }
-
-  const first = confirm(
-    `${label || uid} 회원을 강제탈퇴할까요?\n\n` +
-    `• Firebase 로그인 계정 삭제\n` +
-    `• 회원 프로필/사주 보관함/AI 상담 삭제\n` +
-    `• 결제·문의 기록은 보존\n\n` +
-    `이 작업은 되돌릴 수 없습니다.`
-  );
-  if (!first) return;
-
-  const typed = prompt('실수 방지를 위해 "강제탈퇴"를 입력해주세요.');
-  if (typed !== '강제탈퇴') {
-    showToast('강제탈퇴가 취소됐어요.');
-    return;
-  }
-
-  // 최종 3차 확인. 비밀번호는 코드에 저장하지 않고
-  // 서버의 ADMIN_DELETE_PASSWORD Secret과 서버에서만 비교합니다.
-  const deletePassword = await askAdminDeletePassword(label || uid);
-  if (!deletePassword) {
-    showToast('강제탈퇴가 취소됐어요.');
-    return;
-  }
-
-  try {
-    showToast('영구 밴을 저장한 뒤 회원 계정을 삭제하는 중이에요…');
-    const result = await callAdminMemberSecurity('force_delete', { uid, deletePassword });
-    if (!result || !result.permanentlyBanned || !result.banId) {
-      throw new Error('영구 밴 저장 확인에 실패했습니다.');
+  if (document.getElementById('adminWithdrawalDialog')) return;
+  const dialog = document.createElement('dialog');
+  dialog.id = 'adminWithdrawalDialog';
+  dialog.className = 'admin-withdrawal-dialog';
+  dialog.setAttribute('aria-labelledby', 'adminWithdrawalTitle');
+  const title = restriction ? '중단된 탈퇴 처리 마치기' : '회원 강제탈퇴';
+  dialog.innerHTML = `
+    <form>
+      <h3 id="adminWithdrawalTitle">${title}</h3>
+      <p class="admin-withdraw-target"><strong>${escapeHtml(label || uid)}</strong><small>회원 UID ${escapeHtml(uid)}</small></p>
+      <p>계정과 개인 사주·상담 기록이 삭제돼요. 결제·분쟁 처리 등에 필요한 기록은 보관돼요.</p>
+      <p>${restriction?.kind === 'cooldown' ? '직접 탈퇴한 계정의 기존 30일 제한이 적용돼요.' : '같은 계정으로 다시 가입하려면 관리자가 제한을 해제해야 해요.'} 삭제된 기록은 복원할 수 없어요.</p>
+      <label>처리할 회원을 확인한 뒤 <b>탈퇴</b>를 입력해 주세요.
+        <input name="confirmation" required autocomplete="off" spellcheck="false">
+      </label>
+      <p class="admin-withdraw-message" role="status"></p>
+      <div class="admin-withdraw-actions"><button type="button" class="btn">취소</button><button type="submit" class="btn btn-primary" disabled>본인 확인 후 탈퇴 처리</button></div>
+    </form>`;
+  document.body.appendChild(dialog);
+  const form = dialog.querySelector('form');
+  const field = form.elements.confirmation;
+  const submit = form.querySelector('[type=submit]');
+  const cancel = form.querySelector('[type=button]');
+  const message = form.querySelector('[role=status]');
+  const token = accountStore.snapshot();
+  const current = () => accountStore.current(token) && firebase.auth().currentUser?.uid === me.uid && isAdmin();
+  let busy = false;
+  field.oninput = () => { submit.disabled = busy || field.value.trim() !== '탈퇴'; };
+  cancel.onclick = () => dialog.close();
+  dialog.addEventListener('cancel', e => { if (busy) e.preventDefault(); });
+  dialog.addEventListener('close', () => dialog.remove(), {once:true});
+  form.onsubmit = async event => {
+    event.preventDefault();
+    if (busy || field.value.trim() !== '탈퇴') return;
+    if (!current()) { dialog.close(); return; }
+    busy = true;
+    submit.disabled = cancel.disabled = field.disabled = true;
+    message.textContent = 'Google에서 현재 관리자 계정을 확인해 주세요.';
+    let started = false;
+    try {
+      await me.reauthenticateWithPopup(getGoogleProvider());
+      if (!current()) { dialog.close(); return; }
+      message.textContent = '회원 탈퇴를 처리하고 있어요.';
+      started = true;
+      const result = restriction
+        ? await callAdminMemberSecurity('retry_withdrawal', {banId:restriction.banId, kind:restriction.kind, confirmUid:uid})
+        : await callAdminMemberSecurity('force_delete', {uid, confirmUid:uid});
+      if (!result.ok || !result.deleted) throw new Error('탈퇴 완료 응답을 확인하지 못했어요.');
+      dialog.close();
+      if (current()) {
+        showToast(result.identityScope === 'previous_uid' ? '이전 회원 UID만 제한했어요. 인증 기록이 없어 새 로그인 계정과 대조할 수 없어요.' : '회원 탈퇴 처리를 완료했어요.');
+        await loadAdminBanList();
+      }
+    } catch (error) {
+      if (!current()) { dialog.close(); return; }
+      const hints = {
+        'auth/popup-blocked':'이 사이트의 팝업을 허용한 뒤 다시 시도해 주세요.',
+        'auth/popup-closed-by-user':'본인 확인이 취소됐어요.',
+        'auth/user-mismatch':'로그인 중인 관리자 Google 계정을 선택해 주세요.'
+      };
+      message.textContent = hints[error.code] || error.message || '다시 시도해 주세요.';
+      if (started) await loadAdminBanList();
+    } finally {
+      busy = false;
+      submit.disabled = cancel.disabled = field.disabled = false;
     }
-    showToast('회원 강제탈퇴 및 영구 밴이 완료됐어요.');
-    await loadAdminBanList();
-  } catch (err) {
-    console.error('관리자 강제탈퇴 실패', err);
-    showToast('강제탈퇴 실패: ' + err.message);
-  }
+  };
+  dialog.showModal();
+  field.focus();
 }
 
 
@@ -299,7 +259,7 @@ let adminPermState = {
   uid: '',
   label: '',
   mode: 'grant',
-  type: 'premium',
+  type: 'credits',
   count: 1
 };
 
@@ -308,14 +268,14 @@ function openAdminPermissionModal(uid, label, mode){
     uid: String(uid || ''),
     label: String(label || uid || ''),
     mode: mode === 'revoke' ? 'revoke' : 'grant',
-    type: 'premium',
+    type: 'credits',
     count: 1
   };
   const backdrop = document.getElementById('adminPermBackdrop');
   const member = document.getElementById('adminPermMember');
   if (member) member.textContent = adminPermState.label + ' · ' + adminPermState.uid;
   setAdminPermissionMode(adminPermState.mode);
-  setAdminPermissionType('premium');
+  setAdminPermissionCount(1);
   if (backdrop) backdrop.classList.add('show');
 }
 
@@ -335,17 +295,20 @@ function setAdminPermissionMode(mode){
   const submit = document.getElementById('adminPermSubmit');
   if (submit) submit.textContent = adminPermState.mode === 'grant' ? '지급하기' : '회수하기';
 
-  updateAdminPermissionModalText();
+  setAdminPermissionType(adminPermState.type);
 }
 
 function setAdminPermissionType(type){
-  adminPermState.type = type === 'credits' ? 'credits' : 'premium';
+  adminPermState.type = type === 'premium' && adminPermState.mode === 'revoke' ? 'premium' : 'credits';
 
   const premiumOption = document.getElementById('adminPermPremiumOption');
   const creditOption = document.getElementById('adminPermCreditOption');
   const counts = document.getElementById('adminPermCounts');
 
-  if (premiumOption) premiumOption.classList.toggle('active', adminPermState.type === 'premium');
+  if (premiumOption) {
+    premiumOption.hidden = adminPermState.mode !== 'revoke';
+    premiumOption.classList.toggle('active', adminPermState.type === 'premium');
+  }
   if (creditOption) creditOption.classList.toggle('active', adminPermState.type === 'credits');
   if (counts) counts.classList.toggle('show', adminPermState.type === 'credits');
 
@@ -377,15 +340,13 @@ function updateAdminPermissionModalText(){
   const note = document.getElementById('adminPermNote');
   const allBtn = document.querySelector('[data-admin-count="all"]');
 
-  if (premiumDesc) premiumDesc.textContent = grant ? '30일 이용권을 지급합니다.' : '현재 프리미엄 이용권을 회수합니다.';
+  if (premiumDesc) premiumDesc.textContent = '남은 이용 기간을 회수합니다.';
   if (creditDesc) creditDesc.textContent = grant ? '선택한 개수만큼 질문권을 지급합니다.' : '선택한 개수만큼 질문권을 회수합니다.';
   if (allBtn) allBtn.style.display = adminPermState.mode === 'revoke' ? '' : 'none';
 
   if (!note) return;
   if (premium) {
-    note.textContent = grant
-      ? '선택한 회원에게 프리미엄 30일을 지급합니다.'
-      : '선택한 회원의 프리미엄 권한을 즉시 회수합니다.';
+    note.textContent = '선택한 회원의 기존 프리미엄 권한을 회수합니다.';
   } else {
     const countText = adminPermState.count === 'all' ? '남은 질문권 전부' : `질문권 ${adminPermState.count}개`;
     note.textContent = grant
@@ -396,7 +357,7 @@ function updateAdminPermissionModalText(){
 
 async function submitAdminPermissionAction(){
   const { uid, mode, type, count } = adminPermState;
-  if (!uid) return;
+  if (!uid || (type === 'premium' && mode !== 'revoke')) return;
 
   try {
     const submit = document.getElementById('adminPermSubmit');
@@ -409,7 +370,7 @@ async function submitAdminPermissionAction(){
     let extra = {};
 
     if (type === 'premium') {
-      action = mode === 'grant' ? 'grant_premium' : 'revoke_premium';
+      action = 'revoke_premium';
     } else {
       action = mode === 'grant' ? 'grant_credits' : 'revoke_credits';
       extra.count = count;
@@ -437,7 +398,7 @@ async function submitAdminPermissionAction(){
     }
 
     if (type === 'premium') {
-      showToast(mode === 'grant' ? '프리미엄 30일 지급 완료' : '프리미엄 회수 완료');
+      showToast('기존 프리미엄 회수 완료');
     } else {
       showToast(
         `${mode === 'grant' ? '질문권 지급' : '질문권 회수'} 완료 · 현재 ${Number(result.questionCredits || 0)}개`
@@ -458,11 +419,23 @@ async function submitAdminPermissionAction(){
 }
 
 function filterAdminUserList(query) {
-  const q = query.trim().toLowerCase();
-  document.querySelectorAll('#adminUserList .usecase-item').forEach(item => {
-    const match = !q || (item.dataset.searchKey || '').includes(q);
+  const q = String(query || '').trim().toLowerCase();
+  const mode = document.getElementById('adminMemberFilter').value;
+  const cards = document.querySelectorAll('#adminUserList .admin-member-card');
+  const recentStart = Date.now() - 7 * 86400000;
+  let count = 0;
+  for (const item of cards) {
+    const data = item.dataset;
+    const matchActivity = (!mode ||
+      (mode === 'recent' && Number(data.lastSeenMs) >= recentStart) ||
+      (mode === 'credits' && Number(data.credits) > 0) ||
+      (mode === 'free_used' && Number(data.freeUsed) >= 3));
+    const match = matchActivity && (!q || data.searchKey.includes(q));
     item.style.display = match ? '' : 'none';
-  });
+    if (match) count++;
+  }
+  const result = document.getElementById('adminMemberFilterResult');
+  result.textContent = cards.length ? (count ? `전체 ${cards.length}명 중 ${count}명 표시` : '조건에 맞는 회원이 없어요.') : '';
 }
 
 let adminStatsUnsub = null;
@@ -549,6 +522,40 @@ function sortAdminUserListDom() {
   });
 
   cards.forEach(card => list.appendChild(card));
+}
+
+async function loadMemberOrderHistory(details, current) {
+  if (!current() || details.dataset.loaded) return;
+  const output = details.querySelector('[role=status]');
+  details.dataset.loaded = 'pending';
+  output.textContent = '주문 내역을 확인하고 있어요.';
+  const uid = details.dataset.memberOrders;
+  try {
+    const result = await db.collection('paymentOrders').where('uid','==',uid).get({source:'server'});
+    if (!details.isConnected || !current()) return;
+    const analytics = window.TaekilAnalytics;
+    const statuses = {pending:'결제 대기',paid:'결제 승인',partially_refunded:'부분 환불',refunded:'환불 완료',cancelled:'취소'};
+    const orders = result.docs.map(doc => ({id:doc.id, order:doc.data()}))
+      .sort((a,b) => analytics.orderTime(b.order) - analytics.orderTime(a.order));
+    output.replaceChildren();
+    for (const {id,order} of orders) {
+      const row = document.createElement('p');
+      const name = analytics.products[order.product] || '기타 상품';
+      const amount = Number(order.amount);
+      const heading = document.createElement('strong');
+      heading.textContent = name + ' · ' + (statuses[order.status] || '상태 확인 필요');
+      const meta = document.createElement('small');
+      meta.textContent = [Number.isFinite(amount) ? '주문액 ' + amount.toLocaleString('ko-KR') + '원' : '', adminFormatDateTime(analytics.orderTime(order)), '주문 ' + id].filter(Boolean).join(' · ');
+      row.append(heading, meta);
+      if (order.entitlementReviewRequired) row.append('이용권 반영 확인 필요');
+      output.appendChild(row);
+    }
+    if (!orders.length) output.textContent = '이 회원 UID의 주문 내역이 없어요.';
+    details.dataset.loaded = 'done';
+  } catch (error) {
+    delete details.dataset.loaded;
+    if (details.isConnected && current()) output.textContent = '불러오지 못했어요. 접었다가 다시 열어 주세요.';
+  }
 }
 
 function renderAdmin() {
@@ -777,6 +784,7 @@ function renderAdmin() {
     document.getElementById('adminUserList').setAttribute('aria-busy', 'false');
     const list = document.getElementById('adminUserList');
     if (qs.empty) {
+      document.getElementById('adminMemberFilterResult').textContent = '';
       list.innerHTML = '<div class="empty-note">아직 가입한 회원이 없어요.</div>';
       const signupEl = document.getElementById('statSignups');
       const kakaoEl = document.getElementById('statKakaoMembers');
@@ -924,6 +932,7 @@ function renderAdmin() {
       item.dataset.signupMs = String(createdMs || 0);
       item.dataset.lastSeenMs = String(lastSeenMs || 0);
       item.dataset.credits = String(credits || 0);
+      item.dataset.freeUsed = String(freeUsed);
       item.dataset.premium = isActivePremium ? '1' : '0';
       item.dataset.sortName = String(u.nickname || u.displayName || u.email || label || doc.id || '').toLowerCase();
       item.dataset.searchKey = (
@@ -950,12 +959,13 @@ function renderAdmin() {
             <span>무료 AI ${Math.min(freeUsed, 3)}/3 사용</span>
           </div>
           <div style="font-size:9.5px;color:var(--muted-2);margin-top:6px;overflow-wrap:anywhere;">UID ${escapeHtml(doc.id)}</div>
+          <details class="admin-member-orders" data-member-orders="${escapeHtml(doc.id)}"><summary>주문 내역 보기</summary><div role="status"></div></details>
         </div>
 
-        <div style="display:flex; gap:7px; align-items:center; justify-content:flex-end; flex-wrap:wrap; max-width:310px;">
-          <span class="text-action" data-perm-grant-uid="${doc.id}" data-perm-label="${escapeHtml(label)}" style="font-size:10.5px;">지급</span>
-          <span class="text-action" data-perm-revoke-uid="${doc.id}" data-perm-label="${escapeHtml(label)}" style="font-size:10.5px;color:var(--warn);">회수</span>
-          <span class="hist-delete" data-force-delete-uid="${doc.id}" data-force-delete-label="${escapeHtml(label)}" style="font-size:10.5px;color:#e39482;">강제탈퇴</span>
+        <div class="admin-member-actions">
+          <button type="button" data-perm-grant-uid="${escapeHtml(doc.id)}" data-perm-label="${escapeHtml(label)}">질문권 지급</button>
+          <button type="button" data-perm-revoke-uid="${escapeHtml(doc.id)}" data-perm-label="${escapeHtml(label)}">이용권 회수</button>
+          ${doc.id === adminToken.owner ? '' : `<button type="button" class="admin-withdraw" data-force-delete-uid="${escapeHtml(doc.id)}" data-force-delete-label="${escapeHtml(label)}">강제탈퇴</button>`}
         </div>
       `;
       list.appendChild(item);
@@ -972,8 +982,11 @@ function renderAdmin() {
     sortAdminUserListDom();
 
     const searchBox = document.getElementById('adminUserSearch');
-    if (searchBox && searchBox.value) filterAdminUserList(searchBox.value);
+    if (searchBox) filterAdminUserList(searchBox.value);
 
+    list.querySelectorAll('[data-member-orders]').forEach(details => {
+      details.ontoggle = () => { if (details.open) loadMemberOrderHistory(details, adminCurrent); };
+    });
     list.querySelectorAll('[data-force-delete-uid]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         forceDeleteMember(e.currentTarget.dataset.forceDeleteUid, e.currentTarget.dataset.forceDeleteLabel || '');
@@ -1022,64 +1035,75 @@ function renderAdmin() {
 
 
 async function loadAdminBanList() {
-  const accountToken = accountStore.snapshot();
+  const token = accountStore.snapshot();
   const wrap = document.getElementById('adminBanList');
   if (!wrap || !isAdmin()) return;
-
-  wrap.innerHTML = '<div class="empty-note">밴 목록을 불러오는 중…</div>';
-
+  const revision = String(Number(wrap.dataset.revision || 0) + 1);
+  wrap.dataset.revision = revision;
+  const current = () => accountStore.current(token) && isAdmin() && wrap.dataset.revision === revision;
+  const query = document.getElementById('adminBanIdentity').value.trim();
+  wrap.innerHTML = '<div class="empty-note">재가입 제한을 확인하고 있어요.</div>';
+  wrap.setAttribute('aria-busy','true');
   try {
-    const data = await callAdminMemberSecurity('list_bans');
-    if (!accountStore.current(accountToken) || !isAdmin()) return;
-    const bans = Array.isArray(data.bans) ? data.bans : [];
-
-    if (!bans.length) {
-      wrap.innerHTML = '<div class="empty-note">현재 영구 밴된 계정이 없어요.</div>';
+    const data = await callAdminMemberSecurity('list_bans', query ? {identityQuery:query} : {});
+    if (!current()) return;
+    if (!data.ok || !Array.isArray(data.bans)) throw new Error('목록 응답을 확인할 수 없어요.');
+    if (!data.bans.length) {
+      wrap.innerHTML = query ? '<div class="empty-note">이 정보와 일치하는 제한이 없어요.</div>' : '<div class="empty-note">현재 재가입이 제한된 회원이 없어요.</div>';
       return;
     }
-
-    wrap.innerHTML = '';
-    bans.forEach((ban) => {
-      const label = ban.email || ban.nickname || ban.uid || '밴 계정';
-      const when = ban.bannedAtMs ? adminFormatDateTime(ban.bannedAtMs) : '-';
-      const row = document.createElement('div');
-      row.className = 'usecase-item';
-      row.innerHTML = `
-        <div style="min-width:0;flex:1;">
-          <strong style="color:#e6c3b9;font-family:var(--serif);font-weight:400;">${escapeHtml(label)}</strong>
-          <div style="font-size:10.5px;color:var(--muted-2);margin-top:6px;line-height:1.55;">
-            ${escapeHtml(ban.provider || 'unknown')} · 밴 ${escapeHtml(when)}
-          </div>
-          <div style="font-size:9.5px;color:var(--muted-2);margin-top:4px;overflow-wrap:anywhere;">${escapeHtml(ban.uid || '')}</div>
+    wrap.replaceChildren();
+    for (const ban of data.bans) {
+      const temporary = ban.kind === 'cooldown';
+      const label = ban.email || ban.nickname || ban.uid || '이전 탈퇴 기록';
+      const expiry = ban.rejoinAllowedAtMs ? adminFormatDateTime(ban.rejoinAllowedAtMs) : '';
+      const dates = [
+        ban.bannedAtMs && ('탈퇴 처리 ' + adminFormatDateTime(ban.bannedAtMs)),
+        temporary ? (expiry ? '재가입 가능 ' + expiry : '30일 제한') : '관리자가 해제할 때까지'
+      ].filter(Boolean).join(' · ');
+      const item = document.createElement('div');
+      item.className = 'usecase-item admin-restriction-row';
+      item.innerHTML = `
+        <div><span class="admin-restriction-kind">${temporary ? '직접 탈퇴 · 30일' : '강제탈퇴 · 영구 제한'}</span>
+          <strong>${escapeHtml(label)}</strong>
+          <small>${escapeHtml(dates)}</small>
+          ${ban.uid && ban.uid !== label ? `<small>회원 UID ${escapeHtml(ban.uid)}</small>` : ''}
+          ${ban.identityScope === 'previous_uid' ? '<small>인증 기록이 없어 기존 회원 UID로만 제한돼요.</small>' : ''}
+          ${ban.deletionPending ? '<small>기록 삭제를 마친 뒤 제한을 해제할 수 있어요.</small>' : ''}
         </div>
-        <span class="text-action" data-unban-id="${escapeHtml(ban.banId || '')}" data-unban-label="${escapeHtml(label)}" style="color:#9fc8a4;font-size:11px;">밴 해제</span>
-      `;
-      wrap.appendChild(row);
-    });
-
-    wrap.querySelectorAll('[data-unban-id]').forEach((btn) => {
-      btn.addEventListener('click', async (e) => {
-        const el = e.currentTarget;
-        await unbanMember(el.dataset.unbanId, el.dataset.unbanLabel || '');
-      });
-    });
-  } catch (err) {
-    console.error('밴 목록 조회 실패', err);
-    wrap.innerHTML = '<div class="empty-note">밴 목록을 불러오지 못했어요.</div>';
+        <button class="admin-ban-refresh" type="button">${ban.deletionPending ? '탈퇴 처리 마치기' : '재가입 허용'}</button>`;
+      const button = item.querySelector('button');
+      button.onclick = () => {
+        if (!current() || button.disabled) return;
+        if (ban.deletionPending) forceDeleteMember(ban.uid,label,ban);
+        else unbanMember(ban,label,button,current);
+      };
+      wrap.appendChild(item);
+    }
+  } catch (error) {
+    if (current()) wrap.innerHTML = '<div class="empty-note">재가입 제한 목록을 확인하지 못했어요. 새로고침해 주세요.</div>';
+  } finally {
+    if (current()) wrap.setAttribute('aria-busy','false');
   }
 }
 
-async function unbanMember(banId, label) {
-  if (!banId) return;
-  if (!confirm(`${label || '선택한 계정'}의 영구 밴을 해제할까요?\n\n해제 후에는 다시 가입/로그인할 수 있습니다.`)) return;
-
+async function unbanMember(ban, label, button, current) {
+  if (!ban.banId || !current()) return;
+  if (!confirm(`${label} 회원의 재가입 제한을 지금 해제할까요?\n\n같은 계정으로 새로 가입할 수 있어요. 탈퇴 전에 저장한 기록과 이용권은 복원되지 않아요.`)) return;
+  button.disabled = true;
+  button.textContent = '해제 중…';
   try {
-    await callAdminMemberSecurity('unban_user', { banId });
-    showToast('영구 밴을 해제했어요.');
-    await loadAdminBanList();
-  } catch (err) {
-    console.error('밴 해제 실패', err);
-    showToast('밴 해제 실패: ' + (err.message || err));
+    const result = await callAdminMemberSecurity('unban_user', {banId:ban.banId,kind:ban.kind || 'permanent'});
+    if (!result.ok || !result.unbanned) throw new Error('제한 해제 응답을 확인하지 못했어요.');
+    if (current()) {
+      showToast('재가입 제한을 해제했어요.');
+      await loadAdminBanList();
+    }
+  } catch (error) {
+    if (current()) {
+      showToast(error.message || '해제 결과를 확인하지 못했어요. 새로고침해 주세요.');
+      await loadAdminBanList();
+    }
   }
 }
 
