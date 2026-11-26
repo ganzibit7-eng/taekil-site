@@ -5,10 +5,10 @@
 }
 #view-profile #profileCoupons {
   display: grid; grid-template-columns: minmax(0,.85fr) minmax(0,1.25fr);
-  align-items: center; column-gap: clamp(18px,4vw,46px); row-gap: 4px;
+  align-items: center; column-gap: clamp(18px,4vw,46px); row-gap: 8px;
   margin: 0; padding: clamp(18px,3vw,26px);
-  border: 1px solid #8c7563; border-radius: 12px;
-  background: linear-gradient(110deg,#3a2e32,#30282b 65%);
+  border: 0; border-radius: 6px;
+  background: #30292b;
 }
 #profileCoupons > h2 { grid-column: 1; align-self: end; margin: 0; color: #f9e6c9; }
 #profileCoupons > p:not(.coupon-message) { grid-column: 1; margin: 0; align-self: start; line-height: 1.6; word-break: keep-all; }
@@ -24,7 +24,7 @@
 #couponIssued h3 { margin: 0; color: #f6e7d4; font: 600 1.2rem/1.55 var(--serif); }
 #couponGiftDeadline { margin-block: .2rem 1rem; color: #e4c9a6; }
 #couponGiftPreview { margin-top: .9rem; padding-top: .65rem; border-top: 1px solid var(--coupon-line); }
-#couponGiftPreview summary { cursor: pointer; padding-block: .4rem; }
+#couponGiftPreview summary { cursor: pointer; box-sizing: border-box; min-height: 44px; padding-block: .65rem; }
 #couponGiftText {
   box-sizing: border-box; display: block; width: 100%; margin: .5rem 0 0; padding: 12px;
   border: 1px solid var(--coupon-line); border-radius: 6px; color: #f2ebe4;
@@ -62,12 +62,12 @@
 .coupon-issue-form > label { flex: 1 1 11rem; }
 .coupon-issue-form select { display: block; width: 100%; margin-top: .35rem; }
 .coupon-issued {
-  margin: 1rem 0; padding: 1rem; border: 1px solid var(--coupon-line);
-  border-radius: 8px; background: #302a2d;
+  margin: 1.25rem 0; padding: clamp(16px,4vw,26px); border: 0;
+  border-radius: 4px; background: #342d2e;
 }
 .coupon-issued[hidden] { display: none; }
 .coupon-issued p { margin: .3rem 0 .7rem; }
-.coupon-issued input { width: 100%; font-variant-numeric: tabular-nums; }
+.coupon-issued input { width: 100%; font: 600 1rem/1.6 ui-monospace, monospace; letter-spacing: .05em; font-variant-numeric: tabular-nums; }
 .coupon-issued .coupon-controls { margin-top: .7rem; }
 .coupon-message:empty { display: none; }
 .coupon-panel .coupon-message { margin: .75rem 0; line-height: 1.65; color: #e5cba5; overflow-wrap: anywhere; }
@@ -114,6 +114,8 @@ details.report-coupon-use > summary {
 }
 @media (max-width: 480px) {
   .coupon-controls input { flex: 1 1 100%; }
+  #couponIssued .coupon-controls { display: grid; grid-template-columns: 1fr 1fr; }
+  #couponCopyGift { grid-column: 1 / -1; }
   .coupon-issue-form { display: grid; grid-template-columns: minmax(0, 1fr); align-items: stretch; }
   .coupon-form .btn { width: 100%; }
   .report-coupon-use button { justify-self: stretch; }

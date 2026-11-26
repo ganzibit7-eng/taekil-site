@@ -26,15 +26,22 @@
   function deadline(value) {
     return value == null ? '등록 기한 없음' : deadlineFormat.format(value) + '까지 (한국시간)';
   }
+  function useGuide(product) {
+    if (product === 'taekilso_newyear_2027_report') return '신년운세에서 쿠폰을 사용한 뒤 풀이할 사주를 선택해 주세요.';
+    if (product === 'taekilso_relationship_report') return '두 사람의 생년월일을 입력하고 ‘리포트 쿠폰 사용’을 선택해 주세요.';
+    if (product === 'taekilso_date_report') return '일정과 후보일을 골라 비교한 뒤 ‘리포트 쿠폰 사용’을 선택해 주세요.';
+    return '무료 첫 장을 읽고 ‘리포트 쿠폰 사용’을 선택하면 개인별 본편을 열 수 있어요.';
+  }
   function giftText(coupon, number) {
+    const {product,expiresAtMs} = coupon;
     return [
-      '[택일소 리포트 선물권]', products[coupon.product][0]+' 1편', giftDetails[coupon.product], '',
-      '쿠폰 번호: '+number, '등록 기한: '+deadline(coupon.expiresAtMs), '이용 기간: 쿠폰을 등록한 날부터 1년', '',
-      '등록하기', 'https://taekilso.com/#profile', '',
-      '등록 방법', '1. 위 링크로 내 프로필을 열고 로그인해 주세요.',
-      '2. ‘리포트 쿠폰 등록’에 이 메시지 또는 쿠폰 번호를 붙여넣고 등록해 주세요.',
-      '3. ‘사용 가능한 리포트’에서 ‘리포트 시작’을 눌러 안내에 따라 정보를 입력한 뒤, ‘리포트 쿠폰 사용’을 선택해 주세요.', '',
-      '먼저 등록한 한 계정에서 한 번 사용할 수 있어요.'
+      '[택일소 리포트 선물권]', products[product][0]+' 1편', giftDetails[product], '',
+      '쿠폰 번호: '+number, '등록 기한: '+deadline(expiresAtMs),
+      '이용 기간: 쿠폰을 등록한 날부터 1년', '',
+      '선물 등록하기', 'https://taekilso.com/#profile',
+      '받으실 계정으로 로그인한 뒤, 내 프로필의 ‘리포트 쿠폰 등록’에 이 메시지를 그대로 붙여넣으세요.', '',
+      '등록 후 이용 방법', '‘사용 가능한 리포트’에서 ‘리포트 시작’을 눌러 주세요.',
+      useGuide(product), '', '쿠폰 한 장은 먼저 등록한 계정에서 한 번 사용할 수 있어요.'
     ].join('\n');
   }
   function enableGiftPaste(input) {
@@ -130,7 +137,7 @@
     goTo('profile');
     byId('couponNumber').focus();
   }
-  window.TaekilReportCoupons = Object.freeze({available, redeem, invalidate, focusRedeem, enableGiftPaste});
+  window.TaekilReportCoupons = Object.freeze({available, redeem, invalidate, focusRedeem, enableGiftPaste, productName:key=>products[key]?.[0]});
 
   function node(tag, label, className) {
     const el = document.createElement(tag);
@@ -173,7 +180,7 @@
       for (const pass of passes) {
         const row = node('div', '', 'coupon-row');
         const item = node('div');
-        item.append(node('strong', products[pass.product][0]), node('small', day.format(pass.expiresAtMs) + '까지 사용'));
+        item.append(node('strong', products[pass.product][0]), node('small', day.format(pass.expiresAtMs) + '까지 이용 가능'));
         row.append(item, linkToReport(pass.product));
         target.append(row);
       }
@@ -201,7 +208,7 @@
       if (pass.state === 'used') {
         status.replaceChildren(document.createTextNode('이미 리포트에 사용한 쿠폰이에요. '), action('내 리포트 보기', openReportHistory));
       } else {
-        status.textContent = products[pass.product][0] + (alreadyRedeemed ? ' 쿠폰이 이 계정에 이미 등록돼 있어요.' : ' 쿠폰을 등록했어요.') + ' 리포트를 시작해 출생 정보를 입력한 뒤 쿠폰으로 열어 주세요.';
+        status.textContent = products[pass.product][0] + (alreadyRedeemed ? ' 쿠폰이 이 계정에 이미 등록돼 있어요.' : ' 쿠폰을 등록했어요.') + ' 아래에서 리포트를 시작해 주세요. '+useGuide(pass.product);
       }
       await showWallet(token);
     } catch (error) {
