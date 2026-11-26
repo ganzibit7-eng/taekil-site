@@ -205,6 +205,7 @@
 
   function resetPreview() {
     comparison=null;
+    review.querySelector('.report-coupon-use')?.remove();
     review.hidden=true;
     adminButton.remove();
     paymentCopy.hidden=false;
@@ -246,6 +247,18 @@
     paymentCopy.hidden=adminPreview;
     if(adminPreview)paymentCopy.after(adminButton);
     else adminButton.remove();
+    if(!adminPreview && accountStore.owner()){
+      const selected=comparison;
+      paymentCopy.after(window.TaekilReportCouponUse.control('taekilso_relationship_report',async(passId,token)=>{
+        const current=()=>selected===comparison&&view.classList.contains('visible')&&accountStore.current(token);
+        if(!current())return;
+        const data=await client.request(endpoint,{operation:'coupon-open',passId,comparison:selected},token);
+        if(!current())return;
+        if(data.state!=='ready')throw Error('쿠폰으로 관계 리포트를 열지 못했어요. 내 기록을 확인해 주세요.');
+        review.querySelector('.report-coupon-use')?.remove();
+        displaySaved(data);
+      }));
+    }
     review.hidden=false;
     field('relationshipReviewTitle').focus({preventScroll:true});
     review.scrollIntoView({block:'nearest',behavior:'instant'});

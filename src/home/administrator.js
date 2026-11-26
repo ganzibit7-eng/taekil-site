@@ -154,17 +154,18 @@ function scrollHomeSection(target){
 }
 
 
-async function callAdminMemberSecurity(action, payload = {}) {
+async function callAdminMemberSecurity(action, payload = {}, signal) {
   const current = firebase.auth().currentUser;
   if (!current || current.isAnonymous) throw new Error('관리자 로그인이 필요합니다.');
   const token = await current.getIdToken(true);
+  signal?.throwIfAborted();
   const res = await fetch(ADMIN_MEMBER_SECURITY_URL, {
     method:'POST',
     headers:{
       'Content-Type':'application/json',
       'Authorization':'Bearer ' + token
     },
-    body:JSON.stringify({ action, ...payload })
+    body:JSON.stringify({ action, ...payload }), signal
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
@@ -199,9 +200,10 @@ function forceDeleteMember(uid, label, restriction) {
         <input name="confirmation" required autocomplete="off" spellcheck="false">
       </label>
       <p class="admin-withdraw-message" role="status"></p>
-      <div class="admin-withdraw-actions"><button type="button" class="btn">취소</button><button type="submit" class="btn btn-primary" disabled>본인 확인 후 탈퇴 처리</button></div>
+      <div class="admin-withdraw-actions"><button type="button" class="btn" autofocus>취소</button><button type="submit" class="btn btn-primary" disabled>본인 확인 후 탈퇴 처리</button></div>
     </form>`;
-  document.body.appendChild(dialog);
+  const adminView = document.getElementById('view-admin');
+  adminView.appendChild(dialog);
   const form = dialog.querySelector('form');
   const field = form.elements.confirmation;
   const submit = form.querySelector('[type=submit]');
@@ -210,48 +212,64 @@ function forceDeleteMember(uid, label, restriction) {
   const token = accountStore.snapshot();
   const current = () => accountStore.current(token) && firebase.auth().currentUser?.uid === me.uid && isAdmin();
   let busy = false;
+  let authTimer = 0;
   field.oninput = () => { submit.disabled = busy || field.value.trim() !== '탈퇴'; };
   cancel.onclick = () => dialog.close();
-  dialog.addEventListener('cancel', e => { if (busy) e.preventDefault(); });
-  dialog.addEventListener('close', () => dialog.remove(), {once:true});
+  dialog.addEventListener('close', () => {
+    clearTimeout(authTimer);
+    dialog.remove();
+  }, {once:true});
   form.onsubmit = async event => {
     event.preventDefault();
     if (busy || field.value.trim() !== '탈퇴') return;
     if (!current()) { dialog.close(); return; }
     busy = true;
-    submit.disabled = cancel.disabled = field.disabled = true;
-    message.textContent = 'Google에서 현재 관리자 계정을 확인해 주세요.';
+    submit.disabled = field.disabled = true;
+    message.textContent = 'Google 창에서 관리자 계정을 확인해 주세요. 인증을 마치기 전에는 취소할 수 있어요.';
     let started = false;
     try {
+      authTimer = setTimeout(() => {
+        if (dialog.open && !started) {
+          dialog.close();
+          showToast('본인 확인 시간이 지났어요. 회원 목록에서 다시 시작해 주세요.');
+        }
+      }, 120000);
       await me.reauthenticateWithPopup(getGoogleProvider());
-      if (!current()) { dialog.close(); return; }
+      clearTimeout(authTimer);
+      if (!dialog.open || !dialog.isConnected || !adminView.classList.contains('visible') || !current()) return;
       message.textContent = '회원 탈퇴를 처리하고 있어요.';
+      cancel.textContent = '닫기';
       started = true;
+      const signal = AbortSignal.timeout(45000);
       const result = restriction
-        ? await callAdminMemberSecurity('retry_withdrawal', {banId:restriction.banId, kind:restriction.kind, confirmUid:uid})
-        : await callAdminMemberSecurity('force_delete', {uid, confirmUid:uid});
+        ? await callAdminMemberSecurity('retry_withdrawal', {banId:restriction.banId, kind:restriction.kind, confirmUid:uid}, signal)
+        : await callAdminMemberSecurity('force_delete', {uid, confirmUid:uid}, signal);
       if (!result.ok || !result.deleted) throw new Error('탈퇴 완료 응답을 확인하지 못했어요.');
-      dialog.close();
+      if (dialog.open) dialog.close();
       if (current()) {
         showToast(result.identityScope === 'previous_uid' ? '이전 회원 UID만 제한했어요. 인증 기록이 없어 새 로그인 계정과 대조할 수 없어요.' : '회원 탈퇴 처리를 완료했어요.');
-        await loadAdminBanList();
+        void loadAdminBanList();
       }
     } catch (error) {
-      if (!current()) { dialog.close(); return; }
+      if (!current() || !dialog.open) return;
       const hints = {
         'auth/popup-blocked':'이 사이트의 팝업을 허용한 뒤 다시 시도해 주세요.',
         'auth/popup-closed-by-user':'본인 확인이 취소됐어요.',
         'auth/user-mismatch':'로그인 중인 관리자 Google 계정을 선택해 주세요.'
       };
-      message.textContent = hints[error.code] || error.message || '다시 시도해 주세요.';
-      if (started) await loadAdminBanList();
+      message.textContent = started && ['TimeoutError','AbortError','TypeError'].includes(error.name)
+        ? '처리 결과를 아직 확인하지 못했어요. 창을 닫고 가입 제한 목록에서 확인해 주세요.'
+        : hints[error.code] || error.message || '다시 시도해 주세요.';
+      if (started) void loadAdminBanList();
     } finally {
+      clearTimeout(authTimer);
       busy = false;
-      submit.disabled = cancel.disabled = field.disabled = false;
+      submit.disabled = started || field.value.trim() !== '탈퇴';
+      field.disabled = started;
     }
   };
   dialog.showModal();
-  field.focus();
+  cancel.focus({preventScroll:true});
 }
 
 

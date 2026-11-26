@@ -451,6 +451,20 @@
       </section>
     </div>
 
+    <section class="pf-panel coupon-panel" id="profileCoupons" aria-labelledby="profileCouponHeading">
+      <h2 id="profileCouponHeading">리포트 쿠폰</h2>
+      <p>쿠폰 번호를 등록하면 이 계정에서 지정된 리포트 한 편을 열 수 있어요.</p>
+      <form id="couponRedeemForm" class="coupon-form">
+        <label for="couponNumber">쿠폰 번호</label>
+        <div class="coupon-controls">
+          <input id="couponNumber" type="text" maxlength="80" required autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="받은 쿠폰 번호를 입력해 주세요">
+          <button class="btn btn-primary" type="submit">쿠폰 등록</button>
+        </div>
+      </form>
+      <p class="coupon-message" id="couponRedeemStatus" role="status"></p>
+      <div id="couponWallet"></div>
+    </section>
+
     <section class="pf-panel" id="profilePrivacySettings" aria-labelledby="profilePrivacyHeading">
       <h2 id="profilePrivacyHeading">개인정보 설정</h2>
       <p><strong>AI 상담 개인정보 국외 이전</strong></p>
@@ -544,6 +558,7 @@
   <button type="button" onclick="openAndGoAdminFold('adminFoldSeo')"><small>SEO</small>SEO 성과</button>
   <button type="button" onclick="openAndGoAdminFold('adminFoldMembers')"><small>MEMBERS</small>회원 관리</button>
   <button type="button" onclick="openAndGoAdminFold('adminFoldBans')"><small>RESTRICTIONS</small>재가입 제한</button>
+  <button type="button" onclick="openAndGoAdminFold('adminFoldCoupons')"><small>COUPONS</small>리포트 쿠폰</button>
   <button type="button" onclick="openAndGoAdminFold('adminFoldSupport')"><small>SUPPORT</small>1:1 문의 관리</button>
 </div>
 </div>
@@ -699,6 +714,34 @@
         </div>
 
 
+  </div>
+</div>
+
+<div class="admin-fold" id="adminFoldCoupons">
+  <button type="button" class="admin-fold-toggle" onclick="toggleAdminFold('adminFoldCoupons')" aria-expanded="false">
+    <span class="admin-fold-title"><small>COUPONS</small><b>리포트 쿠폰</b></span>
+    <span class="admin-fold-chevron">⌄</span>
+  </button>
+  <div class="admin-fold-body">
+    <section class="coupon-panel" aria-label="쿠폰 발급 및 관리">
+      <form id="couponIssueForm" class="coupon-issue-form">
+        <label>발급할 리포트<select id="couponProduct" required></select></label>
+        <label>등록 기한<select id="couponValidity"><option value="7">발급 후 7일</option><option value="30" selected>발급 후 30일</option><option value="90">발급 후 90일</option><option value="365">발급 후 1년</option></select></label>
+        <button class="btn btn-primary" type="submit">쿠폰 1장 발급</button>
+      </form>
+      <div id="couponIssued" class="coupon-issued" hidden>
+        <label for="couponIssuedNumber">발급된 쿠폰 번호</label>
+        <p>전체 번호는 지금만 확인할 수 있어요. 복사해서 받는 분께 전달해 주세요.</p>
+        <input id="couponIssuedNumber" readonly autocapitalize="off" autocomplete="off" spellcheck="false">
+        <div class="coupon-controls">
+          <button id="couponCopy" type="button" class="btn btn-primary">번호 복사</button>
+          <button id="couponDone" type="button" class="btn">번호 닫기</button>
+        </div>
+      </div>
+      <p class="coupon-message" id="couponAdminStatus" role="status"></p>
+      <div class="coupon-list-head"><h3>최근 발급 내역</h3><button type="button" id="couponRefresh" class="text-action">새로고침</button></div>
+      <div id="couponAdminList"></div>
+    </section>
   </div>
 </div>
 

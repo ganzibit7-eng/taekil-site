@@ -325,6 +325,22 @@
     if(!adminPreview)gate.append(paymentNote);
     gate.append(pay,status);
     if(!adminPreview)gate.append(paused,checkout.statusNote());
+    if(!adminPreview && accountStore.owner()){
+      gate.append(window.TaekilReportCouponUse.control('taekilso_'+reading.id+'_story_report',async(passId,owner)=>{
+        const samePreview=()=>active===data&&accountStore.current(owner)&&data.host.closest('.view')?.classList.contains('visible');
+        if(!samePreview()||!dialog.open)return;
+        dialog.close();
+        let agreed=false;
+        try { agreed=await window.TaekilPrivacy.confirmAI(data.host); }
+        finally { if(samePreview()&&!dialog.open)dialog.showModal(); }
+        if(!samePreview())return;
+        if(!agreed)throw Error('AI 풀이 이용에 동의하면 리포트를 열 수 있어요. 쿠폰은 내 계정에 보관돼요.');
+        const result=await request(reading,{operation:'coupon-open',passId,comparison:{profile:data.profile,choice:data.choice}},owner);
+        if(!samePreview()||!dialog.open)return;
+        if(!result.id||!['paid','generating','ready'].includes(result.state))throw Error('쿠폰으로 리포트를 열지 못했어요. 내 기록을 확인해 주세요.');
+        await renderPurchased({...result,couponAccess:true},data.host,owner,true,reading);
+      }));
+    }
     const samples=el('section',null,'sr-samples');
     samples.setAttribute('aria-labelledby','sr-sample-title');
     const label=el('h3','이어지는 장 미리보기');
@@ -1311,7 +1327,7 @@
     const panel=el('section',null,'sr-generation');
     const content=el('div',null,'sr-generation-copy');
     const heading=el('h2','리포트를 준비하고 있어요');
-    const message=el('p',result.adminPreview?'관리자 계정을 확인했어요.':'결제를 확인했어요.','sr-status');
+    const message=el('p',result.adminPreview?'관리자 계정을 확인했어요.':result.couponAccess||result.source==='coupon'?'리포트 이용권을 확인했어요.':'결제를 확인했어요.','sr-status');
     message.setAttribute('role','status');
     const meter=el('div',null,'sr-generation-meter');
     meter.hidden=true;
