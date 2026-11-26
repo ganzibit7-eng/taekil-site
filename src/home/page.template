@@ -332,7 +332,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <link rel="stylesheet" href="report-pillar-guide.css?v=report-paper-1">
 <script src="report-pillar-guide.js?v=report-paper-1"></script>
 <link rel="stylesheet" href="newyear-consultation.css?v=continuous-reader-1">
-<script src="newyear-consultation.js?v=continuous-reader-1"></script><script src="newyear-example.js?v=newyear-dawn-1"></script>
+<script src="newyear-consultation.js?v=report-coupon-1"></script><script src="newyear-example.js?v=newyear-dawn-1"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=free-progress-1">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
 <script src="free-report-handoff.js?v=home-paths-1"></script>
@@ -345,22 +345,25 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <link rel="stylesheet" href="site-menu.css?v=drawer-navigation-1"><script src="site-menu.js?v=drawer-navigation-1"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=ink-1120">
 <script src="account-session.js?v=member-restrictions-1"></script>
+<link rel="stylesheet" href="report-coupons.css?v=1">
+<script src="report-coupons.js?v=1"></script>
+<script src="report-coupon-use.js?v=1"></script>
 <script src="campaign-attribution-core.js?v=20261119-campaign-visits"></script><script src="campaign-attribution.js?v=home-paths-1"></script>
 <script src="preview-funnel.js?v=20261119-daily"></script>
 <link rel="stylesheet" href="date-comparison.css?v=date-purpose-2">
 <script src="account-report-client.js?v=report-library-1"></script>
 <script src="report-decision-core.js?v=paid-guide-1"></script>
-<script src="date-report.js?v=report-paper-1"></script>
+<script src="date-report.js?v=report-coupon-1"></script>
 <script src="date-comparison.js?v=date-purpose-2"></script>
 <link rel="stylesheet" href="date-entry.css?v=surfaces-1120">
 <script src="date-entry.js?v=nov20-resume"></script>
 <link rel="stylesheet" href="relationship-report.css?v=continuous-reader-1">
-<script src="relationship-report.js?v=continuous-reader-1"></script>
+<script src="relationship-report.js?v=report-coupon-1"></script>
 <link rel="stylesheet" href="seohwa-report.css?v=continuous-reader-1">
 <script src="topic-monthly-reading.js?v=4"></script>
 <script src="relationship-report-periods.js?v=4"></script>
 <script src="topic-report-content.js?v=2"></script>
 <script src="topic-report-choices.js?v=1"></script>
-<script src="seohwa-report.js?v=continuous-reader-1"></script>
+<script src="seohwa-report.js?v=report-coupon-1"></script>
 </body>
 </html>

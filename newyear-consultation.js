@@ -405,6 +405,19 @@
       if (!loggedIn()) {
         const signIn = button('로그인하고 내 리포트 확인하기', openAuthModal);
         content.append(signIn);
+      } else {
+        const generation=version;
+        content.append(window.TaekilReportCouponUse.control('taekilso_newyear_2027_report',async(passId,token)=>{
+          const current=()=>generation===version&&active&&window.accountStore.current(token);
+          if(!current())return;
+          const agreed=await window.TaekilPrivacy.confirmAI(content);
+          if(!current())return;
+          if(!agreed)throw Error('AI 풀이 이용에 동의하면 신년운세를 열 수 있어요. 쿠폰은 내 계정에 보관돼요.');
+          const result=await request('coupon-open',null,{passId});
+          if(!current())return;
+          if(result.state!=='owned')throw Error('쿠폰으로 신년운세를 열지 못했어요. 이용권을 다시 확인해 주세요.');
+          await load();
+        }));
       }
       return;
     }

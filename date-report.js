@@ -169,7 +169,7 @@
     const paused = node('p','신규 결제를 잠시 중단했어요. 정밀 택일이 포함된 기존 이용권 보유자는 아래에서 정밀 비교를 열 수 있어요.');
     paused.setAttribute('data-checkout-paused','');
 
-    async function submit(purchase,asAdmin=false) {
+    async function submit(purchase,asAdmin=false,passId=null) {
       if (!card.isConnected || !card.closest('#view-tool.visible')) return false;
       const token = accountStore.snapshot();
       if (!token.owner) {
@@ -177,7 +177,7 @@
         status.textContent = '로그인한 뒤 아래 버튼을 다시 눌러 주세요.';
         return false;
       }
-      const data = await request(asAdmin?{operation:'admin-open',comparison}:
+      const data = await request(passId?{operation:'coupon-open',passId,comparison}:asAdmin?{operation:'admin-open',comparison}:
         {operation:'prepare',comparison,checkout:purchase,allowResume:true},token);
       if (!accountStore.current(token) || !card.isConnected || !card.closest('#view-tool.visible')) return false;
       if (data.state === 'ready') {
@@ -186,6 +186,7 @@
         return false;
       }
       if(asAdmin)throw Error('관리자 리포트를 열지 못했어요.');
+      if(passId)throw Error('쿠폰으로 정밀 택일을 열지 못했어요. 내 기록을 확인해 주세요.');
       if (data.state === 'paused') {
         status.textContent = '신규 구매가 중단 중이에요. 무료 결과는 위에서 계속 볼 수 있어요.';
         return false;
@@ -226,6 +227,7 @@
     if(!adminPreview)card.append(paused,checkout.statusNote());
     card.append(included);
     if(!adminPreview)card.append(buy);
+    if(!adminPreview && accountStore.owner())card.append(window.TaekilReportCouponUse.control('taekilso_date_report',passId=>submit(false,false,passId)));
     card.append(status,exampleDisclosure());
     return card;
   }

@@ -550,7 +550,7 @@ html.admin-exclusive-mode,html.admin-exclusive-mode body{
   scroll-snap-type:none!important;
   overflow-y:auto!important;
 }
-body.admin-exclusive-mode > *:not(#app):not(script):not(style),
+body.admin-exclusive-mode > *:not(#app):not(#toastHost):not(script):not(style),
 body.admin-exclusive-mode #app > *:not(#view-admin){
   display:none!important;
 }
