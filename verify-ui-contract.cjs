@@ -79,6 +79,15 @@ const hooks=html=>[...html.matchAll(/\bon(?:click|change|input|keydown|submit)="
 const revisedStarterHooks=new Map([["onclick=\"prepareAiQuestion('관계에서 제가 자주 겪는 어려움과 먼저 바꿔볼 소통 방식을 알려주세요.')\"","onclick=\"quickAskAiChat('연애·궁합이 궁금해요')\""],["onclick=\"prepareAiQuestion('돈이 잘 모이지 않을 때 제 소비와 저축 습관에서 무엇부터 점검하면 좋을까요?')\"","onclick=\"quickAskAiChat('돈, 재물운이 궁금해요')\""],["onclick=\"prepareAiQuestion('이직을 고민하고 있어요. 제 사주를 참고해 지금 직장과 새 환경을 비교할 기준을 알려주세요.')\"","onclick=\"quickAskAiChat('직업, 사업운이 궁금해요')\""]]);
 const normalizeHook=hook=>(revisedStarterHooks.get(hook)||hook).replace(/^onclick="goTo\('home'\);(?=handleHomeCategoryClick|openHomeDailyConsult|document\.querySelector)/,'onclick="');
 const hookCounts=new Map();for(const hook of hooks(current)){const value=normalizeHook(hook);hookCounts.set(value,(hookCounts.get(value)||0)+1);}
+// The bottom Home item now follows a real URL. History remains in the full menu.
+const tabbar=current.match(/<nav[^>]*id="bottomTabbar"[^>]*>([\s\S]*?)<\/nav>/)[1];
+assert(tabbar.includes('data-site-home data-tab="home" href="/"'));
+const menuSource=fs.readFileSync('site-menu.js','utf8');
+assert(menuSource.includes('data-menu-route="history"') && menuSource.includes('goTo(button.dataset.menuRoute)'));
+for(const route of ['home','history']){
+  const hook=`onclick="goTo('${route}')"`;
+  hookCounts.set(hook,(hookCounts.get(hook)||0)+1);
+}
 for(const hook of hooks(baseline)){if(hook==='onclick="payPremium()"')continue;assert((hookCounts.get(hook)||0)>0,'Missing original action: '+hook);hookCounts.set(hook,hookCounts.get(hook)-1);}
 // Match actual id attributes, not data-id/data-reply-id in dynamic templates.
 const ids=html=>[...html.matchAll(/\sid="([^"]+)"/g)].map(m=>m[1]);

@@ -221,23 +221,27 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 </div>
 
 
-<nav class="bottom-tabbar" id="bottomTabbar">
-  <span class="bt-item active" data-route="home" onclick="goTo('home')">
+<nav class="bottom-tabbar" id="bottomTabbar" aria-label="주요 메뉴">
+  <a class="bt-item" data-site-home data-tab="home" href="/">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10.8 12 3l9 7.8"/><path d="M5.5 9.7V21h13V9.7"/><path d="M9.2 21v-6.5h5.6V21"/></svg>
     <span>홈</span>
-  </span>
-  <span class="bt-item" data-route="tool" onclick="goTo('tool')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-    <span>사주</span>
-  </span>
-  <span class="bt-item" data-route="history" onclick="goTo('history')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 8v4l3 2"/></svg>
-    <span>기록</span>
-  </span>
-  <span class="bt-item" id="bottomProfileTab" onclick="handleAuthNavClick()">
+  </a>
+  <a class="bt-item" data-tab="reports" data-menu-home-section href="/#directoryTopicsTitle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4c3-.8 5.8-.2 8 1.4C14.2 3.8 17 3.2 20 4v15c-3-.8-5.8-.2-8 1.4C9.8 18.8 7 18.2 4 19zM12 5.4v15"/></svg>
+    <span>리포트</span>
+  </a>
+  <a class="bt-item" data-tab="chat" data-menu-home-section href="/#directoryChatTitle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 4.5h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H11l-5.5 4v-4H5a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2Z"/><path d="M7.5 9h9M7.5 13h6"/></svg>
+    <span>상담</span>
+  </a>
+  <button type="button" class="bt-item" data-tab="tool" data-route="tool" onclick="goTo('tool')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="5.5" width="17" height="15" rx="2"/><path d="M7.5 3v5M16.5 3v5M4 10h16M9 15l2 2 4-4"/></svg>
+    <span>택일</span>
+  </button>
+  <button type="button" class="bt-item" data-tab="profile" id="bottomProfileTab" onclick="handleAuthNavClick()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.8-4 5-6 8-6s6.2 2 8 6"/></svg>
     <span id="bottomProfileLabel">로그인</span>
-  </span>
+  </button>
 </nav>
 
 <main>
@@ -344,7 +348,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <link rel="stylesheet" href="consultation-quality.css?v=entry-1120">
 <script src="support-channels.js?v=20261124-inquiry"></script>
 <script src="consultation-quality.js?v=20261117-saved-evidence"></script>
-<link rel="stylesheet" href="site-menu.css?v=reader-1126"><script src="site-menu.js?v=drawer-navigation-1"></script>
+<link rel="stylesheet" href="site-menu.css?v=tabbar-1"><script src="site-menu.js?v=tabbar-1"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=ink-1120">
 <script src="account-session.js?v=member-restrictions-1"></script>
 <link rel="stylesheet" href="report-coupons.css?v=gift-2">

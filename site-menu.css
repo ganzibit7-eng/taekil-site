@@ -1,5 +1,31 @@
 /* A single quiet entry point, with the original account actions inside. */
-.site-menu-ready #navLinks,.site-menu-ready #bottomTabbar{display:none!important}
+.site-menu-ready #navLinks,#bottomTabbar{display:none!important}
+@media screen {
+  body.site-menu-ready.has-service-tabs:not(.consultation-open,.admin-exclusive-mode) {
+    --tabs-height: calc(61px + env(safe-area-inset-bottom,0px));
+    padding-bottom: var(--tabs-height) !important;
+  }
+  body.has-service-tabs:not(.consultation-open,.admin-exclusive-mode) #bottomTabbar {
+    display:grid!important; grid-template-columns:repeat(5,minmax(0,1fr));
+    position:fixed; inset:auto 0 0; margin-inline:auto; width:min(100%,480px);
+    z-index:65; height:var(--tabs-height); padding:3px 4px calc(3px + env(safe-area-inset-bottom,0px));
+    background:#221f21; border:0; border-top:1px solid #554b46;
+    transition:transform .18s ease-out; touch-action:manipulation;
+  }
+  #bottomTabbar .bt-item {
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    min-width:0; min-height:44px; padding:0; border:0; border-radius:4px;
+    color:#c3b9b4; background:transparent; text-decoration:none;
+    font:500 12px/1.35 var(--sans);
+  }
+  #bottomTabbar .bt-item svg {width:21px;height:21px;stroke-linecap:round;stroke-linejoin:round}
+  #bottomTabbar .bt-item[aria-current] {color:#f1d297;font-weight:700}
+  #bottomTabbar .bt-item:focus-visible {outline:2px solid #e5c491;outline-offset:-3px}
+  #bottomTabbar[data-scrolling]:not(:has(:focus-visible)) {transform:translateY(105%);pointer-events:none}
+  body.has-service-tabs:not(.consultation-open) #tmTop {bottom:calc(var(--tabs-height) + 12px)}
+  body.has-service-tabs:has(dialog[open],#authOverlay[style*="flex"],#sajuInsightModal.show,#fortuneModal.show,#aiShareModal.show,#startupRecovery:not([hidden]),input:not([type=button],[type=checkbox],[type=radio]):focus,textarea:focus,select:focus) #bottomTabbar {display:none!important}
+}
+@media (prefers-reduced-motion:reduce) {body.has-service-tabs #bottomTabbar {transition:none!important}}
 body.site-menu-ready{padding-bottom:0!important}
 html.site-menu-open{overflow:hidden!important;scrollbar-gutter:stable}
 .site-menu-trigger,.site-menu-close{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;padding:10px;background:transparent;border:0;border-radius:6px;color:#e6dfd2;cursor:pointer;box-shadow:none}

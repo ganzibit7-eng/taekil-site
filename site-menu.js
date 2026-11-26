@@ -122,7 +122,7 @@
     heading.focus({ preventScroll: true });
     heading.scrollIntoView({ block: 'start', behavior: 'instant' });
   };
-  menu.querySelectorAll('[data-menu-home-section]').forEach(link => link.addEventListener('click', event => {
+  document.querySelectorAll('[data-menu-home-section]').forEach(link => link.addEventListener('click', event => {
     if (event.button !== 0 || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
     if (document.documentElement.dataset.homeLayout !== 'directory' || location.pathname !== '/') return;
     event.preventDefault();
@@ -163,6 +163,59 @@
     if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); account.click(); }
   });
   window.addEventListener('hashchange', () => close(false));
+
+  const tabs = document.getElementById('bottomTabbar');
+  const tabItems = Array.from(tabs.querySelectorAll('[data-tab]'));
+  const views = Array.from(document.querySelectorAll('main > .view'));
+  const reportSection = document.querySelector('.directory-report-mode');
+  const chatSection = document.querySelector('.directory-chat-mode');
+  let visibleView;
+  let idleTimer;
+  function updateTab() {
+    const route = visibleView?.id.slice(5);
+    let selected = route;
+    if (route === 'home') {
+      const line = document.querySelector('.topbar').getBoundingClientRect().bottom + 36;
+      const contains = section => {
+        const rect = section.getBoundingClientRect();
+        return rect.height > 0 && rect.top <= line && rect.bottom > line;
+      };
+      if (contains(reportSection)) selected = 'reports';
+      else if (contains(chatSection)) selected = 'chat';
+    } else if (['newyear','relationship-report','seohwa-report'].includes(route)) selected = 'reports';
+    else if (['date-tools','moving','opening','contract'].includes(route)) selected = 'tool';
+    else if (route === 'history') selected = 'profile';
+    for (const item of tabItems) {
+      if (item.dataset.tab === selected) item.setAttribute('aria-current', 'location');
+      else item.removeAttribute('aria-current');
+    }
+  }
+  function showTabs() {
+    clearTimeout(idleTimer);
+    delete tabs.dataset.scrolling;
+    updateTab();
+  }
+  function syncTabs() {
+    visibleView = views.find(view => view.classList.contains('visible'));
+    const route = visibleView?.id;
+    const available = !!route && route !== 'view-admin' && route !== 'view-wedding' &&
+      !visibleView.matches('.consultation-story-view') && !visibleView.querySelector('.consultation-story-dock') &&
+      !(route === 'view-home' && document.documentElement.dataset.homeLayout !== 'directory');
+    document.body.classList.toggle('has-service-tabs', available);
+    showTabs();
+  }
+  const routeObserver = new MutationObserver(syncTabs);
+  views.forEach(view => routeObserver.observe(view, {attributes:true, attributeFilter:['class']}));
+  window.addEventListener('scroll', () => {
+    if (!document.body.classList.contains('has-service-tabs')) return;
+    tabs.dataset.scrolling = '';
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(showTabs, 240);
+  }, {passive:true});
+  window.addEventListener('pageshow', syncTabs);
+  tabs.addEventListener('focusin', showTabs);
+  tabItems.forEach(item => item.querySelector('svg').setAttribute('aria-hidden', 'true'));
+  syncTabs();
 
   // OS emoji fonts differ. Keep the original dynamic labels but render one SVG.
   const start = document.getElementById('homeStartChatBtn');
