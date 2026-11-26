@@ -7,7 +7,6 @@
   const account=view.querySelector('.newyear-account'),refresh=view.querySelector('[data-year-refresh]');
   let active=false,busy=false,timer=0,version=0,pendingChat=false,pendingQuestion='',profiles=[],progressClock=0,progressStarted=0,progressView=null,completionTimer=0,draft=null,draftOwner=null,paymentPolls=0;
   const price=6900, productName='2027 신년운세 리포트', pendingKey='taekilso_newyear_report_pending_v1';
-  const expectedWriteMs=120000;
   const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
   const button=(text,action,primary=false)=>{const b=el('button',text,'btn'+(primary?' btn-primary':''));b.type='button';b.addEventListener('click',action);return b;};
   const loggedIn=()=>!!((typeof getKakaoUser==='function'&&getKakaoUser())||(typeof firebaseAuthUser!=='undefined'&&firebaseAuthUser&&!firebaseAuthUser.isAnonymous));
@@ -35,8 +34,9 @@
   function updateProgress(){
     if(!active||!progressView?.bar.isConnected)return;
     const elapsed=Math.max(0,Date.now()-progressStarted);
-    setProgress(Math.min(95,Math.floor(elapsed*95/expectedWriteMs)));
-    if(elapsed>expectedWriteMs)progressView.eta.textContent='평소보다 조금 더 오래 걸리고 있어요.';
+    const estimate=window.TaekilWriteEstimate('newyear',elapsed);
+    setProgress(Math.max(progressView.bar.value,estimate.percent));
+    progressView.eta.textContent=estimate.text;
   }
   function showProgress(startedAt){
     const entering=!view.classList.contains('is-generating');view.classList.remove('has-report');view.classList.add('is-generating');if(entering)window.scrollTo({top:0,behavior:'instant'});
@@ -45,7 +45,7 @@
     if(!progressView?.bar.isConnected){
       const box=el('section',null,'newyear-progress'),heading=el('h2','연우가 신년운세를 쓰고 있어요');
       const meter=el('div',null,'sr-generation-meter'),row=el('div',null,'sr-generation-meter-label');
-      const label=el('span','진행률'),number=el('strong','0%'),bar=el('progress'),eta=el('p','예상 소요 시간 약 1~2분','sr-generation-eta');
+      const label=el('span','진행률'),number=el('strong','0%'),bar=el('progress'),eta=el('p',window.TaekilWriteEstimate('newyear',0).text,'sr-generation-eta');
       number.setAttribute('aria-hidden','true');bar.max=100;bar.value=0;bar.setAttribute('aria-label','신년운세 작성 진행률');
       row.append(label,number);meter.append(row,bar,eta);
       box.append(el('span','2027 신년운세','newyear-progress-kicker'),heading,

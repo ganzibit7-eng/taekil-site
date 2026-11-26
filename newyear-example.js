@@ -41,7 +41,7 @@
     ['기회와 주의할 점','활용하기 좋은 기회와 한 번 더 짚어야 할 선택을 연우의 마무리 풀이까지 이어 읽어요.']
   ])contentsList.append(make('dt',title),make('dd',copy));
   scope.append(contentsList);
-  section.append(heading,scope,details);
+  section.append(heading,scope,window.TaekilPaidPageSample('newyear'),details);
   view.querySelector('.newyear-value').before(section);
   document.addEventListener('click', event => {
     const link = event.target.closest('[data-newyear-preview]');

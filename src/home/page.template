@@ -339,7 +339,9 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <link rel="stylesheet" href="report-pillar-guide.css?v=continuous-1126">
 <script src="report-pillar-guide.js?v=continuous-1126"></script>
 <link rel="stylesheet" href="newyear-consultation.css?v=continuous-1126">
-<script src="newyear-consultation.js?v=continuous-1126"></script><script src="newyear-example.js?v=continuous-1126"></script>
+<link rel="stylesheet" href="report-pages-preview.css?v=1">
+<script src="report-pages-preview.js?v=1"></script><script src="report-write-estimate.js?v=1"></script>
+<script src="newyear-consultation.js?v=samples-1126"></script><script src="newyear-example.js?v=samples-1126"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=free-progress-1">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
 <script src="free-report-handoff.js?v=continuous-1126"></script>
@@ -360,18 +362,18 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <link rel="stylesheet" href="date-comparison.css?v=date-purpose-2">
 <script src="account-report-client.js?v=report-library-1"></script>
 <script src="report-decision-core.js?v=paid-guide-1"></script>
-<script src="date-report.js?v=continuous-1126"></script>
+<script src="date-report.js?v=samples-1126"></script>
 <script src="date-comparison.js?v=date-purpose-2"></script>
 <link rel="stylesheet" href="date-entry.css?v=surfaces-1120">
 <script src="date-entry.js?v=nov20-resume"></script>
 <link rel="stylesheet" href="relationship-report.css?v=reader-1126">
-<script src="relationship-report.js?v=continuous-1126"></script>
+<script src="relationship-report.js?v=samples-1126"></script>
 <link rel="stylesheet" href="seohwa-report.css?v=continuous-1126">
 <script src="topic-monthly-reading.js?v=4"></script>
 <script src="relationship-report-periods.js?v=4"></script>
 <script src="topic-report-content.js?v=2"></script>
 <script src="topic-report-choices.js?v=1"></script>
 <script src="report-preview-stories.js?v=continuous-1126"></script>
-<script src="seohwa-report.js?v=continuous-1126"></script>
+<script src="seohwa-report.js?v=samples-1126"></script>
 </body>
 </html>

@@ -14,6 +14,7 @@
   const formError = field('relationshipFormError');
   const purchaseStatus = field('relationshipPurchaseStatus');
   const example = field('relationshipExample');
+  example.before(window.TaekilPaidPageSample('relationship'));
   const library = field('relationshipLibraryList');
   const libraryStatus = field('relationshipLibraryStatus');
   const libraryButton = field('relationshipLoadLibrary');
