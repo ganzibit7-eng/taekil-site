@@ -770,3 +770,15 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 @media screen, (max-width: 760px) {
   .sr-choice-cards {grid-template-columns:minmax(0,1fr)}
 }
+
+.sr-free-reading{padding:clamp(20px,5vw,42px);background:#f7f1e7;color:#312724;border:1px solid #d4c4ae;border-radius:8px;min-width:0}
+.sr-free-reading h3,.sr-free-reading h4{font-family:var(--serif);line-height:1.45;word-break:keep-all;overflow-wrap:anywhere;color:#302622}
+.sr-free-reading h3{margin:0;font-size:clamp(23px,5vw,30px);scroll-margin-top:82px}
+.sr-free-reading .sr-free-intro{color:#65564c;font-size:14px;margin:10px 0 18px}
+.sr-free-piece{padding:22px 0;border-top:1px solid #d6c7b4}
+.sr-free-piece:last-child{padding-bottom:0}
+.sr-free-label{color:#785339;font-size:13px;font-weight:650}
+.sr-free-piece h4{margin:6px 0 12px;font-size:clamp(19px,4.4vw,24px)}
+.sr-free-piece p,.sr-free-intro{font-size:16px;line-height:1.85;overflow-wrap:anywhere}
+.sr-free-piece p{margin:10px 0 0;color:#413630}
+.sr-free-piece .sr-free-reflection{padding-left:12px;border-left:2px solid #997758;color:#654634}

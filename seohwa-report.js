@@ -284,6 +284,26 @@
     }
     return list;
   }
+  function freeSamples(data){
+    const {reading,context,choice}=data;
+    const cards=window.TaekilReportPreviewStories.build(reading,context,choice,window.Solar,window.LunarUtil);
+    if(!cards.length)return null;
+    const section=el('section',null,'sr-free-reading');
+    const title=el('h3','내 사주로 미리 읽는 '+reading.label);
+    title.id='sr-free-reading-title';
+    title.tabIndex=-1;
+    section.setAttribute('aria-labelledby',title.id);
+    section.append(title,el('p','3월과 8월은 월운의 차이를 읽어 보는 예시예요. 두 날짜는 모두에게 같고, 풀이는 내 일간과 그날의 월운으로 계산해요. 개인별 추천 시기는 본편에서 비교해요.','sr-free-intro'));
+    for(const card of cards){
+      const piece=el('article',null,'sr-free-piece');
+      piece.append(el('span',card.label,'sr-free-label'),el('h4',card.title));
+      for(const paragraph of card.paragraphs)piece.append(el('p',paragraph));
+      section.append(piece);
+    }
+    const prompt=reportGuides[reading.id]?.prompts[context.readings[0]?.family];
+    if(prompt)section.lastElementChild.append(el('p',prompt,'sr-free-reflection'));
+    return section;
+  }
   function show(nodes,{preserve=false,menu=null}={}) {
     const scroll=preserve?dialog.scrollTop:0;
     body.replaceChildren(...nodes);
@@ -360,7 +380,8 @@
     guide.append(el('summary','이 주제를 사주로 읽는 법'),initialGuide.lastElementChild);
     chapter.append(guide);
     const tocTopic=topicContent?.topics[reading.id];
-    contents.append(chart,chapter,...(excerpts.length?[samples]:[]),gate);
+    const preview=freeSamples(data);
+    contents.append(chart,chapter,...(preview?[preview]:[]),...(excerpts.length?[samples]:[]),gate);
     const quick=el('div',null,'sr-wealth-quick');
     const jump=button('전체 리포트 · '+won.format(reading.PRICE)+'원','sr-primary',()=>{
       pay.focus({preventScroll:true});
@@ -369,7 +390,17 @@
     jump.dataset.checkoutAction='';
     quick.append(jump);
     layout.append(contents);
-    show([cover,layout,quick],{menu:toc(tocTopic?{...reading,chapters:tocTopic.chapters}:reading,first,true)});
+    const menu=toc(tocTopic?{...reading,chapters:tocTopic.chapters}:reading,first,true);
+    if(preview){
+      const jumpSamples=button('무료 풀이 예시 읽기','sr-jump',()=>{
+        setContentsOpen(false);
+        const heading=preview.querySelector('h3');
+        heading.focus({preventScroll:true});
+        heading.scrollIntoView({block:'start'});
+      });
+      menu.querySelector('ol').before(jumpSamples);
+    }
+    show([cover,layout,quick],{menu});
   }
 
   function openPreview({profile,choice,auth,topic='love'}) {
