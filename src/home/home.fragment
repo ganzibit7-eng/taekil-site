@@ -1,9 +1,10 @@
 <section id="view-home" class="view">
   <div class="home-directory" id="homeDirectory">
     <section class="directory-hero" data-home-opening aria-labelledby="directoryHeroTitle">
-      <div class="directory-hero-media" aria-hidden="true">
-        <img src="assets/moonlit-almanac.webp" width="960" height="720" alt="" decoding="async" fetchpriority="high">
-        <video class="yeonwoo-story-video" data-home-directory-video loop muted playsinline preload="none" data-video-src="assets/moonlit-almanac.mp4" poster="assets/moonlit-almanac.webp"></video>
+      <div class="directory-hero-media">
+        <img src="assets/moonlit-almanac-glide.webp" width="960" height="720" alt="" decoding="async" fetchpriority="high">
+        <video class="yeonwoo-story-video" data-home-directory-video loop muted playsinline preload="none" data-video-src="assets/moonlit-almanac-glide.mp4" poster="assets/moonlit-almanac-glide.webp" aria-hidden="true"></video>
+        <button type="button" class="home-film-control" data-home-film-control aria-label="홈 영상 재생" hidden><span aria-hidden="true"></span></button>
       </div>
       <div class="directory-hero-copy">
         <h1 id="directoryHeroTitle">내 사주로 풀어보는<br>지금의 고민</h1>
@@ -241,8 +242,8 @@
       <div class="ai-chat-stage">
         <img loading="lazy" class="ai-chat-bgvideo yeonwoo-stage-poster" src="ai-consultant-poster.jpg" alt="" aria-hidden="true">
 <video class="ai-chat-bgvideo" muted loop playsinline preload="none" data-video-src="assets/yeonwoo-listening.mp4" poster="ai-consultant-poster.jpg"></video>
-<img class="ai-chat-bgvideo yeonwoo-stage-poster ai-chat-entry-media" src="assets/yeonwoo-welcome.jpg" alt="" aria-hidden="true" loading="lazy">
-<video class="ai-chat-bgvideo ai-chat-entry-media" muted loop playsinline preload="none" data-video-src="assets/yeonwoo-welcome.mp4" poster="assets/yeonwoo-welcome.jpg"></video>
+<img class="ai-chat-bgvideo yeonwoo-stage-poster ai-chat-entry-media" src="assets/taekilso-hanok-smile.webp" alt="" aria-hidden="true" loading="lazy">
+<video class="ai-chat-bgvideo ai-chat-entry-media" muted loop playsinline preload="none" data-video-src="assets/taekilso-hanok-arrival.mp4" poster="assets/taekilso-hanok-smile.webp"></video>
         <div class="ai-chat-vignette-top"></div>
         <div class="ai-chat-vignette-bottom"></div>
 

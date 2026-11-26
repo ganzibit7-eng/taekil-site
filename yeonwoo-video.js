@@ -12,14 +12,23 @@
  const stageContainer=stage?.parentElement;
  const stageMedia = [
   {video:stage, phase:'chat', portrait:'ai-consultant-poster.jpg'},
-  {video:entry, phase:'entry', portrait:'assets/yeonwoo-welcome.jpg'}
+  {video:entry, phase:'entry', portrait:'assets/taekilso-hanok-smile.webp'}
  ].filter(({video})=>video?.previousElementSibling).map(media=>({
   ...media, image:media.video.previousElementSibling, defaultSource:media.video.dataset.videoSrc
  }));
  videos.push(...document.querySelectorAll('[data-home-directory-video], [data-year-progress-video], [data-year-example-video], [data-moving-scene-video], [data-free-progress-video], [data-wedding-preview-video], [data-story-preview-video]'));
- const allowed=()=>!reduced.matches&&!connection?.saveData&&!document.hidden;
+ const homeFilm=document.querySelector('[data-home-directory-video]');
+ const control=document.querySelector('[data-home-film-control]');
+ let manualHomePlay=false;
+ function updateControl(){
+  if(!control||!homeFilm)return;
+  const playing=!homeFilm.paused;
+  control.dataset.playing=String(playing);
+  control.setAttribute('aria-label',playing?'홈 영상 일시 정지':'홈 영상 재생');
+ }
+ const allowed=v=>!document.hidden&&((v===homeFilm&&manualHomePlay)||(!reduced.matches&&!connection?.saveData));
  const visible=v=>{const s=states.get(v),r=v.getBoundingClientRect();return s.visible&&r.width>0&&r.height>0&&r.bottom>0&&r.top<innerHeight;};
- const canPlay=v=>allowed()&&visible(v)&&v.dataset.videoPaused===undefined&&!(v.classList.contains('ai-chat-bgvideo')&&v.closest('.reading-focus'));
+ const canPlay=v=>allowed(v)&&visible(v)&&v.dataset.videoPaused===undefined&&!(v.classList.contains('ai-chat-bgvideo')&&v.closest('.reading-focus'));
  function pause(v){states.get(v).pending=false;v.pause();v.classList.remove('yeonwoo-playing');}
  function sync(v){const s=states.get(v);if(s.failed||!v.dataset.videoSrc||!canPlay(v)){pause(v);return;}
   if(!v.getAttribute('src')){v.src=v.dataset.videoSrc;v.load();}
@@ -32,7 +41,7 @@
   const personas=window.TaekilConsultationPersonas;
   if(!personas)return;
   for(const {video,image,phase,portrait,defaultSource} of stageMedia){
-   const persona=phase==='entry' ? personas.forTopic(setup?.dataset.entryTopic) : personas.get(stageContainer?.dataset.chatConsultant);
+   const persona=phase==='entry' ? personas.forTopic(setup?.style.display==='block'?setup.dataset.entryTopic:undefined) : personas.get(stageContainer?.dataset.chatConsultant);
    const isYeonwoo=persona.id==='yeonwoo';
    const poster=isYeonwoo ? portrait : persona.portrait;
    const source=isYeonwoo ? defaultSource : persona.motion?.[phase] || '';
@@ -81,6 +90,33 @@
   });
   if(!v.loop)v.addEventListener('seeked',()=>sync(v));
   observer?.observe(v);
+ }
+ if(homeFilm&&control){
+  control.hidden=false;
+  homeFilm.addEventListener('playing',updateControl);
+  homeFilm.addEventListener('pause',updateControl);
+  homeFilm.addEventListener('error',updateControl);
+  control.addEventListener('click',()=>{
+   if(!homeFilm.paused){
+    homeFilm.dataset.videoPaused='';
+    pause(homeFilm);
+   }else{
+    const state=states.get(homeFilm);
+    manualHomePlay=true;
+    homeFilm.dataset.manualMotion='';
+    delete homeFilm.dataset.videoPaused;
+    state.failed=false;
+    state.visible=true;
+    if(homeFilm.error)homeFilm.load();
+    sync(homeFilm);
+   }
+   updateControl();
+  });
+  reduced.addEventListener('change',()=>{
+   manualHomePlay=false;
+   delete homeFilm.dataset.manualMotion;
+   sync(homeFilm);
+  });
  }
  document.addEventListener('visibilitychange',all);reduced.addEventListener('change',all);connection?.addEventListener?.('change',all);
  const home=document.getElementById('view-home');if(home)new MutationObserver(all).observe(home,{attributes:true,attributeFilter:['class']});
