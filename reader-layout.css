@@ -1,4 +1,18 @@
 /* Keep the public reading column and viewport-anchored controls on the same axis. */
+@media screen {
+  body:not(.admin-exclusive-mode) > .topbar {
+    width: 100%;
+    margin-inline: auto;
+    padding-left: max(14px, env(safe-area-inset-left,0px));
+    padding-right: max(14px, env(safe-area-inset-right,0px));
+    background: #1c1a1c;
+    border-radius: 0;
+    backdrop-filter: none;
+  }
+  body:not(.admin-exclusive-mode,.consultation-open) > .topbar { top: 0; margin-top: 0; }
+  body:not(.admin-exclusive-mode) > .topbar > .container { width: 100%; }
+  body:not(.admin-exclusive-mode) > .topbar::before { content: none; }
+}
 .directory-rail-controls { display: none; }
 @media screen and (min-width: 481px) and (hover: hover) and (pointer: fine) {
   .directory-rail-controls:not([hidden]) { display:flex; justify-content:flex-end; gap:6px; }
@@ -20,7 +34,6 @@
     margin-inline: auto !important;
     box-shadow: 0 0 0 1px #353035;
   }
-  body:not(.admin-exclusive-mode) .topbar::before { inset-inline: 0; }
   body:not(.admin-exclusive-mode) :is(.consultation-story-dock, #homeIntroOverlay, .topbar),
   body.consultation-open:not(.admin-exclusive-mode) #view-home {
     max-width: var(--reader-width);
