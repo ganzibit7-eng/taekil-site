@@ -1329,6 +1329,38 @@ footer{padding-bottom:90px}
 #view-home > .home-first-block{position:relative;}
 
 .admin-member-card{align-items:flex-start !important;gap:14px !important;}
+.admin-member-actions,.admin-withdraw-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.admin-member-actions button,.admin-restriction-search button,.admin-restriction-row button{
+  border:1px solid var(--line);background:transparent;color:var(--white);font:inherit;font-size:13px;
+  border-radius:8px;min-height:42px;padding:7px 13px;cursor:pointer
+}
+.admin-member-actions .admin-withdraw{color:#e9afa2}
+.admin-member-actions button:hover,.admin-restriction-search button:hover,.admin-restriction-row button:hover{border-color:var(--gold)}
+.admin-list-caption{margin:8px 0;color:var(--muted);font-size:13px}
+.admin-list-caption:empty{display:none}
+.admin-member-orders{margin-top:8px;font-size:13px;overflow-wrap:anywhere}
+.admin-member-orders summary{cursor:pointer;color:var(--gold-hi);padding-block:6px}
+.admin-member-orders p{display:grid;gap:3px;margin:0;padding:7px 0;border-top:1px solid var(--line)}
+.admin-member-orders small{color:var(--muted);font-size:12px}
+.admin-restriction-search{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.admin-restriction-search input,#adminUserSearch,.admin-withdrawal-dialog input{width:100%;padding:10px 12px;min-height:44px;font:inherit;font-size:16px;border:1px solid var(--line);border-radius:8px;background:#252122;color:var(--white)}
+.admin-restriction-search input{flex:1 1 220px;min-width:0}
+.admin-restriction-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.admin-restriction-row>div,.admin-withdraw-target{display:grid;gap:5px;min-width:0;overflow-wrap:anywhere}
+.admin-restriction-kind{font-size:12px;color:var(--gold-hi);font-weight:600}
+.admin-restriction-row small,.admin-withdraw-target small{color:var(--muted)}
+.admin-withdrawal-dialog{box-sizing:border-box;width:min(440px,calc(100% - 28px));max-height:90dvh;overflow:auto;margin:auto;padding:24px;color:var(--white);border:1px solid #615551;border-radius:16px;background:#241f20}
+.admin-withdrawal-dialog::backdrop{background:rgba(12,10,11,.72)}
+.admin-withdrawal-dialog h3{font:500 23px var(--serif);margin:0 0 16px}
+.admin-withdrawal-dialog p,.admin-withdrawal-dialog label{font-size:14px;line-height:1.65}
+.admin-withdraw-target{border-block:1px solid var(--line);padding:12px 0}
+.admin-withdrawal-dialog input{margin:6px 0}
+.admin-withdraw-message{color:var(--gold-hi)}
+.admin-withdraw-message:empty{display:none}
+.admin-withdraw-actions{justify-content:flex-end;margin-top:16px}
+.admin-withdraw-actions .btn{min-width:0;width:auto;white-space:normal}
+.admin-perm-option[hidden]{display:none}
+.admin-perm-options:has(.admin-perm-option[hidden]){grid-template-columns:1fr}
 .admin-inquiry-badge{
   display:inline-flex;
   align-items:center;

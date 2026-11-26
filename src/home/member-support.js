@@ -499,6 +499,9 @@ async function ensureKakaoFirebaseSession(accessToken, ageIntent = 'login') {
     }
 
     const credential = await window.TaekilAccountAge.connect(() => firebase.auth().signInWithCustomToken(bridgeData.customToken), ageIntent);
+    if (credential.additionalUserInfo?.isNewUser && credential.user?.uid) {
+      window.clearDeletedAccountCache?.(credential.user.uid, {storedOnly:true});
+    }
     firebaseAuthUser = credential.user || firebase.auth().currentUser || null;
     firebaseAuthReady = true;
     return firebaseAuthUser;
@@ -697,7 +700,7 @@ async function exchangeKakaoCode(code, state) {
     }
   } catch (err) {
     console.error('카카오 로그인 처리 실패', err);
-    if (err && err.code === 'ACCOUNT_BANNED') {
+    if (err?.code === 'ACCOUNT_BANNED' || err?.code === 'ACCOUNT_REJOIN_COOLDOWN') {
       clearLocalKakaoSessionForBan();
       showToast(err.message || '이 계정은 관리자에 의해 이용이 제한되었습니다.');
     } else {
