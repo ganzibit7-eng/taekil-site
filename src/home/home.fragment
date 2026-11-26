@@ -2,8 +2,8 @@
   <div class="home-directory" id="homeDirectory">
     <section class="directory-hero" data-home-opening aria-labelledby="directoryHeroTitle">
       <div class="directory-hero-media">
-        <img src="assets/moonlit-almanac-glide.webp" width="960" height="720" alt="" decoding="async" fetchpriority="high">
-        <video class="yeonwoo-story-video" data-home-directory-video loop muted playsinline preload="none" data-video-src="assets/moonlit-almanac-glide.mp4" poster="assets/moonlit-almanac-glide.webp" aria-hidden="true"></video>
+        <img src="assets/almanac-lantern.webp" width="960" height="720" alt="" decoding="async" fetchpriority="high">
+        <video class="yeonwoo-story-video" data-home-directory-video loop muted playsinline preload="none" data-video-src="assets/almanac-lantern.mp4" poster="assets/almanac-lantern.webp" aria-hidden="true"></video>
         <button type="button" class="home-film-control" data-home-film-control aria-label="홈 영상 재생" hidden><span aria-hidden="true"></span></button>
       </div>
       <div class="directory-hero-copy">
