@@ -48,7 +48,7 @@ html{background:#1c1a1c;color-scheme:dark;scroll-padding-top:32px}
 .premium-article .seo-related{margin-top:48px;padding-top:28px;border-top:1px solid #514b48}
 .premium-article .seo-related a{line-height:2.2}
 .premium-article>h1{font-size:42px}.premium-article>p{font-size:16px}.premium-article>a:not(.brand){background:#C6AA76;color:#1c1a1c;border-radius:6px;font-size:16px;min-height:48px}
-@media(max-width:640px){
+@media screen, (max-width: 640px) {
  .premium-article{font-size:16px;line-height:1.8}
  .premium-article :is(.wrap,.w){width:calc(100% - 40px)}
  .premium-article .nav{min-height:72px;gap:12px}.premium-article .nav a:not(.brand){font-size:14px}
@@ -86,3 +86,8 @@ html{scroll-behavior:auto!important;overflow-anchor:none}
 .guide-reading figure {max-width: 500px; margin: 20px 0 0;}
 .guide-reading img {display: block; width: 100%; height: auto; border-radius: 7px;}
 .guide-reading figcaption {margin-top: 8px; color: #d5cab9; font-size: .875rem; line-height: 1.6;}
+
+@media screen and (min-width:481px) {
+  html:has(.premium-article) {background:#151315}
+  body.premium-article {max-width:480px;min-height:100vh;margin-inline:auto;box-shadow:0 0 0 1px #353035}
+}

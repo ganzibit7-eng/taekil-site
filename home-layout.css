@@ -205,11 +205,11 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 @media (any-hover: hover) {
   .directory-banner-card:hover { border-color: #b29270; background: #342929; }
 }
-@media (max-width: 900px) {
+@media screen, (max-width: 900px) {
   .directory-banner { grid-template-columns: minmax(0, 1fr); }
   .directory-banner-item { flex-basis: calc((100% - 8px) / 2.15); }
 }
-@media (max-width: 600px) {
+@media screen, (max-width: 600px) {
   .directory-banner-item { flex-basis: min(88%, 315px); }
   .directory-banner-rail[data-banner-fixed] { flex-direction: column; }
   .directory-banner-rail[data-banner-fixed] > .directory-banner-item { flex: 0 0 auto; }
@@ -736,7 +736,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   .home-directory :is(.directory-character, .directory-card) img { transition: transform 280ms ease, filter 220ms ease; }
   .home-directory :is(.directory-character, .directory-card):active { transform: scale(.988); }
 }
-@media (max-width: 979px) {
+@media screen, (max-width: 979px) {
   .directory-characters,
   .directory-cards {
     --rail-card: max(33.333%, min(66%, 264px));
@@ -794,7 +794,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
     .home-directory :is(.directory-character, .directory-card):hover img { transform: scale(1.026); }
   }
 }
-@media (max-width: 660px) {
+@media screen, (max-width: 660px) {
   .home-directory { width: calc(100% - 28px); margin-top: 13px; }
   .directory-hero {
     grid-template-columns: minmax(0, 1fr);
@@ -944,7 +944,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 .topic-index :is(button,a):hover { color: #f3e5ca; background: #c6aa7610; }
 .topic-index :is(button,a):focus-visible { outline: 2px solid var(--topic-accent); outline-offset: -2px; }
 .topic-index :is(h1,h2):focus { outline: none; }
-@media (max-width:660px) {
+@media screen, (max-width: 660px) {
   .topic-index-shortcuts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); column-gap: 10px; margin-block: 20px 27px; }
   .topic-index-shortcuts button { text-align: start; }
   .topic-index-groups { grid-template-columns: minmax(0,1fr); }
@@ -970,7 +970,7 @@ html[data-initial-directory] .topbar {
 }
 html[data-home-layout="directory"] body:not(.consultation-open):has(#view-home.visible) .topbar > .container,
 html[data-initial-directory] .topbar > .container { width: 100%; }
-@media (max-width: 660px) {
+@media screen, (max-width: 660px) {
   html[data-home-layout="directory"] body:not(.consultation-open):has(#view-home.visible) .topbar,
   html[data-initial-directory] .topbar { width: calc(100% - 28px); }
 }

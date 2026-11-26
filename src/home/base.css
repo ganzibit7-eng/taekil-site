@@ -46,6 +46,9 @@ button{cursor:pointer}
 .container{width:min(1120px,calc(100% - 40px));margin:0 auto}
 
 /* routing */
+.admin-opening {display:none}
+html[data-opening-admin] .admin-opening {display:block;padding:36px 20px;color:var(--muted);text-align:center}
+html[data-opening-admin] main > .view {display:none!important}
 .view{display:none}
 .view.visible{display:block}
 

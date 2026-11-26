@@ -554,7 +554,7 @@
   </header>
   <section class="block" style="padding-top:10px;">
     <div class="container" style="max-width:800px;">
-      <div id="adminDenied" style="display:none; text-align:center; color:var(--muted); padding:40px 0;">관리자 계정으로 로그인해야 볼 수 있어요.</div>
+      <div id="adminDenied" style="display:none; text-align:center; color:var(--muted); padding:40px 0;"><p id="adminEntryMessage" role="status">관리자 로그인 상태를 확인하고 있어요.</p><button type="button" id="adminEntryRetry" class="aa-btn" hidden>다시 연결</button></div>
       <div id="adminContent" style="display:none;">
 <section id="adminAnalytics" hidden aria-label="기간별 운영 분석"></section>
 <div class="admin-menu-overview" aria-label="관리자 전체 메뉴">

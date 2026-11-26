@@ -103,20 +103,32 @@
   });
   async function load(){
     if(!allowed()||busy)return;busy=true;const token=++request;const button=root.querySelector('[data-aa-refresh]');button.disabled=true;status('기록을 불러오는 중입니다…');
-    const first=A.keys(A.dateKey(Date.now()),180)[0],field=firebase.firestore.FieldPath.documentId();
-    const daily=name=>db.collection(name).where(field,'>=',first).where(field,'<=',A.dateKey(Date.now())).get({source:'server'});
+    const first=A.keys(A.dateKey(Date.now()),180)[0];
+    const daily=name=>{
+      const field=firebase.firestore.FieldPath.documentId();
+      return db.collection(name).where(field,'>=',first).where(field,'<=',A.dateKey(Date.now())).get({source:'server'});
+    };
     const seoReport=async()=>{
       const token=await firebaseAuthUser.getIdToken();
-      const response=await fetch('https://taekilso-api-jhqz3vlila-du.a.run.app/api/admin-report?start='+first+'&end='+A.dateKey(Date.now()),{headers:{Authorization:'Bearer '+token},cache:'no-store',signal:AbortSignal.timeout(20000)});
+      const controller=new AbortController();
+      const timeout=setTimeout(()=>controller.abort(),20000);
+      let response;
+      try {
+        response=await fetch('https://taekilso-api-jhqz3vlila-du.a.run.app/api/admin-report?start='+first+'&end='+A.dateKey(Date.now()),{headers:{Authorization:'Bearer '+token},cache:'no-store',signal:controller.signal});
+      } finally { clearTimeout(timeout); }
       if(!response.ok)throw Object.assign(new Error('REPORT_UNAVAILABLE'),{code:response.status===401||response.status===403?'permission-denied':'unavailable'});
       const body=await response.json();if(!Array.isArray(body.rows)||body.rows.length>2000)throw new Error('INVALID_REPORT');
       return {docs:body.rows.map(row=>({id:row.date+'__'+row.slug,data:()=>row})),capped:!!body.capped};
     };
     const jobs=[['visits','방문',()=>daily('dailyVisits')],['funnel','행동',()=>daily('dailyFunnel')],['traffic','유입',()=>daily('dailyTrafficSources')],['campaignVisits','광고 캠페인',()=>db.collection('dailyCampaignVisits').where('date','>=',first).where('date','<=',A.dateKey(Date.now())).get({source:'server'})],['seo','검색 가이드',seoReport],['orders','주문',()=>loadOrders(first)]];
     try{
+      let completed=0;
       const results=await Promise.allSettled(jobs.map(([, ,run])=>new Promise((resolve,reject)=>{
         const timer=setTimeout(()=>reject(Object.assign(new Error('REPORT_TIMEOUT'),{code:'unavailable'})),20000);
         Promise.resolve().then(run).then(resolve,reject).finally(()=>clearTimeout(timer));
+      }).finally(()=>{
+        completed++;
+        if(token===request&&allowed()&&completed<jobs.length)status('통계를 확인하고 있어요. '+completed+' / '+jobs.length);
       })));
       if(token!==request||!allowed())return;
       const next={ok:{},errors:[],orders:[],visits:[],funnel:[],traffic:[],campaignVisits:[],seo:[]};
@@ -141,6 +153,20 @@
       const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=`taekilso-analytics-${end}-${days}days${data.capped?'-partial':''}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
     }
   });
+  const entryMessage=document.getElementById('adminEntryMessage');
+  const retryEntry=document.getElementById('adminEntryRetry');
+  let entryTimer=null;
+  function updateEntry(visible){
+    clearTimeout(entryTimer);
+    if(!visible||allowed())return;
+    const restoring=typeof firebaseAuthReady==='undefined'||!firebaseAuthReady;
+    entryMessage.textContent=restoring?'관리자 로그인 상태를 확인하고 있어요.':'관리자 계정으로 로그인해야 볼 수 있어요.';
+    retryEntry.hidden=!restoring;
+    if(restoring)entryTimer=setTimeout(()=>{
+      entryMessage.textContent='로그인 연결이 늦어지고 있어요. 다시 연결해 주세요.';
+    },8000);
+  }
+  retryEntry.addEventListener('click',()=>location.reload());
   function sync(){
     const adminVisible=document.getElementById('view-admin').classList.contains('visible');
     document.body.classList.toggle('admin-exclusive-mode',adminVisible);
@@ -151,6 +177,7 @@
     // Re-render the existing admin view after its navigation reflects the settled login.
     if(visible&&(content.style.display==='none'||!window.accountStore.current(window.__adminViewToken))&&typeof renderAdmin==='function')renderAdmin();
     if(adminVisible&&content.style.display!=='none'&&typeof isAdmin==='function'&&!isAdmin()&&typeof renderAdmin==='function')renderAdmin();
+    updateEntry(adminVisible);
     root.hidden=!visible;if(visible&&!active){active=true;load();}if(!visible&&active){active=false;busy=false;reloadAfterRequest=false;++request;data=null;root.querySelector('#aaReport').replaceChildren();root.querySelector('[data-aa-export]').disabled=true;}
   }
   new MutationObserver(sync).observe(document.getElementById('view-admin'),{attributes:true,attributeFilter:['class','style']});
@@ -158,5 +185,13 @@
   const nav=document.getElementById('authNavBtn');if(nav)new MutationObserver(sync).observe(nav,{childList:true,subtree:true});
   let analyticsOwner=window.accountStore?.owner();
   window.addEventListener('taekilso:authChanged',event=>{if(analyticsOwner!==event.detail?.owner){analyticsOwner=event.detail?.owner;active=false;busy=false;reloadAfterRequest=false;++request;data=null;root.querySelector('#aaReport').replaceChildren();}sync();});
-  window.addEventListener('pageshow',sync);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&allowed()&&Date.now()-asOf>300000)load();});sync();
+  function resume(){
+    const alreadyActive=active;
+    sync();
+    if(alreadyActive&&allowed()&&Date.now()-asOf>300000)load();
+  }
+  window.addEventListener('pageshow',resume);
+  window.addEventListener('online',resume);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)resume();});
+  sync();
 })();

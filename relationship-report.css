@@ -141,7 +141,7 @@
 .relationship-chapter > p, .relationship-chapter > .relationship-dialogue { margin:8px 4px 14px; }
 .relationship-chapter .relationship-scene-basis { margin:0 4px 9px; }
 .relationship-chapter .relationship-next-step strong { color:#e0c59a; margin-right:5px; }
-@media (max-width:540px) {
+@media screen, (max-width: 540px) {
   .relationship-hero,.relationship-fields { grid-template-columns:minmax(0,1fr); }
   .relationship-hero { padding-top:28px; gap:16px; }
   .relationship-hero-photo { aspect-ratio:16/10; max-height:220px; }

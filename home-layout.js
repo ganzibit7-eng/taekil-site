@@ -6,6 +6,12 @@
     params.get('landing') === 'yeonwoo' ||
     params.has('seo_landing') || location.hash === '#ai-chat' || naverAd;
   document.documentElement.dataset.homeLayout = consultationLanding ? 'consultation' : 'directory';
+  if (location.hash === '#admin') {
+    document.documentElement.dataset.openingAdmin = '';
+    document.addEventListener('DOMContentLoaded', () => {
+      delete document.documentElement.dataset.openingAdmin;
+    }, {once:true});
+  }
 
   // Keep the first directory paint in its final position while the router loads.
   if (!consultationLanding && location.pathname === '/' && !location.hash && !params.size) {
@@ -179,6 +185,26 @@
     for (const rail of document.querySelectorAll('#homeDirectory :is(.directory-characters, .directory-cards)')) {
       let frame = 0;
       let current = null;
+      const controls = document.createElement('div');
+      controls.className = 'directory-rail-controls';
+      const title = rail.closest('section')?.querySelector('h2,h3')?.textContent || '';
+      const arrows = [-1, 1].map(direction => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = direction < 0 ? '‹' : '›';
+        button.setAttribute('aria-label', title + (direction < 0 ? ' 이전 카드' : ' 다음 카드'));
+        button.addEventListener('click', () => {
+          const target = direction < 0 ? current?.previousElementSibling : current?.nextElementSibling;
+          if (!target) return;
+          const offset = target.getBoundingClientRect().left - rail.getBoundingClientRect().left;
+          const center = (rail.clientWidth - target.offsetWidth) / 2;
+          rail.scrollTo({left: target === rail.firstElementChild ? 0 : rail.scrollLeft + offset - center,
+            behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
+        });
+        controls.append(button);
+        return button;
+      });
+      rail.after(controls);
       const markCurrentCard = () => {
         frame = 0;
         let next = null;
@@ -199,6 +225,9 @@
             }
           }
         }
+        controls.hidden = !next;
+        arrows[0].disabled = !next?.previousElementSibling;
+        arrows[1].disabled = !next?.nextElementSibling;
         if (next === current) return;
         current?.removeAttribute('data-rail-current');
         next?.setAttribute('data-rail-current', '');

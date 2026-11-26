@@ -291,7 +291,7 @@ html:has(:is(.view[data-story-feature],#view-wedding).visible) #tmTop { bottom: 
 }
 .consultation-story-dock .btn:hover { transform: none; filter: brightness(1.08); }
 .consultation-story-dock .btn:focus-visible { outline: 2px solid #f0ebe1; outline-offset: 3px; }
-@media (max-width: 700px) {
+@media screen, (max-width: 700px) {
   .consultation-story-hero { grid-template-columns: minmax(0,1fr); gap: 20px; }
   .consultation-story-film { aspect-ratio: 1 / 1; }
   .consultation-story-intro h1 { margin-bottom: 12px; }
