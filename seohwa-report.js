@@ -21,8 +21,6 @@
   let active, loadingLibrary=0, accountOwner=accountStore.owner(), waitingLogin=false;
   let returnAttempt=null;
   let progressTimer=0, statusTimer=0, previewTimer=0;
-  const typicalWriteSeconds=60;
-  const estimatedWriteMs=(typicalWriteSeconds+10)*1000;
   const previewWaitMs=10000;
   const won=new Intl.NumberFormat('ko-KR');
   const withName=reading=>reading.name+(reading===defaultReading?'와':'과');
@@ -384,7 +382,7 @@
     chapter.append(guide);
     const tocTopic=topicContent?.topics[reading.id];
     const preview=freeSamples(data);
-    contents.append(chart,chapter,...(preview?[preview]:[]),...(excerpts.length?[samples]:[]),gate);
+    contents.append(chart,chapter,...(preview?[preview]:[]),...(excerpts.length?[samples]:[]),window.TaekilPaidPageSample(reading.id),gate);
     const quick=el('div',null,'sr-wealth-quick');
     const jump=button('전체 리포트 · '+won.format(reading.PRICE)+'원','sr-primary',()=>{
       pay.focus({preventScroll:true});
@@ -1372,7 +1370,7 @@
     meter.hidden=true;
     const meterLine=el('div',null,'sr-generation-meter-label');
     const meterLabel=el('span','진행률');
-    const eta=el('p','예상 소요 시간 약 '+typicalWriteSeconds+'초','sr-generation-eta');
+    const eta=el('p',window.TaekilWriteEstimate(reading.id,0).text,'sr-generation-eta');
     const number=el('strong','0%');
     number.setAttribute('aria-hidden','true');
     const bar=el('progress');
@@ -1400,13 +1398,14 @@
       writingFilm.hidden=false;
       heading.textContent=reading.name+(reading===defaultReading?'가':'이')+' 본편을 쓰고 있어요';
       setStatus(message,'고른 고민을 바탕으로 사주 풀이를 엮고 있어요.');
-      eta.textContent='예상 소요 시간 약 '+typicalWriteSeconds+'초';
+      eta.hidden=false;
       const initial=Math.min(Date.now(),Number.isFinite(startedAt)?startedAt:Date.now());
       const update=()=>{
         if(!stillCurrent()){clearInterval(progressTimer);return;}
         const elapsed=Date.now()-initial;
-        setProgress(Math.max(0,Math.min(95,Math.floor(elapsed*95/estimatedWriteMs))));
-        if(elapsed>estimatedWriteMs)eta.textContent='평소보다 조금 더 오래 걸리고 있어요.';
+        const estimate=window.TaekilWriteEstimate(reading.id,elapsed);
+        setProgress(Math.max(bar.value,estimate.percent));
+        eta.textContent=estimate.text;
       };
       update();
       progressTimer=setInterval(update,450);
@@ -1478,6 +1477,7 @@
           return;
         }
         loading=true;
+        bar.value=0;
         startProgress();
         const generated=await request(reading,{operation:'generate',id:state.id},owner,150000);
         if(stillCurrent()){

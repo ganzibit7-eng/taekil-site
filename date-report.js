@@ -167,7 +167,7 @@
       node('p',adminPreview?'결제 없이 정밀 비교를 열 수 있어요.':client.retentionNotice,'report-expiry-note'));
     const confirmation = node('ul','','date-report-selection');
     for (const day of comparison.days) confirmation.append(node('li',dayLabel(day)));
-    card.append(confirmation);
+    card.append(confirmation,window.TaekilPaidPageSample('date'));
     const status = node('p');
     status.setAttribute('role','status');
     const paused = node('p','신규 결제를 잠시 중단했어요. 정밀 택일이 포함된 기존 이용권 보유자는 아래에서 정밀 비교를 열 수 있어요.');
@@ -333,7 +333,7 @@
   const planExample=document.querySelector('[data-date-report-example]');
   if (planExample) {
     const example=exampleDisclosure();
-    planExample.append(example);
+    planExample.append(window.TaekilPaidPageSample('date'),example);
     window.TaekilReportGuide.openExampleWhenVisible(example);
   }
   window.TaekilDateReport = {offer};
