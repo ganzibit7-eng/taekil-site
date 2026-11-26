@@ -100,8 +100,8 @@ html.site-menu-open{overflow:hidden!important;scrollbar-gutter:stable}
 }
 
 /* Profile shares the menu's warm metal accents and dark green surfaces. */
-#view-profile .pf-shell{width:min(880px,calc(100% - 48px));margin-inline:auto;padding:clamp(34px,6vw,72px) 0 60px}
-#view-profile .pf-heading{margin-bottom:26px}
+#view-profile .pf-shell{--profile-gap:16px;display:grid;grid-template-columns:minmax(0,1fr);gap:var(--profile-gap);width:min(880px,calc(100% - 48px));margin-inline:auto;padding:clamp(34px,6vw,72px) 0 60px}
+#view-profile .pf-heading{margin:0}
 #view-profile .pf-heading h1{margin:0;font:600 clamp(32px,5vw,47px)/1.4 var(--serif)}
 #view-profile .pf-heading h1:focus{outline:none}
 #view-profile .pf-card{
@@ -111,7 +111,7 @@ html.site-menu-open{overflow:hidden!important;scrollbar-gutter:stable}
   flex-direction:row;
   align-items:center;
   gap:24px;
-  margin:0 0 20px;
+  margin:0;
   padding:clamp(22px,4vw,36px);
   border:1px solid #6b6049;
   border-radius:12px;
@@ -142,10 +142,9 @@ html.site-menu-open{overflow:hidden!important;scrollbar-gutter:stable}
 #view-profile .pf-uid{align-items:center;flex-wrap:wrap;gap:2px 8px;margin-top:6px;color:#b6bfb5;font-size:12px}
 #view-profile .pf-uid code{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#b6bfb5;font-size:12px}
 #view-profile .pf-uid button{min-height:36px;padding:0 7px;background:none;border:0;color:#e3c58e;font:inherit;cursor:pointer}
-#view-profile .pf-panels{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;align-items:start}
+#view-profile .pf-panels{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:var(--profile-gap);align-items:start}
 #view-profile .pf-panel{min-width:0;padding:22px;border:1px solid #514b48;border-radius:10px;background:#292528}
-#view-profile .reading-library{background:#292528}
-#view-profile #profilePrivacySettings{margin-top:16px}
+#view-profile .reading-library{margin:0;background:#292528}
 #view-profile :is(.pf-panel,.pf-account-actions) h2{margin:0 0 12px;font:600 22px/1.5 var(--serif)}
 #view-profile #profilePremiumPriceNote{margin:0 0 18px;font-size:14px!important;overflow-wrap:anywhere}
 #view-profile .pf-upgrade{margin:0;padding:12px 16px;min-height:50px;border:1px solid #c6aa76;border-radius:7px;font-size:15px;font-weight:650;word-break:keep-all}
@@ -174,7 +173,7 @@ html.site-menu-open{overflow:hidden!important;scrollbar-gutter:stable}
 }
 #view-profile .pf-menu-item::after{content:"";width:7px;height:7px;flex:none;border:solid #c6aa76;border-width:1px 1px 0 0;transform:rotate(45deg);margin-right:3px}
 #view-profile .pf-menu-item:hover{background:#382e35;color:#f4dbaa}
-#view-profile .pf-account-actions{margin-top:28px;padding:20px 0 0;border-top:1px solid #514b48}
+#view-profile .pf-account-actions{margin:0;padding:20px 0 0;border-top:1px solid #514b48}
 #view-profile .pf-account-actions h2{font-size:18px}
 #view-profile .pf-danger-note{margin:0;padding:0;border:0;background:none;font-size:13px;line-height:1.75;color:#aeb8ad;word-break:keep-all}
 #view-profile .pf-danger-row{justify-content:flex-start;gap:12px;margin:7px 0 0;padding:0;border:0}
@@ -207,8 +206,8 @@ html.site-menu-open{overflow:hidden!important;scrollbar-gutter:stable}
 #view-profile button:focus-visible{outline:2px solid #c6aa76;outline-offset:3px}
 @media screen, (max-width: 680px) {
   #view-profile .pf-shell{width:calc(100% - 36px)}
-  #view-profile .pf-panels{grid-template-columns:1fr;gap:14px}
-  #view-profile .pf-card{gap:16px;margin-bottom:14px}
+  #view-profile .pf-panels{grid-template-columns:1fr}
+  #view-profile .pf-card{gap:16px}
   #view-profile .pf-avatar{width:52px;height:52px;font-size:21px}
   #view-profile .pf-panel{padding:19px}
 }

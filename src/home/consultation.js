@@ -198,6 +198,7 @@ function renderAiConversationHistory(){
       </div>
     </div>`;
   }).join('');
+  window.TaekilExperience?.attachHistoryNotes?.(host,list);
 }
 
 function resumeAiConversation(id){

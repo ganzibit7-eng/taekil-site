@@ -9,7 +9,9 @@ for (const file of ['report-coupons.js','report-coupon-use.js']) {
   new Function(fs.readFileSync(file,'utf8'));
 }
 // Verify the approved membership module, then compare the rest of the page to the existing contract.
-const comparable = require('./admin-membership-ui-contract.cjs')(current);
+const historyNoteHook = '  window.TaekilExperience?.attachHistoryNotes?.(host,list);\n';
+assert(current.includes(historyNoteHook));
+const comparable = require('./admin-membership-ui-contract.cjs')(current.replace(historyNoteHook,''));
 // The active payment SDK was replaced in place by local privacy controls.
 const paySdk='https://lite.payapp.kr/public/api/v2/payapp-lite.js';
 assert(!scripts(current).some(([attrs])=>attrs.includes(paySdk)));

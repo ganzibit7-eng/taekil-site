@@ -444,16 +444,6 @@
       <div id="couponWallet"></div>
     </section>
 
-    <section class="pf-panel pf-support" aria-labelledby="profileSupportHeading">
-      <h2 id="profileSupportHeading">고객 지원</h2>
-      <div class="pf-menu">
-          <button type="button" class="pf-menu-item" onclick="goTo('support')">고객센터 · 1:1 문의</button>
-          <div id="adminEntryWrap" style="display:none;">
-            <button type="button" class="pf-menu-item" onclick="goTo('admin')">관리자 대시보드</button>
-          </div>
-      </div>
-    </section>
-
     <div class="pf-panels">
       <section class="pf-panel" aria-labelledby="profileLibraryHeading">
         <h2 id="profileLibraryHeading">내 리포트와 기록</h2>
@@ -471,8 +461,15 @@
       </section>
     </div>
 
-
-
+    <section class="pf-panel pf-support" aria-labelledby="profileSupportHeading">
+      <h2 id="profileSupportHeading">고객 지원</h2>
+      <div class="pf-menu">
+          <button type="button" class="pf-menu-item" onclick="goTo('support')">고객센터 · 1:1 문의</button>
+          <div id="adminEntryWrap" style="display:none;">
+            <button type="button" class="pf-menu-item" onclick="goTo('admin')">관리자 대시보드</button>
+          </div>
+      </div>
+    </section>
 
     <section class="pf-account-actions" aria-labelledby="profileAccountHeading">
       <h2 id="profileAccountHeading">계정 관리</h2>
@@ -558,7 +555,7 @@
     <div class="container" style="max-width:800px;">
       <div id="adminDenied" style="display:none; text-align:center; color:var(--muted); padding:40px 0;"><p id="adminEntryMessage" role="status">관리자 로그인 상태를 확인하고 있어요.</p><button type="button" id="adminEntryRetry" class="aa-btn" hidden>다시 연결</button></div>
       <div id="adminContent" style="display:none;">
-<div class="admin-menu-overview" aria-label="관리자 전체 메뉴">
+<div class="admin-menu-overview" id="adminShortcutList" role="group" aria-label="관리자 바로가기 목록">
   <button type="button" data-aa-overview><small>ANALYTICS</small>기간별 운영 분석</button>
   <button type="button" onclick="openAndGoAdminFold('adminFoldStats')"><small>OVERVIEW</small>운영 현황</button>
   <button type="button" onclick="openAndGoAdminFold('adminFoldFunnel')"><small>FUNNEL</small>오늘 주요 행동</button>

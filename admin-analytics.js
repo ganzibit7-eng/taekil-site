@@ -19,6 +19,24 @@
   for(const id of ['statPurchases','statRevenue','statPurchasesPremium','statPurchasesQuestionPacks','funnelPurchase','funnelPurchaseRate','seoPurchases','seoPurchaseRate']){const e=document.getElementById(id);if(e)totalsWatch.observe(e,{childList:true,characterData:true,subtree:true});}
   const seoRows=document.getElementById('adminSeoLandingRows');if(seoRows)totalsWatch.observe(seoRows,{childList:true,characterData:true,subtree:true});
   const allowed=()=>typeof isAdmin==='function'&&isAdmin()&&typeof db!=='undefined'&&db&&document.getElementById('view-admin').classList.contains('visible');
+  const shortcuts=document.getElementById('adminShortcutList');
+  const returnButton=document.getElementById('adminReturnToShortcuts');
+  let lastShortcut=null;
+  shortcuts.addEventListener('click',event=>{
+    const button=event.target.closest('button');
+    if(button)lastShortcut=button;
+  });
+  new IntersectionObserver(([entry])=>{
+    returnButton.hidden=!(allowed() && entry.boundingClientRect.height>0 &&
+      !entry.isIntersecting && entry.boundingClientRect.bottom<=entry.rootBounds?.top);
+  },{rootMargin:'-84px 0px 0px 0px'}).observe(shortcuts);
+  returnButton.addEventListener('click',()=>{
+    if(!allowed())return;
+    const target=lastShortcut||shortcuts.querySelector('button');
+    target.focus({preventScroll:true});
+    shortcuts.scrollIntoView({block:'start',behavior:'instant'});
+    if(target.getBoundingClientRect().bottom>window.innerHeight)target.scrollIntoView({block:'center',behavior:'instant'});
+  });
   window.toggleAdminTrafficSources=()=>{
     if(!allowed())return;
     const card=document.getElementById('adminTrafficSourceCard');
@@ -178,6 +196,7 @@
     document.documentElement.classList.toggle('admin-exclusive-mode',adminVisible);
     if(typeof window.syncAdminExclusiveMode==='function')window.syncAdminExclusiveMode();
     const visible=!!allowed(),content=document.getElementById('adminContent');
+    if(!visible){returnButton.hidden=true;lastShortcut=null;}
     // A direct #admin load can finish routing before the saved login is restored.
     // Re-render the existing admin view after its navigation reflects the settled login.
     if(visible&&(content.style.display==='none'||!window.accountStore.current(window.__adminViewToken))&&typeof renderAdmin==='function')renderAdmin();
