@@ -432,11 +432,11 @@
 
     <section class="pf-panel coupon-panel" id="profileCoupons" aria-labelledby="profileCouponHeading">
       <h2 id="profileCouponHeading">리포트 쿠폰 등록</h2>
-      <p>선물받은 쿠폰으로 리포트 한 편을 열어 보세요.</p>
+      <p id="couponEntryHelp">번호만 입력하거나 받은 선물 메시지를 통째로 붙여넣으세요.</p>
       <form id="couponRedeemForm" class="coupon-form">
         <label for="couponNumber">쿠폰 번호</label>
         <div class="coupon-controls">
-          <input id="couponNumber" type="text" maxlength="80" required autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="번호 또는 선물 안내 붙여넣기">
+          <input id="couponNumber" type="text" maxlength="80" required autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" aria-describedby="couponEntryHelp" placeholder="쿠폰 번호 입력">
           <button class="btn btn-primary" type="submit">쿠폰 등록</button>
         </div>
       </form>
@@ -733,7 +733,7 @@
     <section class="coupon-panel" aria-label="쿠폰 발급 및 관리">
       <form id="couponIssueForm" class="coupon-issue-form">
         <label>발급할 리포트<select id="couponProduct" required></select></label>
-        <label>등록 기한<select id="couponValidity"><option value="7">발급 후 7일</option><option value="30" selected>발급 후 30일</option><option value="90">발급 후 90일</option><option value="365">발급 후 1년</option></select></label>
+        <label>받는 분의 등록 기한<select id="couponValidity"><option value="7">발급 후 7일</option><option value="30" selected>발급 후 30일</option><option value="90">발급 후 90일</option><option value="365">발급 후 1년</option></select></label>
         <button class="btn btn-primary" type="submit">쿠폰 1장 발급</button>
       </form>
       <div id="couponIssued" class="coupon-issued" hidden>
@@ -741,14 +741,14 @@
         <p id="couponGiftDeadline"></p>
         <label for="couponIssuedNumber">쿠폰 번호</label>
         <input id="couponIssuedNumber" readonly autocapitalize="off" autocomplete="off" spellcheck="false">
-        <p>번호는 지금만 확인할 수 있어요. 선물 안내를 복사해 받는 분께 보내 주세요.</p>
+        <p>전체 번호는 이 화면에서만 볼 수 있어요. 닫기 전에 선물 안내를 복사해 주세요.</p>
         <div class="coupon-controls">
           <button id="couponCopyGift" type="button" class="btn btn-primary">선물 안내 전체 복사</button>
           <button id="couponCopy" type="button" class="btn">번호만 복사</button>
           <button id="couponDone" type="button" class="text-action">닫기</button>
         </div>
         <details id="couponGiftPreview">
-          <summary>보낼 문구 미리보기</summary>
+          <summary>받는 분께 전달될 안내문</summary>
           <textarea id="couponGiftText" aria-label="선물 안내 전문" rows="9" readonly spellcheck="false"></textarea>
         </details>
       </div>
