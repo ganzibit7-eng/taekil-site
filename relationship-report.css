@@ -30,7 +30,7 @@
   height:auto;
   max-height:350px;
   object-fit:cover;
-  object-position:center 5%;
+  object-position:center 8%;
   border-radius:8px;
 }
 .relationship-content { padding:24px 0 80px; }
@@ -144,7 +144,7 @@
 @media screen, (max-width: 540px) {
   .relationship-hero,.relationship-fields { grid-template-columns:minmax(0,1fr); }
   .relationship-hero { padding-top:28px; gap:16px; }
-  .relationship-hero-photo { aspect-ratio:16/10; max-height:220px; }
+  .relationship-hero-photo { aspect-ratio:1.1; max-height:420px; }
   .relationship-fields { gap:12px; }
   .relationship-content .btn { width:100%; }
 }
