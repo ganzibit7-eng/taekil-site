@@ -56,19 +56,20 @@
       if(candidate.eventWeight) cues.append(node('li','일정 유형 가점'));
       if(candidate.folkWeight) cues.append(node('li','손없는 날'));
       const details=node('details','','date-report-day-basis');
-      details.append(node('summary','이 날짜의 풀이와 계산 근거'));
+      const interpretation=node('div','','date-report-interpretation');
+      details.append(node('summary','점수 계산 근거'));
       for(const person of analysis.people){
-        details.append(node('p',person.label+' · '+person.interpretation));
+        interpretation.append(node('p',person.label+' · '+person.interpretation));
       }
-      details.append(node('p',analysis.eventNote), node('p',analysis.folkNote));
+      interpretation.append(node('p',analysis.eventNote), node('p',analysis.folkNote));
       const original=node('ul','','date-report-breakdown');
       const signed=value=>value>0?'+'+value:String(value);
       for(const person of analysis.people) original.append(node('li',person.label+' 오행 '+signed(person.weight)));
       original.append(node('li','일정 유형 '+signed(candidate.eventWeight)),node('li','민속 기준 '+signed(candidate.folkWeight)));
       details.append(original);
-      if(analysis.action) details.append(node('p',analysis.action,'date-report-next-step'));
+      if(analysis.action) interpretation.append(node('p',analysis.action,'date-report-next-step'));
       row.append(head,node('p',`${candidate.ganji}(${candidate.hanja}) · ${candidate.element} 기운 · 음력 ${candidate.lunarDay}일`),cues,
-        node('p',analysis.main,'date-report-day-reading'),details);
+        node('p',analysis.main,'date-report-day-reading'),interpretation,details);
       dates.append(row);
     });
     box.append(node('h4','후보일별 풀이'),dates);
@@ -79,7 +80,10 @@
     const top=report.candidates[0];
     const motif=window.TaekilReportGuide.dailyMotif({element:top?.element,source:top&&dayLabel(top.day)+' 후보일',theme:'date',heading:'h4'});
     if(motif)box.append(motif);
-    const index=window.TaekilReportGuide.documentIndex([...box.querySelectorAll(':scope > h4, :scope > section > h4')]);
+    const index=window.TaekilReportGuide.documentIndex([...box.querySelectorAll(':scope > h4, :scope > section > h4')],{
+      '후보일별 풀이':'날짜마다 누구에게 어떤 점이 유리한지 순위와 함께 살펴봐요.',
+      '날짜를 확정하기 전에':'가장 높은 점수를 받은 날과 실제 일정이 맞는지 확인해요.'
+    });
     title.after(index);
     return box;
   }
@@ -228,7 +232,9 @@
     card.append(included);
     if(!adminPreview)card.append(buy);
     if(!adminPreview && accountStore.owner())card.append(window.TaekilReportCouponUse.control('taekilso_date_report',passId=>submit(false,false,passId)));
-    card.append(status,exampleDisclosure());
+    const example=exampleDisclosure();
+    card.append(status,example);
+    example.open=true;
     return card;
   }
 
@@ -325,6 +331,10 @@
   }
   window.addEventListener('DOMContentLoaded',finishCheckout,{once:true});
   const planExample=document.querySelector('[data-date-report-example]');
-  if (planExample) planExample.append(exampleDisclosure());
+  if (planExample) {
+    const example=exampleDisclosure();
+    planExample.append(example);
+    window.TaekilReportGuide.openExampleWhenVisible(example);
+  }
   window.TaekilDateReport = {offer};
 })();

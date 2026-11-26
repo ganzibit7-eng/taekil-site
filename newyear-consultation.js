@@ -319,13 +319,18 @@
     }
     const index=window.TaekilReportGuide.documentIndex([
       ...introduction.querySelectorAll('h2'),...sections.map(section=>section.querySelector('h2'))
-    ]);
+    ],{'한 해의 큰 흐름':'올해 내 선택에서 가장 크게 달라질 주제를 먼저 읽어요.',
+      '나의 사주와 2027년':'원국에 올해의 글자가 더해질 때 드러나는 변화를 살펴봐요.',
+      '분야별 풀이':'일·재물·관계·생활을 각각 풀어봐요.',
+      '열두 달, 나의 흐름':'각 달에 눈여겨볼 일과 그 시기를 읽은 근거를 확인해요.'});
     sections.forEach((section,position)=>{
       if(section!==motif&&section.classList.contains('report-sheet')){
         section.prepend(el('p',String(position+1).padStart(2,'0')+'장','report-folio'));
       }
     });
-    content.append(cover,contents,index,introduction,...sections);
+    const manuscript=el('article',null,'annual-manuscript');
+    manuscript.append(introduction,...sections);
+    content.append(cover,contents,index,manuscript);
     const monthIndex=el('nav',null,'newyear-month-index');
     monthIndex.setAttribute('aria-label','월별 풀이 바로가기');
     months.append(monthIndex);
