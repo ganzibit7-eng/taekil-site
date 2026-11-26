@@ -58,10 +58,7 @@ body footer .footer-inner.business-site-footer {
 
 .business-site-footer .business-info {
   margin: 0;
-  padding: clamp(14px, 3vw, 24px);
-  border: 1px solid #393234;
-  border-radius: 12px;
-  background: #211e20;
+  padding: 4px 0 8px;
   color: #ddd4cc;
   font-size: 14px;
   line-height: 1.6;
