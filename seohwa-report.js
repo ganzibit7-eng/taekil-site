@@ -112,18 +112,10 @@
     body.replaceChildren();
   }
   by('closeSeohwaReport').addEventListener('click',close);
-  tocControl.addEventListener('click',()=>setContentsOpen(contentsMenu?.hidden));
+  tocControl.addEventListener('click',jumpToContents);
   dialog.addEventListener('cancel',event=>{
     event.preventDefault();
-    if(contentsMenu&&!contentsMenu.hidden){
-      setContentsOpen(false);
-      tocControl.focus({preventScroll:true});
-    }else close();
-  });
-  dialog.addEventListener('click',event=>{
-    if(contentsMenu&&!contentsMenu.hidden&&!toolbar.contains(event.target)&&!event.target.closest('.sr-cover-toc')){
-      setContentsOpen(false);
-    }
+    close();
   });
   dialog.addEventListener('scroll',()=>{
     progress.value=dialog.scrollTop/Math.max(1,dialog.scrollHeight-dialog.clientHeight);
@@ -174,7 +166,7 @@
     if(birth)title.append(birth);
     const navigation=el('div',null,'sr-cover-nav');
     navigation.append(button(paidYear?(reading.id==='dogyeom'?'올해 총평 읽기':'본편 바로 읽기'):'내 풀이 바로 보기','sr-personal-jump',()=>jumpToChapter(paidYear?1:0)));
-    navigation.append(button('목차 보기','sr-cover-toc',()=>setContentsOpen(true)));
+    navigation.append(button('목차 바로가기','sr-cover-toc',jumpToContents));
     title.append(navigation);
     head.append(title);
     return head;
@@ -183,20 +175,16 @@
     contentsMenu?.remove();
     contentsMenu=menu;
     tocControl.hidden=!menu;
-    tocControl.setAttribute('aria-expanded','false');
     if(menu){
-      menu.hidden=true;
-      toolbar.append(menu);
+      body.querySelector('.sr-pages,.sr-reader-paid').prepend(menu);
     }
   }
-  function setContentsOpen(open){
-    if(!contentsMenu)return;
-    contentsMenu.hidden=!open;
-    tocControl.setAttribute('aria-expanded',String(!!open));
-    if(open)contentsMenu.querySelector('button')?.focus({preventScroll:true});
+  function jumpToContents(){
+    const heading=contentsMenu?.querySelector('h3');
+    heading?.focus({preventScroll:true});
+    heading?.scrollIntoView({block:'start'});
   }
   function jumpToChapter(index){
-    setContentsOpen(false);
     const heading=by('seohwa-report-chapter-'+index)?.querySelector('h3');
     heading?.focus({preventScroll:true});
     heading?.scrollIntoView({block:'start',behavior:'instant'});
@@ -254,30 +242,37 @@
     return icon;
   }
 
-  function toc(reading,first,locked,comparisonHeading) {
+  function toc(reading,first,locked,comparisonHeading,chapters=[]) {
+    const previewGuide={
+      dogyeom:['지난해와 비교해 돈을 벌 기회와 손에 남길 몫이 올해 어떻게 달라지는지 읽어요.','1월부터 12월까지 돈이 들어오는 흐름과 지출이 늘기 쉬운 흐름을 나란히 봐요.','내 원국과 월운이 맞물리는 세 시기를 골라, 왜 그 달에 기회가 두드러지는지 살펴봐요.','신중하게 볼 세 시기와 내게 특히 부담이 되기 쉬운 재테크 행동을 짚어요.','3년·5년·10년을 비교해 내 재물 흐름에서 변화가 큰 해를 살펴봐요.'],
+      seohwa:['2027년에 달라지는 관계의 흐름을 새 인연과 이미 가까운 사이로 나눠 읽어요.','열두 달 중 대화의 계기가 생기는 달과 서로 속도를 맞출 달을 비교해요.','내가 마음을 여는 방식과 편안함을 느끼는 상대의 태도를 짚어요.','가까워지기 좋은 시기와 기대가 엇갈리기 쉬운 시기를 내 사주로 구분해요.','앞으로 관계의 우선순위가 달라지는 해를 3년·5년·10년 흐름에서 찾아봐요.'],
+      ijun:['지난 인연을 다시 생각하는 마음과 새 관계에 마음이 가는 흐름을 살펴봐요.','먼저 말을 걸고 싶은 달과 잠시 거리를 두고 싶은 달의 차이를 읽어요.','지난 관계에서 내가 아쉬웠던 점과 다음 관계에서 중요하게 볼 조건을 비교해요.','안부를 건네거나 기다릴 때 각각 어떤 시기에 힘이 실리는지 짚어요.','앞으로 10년 동안 인연에 대한 내 선택이 달라지기 쉬운 해를 읽어요.'],
+      mujin:['올해 내 역할과 책임이 달라지는 방향을 지난해와 비교해요.','열두 달 중 실력을 보여줄 때와 새로운 역할에 적응할 때를 구분해요.','현 직장, 같은 직무로의 이직, 직무 전환 중 어디에서 강점을 쓰기 쉬운지 봐요.','이직·승진·역할 변화가 두드러지는 시기와 신중할 때를 나눠 읽어요.','3년·5년·10년을 따라가며 일에서 성장의 방향이 바뀌는 해를 살펴봐요.']
+    };
     const list=el('nav',null,'sr-toc');
     list.setAttribute('aria-label','리포트 목차');
     list.id='wealthReportToc';
-    list.append(el('h3','리포트 목차'));
+    const heading=el('h3','리포트 목차');
+    heading.tabIndex=-1;
+    list.append(heading);
+    if(locked)list.append(el('p','첫 장과 3·6·8·11월의 풀이 예시는 무료예요. 자물쇠가 표시된 다섯 장은 구매 후 이어서 읽을 수 있어요.','sr-index-note'));
     const rows=el('ol');
     for(const [index,title] of [first.title,...reading.chapters].entries()){
       const row=el('li');
       if(locked&&index>0){
         const chapter=el('div');
-        const wealthGuide=['2026년과 비교해 재물의 흐름이 달라지는 이유','열두 달의 기회·주의 지표와 원국의 관계','기회가 강한 세 시기와 절기 구간','신중하게 볼 세 시기와 그 이유','앞으로 10년의 흐름과 대운·세운 근거'];
-        chapter.append(el('strong',String(index+1).padStart(2,'0')+' · '+title),el('small',reading.id==='dogyeom'?wealthGuide[index-1]:(topicContent?.topics[reading.id]?.guide||reading.guide)[index-1]));
+        chapter.append(el('strong',String(index+1).padStart(2,'0')+' · '+title),el('small',(previewGuide[reading.id]||reading.guide)[index-1]));
         row.className='sr-locked-row';
         row.append(lockIcon(),chapter);
       }else{
         row.append(button(String(index+1).padStart(2,'0')+' · '+title,'sr-jump',()=>jumpToChapter(index)));
-        if(locked)row.append(el('small','무료로 읽을 수 있어요'));
+        row.append(el('small',(index===0&&locked?'무료 공개 · ':'')+(index===0?first.highlight:chapters[index-1]?.highlight||title)));
       }
       rows.append(row);
     }
     list.append(rows);
     if(comparisonHeading){
       list.append(button(reading.id==='dogyeom'?'나의 재테크 비교':'세 가지 선택 비교','sr-jump sr-choice-shortcut',()=>{
-        setContentsOpen(false);
         comparisonHeading.focus({preventScroll:true});
         comparisonHeading.scrollIntoView({block:'start',behavior:'instant'});
       }));
@@ -293,9 +288,17 @@
     title.id='sr-free-reading-title';
     title.tabIndex=-1;
     section.setAttribute('aria-labelledby',title.id);
-    section.append(title,el('p','3월과 8월은 월운의 차이를 읽어 보는 예시예요. 두 날짜는 모두에게 같고, 풀이는 내 일간과 그날의 월운으로 계산해요. 개인별 추천 시기는 본편에서 비교해요.','sr-free-intro'));
-    for(const card of cards){
+    section.append(title,el('p','내 사주에서 먼저 읽힌 성향을 따라 2027년 봄부터 늦가을까지 살펴봐요. 네 날짜는 계절의 차이를 보여 주는 예시이고, 각 날짜의 풀이는 내 일간을 기준으로 읽어요.','sr-free-intro'));
+    for(const [index,card] of cards.entries()){
       const piece=el('article',null,'sr-free-piece');
+      if(index===2){
+        const scene=el('img',null,'sr-season-scene');
+        scene.src='/assets/consultant-'+reading.id+'-chapter-film.webp';
+        scene.alt='';
+        scene.loading='lazy';
+        scene.decoding='async';
+        piece.append(scene);
+      }
       piece.append(el('span',card.label,'sr-free-label'),el('h4',card.title));
       for(const paragraph of card.paragraphs)piece.append(el('p',paragraph));
       section.append(piece);
@@ -393,7 +396,6 @@
     const menu=toc(tocTopic?{...reading,chapters:tocTopic.chapters}:reading,first,true);
     if(preview){
       const jumpSamples=button('무료 풀이 예시 읽기','sr-jump',()=>{
-        setContentsOpen(false);
         const heading=preview.querySelector('h3');
         heading.focus({preventScroll:true});
         heading.scrollIntoView({block:'start'});
@@ -599,7 +601,7 @@
       bar.dataset.signal=opportunities.has(row.month)&&expenses.has(row.month)?'both':
         opportunities.has(row.month)?'opportunity':expenses.has(row.month)?'expense':'normal';
       bar.setAttribute('aria-label',row.month+'월, 기회 '+row.score+'점, 지출 주의 '+row.expenseScore+'점');
-      bar.setAttribute('aria-controls','wealthMonthDetail');
+      bar.setAttribute('aria-controls','wealth-month-'+row.month);
       const track=el('span',null,'sr-wealth-track'), marker=el('span',null,'sr-wealth-marker');
       marker.style.bottom=row.score+'%';
       track.setAttribute('aria-hidden','true');
@@ -639,7 +641,6 @@
     monthSelect.addEventListener('change',()=>selectMonth(Number(monthSelect.value)));
     const detail=el('div',null,'sr-wealth-month-detail');
     detail.id='wealthMonthDetail';
-    detail.setAttribute('aria-live','polite');
     const selectedScore=el('p',null,'sr-wealth-selected');
     const roleLabel=el('label','상황에 맞춰 보기','sr-wealth-role');
     const role=el('select');
@@ -652,12 +653,19 @@
     const neutral=el('option','선택해 주세요');neutral.value='';role.prepend(neutral);role.value='';
     const action=el('p',null,'sr-wealth-role-action');
     let selected;
-    function selectMonth(month){
+    function selectMonth(month,jump=true){
       selected=byMonth.get(month);
       monthSelect.value=String(month);
       buttons.forEach(bar=>bar.setAttribute('aria-pressed',String(Number(bar.dataset.month)===month)));
       selectedScore.replaceChildren(el('strong',month+'월'),el('span','기회 '+selected.score+'점','sr-selected-opportunity'),
         el('span','지출 점검 '+selected.expenseScore+'점','sr-selected-expense'));
+      action.textContent=selected.roles[role.value]||'';
+      if(jump)jumpPeriod('wealth-month-'+month);
+    }
+    for(const selected of calendar.rows){
+      const month=selected.month;
+      const item=el('section',null,'sr-period-entry');
+      item.id='wealth-month-'+month;
       const basis=el('details',null,'sr-evidence');
       basis.append(el('summary','이 달을 읽은 사주 근거'),
         el('p',selected.ganZhi+' 월운 · '+selected.basis),
@@ -670,15 +678,15 @@
         basis.append(el('p','택일소가 달을 비교하기 위해 정한 해석 지표예요. 수익 확률이나 검증된 명리 점수가 아니에요. 기회 = 49 + 2 × 수입 신호('+income+') + 보유 신호('+retention+') − 주의 신호('+risk+'). 지출 점검 = 18 + 6 × 주의 신호. 각 지표는 0~100 범위로 표시해요.'));
         basis.append(el('p',selected.natalLink.length?'월간의 십성이 원국의 '+selected.natalLink.join('·')+'에도 있어 익숙한 성향이 드러나는 달로 읽어요.':'확인된 원국에서 이 달의 월간과 같은 십성은 보이지 않아, 평소와 다른 흐름으로 읽어요.'));
       }
-      detail.replaceChildren(el('h6',month+'월 재물운 · 기회 '+selected.rank+'위'),
+      item.append(el('h6',month+'월 재물운 · 기회 '+selected.rank+'위'),
         el('p','기회 '+selected.score+'점 · 지출 점검 '+selected.expenseScore+'점','sr-wealth-detail-score'),
         el('p',selected.ganZhi+' 월운 · '+selected.basis,'sr-wealth-month-basis'),
         ...(selected.relations?.length?[el('p',selected.relations.join(' / '),'sr-wealth-month-relations')]:[]),
         el('p',selected.description),...(selected.comparison?[el('p',selected.comparison)]:[]),el('p',selected.caution),el('p',selected.action),basis);
-      action.textContent=selected.roles[role.value]||'';
+      detail.append(item);
     }
     role.addEventListener('change',()=>{action.textContent=selected.roles[role.value]||'';});
-    selectMonth(highlight);
+    selectMonth(highlight,false);
     const shareStatus=el('span',null,'sr-wealth-share-status');
     shareStatus.setAttribute('role','status');
     const share=button('한 줄 요약 복사','sr-wealth-share',async()=>{
@@ -695,8 +703,9 @@
     const extra=el('details',null,'sr-evidence sr-wealth-tools');
     extra.append(el('summary','상황별 참고와 점수 계산 기준'),roleLabel,action,method);
     section.classList.add('sr-wealth-monthly');
-    section.append(title,legend,chart,selectedScore,leaders,monthLabel,detail,extra);
+    section.append(title,legend,chart,selectedScore,leaders,monthLabel,extra);
     if(navigator.clipboard?.writeText)section.append(share,shareStatus);
+    section.append(detail);
     return section;
   }
 
@@ -740,7 +749,6 @@
 
   function wealthOutlook(outlook,calendar){
     const section=el('section',null,'sr-wealth-outlook');
-    const details=el('details',null,'sr-evidence');
     if(calendar.version>=6){
       section.append(el('h4',calendar.daewoon?'대운 · 여러 해에 걸친 배경':'10년 세운 전망'));
       if(!calendar.daewoon)section.append(el('p','확정할 수 있는 대운 구간이 없어 해마다 달라지는 세운만 읽었어요.'));
@@ -759,13 +767,11 @@
     years.setAttribute('aria-label','재물운 연도 선택');
     const selectedYear=el('div',null,'sr-year-selected');
     selectedYear.id='wealthYearDetail';
-    selectedYear.setAttribute('aria-live','polite');
     const long=outlook.horizons.at(-1);
     const chooseYear=(year,selected)=>{
       for(const btn of years.querySelectorAll('button'))btn.setAttribute('aria-pressed',String(btn===selected));
-      selectedYear.replaceChildren(renderYear(year));
+      jumpPeriod('wealth-year-'+year.year);
     };
-    details.append(el('summary','연도별 세운과 원국 근거 살펴보기'));
     function renderYear(year){
       const item=el('section',null,'sr-wealth-year');
       item.append(el('h6',year.year+'년 · '+year.label),el('p',year.talk),el('p',year.caution),
@@ -784,12 +790,13 @@
       if(year.year===long?.expense)signals.push('주의');
       if(calendar.daewoon?.cycles?.some(c=>c.from?.startsWith(String(year.year)+'-')))signals.push('대운 전환');
       const btn=button(String(year.year),'sr-year-choice',()=>chooseYear(year,btn));
-      btn.setAttribute('aria-controls',selectedYear.id);
+      const item=renderYear(year);
+      item.id='wealth-year-'+year.year;
+      btn.setAttribute('aria-controls',item.id);
       if(signals.length)btn.append(el('small',signals.join(' · ')));
       years.append(btn);
-      details.append(renderYear(year));
+      selectedYear.append(item);
     }
-    if(outlook.years.length)chooseYear(outlook.years[0],years.firstElementChild);
     const horizons=el('dl',null,'sr-wealth-horizons');
     for(const row of outlook.horizons){
       const pair=el('div');
@@ -800,7 +807,7 @@
     }
     section.append(el('h4','앞으로 10년, 돈이 움직이는 시기'),
       el('p','해마다 바뀌는 세운을 내 사주와 맞춰 본 흐름이에요. 같은 해에 기회와 지출 점검 신호가 함께 올 수도 있어요.'),
-      years,selectedYear,horizons,details);
+      horizons,years,selectedYear);
     return section;
   }
 
@@ -854,12 +861,17 @@
     ijun:[['올해 인연의 변화',0],['지난 인연과 새 인연',2],['선택을 돌아볼 시기',3]],
     mujin:[['올해 직업운의 변화',0],['강점이 드러나는 일터',2],['역할이 바뀌는 흐름',3]]
   };
+  function jumpPeriod(id){
+    const heading=by(id)?.querySelector('h4,h5,h6');
+    if(!heading)return;
+    heading.tabIndex=-1;
+    heading.focus({preventScroll:true});
+    heading.scrollIntoView({block:'start',behavior:'instant'});
+  }
   function openReportMonth(month){
     const bar=body.querySelector('[data-period-month="'+month+'"]');
     if(!bar)return;
     bar.click();
-    bar.focus({preventScroll:true});
-    bar.scrollIntoView({block:'center',behavior:'instant'});
   }
   function reportChoices(comparison,hasCalendar){
     const panel=el('section',null,'report-sheet sr-choice-panel');
@@ -980,7 +992,6 @@
     legend.append(el('span',periods.highlights[0].label,'sr-legend-opportunity'),el('span',career?'이직·역할 변화':'관계 변화','sr-legend-expense'));
     const detail=el('div',null,'sr-wealth-month-detail');
     detail.id='relationshipMonthDetail';
-    detail.setAttribute('aria-live','polite');
     const lens=el('label','관계 상황에 맞춰 보기','sr-wealth-role');
     const picker=el('select');
     const readings=[
@@ -1003,10 +1014,10 @@
     }
     picker.addEventListener('change',showPerspective);
     const scale=Math.max(1,...periods.calendar.flatMap(row=>[row.assessment.axes.open.score,row.assessment.axes.change.score]));
-    const choose=(row,selected)=>{
+    function renderMonth(row){
       const activeCard=readingsByMonth?.[row.month-1];
-      showPerspective();
-      for(const bar of graph.children)bar.setAttribute('aria-pressed',String(bar===selected));
+      const item=el('section',null,'sr-period-entry');
+      item.id='topic-month-'+row.month;
       const exact=el('details',null,'sr-evidence');
       exact.append(el('summary','이 해석의 사주 근거 보기'));
       exact.append(el('p',row.pair+' 월운 · 월간 '+row.top+' · 월지의 중심 십성 '+row.hidden));
@@ -1043,7 +1054,7 @@
         }
         cardReading.append(list);
       }
-      detail.replaceChildren(el('h4',row.from.slice(0,4)+'년 '+row.month+'월'),cardReading);
+      item.append(el('h4',row.from.slice(0,4)+'년 '+row.month+'월'),cardReading);
       const tags=periods.highlights.filter(h=>h.rows.includes(row)).map(h=>h.label+' '+(h.rows.indexOf(row)+1)+'위');
       if(tags.length)cardReading.prepend(el('p',tags.join(' · '),'sr-wealth-month-basis'));
       const dates=window.TaekilTopicMonthly?.periodLabels(row);
@@ -1054,21 +1065,23 @@
           group.append(el('dt',title),el('dd',copy));
           periods.append(group);
         }
-        detail.append(periods);
+        item.append(periods);
       }
       for(const span of row.spans.filter(s=>s.start!==row.start)){
-        detail.append(el('p','앞 구간 · '+span.until.slice(5,10).replace('-','.')+' '+span.until.slice(11,19)+' 절입 전에는 '+span.annual+'년 '+span.pair+'월이에요. 이때는 '+span.reading+'에 무게를 둬요.','sr-topic-perspective'));
+        item.append(el('p','앞 구간 · '+span.until.slice(5,10).replace('-','.')+' '+span.until.slice(11,19)+' 절입 전에는 '+span.annual+'년 '+span.pair+'월이에요. 이때는 '+span.reading+'에 무게를 둬요.','sr-topic-perspective'));
       }
-      if(reading.id==='seohwa')detail.append(lens,perspective);
-      detail.append(exact);
-    };
+      item.append(exact);
+      return item;
+    }
     for(const row of periods.calendar){
-      const bar=button('','sr-wealth-bar',()=>choose(row,bar));
+      const item=renderMonth(row);
+      detail.append(item);
+      const bar=button('','sr-wealth-bar',()=>jumpPeriod(item.id));
       bar.dataset.signal='normal';
       bar.dataset.periodMonth=String(row.month);
       const {open,change}=row.assessment.axes;
       bar.setAttribute('aria-label',row.month+'월, '+periods.highlights[0].label+' 지표 '+open.score+', 변화 지표 '+change.score);
-      bar.setAttribute('aria-controls',detail.id);
+      bar.setAttribute('aria-controls',item.id);
       const track=el('span',null,'sr-wealth-track');
       track.setAttribute('aria-hidden','true');
       for(const [cls,count] of [['sr-wealth-fill',open.score],['sr-wealth-risk-fill',change.score]]){
@@ -1077,11 +1090,11 @@
       bar.append(track,el('span',row.month+'월'));
       graph.append(bar);
     }
-    const start=periods.highlights[0].rows[0]||periods.calendar[0];
-    choose(start,graph.children[start.month-1]);
+    showPerspective();
     const heading=el('h3',career?'2027년 월별 직업운':reading.id==='ijun'?'2027년 월별 재회·인연운':'2027년 월별 인연 흐름');
     heading.id='relationshipMonthsHeading';heading.tabIndex=-1;
     section.append(heading,el('p','각 달에서 가장 긴 절기 구간의 풀이예요. 막대는 '+(career?'월주와 직업 관련 십성':'일지와 가까운 관계')+'을 중심으로 본 주제별 중요도예요. 동점은 앞선 달부터 보여줘요.'),legend,graph,detail);
+    if(reading.id==='seohwa')detail.before(lens,perspective);
     if(reading.id==='ijun')section.append(el('p','상대가 연락을 원하지 않는다고 밝혔다면 그 의사를 존중해 주세요.','sr-topic-perspective'));
     return section;
   }
@@ -1123,30 +1136,30 @@
     }
     const choices=el('div',null,'sr-year-picker');
     choices.setAttribute('role','group');
-    choices.setAttribute('aria-label','인연운 연도 선택');
+    choices.setAttribute('aria-label','연도별 풀이 바로가기');
     const detail=el('div',null,'sr-year-selected');
     detail.id='relationshipYearDetail';
-    detail.setAttribute('aria-live','polite');
-    function select(row,selected){
-      for(const choice of choices.children)choice.setAttribute('aria-pressed',String(choice===selected));
+    function renderYear(row){
       const year=el('div',null,'sr-wealth-year');
       year.append(el('h5',row.year+'년 · '+row.pair+' 세운'),relationshipReading(row,reading));
       for(const cycle of row.cycles)year.append(el('p',(cycle.transition?cycle.transition.slice(0,7).replace('-','년 ')+'월 무렵부터 ':'')+cycle.pair+' 대운'+(cycle.links.length?' · '+cycle.links.join(' / '):'')));
       if(!row.cycles.length)year.append(el('small','대운 시점이 확인되지 않아 입춘 기준 세운으로 읽어요.'));
       if(row.cycles.some(c=>c.transition))year.append(el('small','전환 월은 입력한 출생시간과 택일소의 기산 방식에 따른 추정이에요.'));
-      detail.replaceChildren(year);
+      return year;
     }
     for(const row of periods.years){
-      const buttonEl=button(String(row.year),'sr-year-choice',()=>select(row,buttonEl));
+      const year=renderYear(row);
+      year.id='topic-year-'+row.year;
+      detail.append(year);
+      const buttonEl=button(String(row.year),'sr-year-choice',()=>jumpPeriod(year.id));
       const labels=[];
       if(row.affinity)labels.push(reading.id==='mujin'?'성장':'접점');
       if(row.adjustment)labels.push('변화');
       if(row.cycles.some(c=>c.transition))labels.push('대운 전환');
       if(labels.length)buttonEl.append(el('small',labels.join(' · ')));
-      buttonEl.setAttribute('aria-controls',detail.id);
+      buttonEl.setAttribute('aria-controls',year.id);
       choices.append(buttonEl);
     }
-    select(periods.years[0],choices.firstElementChild);
     panel.append(horizons,choices,detail);
     return panel;
   }
@@ -1163,12 +1176,7 @@
     details.append(el('summary','사주 근거와 절기 구간'),el('p','원국 · '+card.natalFact),el('p','월운 · '+timing.fact));
     if(timing.from&&timing.untilExclusive)details.append(el('p',timing.from+'부터 '+timing.untilExclusive+' 직전까지'));
     item.append(details,button(timing.month+'월 풀이 보기','sr-choice-month-link',()=>{
-      const month=body.querySelector('[aria-controls="wealthMonthDetail"][data-month="'+timing.month+'"]');
-      if(!month)return;
-      month.click();
-      const detail=by('wealthMonthDetail').querySelector('h6');
-      if(detail){detail.tabIndex=-1;detail.focus({preventScroll:true});}
-      by('wealthMonthDetail').scrollIntoView({block:'start',behavior:'instant'});
+      body.querySelector('.sr-wealth-bar[data-month="'+timing.month+'"]')?.click();
     }));
     return item;
   }
@@ -1339,7 +1347,7 @@
     }
     const motif=window.TaekilReportGuide.dailyMotif({pair:natal.pillars?.day,theme:reading.topic});
     if(motif)contents.append(motif);
-    const menu=toc({...reading,chapters:report.body.map(chapter=>chapter.title)},report.first,false,choiceSection?.heading);
+    const menu=toc({...reading,chapters:report.body.map(chapter=>chapter.title)},report.first,false,choiceSection?.heading,report.body);
     const cover=header(reading,report.choice,report.day,report.known??report.profile?.hourValue!=='unknown',
       paidWealth?report.calendar.year:topic?true:undefined,report.profile);
     if(result.adminPreview)cover.querySelector('.sr-kicker').textContent+=' · 관리자용';

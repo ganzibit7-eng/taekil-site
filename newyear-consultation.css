@@ -231,3 +231,13 @@
   .annual-report-cover-text {max-width:68%}
   .annual-report-area-grid,#view-newyear.has-report .newyear-focus-list {grid-template-columns:minmax(0,1fr)}
 }
+#view-newyear.has-report .annual-manuscript {background:#fcf6ed;color:#3d3132}
+#view-newyear.has-report .annual-manuscript :is(.report-sheet,.annual-report-area,.newyear-areas) {margin:0;border:0;border-radius:0;box-shadow:none;background:transparent}
+#view-newyear.has-report .annual-manuscript .report-sheet::before {display:none}
+#view-newyear.has-report .annual-manuscript .annual-report-area-grid {display:block}
+#view-newyear.has-report .annual-manuscript :is(.annual-report-area + .annual-report-area,.report-sheet + .report-sheet) {border-top:1px solid #d9c5af}
+#view-newyear.has-report .annual-manuscript .newyear-areas>h2 {padding-inline:clamp(21px,4vw,42px);color:#513d36}
+.newyear-preview-scope {margin:24px 0}
+.newyear-preview-scope :is(h3,dt) {color:#ead6b6}
+.newyear-preview-scope dt {margin:12px 0 3px;font-weight:650}
+.newyear-preview-scope dd {margin:0;padding:0 0 12px;border-bottom:1px solid #544846;color:#d5cac0;line-height:1.7}

@@ -31,7 +31,17 @@
     dawn.hidden = false;
   }
   details.append(summary, body);
-  section.append(heading, details);
+  const scope=make('section',null,'newyear-preview-scope');
+  scope.append(make('h3','전체 리포트 목차'));
+  const contentsList=make('dl');
+  for(const [title,copy] of [
+    ['나의 원국과 한 해의 흐름','태어난 날의 기운에 2027년 정미년이 더해지면 무엇이 달라지는지 읽어요.'],
+    ['일·재물·관계·생활','한 해의 변화가 일하는 방식, 돈의 쓰임, 가까운 사람과의 관계에 어떻게 드러나는지 살펴봐요.'],
+    ['1월부터 12월까지','달마다 눈여겨볼 변화와 그 이유를 읽어요. 아래에서 가상 사주의 7월 풀이를 무료로 볼 수 있어요.'],
+    ['기회와 주의할 점','활용하기 좋은 기회와 한 번 더 짚어야 할 선택을 연우의 마무리 풀이까지 이어 읽어요.']
+  ])contentsList.append(make('dt',title),make('dd',copy));
+  scope.append(contentsList);
+  section.append(heading,scope,details);
   view.querySelector('.newyear-value').before(section);
   document.addEventListener('click', event => {
     const link = event.target.closest('[data-newyear-preview]');
@@ -49,6 +59,7 @@
   const updateVisibility = () => { section.hidden = view.classList.contains('has-report'); };
   new MutationObserver(updateVisibility).observe(view,{attributes:true,attributeFilter:['class']});
   updateVisibility();
+  window.TaekilReportGuide.openExampleWhenVisible(details);
 
   let loaded = false;
   let loading = false;
@@ -65,14 +76,14 @@
       overview.append(make('h3','한 해의 큰 흐름'));
       paragraphs(overview, report.overview);
 
-      const contents = make('details', null, 'newyear-example-contents');
+      const contents = make('section', null, 'newyear-example-contents');
       const months = make('ol', null, 'newyear-example-index');
       for (const month of report.months) {
         const row = make('li');
         row.append(make('strong',month.month+'월'), make('span',month.theme));
         months.append(row);
       }
-      contents.append(make('summary','12개월 목차 보기'), months);
+      contents.append(make('h3','월별 풀이 목차'), months);
 
       const featured = make('section', null, 'newyear-report-section');
       const month = report.featured;

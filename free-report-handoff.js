@@ -122,6 +122,19 @@
     current={...detail,profile,id:restoringFlowId||crypto.randomUUID()};
     event('free_report_viewed',current.id);
     if(!restoringFlowId)window.TaekilCampaign?.activity('basicResult');
+    const daily={
+      목:['첫걸음을 정할 때','아무도 먼저 나서지 않는 자리에서 작은 시작점을 찾아내는 쪽으로 읽어요. 일을 끝낸 뒤보다 무엇을 해볼 수 있을지 이야기하는 순간에 표정이 먼저 밝아지는지 떠올려 보세요.','관심 가는 일이 겹친다면 가장 먼저 시작한 일의 다음 한 걸음을 짚어 보세요. 새로 벌이는 재미와 이미 자라난 것을 돌보는 보람 중 어느 쪽이 지금 더 필요한지 보여요.'],
+      화:['마음이 밖으로 드러날 때','좋았던 것을 바로 말해 주면 상대가 편안해지는 장면을 떠올려 보세요. 전통적으로 화는 밖으로 드러나는 성질을 읽어서, 내가 표현해야 비로소 주변에도 전해지는 힘에 주목해요.','반응이 더딘 날에는 내가 한 말의 온도와 상대가 답할 수 있는 속도를 따로 살펴봐요. 말을 더 보태기보다 한 박자 기다렸을 때 대화가 살아난 순간도 이 성향을 이해하는 실마리예요.'],
+      토:['두 가지 요구 사이에 설 때','서로 원하는 것이 다른 두 사람이 내게 이야기를 꺼낸 장면을 떠올려 보세요. 토에서는 한쪽을 빨리 고르는 힘보다 각자 기댈 만한 자리를 만드는 힘을 먼저 읽어요.','누군가 편안해진 뒤에도 내가 계속 그 일을 떠맡고 있다면 균형을 다시 볼 때예요. 내가 맡기로 한 부분과 잠시 도와준 부분을 구분하면 내 성향을 더 편하게 쓸 수 있어요.'],
+      금:['기준을 세우고 선택할 때','여러 방법을 비교하다가 꼭 지키고 싶은 조건 하나를 발견하는 장면이에요. 금에서는 남은 선택지를 줄이면서 중요한 것을 선명하게 만드는 힘을 읽어요.','판단을 전해야 할 때에는 결론을 말하기 전에 어떤 점을 소중히 봤는지 한마디 덧붙여 보세요. 같은 선택도 상대에게는 거절로, 또는 지킬 약속으로 다르게 들릴 수 있어요.'],
+      수:['상황이 달라진 다음을 읽을 때','처음 들은 설명보다 대화가 끝난 뒤에야 앞뒤가 맞아떨어지는 경험을 떠올려 보세요. 수에서는 바로 반응하는 힘보다 흩어진 단서를 모아 다음 방향을 읽는 힘에 주목해요.','생각이 길어질 때에는 이미 확인한 것과 더 알아보고 싶은 것을 나눠 보세요. 한 가지를 물어보는 것만으로도 고민을 더 깊게 할지, 움직여 볼지가 달라질 수 있어요.']
+    }[detail.element];
+    const next=result.querySelector('.sir-cta');
+    if(daily&&next){
+      const part=el('section',null,'sir-daily-reading');
+      part.append(el('h3',daily[0]),el('p','태어난 날의 '+detail.element+' 기운을 일상에 비춰 볼게요. '+daily[1]),el('p',daily[2]));
+      next.before(part);
+    }
     box=el('section',null,'report-consultation');box.setAttribute('aria-labelledby','reportConsultTitle');
     const intro=el('div',null,'report-consultation-intro'),portrait=el('img');portrait.src='ai-consultant-poster.jpg';portrait.alt='상담사 연우';portrait.width=64;portrait.height=64;
     const title=el('h3','이 성향이 내 일상에서는 어떻게 나타날까요?');title.id='reportConsultTitle';
@@ -147,7 +160,16 @@
       title.focus({preventScroll:true});title.scrollIntoView({block:'start'});
     });
     year.append(reports);
-    result.append(box);visibility?.disconnect();visibility?.observe(box);update();
+    result.append(box);
+    const reportHead=result.querySelector('.sir-head');
+    if(reportHead&&window.TaekilReportGuide){
+      const first=result.querySelector('.sir-title'),scene=result.querySelector('.sir-daily-reading h3');
+      const descriptions={[title.textContent]:'마음에 남은 대목을 골라 연우에게 이어서 물어볼 수 있어요.'};
+      if(first)descriptions[first.textContent]='태어난 날의 오행으로 읽은 강점과 주의할 점을 살펴봐요.';
+      if(scene)descriptions[scene.textContent]='내 오행의 특징이 일상의 선택에서 어떻게 드러나는지 읽어요.';
+      reportHead.after(window.TaekilReportGuide.documentIndex([first,scene,title],descriptions));
+    }
+    visibility?.disconnect();visibility?.observe(box);update();
   }
   window.addEventListener('taekilso:freeReportReady',e=>mount(e.detail||{}));
   window.addEventListener('taekilso:signupCreated',()=>{const p=read();if(C.signupFromReport(p,user()))event('signup_completed_from_report',p.id);});

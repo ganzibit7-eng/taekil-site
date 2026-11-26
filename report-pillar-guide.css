@@ -175,7 +175,8 @@
   background:#f6efe7;
   color:#3e3334;
 }
-.report-document-index summary {min-height:44px;padding-block:10px;font-weight:700;cursor:pointer}
+.report-document-index h3 {margin:0;padding-block:12px;color:#4c3832;font:650 22px/1.45 var(--serif)}
+.report-document-index button small {grid-column:2;color:#65564d;font-size:14px;line-height:1.65}
 .report-document-index ol {display:grid;list-style:none;margin:0;padding:0}
 .report-document-index li {border-top:1px solid #daccc1}
 .report-document-index button {
@@ -207,3 +208,6 @@
 .report-reading-shell .report-expiry-note {color:#70584a}
 .report-reading-shell :is(h3,h4)[tabindex="-1"] {scroll-margin-top:100px}
 .report-reading-shell .report-personal-motif {padding:clamp(14px,3.5vw,25px);box-shadow:none}
+.sir-daily-reading {margin:22px 0;padding-block:18px;border-block-start:1px solid #ab927457}
+.sir-daily-reading h3 {margin:0;color:#e7d4b4;font-family:var(--serif)}
+.sir-daily-reading p {color:#e2d9d0;line-height:1.85;overflow-wrap:anywhere}

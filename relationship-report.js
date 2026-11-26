@@ -180,7 +180,13 @@
     const motif=window.TaekilReportGuide.dailyMotif({pair:report.people[0].hanja,theme:'relationship',heading:'h4'});
     if(motif)card.append(motif);
     card.append(evidence);
-    const index=window.TaekilReportGuide.documentIndex([...card.querySelectorAll(':scope > section > h4')]);
+    const index=window.TaekilReportGuide.documentIndex([...card.querySelectorAll(':scope > section > h4')],{
+      '잘 맞는 점':'두 사람이 편안함을 느끼는 행동과 그 이유를 읽어요.',
+      '자주 엇갈릴 수 있는 상황':'같은 말이 다르게 들리는 순간을 살펴봐요.',
+      '상황별로 읽는 두 사람의 관계':'연락과 약속 등 열두 장면을 두 사람의 입장에서 풀어요.',
+      '실제로 써볼 대화':'먼저 건넬 말과 그다음에 함께 정할 일을 읽어요.',
+      '4주 동안 함께 해볼 일':'한 주씩 두 사람이 실천해 볼 일을 정리해요.'
+    });
     card.querySelector('.relationship-summary').after(index);
     return card;
   }
@@ -202,6 +208,17 @@
       delete example.dataset.loaded;
     }
   });
+
+  window.TaekilReportGuide.openExampleWhenVisible(example);
+  const formJump=el('button','두 사람 생년월일 입력하기','relationship-copy');
+  formJump.type='button';
+  formJump.addEventListener('click',()=>{
+    const heading=form.querySelector('h2');
+    heading.tabIndex=-1;
+    heading.focus({preventScroll:true});
+    heading.scrollIntoView({block:'start'});
+  });
+  example.before(formJump);
 
   function resetPreview() {
     comparison=null;

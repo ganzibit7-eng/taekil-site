@@ -119,16 +119,17 @@
       el('p',origin+'의 '+energy+' 기운에서 가져온 상징이에요. 익숙하게 쓰거나 즐길 수 있는 것만 골라도 좋아요.','report-motif-note'));
     return box;
   }
-  function documentIndex(targets){
-    const index=el('details',null,'report-document-index');
-    index.append(el('summary','리포트 목차'));
+  function documentIndex(targets,descriptions={}){
+    const index=el('nav',null,'report-document-index');
+    index.setAttribute('aria-label','리포트 목차');
+    index.append(el('h3','리포트 목차'));
     const list=el('ol');
     for(const [position,heading] of targets.filter(Boolean).entries()){
       const row=el('li'),button=el('button');
       button.type='button';
       button.append(el('span',String(position+1).padStart(2,'0')),el('span',heading.textContent));
+      if(descriptions[heading.textContent])button.append(el('small',descriptions[heading.textContent]));
       button.addEventListener('click',()=>{
-        index.open=false;
         heading.tabIndex=-1;
         heading.focus({preventScroll:true});
         heading.scrollIntoView({block:'start',behavior:'instant'});
@@ -167,5 +168,14 @@
     return row;
   }
 
-  window.TaekilReportGuide={chart,chapter,comparison,explainer,readGanZhi,birthDate,dailyMotif,documentIndex};
+  function openExampleWhenVisible(details){
+    if(!('IntersectionObserver' in window)){details.open=true;return;}
+    const observer=new IntersectionObserver(entries=>{
+      if(!entries.some(entry=>entry.isIntersecting))return;
+      observer.disconnect();
+      details.open=true;
+    });
+    observer.observe(details);
+  }
+  window.TaekilReportGuide={chart,chapter,comparison,explainer,readGanZhi,birthDate,dailyMotif,documentIndex,openExampleWhenVisible};
 })();
