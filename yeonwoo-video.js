@@ -93,6 +93,23 @@
  }
  if(homeFilm&&control){
   control.hidden=false;
+  // WebKit can rewind a muted loop successfully yet leave the player paused.
+  // Arm only after a real pass through the film, never on the initial poster.
+  let finishingLap=false;
+  function resumeAtLoop(){
+   if(!finishingLap||!homeFilm.paused||homeFilm.seeking||!canPlay(homeFilm))return;
+   if(!homeFilm.ended&&homeFilm.currentTime>.5)return;
+   finishingLap=false;
+   if(homeFilm.ended)homeFilm.currentTime=0;
+   sync(homeFilm);
+  }
+  homeFilm.addEventListener('timeupdate',()=>{
+   if(homeFilm.currentTime>1)finishingLap=homeFilm.duration-homeFilm.currentTime<1;
+   else resumeAtLoop();
+  });
+  for(const event of ['seeked','ended','pause']){
+   homeFilm.addEventListener(event,()=>requestAnimationFrame(resumeAtLoop));
+  }
   homeFilm.addEventListener('playing',updateControl);
   homeFilm.addEventListener('pause',updateControl);
   homeFilm.addEventListener('error',updateControl);
