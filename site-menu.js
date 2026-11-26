@@ -28,22 +28,24 @@
     </div>
     <button type="button" class="site-menu-account" aria-label="내 프로필 보기">
       <img class="site-menu-account-mark" src="/assets/brand-emblem-transparent.png?v=20261111-1" width="40" height="40" alt="">
-      <span class="site-menu-account-copy">
-        <span class="site-menu-caption">나의 택일소</span>
-        <span id="siteMenuAccountNote"></span>
-      </span>
+      <span id="siteMenuAccountNote"></span>
     </button>
     <div data-menu-account hidden></div>
     <nav class="site-menu-navigation" aria-label="전체 메뉴">
       <section class="site-menu-group" aria-labelledby="siteMenuReadings">
-        <h3 id="siteMenuReadings">사주 리포트</h3>
-        <a href="/#directoryTopicsTitle" data-menu-home-section>사주 리포트 둘러보기</a>
-        <button type="button" data-menu-basic-report>무료 사주 리포트</button>
-        <button type="button" data-menu-route="newyear">2027년 신년운세</button>
+        <header class="site-menu-section-head"><h3 id="siteMenuReadings">사주 리포트</h3>
+          <a href="/#directoryTopicsTitle" data-menu-home-section aria-label="사주 리포트 둘러보기">전체 보기</a>
+        </header>
+        <div class="site-menu-links">
+          <button type="button" data-menu-basic-report>무료 사주 리포트</button>
+          <button type="button" data-menu-route="newyear">2027년 신년운세</button>
+          <button type="button" data-menu-route="relationship-report">두 사람 관계 리포트</button>
+        </div>
       </section>
       <section class="site-menu-group" aria-labelledby="siteMenuChat">
-        <h3 id="siteMenuChat">채팅 상담</h3>
-        <a href="/#directoryChatTitle" data-menu-home-section>채팅 상담 둘러보기</a>
+        <header class="site-menu-section-head"><h3 id="siteMenuChat">채팅 상담</h3>
+          <a href="/#directoryChatTitle" data-menu-home-section aria-label="채팅 상담 둘러보기">전체 보기</a>
+        </header>
         <div class="site-menu-links">
           <a href="/#directoryRelationshipsTitle" data-menu-home-section>연애·궁합</a>
           <a href="/#directoryCareerTitle" data-menu-home-section>일·재물</a>
@@ -55,8 +57,9 @@
         <button type="button" data-menu-route="history">나의 상담 기록</button>
       </section>
       <section class="site-menu-group" aria-labelledby="siteMenuDates">
-        <h3 id="siteMenuDates">중요한 날짜</h3>
-        <button type="button" data-menu-route="tool">좋은 날짜 찾기</button>
+        <header class="site-menu-section-head"><h3 id="siteMenuDates">택일</h3>
+          <button type="button" data-menu-route="tool">좋은 날짜 찾기</button>
+        </header>
         <div class="site-menu-dates">
           <button type="button" data-menu-route="wedding">결혼식 택일</button>
           <button type="button" data-menu-route="moving">이사 택일</button>

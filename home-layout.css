@@ -178,7 +178,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   gap: 2px 9px;
   min-width: 0;
   min-height: 44px;
-  padding: 8px 26px 8px 11px;
+  padding: 8px 11px;
   position: relative;
   border: 1px solid #594840;
   border-radius: 6px;
@@ -186,17 +186,6 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   color: #f0ebe1;
   font: 500 13px/1.45 var(--sans);
   text-decoration: none;
-}
-.directory-banner-card::after {
-  content: "";
-  position: absolute;
-  right: 13px;
-  top: calc(50% - 3px);
-  width: 6px;
-  height: 6px;
-  border-top: 1px solid var(--directory-accent);
-  border-right: 1px solid var(--directory-accent);
-  transform: rotate(45deg);
 }
 .directory-banner-topic { color: var(--directory-accent); font-weight: 650; white-space: nowrap; }
 .directory-banner-copy { min-width: 0; overflow-wrap: anywhere; word-break: keep-all; }
@@ -465,7 +454,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
 }
 #homeDirectory .directory-feature {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(66px, 13vw, 112px) 12px;
+  grid-template-columns: minmax(0, 1fr) clamp(66px, 13vw, 112px);
   align-items: center;
   gap: clamp(9px, 2vw, 20px);
   width: 100%;
@@ -486,14 +475,6 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   border-radius: 3px;
   object-fit: cover;
   object-position: 50% 27%;
-}
-#homeDirectory .directory-feature::after {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-top: 1px solid #decaab;
-  border-right: 1px solid #decaab;
-  transform: rotate(45deg);
 }
 .directory-feature-copy { display: grid; gap: 5px; min-width: 0; }
 .directory-feature-kind {
