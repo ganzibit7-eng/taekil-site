@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="format-detection" content="telephone=no">
 <script src="/home-layout.js?v=reader-1126"></script>
-<link rel="stylesheet" href="/home-layout.css?v=feature-links-1">
+<link rel="stylesheet" href="/home-layout.css?v=feature-framing-1">
 <link rel="preload" as="style" href="/reader-layout.css?v=2">
 <title>택일소 | 무료 사주 · 주제별 리포트 · AI 상담과 택일</title>
 <meta name="description" content="로그인 없이 내 오행과 기본 성향을 확인하세요. 연애·재물·재회·직업 리포트의 첫 장, 2027 신년운세와 고민별 상담사를 만나보세요.">
@@ -328,7 +328,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
   <img src="/assets/newyear-hanok-dawn.webp" width="960" height="540" loading="lazy" decoding="async" alt="">
   <video class="yeonwoo-story-video" data-year-example-video data-video-src="/assets/newyear-hanok-dawn.mp4" aria-hidden="true" muted playsinline preload="none"></video>
 </figure>
-<link rel="stylesheet" href="yeonwoo-video.css?v=home-glide-2"><script src="yeonwoo-video.js?v=home-loop-3"></script><script src="premium-motion.js" defer></script>
+<link rel="stylesheet" href="yeonwoo-video.css?v=home-play-only-1"><script src="yeonwoo-video.js?v=home-play-only-1"></script><script src="premium-motion.js" defer></script>
 <script src="consultation-draft-core.js?v=featured-report-1"></script>
 <script src="consultation-stage.js?v=story-return-1"></script>
 <script src="consultation-history-filters.js?v=20261120-history-filters"></script>
@@ -367,7 +367,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="date-comparison.js?v=date-purpose-2"></script>
 <link rel="stylesheet" href="date-entry.css?v=surfaces-1120">
 <script src="date-entry.js?v=nov20-resume"></script>
-<link rel="stylesheet" href="relationship-report.css?v=reader-1126">
+<link rel="stylesheet" href="relationship-report.css?v=photo-framing-1">
 <script src="relationship-report.js?v=samples-1126"></script>
 <link rel="stylesheet" href="seohwa-report.css?v=continuous-1126">
 <script src="topic-monthly-reading.js?v=4"></script>
