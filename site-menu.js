@@ -1,5 +1,12 @@
 // Presentation only. Account and navigation actions use the existing handlers.
 (() => {
+  // Keep native focus and restore its visible indicator as soon as the keyboard is used.
+  document.addEventListener('pointerdown', () => {
+    document.documentElement.setAttribute('data-pointer-navigation', '');
+  }, {capture:true, passive:true});
+  document.addEventListener('keydown', () => {
+    document.documentElement.removeAttribute('data-pointer-navigation');
+  }, true);
   const header = document.querySelector('.nav-right');
   const account = document.getElementById('authNavBtn');
   if (!header || !account || document.getElementById('siteMenu')) return;

@@ -92,7 +92,9 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
   min-height:44px;
   padding:4px 9px;
 }
-.sr-toolbar button:hover,.sr-toolbar button:focus-visible,.sr-secondary:hover,.sr-ask:hover,.sr-library-button:hover {border-color:currentColor;border-radius:7px}
+@media (hover:hover) and (pointer:fine) {
+  .sr-toolbar button:hover,.sr-secondary:hover,.sr-ask:hover,.sr-library-button:hover {border-color:currentColor;border-radius:7px}
+}
 .sr-toolbar progress {position:absolute;bottom:-1px;left:0;width:100%;height:2px;border:0;background:transparent;color:#e1aa7c;appearance:none}
 .sr-toolbar progress::-webkit-progress-bar {background:transparent}
 .sr-toolbar progress::-webkit-progress-value {background:#e1aa7c}
