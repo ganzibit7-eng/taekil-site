@@ -7,6 +7,7 @@
   const approvalTime=new Intl.DateTimeFormat('ko-KR',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Seoul'});
   let data=null,busy=false,request=0,active=false,days=30,metric='visits',asOf=0;
   let reloadAfterRequest=false;
+  let activeRead=null;
   function syncPaymentTotals(){
     const paid=data?.ok.orders?data.orders.filter(A.settledPaid):null;
     const values={statPurchases:paid?fmt(paid.length):'—',statRevenue:paid?fmt(paid.reduce((n,o)=>n+A.number(o.amount),0))+'원':'—',statPurchasesPremium:paid?fmt(paid.filter(o=>o.product==='taekilso_premium_30days').length):'—',statPurchasesNewyear:paid?fmt(paid.filter(o=>o.product==='taekilso_newyear_2027_report').length):'—',statPurchasesQuestionPacks:paid?fmt(paid.filter(o=>/^ai_question_pack_/.test(o.product)).length):'—'};
@@ -98,16 +99,6 @@
     <details class="aa-definitions"><summary>집계 기준과 데이터 범위</summary><p>기록이 없는 날짜는 조회가 성공하면 0으로 표시해요. 비교는 직전 동일 일수 기준이며 오늘 집계는 한국시간 자정에 바뀌어요.</p><p>결제는 승인 기록을 기준으로 집계해요. 과거 주문에 승인 시각이 없으면 저장된 결제일이나 주문 생성일을 사용해요. 부분환불도 주문 금액 합계에서 제외하며 수수료는 반영되지 않아요.</p><p>주문 생성일 형식 2종과 승인 시각 기준으로 각각 최대 1,000건을 읽고 중복을 제거해요. 가이드 기록은 최대 2,000건이에요. CSV에는 선택 기간의 일별 합계를 담아요.</p></details>`;
     root.querySelector('[data-aa-export]').disabled=!(visitsOK||paidOK);
   }
-  async function loadOrders(first){
-    const limit=1000,orders=db.collection('paymentOrders');
-    const recent=query=>query.limit(limit+1).get({source:'server'});
-    const snapshots=await Promise.all([
-      recent(orders.orderBy('createdAt','desc')),
-      recent(orders.orderBy('createdAtMs','desc')),
-      recent(orders.where('paidAtMs','>=',Date.parse(first+'T00:00:00+09:00')).orderBy('paidAtMs','desc'))
-    ]);
-    return A.mergeOrderSnapshots(snapshots,limit);
-  }
   window.addEventListener('taekilso:paymentSummaryChanged',()=>{
     if(!allowed())return;
     if(busy)reloadAfterRequest=true;else load();
@@ -126,28 +117,23 @@
   });
   async function load(){
     if(!allowed()||busy)return;busy=true;const token=++request;const button=root.querySelector('[data-aa-refresh]');button.disabled=true;status('기록을 불러오는 중입니다…');
-    const first=A.keys(A.dateKey(Date.now()),180)[0];
-    const daily=name=>{
-      const field=firebase.firestore.FieldPath.documentId();
-      return db.collection(name).where(field,'>=',first).where(field,'<=',A.dateKey(Date.now())).get({source:'server'});
-    };
+    const end=A.dateKey(Date.now()),first=A.keys(end,180)[0];
+    const controller=new AbortController();
+    activeRead=controller;
+    const reads=window.TaekilStatReads.create(firebaseConfig.projectId,firebaseAuthUser,controller.signal);
+    const daily=name=>reads.daily(name,first,end);
     const seoReport=async()=>{
       const token=await firebaseAuthUser.getIdToken();
-      const controller=new AbortController();
-      const timeout=setTimeout(()=>controller.abort(),20000);
-      let response;
-      try {
-        response=await fetch('https://taekilso-api-jhqz3vlila-du.a.run.app/api/admin-report?start='+first+'&end='+A.dateKey(Date.now()),{headers:{Authorization:'Bearer '+token},cache:'no-store',signal:controller.signal});
-      } finally { clearTimeout(timeout); }
+      const response=await fetch('https://taekilso-api-jhqz3vlila-du.a.run.app/api/admin-report?start='+first+'&end='+A.dateKey(Date.now()),{headers:{Authorization:'Bearer '+token},cache:'no-store',signal:controller.signal});
       if(!response.ok)throw Object.assign(new Error('REPORT_UNAVAILABLE'),{code:response.status===401||response.status===403?'permission-denied':'unavailable'});
       const body=await response.json();if(!Array.isArray(body.rows)||body.rows.length>2000)throw new Error('INVALID_REPORT');
       return {docs:body.rows.map(row=>({id:row.date+'__'+row.slug,data:()=>row})),capped:!!body.capped};
     };
-    const jobs=[['visits','방문',()=>daily('dailyVisits')],['funnel','행동',()=>daily('dailyFunnel')],['traffic','유입',()=>daily('dailyTrafficSources')],['campaignVisits','광고 캠페인',()=>db.collection('dailyCampaignVisits').where('date','>=',first).where('date','<=',A.dateKey(Date.now())).get({source:'server'})],['seo','검색 가이드',seoReport],['orders','주문',()=>loadOrders(first)]];
+    const jobs=[['visits','방문',()=>daily('dailyVisits')],['funnel','행동',()=>daily('dailyFunnel')],['traffic','유입',()=>daily('dailyTrafficSources')],['campaignVisits','광고 캠페인',()=>daily('dailyCampaignVisits')],['seo','검색 가이드',seoReport],['orders','주문',()=>reads.orders(first)]];
     try{
       let completed=0;
       const results=await Promise.allSettled(jobs.map(([, ,run])=>new Promise((resolve,reject)=>{
-        const timer=setTimeout(()=>reject(Object.assign(new Error('REPORT_TIMEOUT'),{code:'unavailable'})),20000);
+        const timer=setTimeout(()=>reject(Object.assign(new Error('REPORT_TIMEOUT'),{code:'unavailable'})),25000);
         Promise.resolve().then(run).then(resolve,reject).finally(()=>clearTimeout(timer));
       }).finally(()=>{
         completed++;
@@ -159,8 +145,9 @@
       next.orders=next.orders.filter(window.TaekilPaymentBaseline.isProductionOrder);data=next;asOf=Date.now();render();
     }catch(e){if(token===request&&allowed())status('통계를 불러오지 못했습니다. 새로고침으로 다시 시도해 주세요.');}
     finally{
+      controller.abort();
       if(token===request){
-        busy=false;button.disabled=false;
+        activeRead=null;busy=false;button.disabled=false;
         if(reloadAfterRequest){reloadAfterRequest=false;load();}
       }
     }
@@ -202,17 +189,17 @@
     if(visible&&(content.style.display==='none'||!window.accountStore.current(window.__adminViewToken))&&typeof renderAdmin==='function')renderAdmin();
     if(adminVisible&&content.style.display!=='none'&&typeof isAdmin==='function'&&!isAdmin()&&typeof renderAdmin==='function')renderAdmin();
     updateEntry(adminVisible);
-    root.hidden=!visible;if(visible&&!active){active=true;load();}if(!visible&&active){active=false;busy=false;reloadAfterRequest=false;++request;data=null;root.querySelector('#aaReport').replaceChildren();root.querySelector('[data-aa-export]').disabled=true;}
+    root.hidden=!visible;if(visible&&!active){active=true;load();}if(!visible&&active){activeRead?.abort();activeRead=null;active=false;busy=false;reloadAfterRequest=false;++request;data=null;root.querySelector('#aaReport').replaceChildren();root.querySelector('[data-aa-export]').disabled=true;}
   }
   new MutationObserver(sync).observe(document.getElementById('view-admin'),{attributes:true,attributeFilter:['class','style']});
   new MutationObserver(sync).observe(document.getElementById('adminContent'),{attributes:true,attributeFilter:['style']});
   const nav=document.getElementById('authNavBtn');if(nav)new MutationObserver(sync).observe(nav,{childList:true,subtree:true});
   let analyticsOwner=window.accountStore?.owner();
-  window.addEventListener('taekilso:authChanged',event=>{if(analyticsOwner!==event.detail?.owner){analyticsOwner=event.detail?.owner;active=false;busy=false;reloadAfterRequest=false;++request;data=null;root.querySelector('#aaReport').replaceChildren();}sync();});
+  window.addEventListener('taekilso:authChanged',event=>{if(analyticsOwner!==event.detail?.owner){analyticsOwner=event.detail?.owner;activeRead?.abort();activeRead=null;active=false;busy=false;reloadAfterRequest=false;++request;data=null;root.querySelector('#aaReport').replaceChildren();}sync();});
   function resume(){
     const alreadyActive=active;
     sync();
-    if(alreadyActive&&allowed()&&Date.now()-asOf>300000)load();
+    if(alreadyActive&&allowed()&&(data?.errors.length||Date.now()-asOf>300000))load();
   }
   window.addEventListener('pageshow',resume);
   window.addEventListener('online',resume);

@@ -293,7 +293,8 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 </script>
 <!-- include experience.fragment -->
 <script src="admin-payment-baseline.js?v=payment-traffic-1"></script><script src="admin-analytics-core.js?v=payment-traffic-1"></script>
-<script src="admin-analytics.js?v=shortcuts-return-1"></script>
+<script src="admin-stat-reads.js?v=1"></script>
+<script src="admin-analytics.js?v=mobile-reads-1"></script>
 
 <link rel="stylesheet" href="consultation-stage.css?v=chat-layers-1121">
 <script src="consultation-personas.js?v=20261118-chat-films"></script>
