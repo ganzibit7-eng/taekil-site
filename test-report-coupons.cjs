@@ -47,8 +47,10 @@ test('client validates and normalizes codes before sending, registers against th
   await assert.rejects(api.redeem('invalid'), /32자리/);
   await api.redeem('abcd-abcd abcd-abcd-abcd-abcd-abcd-abcd');
   assert.deepEqual(calls[1], {action:'redeem',code:'ABCD'.repeat(8)});
+  await api.redeem('k7rm-3xdh-9wqf-6ptc');
+  assert.deepEqual(calls[2], {action:'redeem',code:'K7RM3XDH9WQF6PTC'});
   await api.available(product);
-  assert.equal(calls.length,3);
+  assert.equal(calls.length,4);
 });
 test('stale-account wallet responses and stale registration snapshots are discarded', async () => {
   let release;

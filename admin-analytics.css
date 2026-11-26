@@ -1,4 +1,5 @@
 /* Administrator reporting shares the brand palette but favors dense, readable data. */
+#adminAnalytics {scroll-margin-top:calc(84px + env(safe-area-inset-top,0px))}
 /* Legacy exclusive mode assumed an #app wrapper, but the actual view is in main. */
 body.admin-exclusive-mode>main:not(#app):not(script):not(style),body.admin-exclusive-mode>.topbar:not(#app){display:block!important}
 body.admin-exclusive-mode #view-admin .reveal{opacity:1;transform:none}

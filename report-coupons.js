@@ -66,7 +66,7 @@
 
   function normalize(code) {
     const value = String(code || '').toUpperCase().replace(/[\s-]/g, '');
-    if (!/^[0-9A-HJKMNP-TV-Z]{32}$/.test(value)) throw new Error('쿠폰 번호의 영문과 숫자 32자리를 확인해 주세요.');
+    if (!/^(?:[0-9A-HJKMNP-TV-Z]{16}){1,2}$/.test(value)) throw new Error('쿠폰 번호 16자리 또는 기존 번호 32자리를 확인해 주세요.');
     return value;
   }
   async function request(payload, token) {
