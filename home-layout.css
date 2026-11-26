@@ -518,6 +518,7 @@ html[data-home-layout="directory"] #homeFaqSection {display:none!important}
   object-position: center 24%;
   border-bottom: 1px solid #f0ebe121;
 }
+.directory-card img[src="char-wedding.jpg"] { object-position: center 5%; }
 .directory-card-copy {
   position: relative;
   display: grid;

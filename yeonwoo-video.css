@@ -38,14 +38,6 @@ html[data-home-layout="consultation"] body:not(.consultation-open) .home-first-b
   border-block:5px solid transparent;
   border-left:8px solid currentColor;
 }
-.home-film-control[data-playing="true"] span {
-  box-sizing:border-box;
-  width:8px;
-  height:10px;
-  margin:0;
-  border:0;
-  border-inline:3px solid currentColor;
-}
 @media(prefers-reduced-motion:reduce) {
   [data-home-directory-video][data-manual-motion].yeonwoo-playing {opacity:1!important}
 }
