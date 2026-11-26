@@ -9,8 +9,12 @@ module.exports = function normalizeAdminMembership(page) {
     '68d2c4999b1b928ebcdc77d0d8a46371b2b11403c9b17f7f49969f0e823e93db');
   // In exclusive mode the browser can make the whole page inert even for a display:none dialog.
   assert.match(current, /const adminView = document\.getElementById\('view-admin'\);\s*adminView\.appendChild\(dialog\)/);
-  assert.match(page, /body\.admin-exclusive-mode > \*:not\(#app\):not\(#toastHost\)/);
+  assert.match(page, /body\.admin-exclusive-mode > :not\(main,\.topbar,#toastHost,script,style\)/);
+  const routeState = "const visible=admin.classList.contains('visible') && !admin.hidden;";
+  const observeRoute = "  new MutationObserver(syncAdminExclusiveMode).observe(document.getElementById('view-admin'),{attributes:true,attributeFilter:['class','hidden']});\n";
+  for (const change of [routeState, observeRoute]) assert.equal(page.split(change).length,2);
   assert.equal(page.split(current).length,2,'Mount the verified member management module exactly once');
   const previous = cp.execFileSync('git',['show','47c4e70b247f01a26bec48701091dbccd361c6a8:src/home/administrator.js'],{encoding:'utf8'}).replace(/\r\n/g,'\n').trimEnd();
-  return page.replace(current,()=>previous);
+  return page.replace(current,()=>previous).replace(observeRoute,'').replace(routeState,
+    "const visible=admin.style.display!=='none' && !admin.hidden &&\n      !admin.classList.contains('hidden') &&\n      getComputedStyle(admin).display!=='none';");
 };

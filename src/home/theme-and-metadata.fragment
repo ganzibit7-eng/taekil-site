@@ -550,11 +550,11 @@ html.admin-exclusive-mode,html.admin-exclusive-mode body{
   scroll-snap-type:none!important;
   overflow-y:auto!important;
 }
-body.admin-exclusive-mode > *:not(#app):not(#toastHost):not(script):not(style),
-body.admin-exclusive-mode #app > *:not(#view-admin){
+body.admin-exclusive-mode > :not(main,.topbar,#toastHost,script,style),
+body.admin-exclusive-mode > main > .view:not(#view-admin){
   display:none!important;
 }
-body.admin-exclusive-mode #view-admin{
+body.admin-exclusive-mode #view-admin.visible{
   display:block!important;
   min-height:100vh!important;
   height:auto!important;

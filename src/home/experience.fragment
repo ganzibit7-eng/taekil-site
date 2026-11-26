@@ -787,15 +787,14 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
   function syncAdminExclusiveMode(){
     const admin=document.getElementById('view-admin');
     if(!admin) return;
-    const visible=admin.style.display!=='none' && !admin.hidden &&
-      !admin.classList.contains('hidden') &&
-      getComputedStyle(admin).display!=='none';
+    const visible=admin.classList.contains('visible') && !admin.hidden;
     if(visible===lastAdminVisible) return;
     lastAdminVisible=visible;
     document.body.classList.toggle('admin-exclusive-mode',visible);
     document.documentElement.classList.toggle('admin-exclusive-mode',visible);
   }
   window.syncAdminExclusiveMode=syncAdminExclusiveMode;
+  new MutationObserver(syncAdminExclusiveMode).observe(document.getElementById('view-admin'),{attributes:true,attributeFilter:['class','hidden']});
   document.addEventListener('DOMContentLoaded',syncAdminExclusiveMode,{once:true});
   window.addEventListener('hashchange',syncAdminExclusiveMode,{passive:true});
   window.addEventListener('popstate',syncAdminExclusiveMode,{passive:true});
