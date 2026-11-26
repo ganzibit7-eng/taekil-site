@@ -32,15 +32,26 @@
   const b=btn('',()=>{if(!store.current(captured))return;const data=read(),rows=Array.isArray(data.saved)?data.saved:[],exists=rows.some(x=>x.id===id);data.saved=exists?rows.filter(x=>x.id!==id):[{id,conversation,consultantId,question:String(question).slice(0,500),text:String(text).slice(0,12000),...(details.length?{evidence:details}:{}),at:Date.now()},...rows].slice(0,50);if(write(data)){sync();renderLibrary();announce(exists?'저장한 답변에서 해제했어요.':'이 기기의 상담 보관함에 저장했어요.');}else announce('저장 공간을 확인해 주세요.');},'reading-save');
   const sync=()=>{const yes=(read().saved||[]).some(x=>x.id===id);b.textContent=yes?'저장됨 · 해제':'답변 저장';b.setAttribute('aria-pressed',String(yes));};sync();element.append(b);
  }
- const profile=document.querySelector('#view-profile .pf-panels'),library=el('section',null,'reading-library pf-panel');library.id='consultationLibrary';profile?.after(library);
+ const profile=document.querySelector('#view-profile .pf-support'),library=el('section',null,'reading-library pf-panel');library.id='consultationLibrary';profile?.after(library);
+ function addConversationNote(container,id){
+  const note=el('details',null,'reading-conversation-note');
+  note.append(el('summary','내 메모'));
+  note.addEventListener('toggle',()=>{
+   if(note.open&&!note.querySelector('textarea'))editNote(note,'chat:'+id,'상담을 읽고 남기는 내 메모');
+  });
+  container.append(note);
+ }
+ function attachHistoryNotes(host,records){
+  Array.from(host.children).forEach((row,index)=>addConversationNote(row,records[index].id));
+ }
  function renderLibrary(){
   library.replaceChildren(el('h2','나의 상담 보관함'));
   if(!store.owner()){library.append(el('p','로그인하면 내 상담 기록을 확인할 수 있어요.'));return;}
-  const recent=(typeof getAiConversationStore==='function'?getAiConversationStore():[]).slice().sort((a,b)=>b.updatedAtMs-a.updatedAtMs).slice(0,3);
-  library.append(el('p','지난 고민에서, 오늘의 이야기로.','reading-muted'));
-  for(const rec of recent){const row=el('div',null,'reading-library-row');const advisor=consultant(rec.consultantId);row.append(el('span',advisor.name+' 상담','reading-consultant'),btn(rec.title||'지난 상담 이어가기',()=>resumeAiConversation(rec.id)),el('small',new Date(rec.updatedAtMs).toLocaleDateString('ko-KR')));const note=el('details');note.append(el('summary','내 메모'));editNote(note,'chat:'+rec.id,'상담을 읽고 남기는 내 메모');row.append(note);library.append(row);}
+  const recent=(typeof getAiConversationStore==='function'?getAiConversationStore():[]).slice().sort((a,b)=>(Number(b.updatedAtMs)||0)-(Number(a.updatedAtMs)||0)).slice(0,1);
+  library.append(el('p','최근 상담','reading-muted'));
+  for(const rec of recent){const row=el('div',null,'reading-library-row');const advisor=consultant(rec.consultantId);row.append(el('span',advisor.name+' 상담','reading-consultant'),btn(rec.title||'지난 상담 이어가기',()=>resumeAiConversation(rec.id)),el('small',new Date(rec.updatedAtMs).toLocaleDateString('ko-KR')));addConversationNote(row,rec.id);library.append(row);}
   if(!recent.length)library.append(el('p','첫 상담을 마치면 이곳에서 이어갈 수 있어요.','reading-muted'));
-  const links=el('div',null,'reading-library-links');links.append(btn('상담 기록 전체',()=>{goTo('history');switchHistoryTab('ai');}),btn('내 신년 리포트',()=>openNewyearConsultation()));library.append(links);
+  const links=el('div',null,'reading-library-links');links.append(btn('전체 보관함',()=>{goTo('history');switchHistoryTab('ai');}),btn('내 신년 리포트',()=>openNewyearConsultation()));library.append(links);
   const saved=el('details',null,'reading-saved-list');saved.append(el('summary','저장한 답변 '+(read().saved||[]).length+'개'));
   for(const item of read().saved||[]){const row=el('article'),answer=el('div',null,'reading-saved-text'),captured=token();const advisor=consultant(item.consultantId);answer.innerHTML=formatAiReply(item.text);if(item.evidence?.length)window.dispatchEvent(new CustomEvent('taekilso:consultationEvidence',{detail:{element:answer,evidence:item.evidence}}));row.append(el('span',advisor.name+' 상담','reading-consultant'),el('h3',item.question||'저장한 답변'),answer,btn('저장 해제',()=>{if(!store.current(captured))return;const data=read();data.saved=(data.saved||[]).filter(x=>x.id!==item.id);write(data);renderLibrary();}));saved.append(row);}library.append(saved,el('p','상담 기록은 기존 계정 보관함과 연결됩니다. 저장한 답변·메모·읽던 위치는 이 브라우저의 현재 계정에만 보관되며, 상담에 자동으로 사용되지 않습니다.','reading-muted'));
  }
@@ -99,7 +110,7 @@
   window.__readingReportObserver=observer;
  }
  function removeConversation(id){const data=read();data.saved=(data.saved||[]).filter(x=>x.conversation!==id);if(data.notes)delete data.notes['chat:'+id];write(data);renderLibrary();}
- window.TaekilExperience={decorate,saveControl,failure,clearFailure,report,removeConversation};
+ window.TaekilExperience={attachHistoryNotes,decorate,saveControl,failure,clearFailure,report,removeConversation};
  const chatWindow=document.getElementById('aiChatWindow');
  if(chatWindow)new MutationObserver(()=>{const typing=chatWindow.querySelector('.ai-chat-typing');if(!typing||typing.dataset.readingClock)return;typing.dataset.readingClock='true';const started=Date.now(),line=el('small','답변을 작성 중입니다.','reading-muted');typing.append(line);const timer=setInterval(()=>{if(!typing.isConnected){clearInterval(timer);return;}line.textContent='답변 작성 중 · '+Math.floor((Date.now()-started)/1000)+'초 경과';},1000);}).observe(chatWindow,{childList:true});
  window.addEventListener('taekilso:authChanged',()=>{library.replaceChildren();clearFailure();window.__readingReportObserver?.disconnect();renderLibrary();});

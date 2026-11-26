@@ -87,6 +87,7 @@ const firebaseAuthSettled = new Promise((resolve) => { resolveFirebaseAuthSettle
 const ADMIN_EMAIL = "green092432@gmail.com";
 </script>
 
+<button type="button" id="adminReturnToShortcuts" aria-controls="adminShortcutList" hidden><span aria-hidden="true">↑</span> 바로가기 목록</button>
 <div class="topbar">
   <div class="container">
     <div class="nav">
@@ -292,7 +293,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 </script>
 <!-- include experience.fragment -->
 <script src="admin-payment-baseline.js?v=payment-traffic-1"></script><script src="admin-analytics-core.js?v=payment-traffic-1"></script>
-<script src="admin-analytics.js?v=shortcuts-first-1"></script>
+<script src="admin-analytics.js?v=shortcuts-return-1"></script>
 
 <link rel="stylesheet" href="consultation-stage.css?v=chat-layers-1121">
 <script src="consultation-personas.js?v=20261118-chat-films"></script>
@@ -330,9 +331,9 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="consultation-draft-core.js?v=featured-report-1"></script>
 <script src="consultation-stage.js?v=story-return-1"></script>
 <script src="consultation-history-filters.js?v=20261120-history-filters"></script>
-<link rel="stylesheet" href="consultation-experience.css?v=annual-reading-1">
+<link rel="stylesheet" href="consultation-experience.css?v=library-note-1">
 <script src="consultation-experience-core.js?v=20261117-saved-evidence"></script>
-<script src="consultation-experience.js?v=continuous-reader-1"></script>
+<script src="consultation-experience.js?v=recent-library-1"></script>
 
 <script src="navigation-stability.js?v=20261111-2"></script>
 <link rel="stylesheet" href="report-pillar-guide.css?v=report-paper-1">
@@ -348,10 +349,10 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <link rel="stylesheet" href="consultation-quality.css?v=entry-1120">
 <script src="support-channels.js?v=20261124-inquiry"></script>
 <script src="consultation-quality.js?v=20261117-saved-evidence"></script>
-<link rel="stylesheet" href="site-menu.css?v=profile-actions-1"><script src="site-menu.js?v=tabbar-1"></script>
+<link rel="stylesheet" href="site-menu.css?v=profile-spacing-1"><script src="site-menu.js?v=tabbar-1"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=ink-1120">
 <script src="account-session.js?v=member-restrictions-1"></script>
-<link rel="stylesheet" href="report-coupons.css?v=gift-2">
+<link rel="stylesheet" href="report-coupons.css?v=profile-spacing-1">
 <script src="report-coupons.js?v=gift-16"></script>
 <script src="report-coupon-use.js?v=gift-2"></script>
 <script src="campaign-attribution-core.js?v=20261119-campaign-visits"></script><script src="campaign-attribution.js?v=home-paths-1"></script>

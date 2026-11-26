@@ -1117,4 +1117,4 @@ document.addEventListener('DOMContentLoaded',cleanAdminOverviewCards,{once:true}
 
 <!-- UI-only overrides follow the legacy style blocks. -->
 <link rel="stylesheet" href="premium-ui.css?v=report-library-1">
-<link rel="stylesheet" href="admin-analytics.css?v=shortcuts-first-1">
+<link rel="stylesheet" href="admin-analytics.css?v=shortcuts-return-1">
