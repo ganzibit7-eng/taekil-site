@@ -18,7 +18,7 @@ const monthlyScript='<script src="topic-monthly-reading.js?v=4"></script>';
 assert.equal(current.split(monthlyScript).length,2);
 assert(current.indexOf(monthlyScript)<current.indexOf('<script src="seohwa-report.js?'));
 new Function(fs.readFileSync('topic-monthly-reading.js','utf8'));
-const originalScripts=scripts(comparable.replace('<script src="privacy-controls.js?v=6"></script>','<script src="'+paySdk+'"></script>')).filter(([attrs])=>attrs!==' id="startup-recovery"'&&!['metrics-preference.js','consultation-experience-core.js','consultation-experience.js','checkout-availability.js','campaign-attribution-core.js','campaign-attribution.js','account-session-core.js','account-session.js','/account-age.js','/inquiry-queue.js','site-menu.js','yeonwoo-video.js','newyear-example.js','admin-payment-baseline.js','premium-motion.js','admin-analytics-core.js','admin-analytics.js','consultation-personas.js','consultation-draft-core.js','consultation-stage.js','consultation-history-filters.js','navigation-stability.js','/home-layout.js','newyear-consultation.js','report-pillar-guide.js','free-report-handoff-core.js','free-report-handoff.js','preview-funnel.js','date-comparison.js','date-entry.js','date-report.js','report-decision-core.js','account-report-client.js','relationship-report.js','birth-time-range.js','seohwa-reading-core.js','wealth-interactions.js','featured-report-core.js','seohwa-report.js','relationship-report-periods.js','topic-monthly-reading.js','topic-report-content.js','topic-report-choices.js','consultation-stories.js','consultation-additional-stories.js','navigation-refinement.js','profile-picker-controls.js','consultation-quality.js','support-channels.js','report-coupons.js','report-coupon-use.js'].some(src=>new RegExp('src="'+src.replaceAll('.', '\\.')+'(?:\\?[^"]*)?"').test(attrs)));
+const originalScripts=scripts(comparable.replace('<script src="privacy-controls.js?v=7"></script>','<script src="'+paySdk+'"></script>')).filter(([attrs])=>attrs!==' id="startup-recovery"'&&!['metrics-preference.js','consultation-experience-core.js','consultation-experience.js','checkout-availability.js','campaign-attribution-core.js','campaign-attribution.js','account-session-core.js','account-session.js','/account-age.js','/inquiry-queue.js','site-menu.js','yeonwoo-video.js','newyear-example.js','admin-payment-baseline.js','premium-motion.js','admin-analytics-core.js','admin-analytics.js','consultation-personas.js','consultation-draft-core.js','consultation-stage.js','consultation-history-filters.js','navigation-stability.js','/home-layout.js','newyear-consultation.js','report-pillar-guide.js','free-report-handoff-core.js','free-report-handoff.js','preview-funnel.js','date-comparison.js','date-entry.js','date-report.js','report-decision-core.js','account-report-client.js','relationship-report.js','birth-time-range.js','seohwa-reading-core.js','wealth-interactions.js','featured-report-core.js','seohwa-report.js','relationship-report-periods.js','topic-monthly-reading.js','topic-report-content.js','topic-report-choices.js','consultation-stories.js','consultation-additional-stories.js','navigation-refinement.js','profile-picker-controls.js','consultation-quality.js','support-channels.js','report-coupons.js','report-coupon-use.js'].some(src=>new RegExp('src="'+src.replaceAll('.', '\\.')+'(?:\\?[^"]*)?"').test(attrs)));
 const accountChanges=JSON.parse(fs.readFileSync('account-ui-contract-changes.json','utf8'));
 const normalizeAccounts=source=>accountChanges.slice().reverse().reduce((text,change)=>text.split(change.after).join(change.before),source);
 const consultationChanges=JSON.parse(fs.readFileSync('consultation-ui-contract-changes.json','utf8'));
@@ -88,7 +88,16 @@ for(const route of ['home','history']){
   const hook=`onclick="goTo('${route}')"`;
   hookCounts.set(hook,(hookCounts.get(hook)||0)+1);
 }
-for(const hook of hooks(baseline)){if(hook==='onclick="payPremium()"')continue;assert((hookCounts.get(hook)||0)>0,'Missing original action: '+hook);hookCounts.set(hook,hookCounts.get(hook)-1);}
+// The footer's policy controls now link directly to the relevant legal section.
+for(const href of ['/#legal','/?privacy=policy#legal']){
+  assert(current.includes('class="footer-link" href="'+href+'"'));
+  const legalHook='onclick="goTo(\'legal\')"';
+  hookCounts.set(legalHook,(hookCounts.get(legalHook)||0)+1);
+}
+// Support remains in the profile. The duplicate footer link was retired.
+assert(current.includes('onclick="goTo(\'support\')">고객센터 · 1:1 문의'));
+const originalControls=baseline.replace(/<footer\b[\s\S]*?<\/footer>/,part=>part.replace('onclick="goTo(\'support\')"',''));
+for(const hook of hooks(originalControls)){if(hook==='onclick="payPremium()"')continue;assert((hookCounts.get(hook)||0)>0,'Missing original action: '+hook);hookCounts.set(hook,hookCounts.get(hook)-1);}
 // Match actual id attributes, not data-id/data-reply-id in dynamic templates.
 const ids=html=>[...html.matchAll(/\sid="([^"]+)"/g)].map(m=>m[1]);
 const currentIds=ids(current);
@@ -104,7 +113,7 @@ const normalizedHeader=currentHeader.replace(homeLink,(_,contents)=>`<div class=
 assert.equal(normalizedHeader,segment(baseline,'<div class="topbar">','<!-- ============ AUTH MODAL'),'Other header actions remain unchanged');
 const profile=html=>segment(html,'<div class="ai-chat-topbar-overlay">','<!-- STEP 0:').replace('<small>당신의 운을 함께 봐드리는 AI예요.</small>','').replace(/^[\t ]+$/gm,'');
 assert.equal(profile(current),profile(baseline),'Original Yeonwoo profile image and name must remain unchanged');
-assert(current.includes('privacy-controls.js?v=6'));
+assert(current.includes('privacy-controls.js?v=7'));
 assert(current.includes('api/ai-chat'));
 for(const [,source]of scripts(current)){if(source.trim()&&!source.trim().startsWith('{'))new Function(source);}
 assert(current.includes('id="view-plans"')&&current.includes('id="view-services"'));
@@ -200,6 +209,6 @@ assert(current.includes("data.error === 'NEWYEAR_PASS_REQUIRED'"));
 
 for(const f of ['free-report-handoff-core.js','free-report-handoff.js'])new Function(fs.readFileSync(f,'utf8'));
 
-const footer=current.slice(current.indexOf('<footer>'),current.indexOf('</footer>'));assert.equal((footer.match(/class="footer-link"/g)||[]).length,3);for(const label of ['이용약관','개인정보처리방침','문의하기'])assert(footer.includes(label));assert(!footer.includes('이용권 안내')&&!footer.includes('서비스 안내'));new Function(fs.readFileSync('navigation-refinement.js','utf8'));
+const footer=current.slice(current.indexOf('<footer>'),current.indexOf('</footer>'));assert.equal((footer.match(/class="footer-link"/g)||[]).length,3);for(const label of ['이용약관','개인정보처리방침','개인정보 이전 안내'])assert(footer.includes(label));assert(!footer.includes('이용권 안내')&&!footer.includes('서비스 안내'));new Function(fs.readFileSync('navigation-refinement.js','utf8'));
 
 assert(current.includes('id="aiChatDeleteProfile"'));new Function(fs.readFileSync('profile-picker-controls.js','utf8'));

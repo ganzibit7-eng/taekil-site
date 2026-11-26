@@ -94,6 +94,11 @@
     if(!allowed())return;
     if(busy)reloadAfterRequest=true;else load();
   });
+  document.querySelector('[data-aa-overview]').addEventListener('click',()=>{
+    if (!allowed()) return;
+    root.focus({preventScroll:true});
+    root.scrollIntoView({block:'start'});
+  });
   document.querySelector('[data-aa-payment-details]').addEventListener('click',()=>{
     if(!allowed())return;
     root.querySelector('[data-aa-days="1"]').click();

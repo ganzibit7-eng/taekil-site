@@ -180,6 +180,30 @@ html.site-menu-open{overflow:hidden!important;scrollbar-gutter:stable}
 #view-profile .pf-danger-row{justify-content:flex-start;gap:12px;margin:7px 0 0;padding:0;border:0}
 #view-profile .pf-danger-row button{min-height:44px;padding:0 10px;border:0;background:none;font:500 14px/1.5 var(--sans);color:#d4ddd0}
 #view-profile .pf-danger-row .pf-delete{color:#e1a491}
+#view-profile #profilePrivacySettings .pf-danger-row {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,max(8.5rem,calc((100% - 8px)/2))),1fr));
+  gap:8px;
+  margin-top:14px;
+}
+#view-profile #profilePrivacySettings .text-action {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:44px;
+  margin:0;
+  padding:7px 8px;
+  border:1px solid #514746;
+  border-radius:6px;
+  background:transparent;
+  color:#e8ded4;
+  font:500 .9375rem/1.45 var(--sans);
+  white-space:nowrap;
+}
+#view-profile #profilePrivacySettings .text-action[hidden] {display:none}
+#view-profile #profilePrivacySettings .text-action:is(:hover,:focus-visible) {border-color:#a68f72}
+#view-profile .pf-account-actions .pf-danger-row {flex-wrap:wrap}
+#view-profile .pf-account-actions .text-action {white-space:nowrap}
 #view-profile button:focus-visible{outline:2px solid #c6aa76;outline-offset:3px}
 @media screen, (max-width: 680px) {
   #view-profile .pf-shell{width:calc(100% - 36px)}

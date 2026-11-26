@@ -197,13 +197,15 @@
     window.addEventListener('focus',refreshProfileConsent);
   }
 
-  if (new URLSearchParams(location.search).get('privacy') === 'ai' && location.hash === '#legal') {
+  const privacyView = new URLSearchParams(location.search).get('privacy');
+  if ((privacyView === 'ai' || privacyView === 'policy') && location.hash === '#legal') {
+    const sectionId = privacyView === 'ai' ? 'ai-transfer-policy' : 'privacy-detail';
     const legal = document.getElementById('view-legal');
     const showSection = () => {
       if (!legal?.classList.contains('visible')) return false;
       const scrollToPolicy = () => requestAnimationFrame(() => {
         if (legal.classList.contains('visible')) {
-          document.getElementById('ai-transfer-policy')?.scrollIntoView({block:'start',behavior:'instant'});
+          document.getElementById(sectionId)?.scrollIntoView({block:'start',behavior:'instant'});
         }
       });
       scrollToPolicy();

@@ -36,6 +36,25 @@ body footer .footer-inner.business-site-footer {
 }
 .business-site-footer .footer-link { text-decoration: none; }
 .business-site-footer .footer-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+.business-site-footer .business-policy-links {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:0;
+}
+.business-site-footer .business-policy-links .footer-link {
+  display:inline-flex;
+  align-items:center;
+  white-space:nowrap;
+  font-size:clamp(.75rem,3.3vw,.875rem);
+}
+.business-policy-links .footer-link + .footer-link::before {
+  content:"";
+  height:.85em;
+  margin-inline:clamp(5px,1.4vw,10px);
+  border-inline-start:1px solid #62595a;
+}
+#privacy-detail, #ai-transfer-policy {scroll-margin-top:calc(76px + env(safe-area-inset-top,0px))}
 
 .business-site-footer .business-info {
   margin: 0;
