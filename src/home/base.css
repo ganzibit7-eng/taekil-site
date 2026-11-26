@@ -1116,6 +1116,11 @@ input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
   outline:2px solid var(--gold); outline-offset:2px;
 }
 
+/* A view can move focus after a tap, even after an asynchronous report load. */
+html[data-pointer-navigation] :is(button, a[href], summary, [role="button"], [role="tab"], [tabindex="-1"]):focus:not(input, select, textarea, [contenteditable]) {
+  outline: none !important;
+}
+
 /* scroll reveal */
 .reveal{opacity:0; transform:translateY(18px); transition:opacity .7s var(--ease), transform .7s var(--ease);}
 .reveal.in-view{opacity:1; transform:none;}
