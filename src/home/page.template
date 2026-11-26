@@ -374,6 +374,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="topic-report-content.js?v=2"></script>
 <script src="topic-report-choices.js?v=1"></script>
 <script src="report-preview-stories.js?v=continuous-1126"></script>
-<script src="seohwa-report.js?v=samples-1126"></script>
+<script src="seohwa-report.js?v=manuscript-1126"></script>
+<link rel="stylesheet" href="report-manuscript.css?v=1">
 </body>
 </html>
