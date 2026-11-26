@@ -1,0 +1,71 @@
+/* One uninterrupted reading surface. Covers and controls keep their own semantics. */
+#seohwaReportBody:has(> .sr-reader),
+#view-newyear.has-report .newyear-content,
+.report-reading-shell.report-sheet {
+  --folio-paper:#fcf8f0;
+  --folio-ink:#322c27;
+  --folio-muted:#6a5a4a;
+  --folio-rule:#ded3c3;
+  --folio-gutter:clamp(20px,5vw,54px);
+  width:100%; max-width:46rem; box-sizing:border-box; margin-inline:auto;
+  background:var(--folio-paper); color:var(--folio-ink);
+  border:0; border-radius:0; box-shadow:0 4px 24px #20171020;
+  overflow-wrap:anywhere; word-break:keep-all;
+}
+.seohwa-report-dialog[data-advisor] #seohwaReportBody:has(> .sr-reader) {
+  --wealth-paper:var(--folio-paper); --wealth-ink:var(--folio-ink); --wealth-rule:var(--folio-rule);
+  padding:0;
+}
+#seohwaReportBody:has(> .sr-reader) > .sr-cover,
+#view-newyear.has-report .newyear-content > .annual-report-cover {
+  box-sizing:border-box; margin:0; border:0; border-radius:0;
+}
+#seohwaReportBody > .sr-reader {margin:0;max-width:none;}
+#seohwaReportBody .sr-reader :is(.sr-pages,.sr-book) {border:0;border-radius:0;box-shadow:none;}
+#seohwaReportBody .sr-reader :is(.sr-toc,.sr-free-reading,.sr-samples,.paid-page-sample,.sr-paper,.sr-summary) {
+  padding-inline:var(--folio-gutter);
+}
+#seohwaReportBody .sr-reader :is(.sr-samples,.sr-sample) {background:transparent;color:var(--folio-ink);gap:0;}
+#seohwaReportBody .sr-reader .sr-sample {
+  border:0;border-top:1px solid var(--folio-rule);border-radius:0;padding:1.25rem 0;
+}
+#seohwaReportBody .sr-sample :is(h4,p) {color:var(--folio-ink);}
+#seohwaReportBody .sr-sample .sr-excerpt-label {color:var(--folio-muted);}
+#seohwaReportBody .sr-reader .paid-page-sample {padding-block:2rem;border-top:1px solid var(--folio-rule);}
+#seohwaReportBody .sr-reader :is(.sr-free-piece,.sr-book > .sr-paper) {padding-block:clamp(25px,5vw,48px);}
+#seohwaReportBody .sr-book .sr-paper h3 {letter-spacing:-.025em;line-height:1.4;}
+#seohwaReportBody .sr-book .sr-paper p:not(.report-folio),
+.report-reading-shell.report-sheet p,
+#view-newyear.has-report .annual-manuscript .newyear-report-section p:not(.report-folio) {line-height:1.85;}
+#view-newyear.has-report .newyear-content > :is(.newyear-report-contents,.report-document-index) {
+  box-sizing:border-box;width:100%;margin:0;border:0;border-radius:0;padding:1.25rem var(--folio-gutter);
+  background:var(--folio-paper);color:var(--folio-ink);
+}
+#view-newyear.has-report .newyear-content .annual-manuscript {background:var(--folio-paper);}
+#view-newyear.has-report .annual-manuscript .report-sheet {padding-inline:var(--folio-gutter);background:transparent;}
+#view-newyear.has-report .newyear-content > .newyear-calculation {padding-inline:var(--folio-gutter);color:var(--folio-muted);}
+.report-reading-shell.report-sheet {padding:clamp(24px,5vw,48px) var(--folio-gutter);}
+.report-reading-shell.report-sheet::before {display:none;}
+.report-reading-shell.report-sheet > h3 {margin:0 0 1rem;line-height:1.35;font-size:clamp(24px,4vw,36px);}
+.report-reading-shell.report-sheet :is(.relationship-chapter,.date-report-ranked > li) {
+  border:0;border-top:1px solid var(--folio-rule);border-radius:0;box-shadow:none;
+  background:transparent;padding:1.5rem 0;
+}
+.report-reading-shell.report-sheet .relationship-chapter h5 {font-size:1.12rem;}
+@media print {
+  #seohwaReportBody:has(> .sr-reader),#view-newyear.has-report .newyear-content,.report-reading-shell.report-sheet {
+    width:auto;max-width:none;box-shadow:none;background:white;
+  }
+}
+#seohwaReportBody .sr-reader .sr-sample .sr-excerpt-label {margin:0 0 .35rem;font-size:.8rem;font-weight:650;color:#765639;}
+#view-newyear .newyear-example {
+  box-sizing:border-box;max-width:46rem;margin-inline:auto;padding:clamp(20px,5vw,48px);
+  border:0;border-radius:0;background:#fcf8f0;color:#322c27;
+}
+#view-newyear .newyear-example :is(h2,h3,dt,summary,.newyear-example-index strong) {color:#523e31;}
+#view-newyear .newyear-example :is(p,dd,.newyear-example-intro,.newyear-example-index span) {color:#52463d;}
+#view-newyear .newyear-example :is(.newyear-preview-scope dd,.newyear-example-index li) {border-color:#ded3c3;}
+#view-newyear .newyear-example .newyear-report-section {
+  margin:0;padding:1.35rem 0;background:transparent;border:0;border-top:1px solid #ded3c3;border-radius:0;
+}
+#view-newyear .newyear-example .paid-page-sample {margin:0;padding:1.5rem 0;background:transparent;border:0;border-block:1px solid #ded3c3;border-radius:0;}

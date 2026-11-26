@@ -369,8 +369,8 @@
     samples.append(label);
     for(const {index,text} of excerpts){
       const sample=el('article',null,'sr-sample');
-      sample.append(el('h4',reading.chapters[index]),el('p',text),
-        el('p','이 장의 첫 문단을 공개했어요.','sr-excerpt-label'));
+      sample.append(el('p',(index+2)+'장 · 첫 문단','sr-excerpt-label'),
+        el('h4',reading.chapters[index]),el('p',text));
       samples.append(sample);
     }
     const cover=header(reading,choice,context.day,context.known);
