@@ -4,6 +4,38 @@
   --coupon-muted: #c6bdb5;
 }
 #profileCoupons { margin-block: 16px; }
+#view-profile #profileCoupons {
+  display: grid; grid-template-columns: minmax(0,.85fr) minmax(0,1.25fr);
+  align-items: center; column-gap: clamp(18px,4vw,46px); row-gap: 4px;
+  margin: 16px 0; padding: clamp(18px,3vw,26px);
+  border: 1px solid #8c7563; border-radius: 12px;
+  background: linear-gradient(110deg,#3a2e32,#30282b 65%);
+}
+#profileCoupons > h2 { grid-column: 1; align-self: end; margin: 0; color: #f9e6c9; }
+#profileCoupons > p:not(.coupon-message) { grid-column: 1; margin: 0; align-self: start; line-height: 1.6; word-break: keep-all; }
+#profileCoupons .coupon-form { grid-column: 2; grid-row: 1 / 3; margin: 0; }
+#profileCoupons :is(.coupon-message,#couponWallet) { grid-column: 1 / -1; }
+#profileCoupons #couponWallet:empty { display: none; }
+#profileCoupons .coupon-controls { align-items: stretch; }
+#profileCoupons input { flex: 1 1 10rem; width: 100%; }
+#profileCoupons .btn-primary, #couponIssued .btn-primary {
+  background: #e5c9a5; color: #2c2124; border: 1px solid #e5c9a5; font-weight: 650;
+}
+#view-profile .pf-support { margin-top: 16px; }
+#view-profile .pf-menu-item { padding-inline: 2px 10px; }
+#couponIssued h3 { margin: 0; color: #f6e7d4; font: 600 1.2rem/1.55 var(--serif); }
+#couponGiftDeadline { margin-block: .2rem 1rem; color: #e4c9a6; }
+#couponGiftPreview { margin-top: .9rem; padding-top: .65rem; border-top: 1px solid var(--coupon-line); }
+#couponGiftPreview summary { cursor: pointer; padding-block: .4rem; }
+#couponGiftText {
+  box-sizing: border-box; display: block; width: 100%; margin: .5rem 0 0; padding: 12px;
+  border: 1px solid var(--coupon-line); border-radius: 6px; color: #f2ebe4;
+  background: #241f22; font: 400 16px/1.65 var(--sans); resize: vertical;
+}
+@media (max-width: 740px) {
+  #view-profile #profileCoupons { display: block; }
+  #profileCoupons .coupon-form { margin-top: 14px; }
+}
 .coupon-panel h3 { font-size: 1rem; margin: 1.25rem 0 .5rem; }
 .coupon-panel :is(label,small) { display: block; }
 .coupon-panel label { font-weight: 600; line-height: 1.5; }

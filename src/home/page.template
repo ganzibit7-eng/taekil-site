@@ -345,9 +345,9 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <link rel="stylesheet" href="site-menu.css?v=drawer-navigation-1"><script src="site-menu.js?v=drawer-navigation-1"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=ink-1120">
 <script src="account-session.js?v=member-restrictions-1"></script>
-<link rel="stylesheet" href="report-coupons.css?v=1">
-<script src="report-coupons.js?v=1"></script>
-<script src="report-coupon-use.js?v=1"></script>
+<link rel="stylesheet" href="report-coupons.css?v=gift-2">
+<script src="report-coupons.js?v=gift-2"></script>
+<script src="report-coupon-use.js?v=gift-2"></script>
 <script src="campaign-attribution-core.js?v=20261119-campaign-visits"></script><script src="campaign-attribution.js?v=home-paths-1"></script>
 <script src="preview-funnel.js?v=20261119-daily"></script>
 <link rel="stylesheet" href="date-comparison.css?v=date-purpose-2">

@@ -17,7 +17,7 @@ function client(reply, uid = 'member') {
   vm.runInNewContext(src,{
     window, document:{readyState:'loading', addEventListener() {}},
     getAiRequestHeaders:async () => ({Authorization:'Bearer fixture'}),
-    AI_CHAT_URL:'https://api.example/api/ai-chat', AbortSignal,
+    AI_CHAT_URL:'https://api.example/api/ai-chat', AbortSignal, Event,
     async fetch(url, options) {
       const q = JSON.parse(options.body);
       assert.equal(url,'https://api.example/api/report-coupons');
@@ -83,4 +83,22 @@ test('guests cannot resolve or register a coupon, rejection does not poison futu
   fail = false;
   assert.equal(await api.available(product),null);
   assert.equal(calls.length,2);
+});
+test('pasting a complete gift extracts a single valid coupon without registering it', () => {
+  const {api,calls}=client();
+  const input=new EventTarget();
+  api.enableGiftPaste(input);
+  const code=Array(8).fill('ABCD').join('-');
+  function paste(text) {
+    const event=new Event('paste',{cancelable:true});
+    event.clipboardData={getData:()=>text};
+    input.dispatchEvent(event);
+    return event.defaultPrevented;
+  }
+  assert(paste('[택일소 리포트 선물권]\r\n쿠폰 번호: '+code.toLowerCase()+'\r\n등록 기한: 내일'));
+  assert.equal(input.value,code);
+  for (const value of [code,'쿠폰 번호: 짧음','쿠폰 번호: '+code+'\n쿠폰 번호: '+code]) {
+    assert.equal(paste(value),false);
+  }
+  assert.equal(calls.length,0);
 });

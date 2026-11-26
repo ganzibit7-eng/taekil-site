@@ -430,17 +430,27 @@
       </div>
     </div>
 
+    <section class="pf-panel coupon-panel" id="profileCoupons" aria-labelledby="profileCouponHeading">
+      <h2 id="profileCouponHeading">리포트 쿠폰 등록</h2>
+      <p>선물받은 쿠폰으로 리포트 한 편을 열어 보세요.</p>
+      <form id="couponRedeemForm" class="coupon-form">
+        <label for="couponNumber">쿠폰 번호</label>
+        <div class="coupon-controls">
+          <input id="couponNumber" type="text" maxlength="80" required autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="번호 또는 선물 안내 붙여넣기">
+          <button class="btn btn-primary" type="submit">쿠폰 등록</button>
+        </div>
+      </form>
+      <p class="coupon-message" id="couponRedeemStatus" role="status"></p>
+      <div id="couponWallet"></div>
+    </section>
+
     <div class="pf-panels">
       <section class="pf-panel" aria-labelledby="profileLibraryHeading">
         <h2 id="profileLibraryHeading">내 리포트와 기록</h2>
         <div class="pf-menu">
-          <button type="button" class="pf-menu-item" onclick="openReportHistory()">구매한 리포트</button>
+          <button type="button" class="pf-menu-item" onclick="openReportHistory()">내 리포트 열기</button>
           <button type="button" class="pf-menu-item" data-year-account-entry>2027 신년운세</button>
           <button type="button" class="pf-menu-item" onclick="goTo('history')">상담·사주 보관함</button>
-          <button type="button" class="pf-menu-item" onclick="goTo('support')">고객센터 · 1:1 문의</button>
-          <div id="adminEntryWrap" style="display:none;">
-            <button type="button" class="pf-menu-item" onclick="goTo('admin')">관리자 대시보드</button>
-          </div>
         </div>
       </section>
       <section class="pf-panel pf-plan" aria-labelledby="profilePlanHeading">
@@ -451,19 +461,6 @@
       </section>
     </div>
 
-    <section class="pf-panel coupon-panel" id="profileCoupons" aria-labelledby="profileCouponHeading">
-      <h2 id="profileCouponHeading">리포트 쿠폰</h2>
-      <p>쿠폰 번호를 등록하면 이 계정에서 지정된 리포트 한 편을 열 수 있어요.</p>
-      <form id="couponRedeemForm" class="coupon-form">
-        <label for="couponNumber">쿠폰 번호</label>
-        <div class="coupon-controls">
-          <input id="couponNumber" type="text" maxlength="80" required autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="받은 쿠폰 번호를 입력해 주세요">
-          <button class="btn btn-primary" type="submit">쿠폰 등록</button>
-        </div>
-      </form>
-      <p class="coupon-message" id="couponRedeemStatus" role="status"></p>
-      <div id="couponWallet"></div>
-    </section>
 
     <section class="pf-panel" id="profilePrivacySettings" aria-labelledby="profilePrivacyHeading">
       <h2 id="profilePrivacyHeading">개인정보 설정</h2>
@@ -474,6 +471,16 @@
         <button type="button" id="profileWithdrawAIConsent" class="text-action" hidden>동의 철회</button>
         <button type="button" id="profileRetryAIConsent" class="text-action" hidden>다시 확인</button>
         <a class="text-action" href="/?privacy=ai#legal" target="_blank" rel="noopener noreferrer">처리방침 8항</a>
+      </div>
+    </section>
+
+    <section class="pf-panel pf-support" aria-labelledby="profileSupportHeading">
+      <h2 id="profileSupportHeading">고객 지원</h2>
+      <div class="pf-menu">
+          <button type="button" class="pf-menu-item" onclick="goTo('support')">고객센터 · 1:1 문의</button>
+          <div id="adminEntryWrap" style="display:none;">
+            <button type="button" class="pf-menu-item" onclick="goTo('admin')">관리자 대시보드</button>
+          </div>
       </div>
     </section>
 
@@ -730,13 +737,20 @@
         <button class="btn btn-primary" type="submit">쿠폰 1장 발급</button>
       </form>
       <div id="couponIssued" class="coupon-issued" hidden>
-        <label for="couponIssuedNumber">발급된 쿠폰 번호</label>
-        <p>전체 번호는 지금만 확인할 수 있어요. 복사해서 받는 분께 전달해 주세요.</p>
+        <h3 id="couponGiftTitle"></h3>
+        <p id="couponGiftDeadline"></p>
+        <label for="couponIssuedNumber">쿠폰 번호</label>
         <input id="couponIssuedNumber" readonly autocapitalize="off" autocomplete="off" spellcheck="false">
+        <p>번호는 지금만 확인할 수 있어요. 선물 안내를 복사해 받는 분께 보내 주세요.</p>
         <div class="coupon-controls">
-          <button id="couponCopy" type="button" class="btn btn-primary">번호 복사</button>
-          <button id="couponDone" type="button" class="btn">번호 닫기</button>
+          <button id="couponCopyGift" type="button" class="btn btn-primary">선물 안내 전체 복사</button>
+          <button id="couponCopy" type="button" class="btn">번호만 복사</button>
+          <button id="couponDone" type="button" class="text-action">닫기</button>
         </div>
+        <details id="couponGiftPreview">
+          <summary>보낼 문구 미리보기</summary>
+          <textarea id="couponGiftText" aria-label="선물 안내 전문" rows="9" readonly spellcheck="false"></textarea>
+        </details>
       </div>
       <p class="coupon-message" id="couponAdminStatus" role="status"></p>
       <div class="coupon-list-head"><h3>최근 발급 내역</h3><button type="button" id="couponRefresh" class="text-action">새로고침</button></div>
