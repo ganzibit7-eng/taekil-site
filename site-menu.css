@@ -67,7 +67,7 @@ html.site-menu-open{overflow:hidden!important;scrollbar-gutter:stable}
 #homeIntroOverlay #homeStartChatBtn.home-start-chat-btn{gap:10px}
 #homeIntroOverlay #homeStartChatBtn:before{content:"";display:inline-block;position:static;inset:auto;transform:none;flex:none;width:25px;height:25px;background:url('assets/consultation-sparkle.svg') center/contain no-repeat;vertical-align:middle}
 #homeIntroOverlay #homeStartChatBtn:disabled:before{display:none}
-@media(max-width:480px){
+@media screen, (max-width: 480px) {
   .site-menu{width:min(390px,calc(100% - 18px));padding-inline:20px}
   .site-menu-heading h2{font-size:25px}
   .site-menu-navigation{gap:16px}
@@ -155,7 +155,7 @@ html.site-menu-open{overflow:hidden!important;scrollbar-gutter:stable}
 #view-profile .pf-danger-row button{min-height:44px;padding:0 10px;border:0;background:none;font:500 14px/1.5 var(--sans);color:#d4ddd0}
 #view-profile .pf-danger-row .pf-delete{color:#e1a491}
 #view-profile button:focus-visible{outline:2px solid #c6aa76;outline-offset:3px}
-@media(max-width:680px){
+@media screen, (max-width: 680px) {
   #view-profile .pf-shell{width:calc(100% - 36px)}
   #view-profile .pf-panels{grid-template-columns:1fr;gap:14px}
   #view-profile .pf-card{gap:16px;margin-bottom:14px}

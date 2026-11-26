@@ -68,7 +68,7 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 .sr-asset-reading dl>div {padding:12px;border:1px solid #d5c3b3;border-radius:6px}
 .sr-asset-reading dt {font-weight:700;color:#654638}
 .sr-asset-reading dd {margin:4px 0 0;line-height:1.7}
-@media(max-width:660px){.sr-asset-quick,.sr-asset-comparison dl {grid-template-columns:minmax(0,1fr)}}
+@media screen, (max-width: 660px) {.sr-asset-quick,.sr-asset-comparison dl {grid-template-columns:minmax(0,1fr)}}
 .sr-toolbar {
   position:sticky;
   inset-block-start:0;
@@ -265,7 +265,7 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 .sr-paper .sr-wealth-caption {margin:16px 0 0;font-size:13px;color:#695049}
 #seohwaReportList {display:grid;gap:5px;margin-top:10px}
 .sr-library-button {text-align:left;border:1px solid #79616e;border-radius:7px;color:#efd4ad}
-@media(max-width:650px) {
+@media screen, (max-width: 650px) {
   .seohwa-report-dialog {width:calc(100% - 14px);max-height:calc(100dvh - 14px);border-radius:13px;scroll-padding-top:64px}
   .sr-cover {min-height:224px}
   .sr-cover img {width:80%;object-position:50% 21%}
@@ -665,7 +665,7 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 .sr-wealth-recap li::marker {color:var(--wealth-gold);font-weight:700}
 .seohwa-report-dialog[data-advisor] .sr-wealth-recap li p {margin:4px 0}
 .seohwa-report-dialog[data-advisor] button:focus-visible,.seohwa-report-dialog[data-advisor] summary:focus-visible {outline:2px solid #94703f;outline-offset:2px}
-@media (max-width:690px){
+@media screen, (max-width: 690px) {
   .seohwa-report-dialog[data-advisor] .sr-cover img {width:61%}
   .seohwa-report-dialog[data-advisor] .sr-cover::after {background:linear-gradient(90deg,#272321 28%,#272321ef 49%,#2723213d 86%)}
   .seohwa-report-dialog[data-advisor] .sr-cover h2 {max-width:11ch}
@@ -737,7 +737,7 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 .sr-topic-calendar .sr-wealth-month-detail>p {color:var(--wealth-muted)}
 .sr-topic-timeline .sr-year-choice {min-height:61px}
 .sr-topic-timeline .sr-year-selected .sr-wealth-year h5 {font-size:16px;margin:0}
-@media (max-width:690px){
+@media screen, (max-width: 690px) {
   .sr-topic-map {grid-template-columns:minmax(0,1fr);gap:4px}
   .sr-topic-map li {padding:3px 0 9px}
 }
@@ -767,6 +767,6 @@ body:has(.seohwa-report-dialog[open]) {overflow:hidden}
 .sr-choice-evidence p {margin:4px 0;color:#65524b;font-size:13px}
 .sr-choice-note {margin:12px 0;color:#68544e;font-size:14px}
 .sr-choice-shortcut {border-top:1px solid var(--sr-line)}
-@media(max-width:760px) {
+@media screen, (max-width: 760px) {
   .sr-choice-cards {grid-template-columns:minmax(0,1fr)}
 }

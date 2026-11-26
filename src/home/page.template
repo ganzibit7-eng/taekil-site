@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="format-detection" content="telephone=no">
-<script src="/home-layout.js?v=topic-index-2"></script>
-<link rel="stylesheet" href="/home-layout.css?v=paid-tools-1">
+<script src="/home-layout.js?v=reader-1126"></script>
+<link rel="stylesheet" href="/home-layout.css?v=reader-1126">
+<link rel="preload" as="style" href="/reader-layout.css?v=1">
 <title>택일소 | 무료 사주 · 주제별 리포트 · AI 상담과 택일</title>
 <meta name="description" content="로그인 없이 내 오행과 기본 성향을 확인하세요. 연애·재물·재회·직업 리포트의 첫 장, 2027 신년운세와 고민별 상담사를 만나보세요.">
 <meta name="keywords" content="사주, 사주풀이, 무료사주, 사주궁합, 오늘의운세, 신년운세, 택일, 결혼택일, 이사택일, 개업택일, 손없는날, 만세력">
@@ -240,6 +241,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 </nav>
 
 <main>
+<div class="admin-opening" role="status">관리자 화면을 여는 중이에요…</div>
 <div id="adminPendingInquiryNotice" class="admin-inquiry-notice" hidden>
   <button type="button"><span>답변 대기 문의</span><strong role="status" aria-live="polite"></strong><span aria-hidden="true">›</span></button>
 </div>
@@ -286,11 +288,11 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 </script>
 <!-- include experience.fragment -->
 <script src="admin-payment-baseline.js?v=payment-traffic-1"></script><script src="admin-analytics-core.js?v=payment-traffic-1"></script>
-<script src="admin-analytics.js?v=payment-traffic-1"></script>
+<script src="admin-analytics.js?v=entry-1126"></script>
 
 <link rel="stylesheet" href="consultation-stage.css?v=chat-layers-1121">
 <script src="consultation-personas.js?v=20261118-chat-films"></script>
-<link rel="stylesheet" href="consultation-stories.css?v=dogyeom-film-2">
+<link rel="stylesheet" href="consultation-stories.css?v=reader-1126">
 <script src="consultation-additional-stories.js?v=20261118-questions"></script>
 <!-- story-reading-templates -->
 <script src="seohwa-reading-core.js?v=4"></script>
@@ -331,7 +333,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="navigation-stability.js?v=20261111-2"></script>
 <link rel="stylesheet" href="report-pillar-guide.css?v=report-paper-1">
 <script src="report-pillar-guide.js?v=report-paper-1"></script>
-<link rel="stylesheet" href="newyear-consultation.css?v=continuous-reader-1">
+<link rel="stylesheet" href="newyear-consultation.css?v=reader-1126">
 <script src="newyear-consultation.js?v=report-coupon-1"></script><script src="newyear-example.js?v=newyear-dawn-1"></script>
 <link rel="stylesheet" href="free-report-handoff.css?v=free-progress-1">
 <script src="free-report-handoff-core.js?v=20261111-operations"></script>
@@ -342,7 +344,7 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <link rel="stylesheet" href="consultation-quality.css?v=entry-1120">
 <script src="support-channels.js?v=20261124-inquiry"></script>
 <script src="consultation-quality.js?v=20261117-saved-evidence"></script>
-<link rel="stylesheet" href="site-menu.css?v=drawer-navigation-1"><script src="site-menu.js?v=drawer-navigation-1"></script>
+<link rel="stylesheet" href="site-menu.css?v=reader-1126"><script src="site-menu.js?v=drawer-navigation-1"></script>
 <link rel="stylesheet" href="interaction-refinement.css?v=ink-1120">
 <script src="account-session.js?v=member-restrictions-1"></script>
 <link rel="stylesheet" href="report-coupons.css?v=gift-2">
@@ -357,9 +359,9 @@ const ADMIN_EMAIL = "green092432@gmail.com";
 <script src="date-comparison.js?v=date-purpose-2"></script>
 <link rel="stylesheet" href="date-entry.css?v=surfaces-1120">
 <script src="date-entry.js?v=nov20-resume"></script>
-<link rel="stylesheet" href="relationship-report.css?v=continuous-reader-1">
+<link rel="stylesheet" href="relationship-report.css?v=reader-1126">
 <script src="relationship-report.js?v=report-coupon-1"></script>
-<link rel="stylesheet" href="seohwa-report.css?v=continuous-reader-1">
+<link rel="stylesheet" href="seohwa-report.css?v=reader-1126">
 <script src="topic-monthly-reading.js?v=4"></script>
 <script src="relationship-report-periods.js?v=4"></script>
 <script src="topic-report-content.js?v=2"></script>

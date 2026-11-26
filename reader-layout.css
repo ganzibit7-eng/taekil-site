@@ -1,0 +1,42 @@
+/* Keep the public reading column and viewport-anchored controls on the same axis. */
+.directory-rail-controls { display: none; }
+@media screen and (min-width: 481px) and (hover: hover) and (pointer: fine) {
+  .directory-rail-controls:not([hidden]) { display:flex; justify-content:flex-end; gap:6px; }
+  .directory-rail-controls button { width:42px; height:42px; border:0; border-radius:50%; background:transparent; color:#dec9a5; font:26px/1 var(--sans); }
+  .directory-rail-controls button:disabled { opacity:.3; }
+  .directory-rail-controls button:enabled:hover { background:#302a2c; }
+  .directory-rail-controls button:focus-visible { outline:2px solid #dec9a5; }
+}
+@media screen and (min-width: 481px) {
+  html:not(.admin-exclusive-mode) {
+    --reader-width: 480px;
+    --reader-gutter: max(0px, calc((100% - var(--reader-width)) / 2));
+    background: #151315 !important;
+  }
+  html:not(.admin-exclusive-mode) body {
+    width: var(--reader-width);
+    max-width: 100%;
+    min-height: 100vh;
+    margin-inline: auto !important;
+    box-shadow: 0 0 0 1px #353035;
+  }
+  body:not(.admin-exclusive-mode) .topbar::before { inset-inline: 0; }
+  body:not(.admin-exclusive-mode) :is(.consultation-story-dock, #homeIntroOverlay, .topbar),
+  body.consultation-open:not(.admin-exclusive-mode) #view-home {
+    max-width: var(--reader-width);
+    margin-inline: auto;
+  }
+  body.consultation-open:not(.admin-exclusive-mode) #view-home {
+    inset-inline: 0;
+    margin-inline: auto !important;
+  }
+  body:not(.admin-exclusive-mode) .site-menu { right: var(--reader-gutter); }
+  body:not(.admin-exclusive-mode) #tmTop { right: calc(var(--reader-gutter) + 12px); }
+  body:not(.admin-exclusive-mode) dialog:not(.site-menu) {
+    max-width: min(var(--reader-width), calc(100% - 12px));
+  }
+  body:not(.admin-exclusive-mode) :is(.modal-card,.modal-box) { max-width: min(450px,100%); }
+  #homeDirectory .directory-section { margin-top: 32px; }
+  body:not(.admin-exclusive-mode) .business-site-footer .business-info dl { grid-template-columns: minmax(0,1fr); }
+}
+

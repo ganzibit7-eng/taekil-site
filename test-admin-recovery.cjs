@@ -52,5 +52,7 @@ test('visible admin reconnects after account cleanup even when its container is 
  const sync=js.match(/  function sync\(\)\{[^]*?\n  }/)[0];let calls=0,tokenCurrent=false;
  const root={hidden:false},content={style:{display:'block'}},view={classList:{contains:()=>true}};
  const ctx={root,active:true,busy:false,request:0,data:null,allowed:()=>true,load(){},renderAdmin(){calls++;tokenCurrent=true},window:{accountStore:{current:()=>tokenCurrent}},document:{getElementById:id=>id==='view-admin'?view:content,body:{classList:{toggle(){}}},documentElement:{classList:{toggle(){}}}}};
+ const entryStates=[];ctx.updateEntry=visible=>entryStates.push(visible);
  vm.createContext(ctx);vm.runInContext(sync,ctx);ctx.sync();ctx.sync();assert.equal(calls,1);assert.equal(root.hidden,false);
+ assert.deepEqual(entryStates,[true,true]);
 });

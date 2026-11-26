@@ -689,4 +689,5 @@ body.admin-exclusive-mode .admin-fold.open .admin-fold-body{
     .checkout-pause-note strong { color: var(--gold-hi); }
   </style>
 <link rel="stylesheet" href="/business-info.css?v=contact-rows-1">
+<link rel="stylesheet" href="/reader-layout.css?v=1">
 </head>
